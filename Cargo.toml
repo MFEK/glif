@@ -1,0 +1,15 @@
+[package]
+name = "Qglif"
+version = "0.1.0"
+authors = ["Fredrick Brennan <copypaste@kittens.ph>"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+skia-safe = { version = "0.32.1", features = ["gl"] }
+gl = "0.14.0"
+glium = "0.27.0"
+xmltree = "0.10.1"
+lazy_static = "1.4.0"
+clap = "2.33.3"
+git-version = "0.3.4"
