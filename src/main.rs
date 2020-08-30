@@ -1,15 +1,31 @@
 #![feature(assoc_char_funcs, panic_info_message)]
 
 #[macro_use] extern crate lazy_static;
+extern crate thiserror;
+#[macro_use] extern crate glium;
 extern crate skia_safe;
 extern crate xmltree;
 extern crate gl;
 extern crate clap;
 #[macro_use] extern crate git_version; // for util::parse_args
-#[macro_use] extern crate conrod;
-extern crate glium;
-use glium::glutin;
+extern crate skia_safe as skia;
 
+use glium::glutin;
+use glutin::dpi::PhysicalPosition;
+use glutin::event::{ElementState, Event, MouseButton, WindowEvent, KeyboardInput, VirtualKeyCode};
+use glutin::event_loop::{ControlFlow, EventLoop};
+use glium::{GlObject, Surface};
+
+use std::time::Instant;
+
+#[macro_use] extern crate imgui; // for the macros, can't use one in imgui_glium_renderer
+#[macro_use] extern crate imgui_glium_renderer;
+extern crate imgui_winit_support;
+use imgui_winit_support::WinitPlatform;
+use imgui_glium_renderer::Renderer as ImguiRenderer;
+use imgui::{Context as ImguiContext};
+
+mod reclutch_skia;
 #[macro_use] mod util;
 // Provides a thread-local global `state` variable
 mod state;
@@ -18,110 +34,56 @@ mod renderer;
 mod glifparser;
 mod events;
 
-static CLEAR_COLOR: u32 = 0xff_c4c4c4;
-static SCALE_FACTOR: f32 = 0.05;
-static OFFSET_FACTOR: f32 = 10.;
+use renderer::constants::*;
 
-use std::env;
+#[derive(Copy, Clone)]
+struct TextureVertex {
+    position: [f32; 3],
+    tex_coord: [f32; 2],
+}
+
+implement_vertex!(TextureVertex, position, tex_coord);
+
+const fn texture_vertex(pos: [i8; 2], tex: [i8; 2]) -> TextureVertex {
+    TextureVertex {
+        position: [pos[0] as _, pos[1] as _, 0.0],
+        tex_coord: [tex[0] as _, tex[1] as _],
+    }
+}
+
+const QUAD_VERTICES: [TextureVertex; 4] = [
+    texture_vertex([-1, -1], [0, 0]),
+    texture_vertex([-1, 1], [0, 1]),
+    texture_vertex([1, 1], [1, 1]),
+    texture_vertex([1, -1], [1, 0]),
+];
+
+const QUAD_INDICES: [u32; 6] = [0, 1, 2, 0, 2, 3];
+
+fn run_ui(ui: &mut imgui::Ui) {
+    imgui::Window::new(im_str!("Hello world"))
+        .size([300.0, 100.0], imgui::Condition::FirstUseEver)
+        .build(ui, || {
+            ui.text(im_str!("Hello world!"));
+            ui.text(im_str!("This...is...imgui-rs!"));
+            ui.separator();
+            let mouse_pos = ui.io().mouse_pos;
+            ui.text(format!(
+                "Mouse Position: ({:.1},{:.1})",
+                mouse_pos[0], mouse_pos[1]
+            ));
+        });
+}
+
+const HEIGHT: u32 = 800;
+const WIDTH: u32 = HEIGHT;
+
 use std::fs;
-
-use skia_safe::gpu::gl::FramebufferInfo;
-use skia_safe::gpu::{BackendRenderTarget, SurfaceOrigin};
-use skia_safe::{Color, ColorType, Surface, Matrix, Canvas};
-use std::convert::TryInto;
-
-use glutin::event::{Event, KeyboardInput, MouseButton, VirtualKeyCode, WindowEvent, ElementState};
-use glutin::event_loop::{ControlFlow, EventLoop};
-use glutin::window::WindowBuilder;
-use glutin::GlProfile;
-use glutin::dpi::PhysicalPosition;
-
-type WindowedContext = glutin::ContextWrapper<glutin::PossiblyCurrent, glutin::window::Window>;
-
-use gl::types::*;
-use std::cell::RefCell;
-
 fn main() {
-    util::set_panic_hook();
+    let window_size = (WIDTH, HEIGHT);
 
     let args = util::argparser::parse_args();
     let filename = args.filename;
-
-    let el = EventLoop::new();
-    let wb = WindowBuilder::new().with_title(format!("Qglif: {}", filename));
-
-    let cb = glutin::ContextBuilder::new()
-        .with_depth_buffer(0)
-        .with_stencil_buffer(8)
-        .with_pixel_format(24, 8)
-        .with_double_buffer(Some(true))
-        .with_gl_profile(GlProfile::Core);
-
-    let windowed_context = cb.build_windowed(wb, &el).unwrap();
-
-    let windowed_context = unsafe { windowed_context.make_current().unwrap() };
-    let pixel_format = windowed_context.get_pixel_format();
-
-    debug!("Pixel format of the window's GL context: {:?}", pixel_format);
-
-    gl::load_with(|s| windowed_context.get_proc_address(&s));
-
-    let mut gr_context = skia_safe::gpu::Context::new_gl(None).unwrap();
-
-    let fb_info = {
-        let mut fboid: GLint = 0;
-        unsafe { gl::GetIntegerv(gl::FRAMEBUFFER_BINDING, &mut fboid) };
-
-        FramebufferInfo {
-            fboid: fboid.try_into().unwrap(),
-            format: skia_safe::gpu::gl::Format::RGBA8.into(),
-        }
-    };
-
-    const WIDTH: u32 = 800;
-    const HEIGHT: u32 = 800;
-
-    windowed_context
-        .window()
-        .set_inner_size(glutin::dpi::Size::new(glutin::dpi::LogicalSize::new(
-            WIDTH, HEIGHT
-        )));
-
-    let mut conrod_ui = conrod::UiBuilder::new([WIDTH as f64, HEIGHT as f64]).build();
-    let image_map = conrod::image::Map::<glium::texture::Texture2d>::new();
-    conrod_ui.draw();
-
-    fn create_surface(
-        windowed_context: &WindowedContext,
-        fb_info: &FramebufferInfo,
-        gr_context: &mut skia_safe::gpu::Context,
-    ) -> skia_safe::Surface {
-        let pixel_format = windowed_context.get_pixel_format();
-        let size = windowed_context.window().inner_size();
-        let backend_render_target = BackendRenderTarget::new_gl(
-            (
-                size.width.try_into().unwrap(),
-                size.height.try_into().unwrap(),
-            ),
-            pixel_format.multisampling.map(|s| s.try_into().unwrap()),
-            pixel_format.stencil_bits.try_into().unwrap(),
-            *fb_info,
-        );
-        Surface::from_backend_render_target(
-            gr_context,
-            &backend_render_target,
-            SurfaceOrigin::BottomLeft,
-            ColorType::RGBA8888,
-            None,
-            None,
-        )
-        .unwrap()
-    };
-
-    let mut surface = create_surface(&windowed_context, &fb_info, &mut gr_context);
-
-    let mut frame = 0;
-
     let glif = glifparser::read_ufo_glif(&fs::read_to_string(&filename).expect("Failed to read file"));
     state.with(|v|v.borrow_mut().glyph = Some(Glyph{glif, filename: filename.clone()}));
     state.with(|v| {
@@ -131,19 +93,119 @@ fn main() {
         });
     });
 
-    el.run(move |event, _, control_flow| {
-        *control_flow = ControlFlow::Wait;
+    let event_loop = EventLoop::new();
+
+    let wb = glutin::window::WindowBuilder::new()
+        .with_title(format!("Qglif: {}", filename))
+        .with_inner_size(glutin::dpi::PhysicalSize::new(window_size.0 as f64, window_size.1 as f64))
+        .with_resizable(false);
+
+    let cb = glutin::ContextBuilder::new().with_vsync(true).with_srgb(true);
+
+    let gl_display = glium::Display::new(wb, cb, &event_loop).unwrap();
+
+    let quad_vertex_buffer = glium::VertexBuffer::new(&gl_display, &QUAD_VERTICES).unwrap();
+    let quad_indices = glium::IndexBuffer::new(
+        &gl_display,
+        glium::index::PrimitiveType::TrianglesList,
+        &QUAD_INDICES,
+    )
+    .unwrap();
+
+    let quad_vertex_shader_src = r#"
+        #version 140
+
+        in vec3 position;
+        in vec2 tex_coord;
+
+        out vec2 frag_tex_coord;
+
+        void main() {
+            frag_tex_coord = tex_coord;
+            gl_Position = vec4(position, 1.0);
+        }
+    "#;
+
+    let quad_fragment_shader_src = r#"
+        #version 150
+
+        in vec2 frag_tex_coord;
+        out vec4 color;
+
+        uniform sampler2D tex;
+
+        void main() {
+            color = texture(tex, frag_tex_coord);
+        }
+    "#;
+
+    let quad_program = glium::Program::from_source(
+        &gl_display,
+        quad_vertex_shader_src,
+        quad_fragment_shader_src,
+        None,
+    )
+    .unwrap();
+
+    let out_texture = glium::texture::SrgbTexture2d::empty_with_format(
+        &gl_display,
+        glium::texture::SrgbFormat::U8U8U8U8,
+        glium::texture::MipmapsOption::NoMipmap,
+        window_size.0,
+        window_size.1,
+    )
+    .unwrap();
+    let out_texture_depth =
+        glium::texture::DepthTexture2d::empty(&gl_display, window_size.0, window_size.1).unwrap();
+
+    let mut skia_context = Some(unsafe {
+        glutin::ContextBuilder::new()
+            .with_gl(glutin::GlRequest::Specific(glutin::Api::OpenGl, (3, 3)))
+            .with_shared_lists(&gl_display.gl_window())
+            .with_srgb(true)
+            .build_headless(
+                &event_loop,
+                glutin::dpi::PhysicalSize::new(window_size.0 as _, window_size.1 as _),
+            )
+            .unwrap()
+            .make_current()
+            .unwrap()
+    });
+
+
+    let mut display =
+        reclutch_skia::SkiaGraphicsDisplay::new_gl_texture(&reclutch_skia::SkiaOpenGlTexture {
+            size: (window_size.0 as _, window_size.1 as _),
+            texture_id: out_texture.get_id(),
+            mip_mapped: false,
+        })
+        .unwrap();
+
+    let mut last_frame = Instant::now();
+
+    let mut imgui = ImguiContext::create();
+    let mut platform = WinitPlatform::init(&mut imgui);
+    imgui.set_ini_filename(None);
+    imgui.io_mut().display_size = [window_size.0 as f32, window_size.1 as f32];
+    let mut renderer = ImguiRenderer::init(&mut imgui, &gl_display).expect("Failed to initialize renderer");
+
+    event_loop.run(move |event, _, control_flow| {
+        *control_flow = ControlFlow::WaitUntil(
+            std::time::Instant::now() + std::time::Duration::from_nanos(16_666_667),
+        );
+
+        platform.handle_event(imgui.io_mut(), &gl_display.gl_window().window(), &event);
 
         #[allow(deprecated)]
         match event {
             Event::LoopDestroyed => {}
             Event::WindowEvent { event, .. } => match event {
                 WindowEvent::Resized(physical_size) => {
-                    surface = create_surface(&windowed_context, &fb_info, &mut gr_context);
-                    windowed_context.resize(physical_size);
+                    /*surface = create_surface(&display, &fb_info, &mut gr_context);
+                    gl_display.gl_window().resize(physical_size);
                     state.with(|v| {
                         { v.borrow_mut().winsize = physical_size; }
-                    });
+                    });*/
                 },
                 WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
                 WindowEvent::KeyboardInput {
@@ -157,7 +219,7 @@ fn main() {
                     ..
                 } => {
                     if kstate != ElementState::Pressed { return }
-                    let canvas = surface.canvas();
+                    let canvas = display.surface.canvas();
                     let mut scale = state.with(|v|v.borrow().factor);
                     let mut offset = state.with(|v|v.borrow().offset);
                     match virtual_keycode {
@@ -194,12 +256,12 @@ fn main() {
                         _ => { return }
                     }
                     state.with(|v|events::update_viewport(Some(offset), Some(scale), &v, canvas));
-                    frame += 1;
-                    windowed_context.window().request_redraw();
+                    //frame += 1;
+                    gl_display.gl_window().window().request_redraw();
                     debug!("Scale factor now {}", state.with(|v|v.borrow().factor));
                 },
                 WindowEvent::CursorMoved{ position, .. } => {
-                    let mut canvas = surface.canvas();
+                    let mut canvas = display.surface.canvas();
                     state.with(|v| {
                         let mode = v.borrow().mode;
                         
@@ -208,7 +270,7 @@ fn main() {
                             state::Mode::Move => { events::mouse_moved_move(position, &v, &mut canvas) }
                         };
 
-                        if should_redraw { windowed_context.window().request_redraw(); }
+                        if should_redraw { gl_display.gl_window().window().request_redraw(); }
                     });
                 },
                 WindowEvent::MouseInput{
@@ -229,21 +291,70 @@ fn main() {
                             },
                             ElementState::Released => {
                                 v.borrow_mut().show_sel_box = false;
-                                windowed_context.window().request_redraw();
+                                gl_display.gl_window().window().request_redraw();
                             }
                         }
                     });
                 },
                 _ => (),
             },
-            Event::RedrawRequested(_) => {
-                let canvas = surface.canvas();
-                canvas.clear(CLEAR_COLOR);
-                state.with(|v|renderer::render_frame(frame % 360, 12, 60, canvas));
-                canvas.flush();
-                windowed_context.swap_buffers().unwrap();
-            }
-            _ => (),
+            Event::RedrawRequested { .. } => {
+                let mut out_texture_fb = glium::framebuffer::SimpleFrameBuffer::with_depth_buffer(
+                    &gl_display,
+                    &out_texture,
+                    &out_texture_depth,
+                )
+                .unwrap();
+
+                let mut frame_target = gl_display.draw();
+                let target = &mut out_texture_fb;
+
+                target.clear_color_and_depth((1.0, 1.0, 1.0, 1.0), 1.0);
+
+                skia_context =
+                    Some(unsafe { skia_context.take().unwrap().make_current().unwrap() });
+
+                render_skia(&mut display);
+                render_imgui_frame(target, &mut imgui, &mut last_frame, &mut renderer);
+                frame_target
+                    .draw(
+                        &quad_vertex_buffer,
+                        &quad_indices,
+                        &quad_program,
+                        &uniform! { tex: &out_texture },
+                        &Default::default(),
+                    )
+                    .unwrap();
+                frame_target.finish().unwrap();
+            },
+            Event::MainEventsCleared => {
+                gl_display.gl_window().window().request_redraw();
+            },
+            Event::WindowEvent { event: WindowEvent::KeyboardInput { input: KeyboardInput { virtual_keycode: Some(VirtualKeyCode::Escape), .. }, .. }, ..} | Event::WindowEvent { event: WindowEvent::CloseRequested, .. } => {
+                *control_flow = ControlFlow::Exit;
+            },
+            _ => return,
         }
     });
+}
+
+fn render_imgui_frame(target: &mut glium::framebuffer::SimpleFrameBuffer, imgui: &mut imgui::Context, last_frame: &mut Instant, renderer: &mut ImguiRenderer) {
+    let io = imgui.io_mut();
+
+    *last_frame = io.update_delta_time(*last_frame);
+    let mut ui = imgui.frame();
+    run_ui(&mut ui);
+
+    let draw_data = ui.render();
+    renderer.render(target, draw_data).expect("Rendering failed");
+}
+
+fn render_skia(display: &mut reclutch_skia::SkiaGraphicsDisplay) {
+    let mut surface = &mut display.surface;
+    let canvas = surface.canvas();
+    let count = canvas.save();
+    let center = (HEIGHT as f32 / 4., WIDTH as f32 / 4.);
+    state.with(|v|renderer::render_frame(0, 12, 60, canvas));
+    //canvas.restore_to_count(count);
+    display.surface.flush_and_submit();
 }
