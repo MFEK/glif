@@ -25,7 +25,6 @@ use imgui_winit_support::WinitPlatform;
 use imgui_glium_renderer::Renderer as ImguiRenderer;
 use imgui::{Context as ImguiContext};
 
-mod reclutch_skia;
 #[macro_use] mod util;
 // Provides a thread-local global `state` variable
 mod state;
@@ -33,50 +32,9 @@ use state::{Glyph, state};
 mod renderer;
 mod glifparser;
 mod events;
+mod opengl;
 
 use renderer::constants::*;
-
-#[derive(Copy, Clone)]
-struct TextureVertex {
-    position: [f32; 3],
-    tex_coord: [f32; 2],
-}
-
-implement_vertex!(TextureVertex, position, tex_coord);
-
-const fn texture_vertex(pos: [i8; 2], tex: [i8; 2]) -> TextureVertex {
-    TextureVertex {
-        position: [pos[0] as _, pos[1] as _, 0.0],
-        tex_coord: [tex[0] as _, tex[1] as _],
-    }
-}
-
-const QUAD_VERTICES: [TextureVertex; 4] = [
-    texture_vertex([-1, -1], [0, 0]),
-    texture_vertex([-1, 1], [0, 1]),
-    texture_vertex([1, 1], [1, 1]),
-    texture_vertex([1, -1], [1, 0]),
-];
-
-const QUAD_INDICES: [u32; 6] = [0, 1, 2, 0, 2, 3];
-
-fn run_ui(ui: &mut imgui::Ui) {
-    imgui::Window::new(im_str!("Hello world"))
-        .size([300.0, 100.0], imgui::Condition::FirstUseEver)
-        .build(ui, || {
-            ui.text(im_str!("Hello world!"));
-            ui.text(im_str!("This...is...imgui-rs!"));
-            ui.separator();
-            let mouse_pos = ui.io().mouse_pos;
-            ui.text(format!(
-                "Mouse Position: ({:.1},{:.1})",
-                mouse_pos[0], mouse_pos[1]
-            ));
-        });
-}
-
-const HEIGHT: u32 = 800;
-const WIDTH: u32 = HEIGHT;
 
 use std::fs;
 fn main() {
@@ -98,63 +56,17 @@ fn main() {
     let wb = glutin::window::WindowBuilder::new()
         .with_title(format!("Qglif: {}", filename))
         .with_inner_size(glutin::dpi::PhysicalSize::new(window_size.0 as f64, window_size.1 as f64))
-        .with_resizable(false);
+        .with_resizable(true);
 
     let cb = glutin::ContextBuilder::new().with_vsync(true).with_srgb(true);
 
     let gl_display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
-    let quad_vertex_buffer = glium::VertexBuffer::new(&gl_display, &QUAD_VERTICES).unwrap();
-    let quad_indices = glium::IndexBuffer::new(
-        &gl_display,
-        glium::index::PrimitiveType::TrianglesList,
-        &QUAD_INDICES,
-    )
-    .unwrap();
+    let quad_vertex_buffer = opengl::quad_vertex_buffer(&gl_display);
+    let quad_indices = opengl::quad_indices(&gl_display);
+    let quad_program = opengl::quad_program(&gl_display);
+    let out_texture = opengl::create_texture(&gl_display, window_size);
 
-    let quad_vertex_shader_src = r#"
-        #version 140
-
-        in vec3 position;
-        in vec2 tex_coord;
-
-        out vec2 frag_tex_coord;
-
-        void main() {
-            frag_tex_coord = tex_coord;
-            gl_Position = vec4(position, 1.0);
-        }
-    "#;
-
-    let quad_fragment_shader_src = r#"
-        #version 150
-
-        in vec2 frag_tex_coord;
-        out vec4 color;
-
-        uniform sampler2D tex;
-
-        void main() {
-            color = texture(tex, frag_tex_coord);
-        }
-    "#;
-
-    let quad_program = glium::Program::from_source(
-        &gl_display,
-        quad_vertex_shader_src,
-        quad_fragment_shader_src,
-        None,
-    )
-    .unwrap();
-
-    let out_texture = glium::texture::SrgbTexture2d::empty_with_format(
-        &gl_display,
-        glium::texture::SrgbFormat::U8U8U8U8,
-        glium::texture::MipmapsOption::NoMipmap,
-        window_size.0,
-        window_size.1,
-    )
-    .unwrap();
     let out_texture_depth =
         glium::texture::DepthTexture2d::empty(&gl_display, window_size.0, window_size.1).unwrap();
 
@@ -173,13 +85,7 @@ fn main() {
     });
 
 
-    let mut display =
-        reclutch_skia::SkiaGraphicsDisplay::new_gl_texture(&reclutch_skia::SkiaOpenGlTexture {
-            size: (window_size.0 as _, window_size.1 as _),
-            texture_id: out_texture.get_id(),
-            mip_mapped: false,
-        })
-        .unwrap();
+    let mut display = opengl::skia::make_skia_display(&out_texture, window_size);
 
     let mut last_frame = Instant::now();
 
@@ -189,10 +95,12 @@ fn main() {
     imgui.io_mut().display_size = [window_size.0 as f32, window_size.1 as f32];
     let mut renderer = ImguiRenderer::init(&mut imgui, &gl_display).expect("Failed to initialize renderer");
 
+    let mut should_redraw_skia = true;
+    let mut frame = 0;
+
     event_loop.run(move |event, _, control_flow| {
-        *control_flow = ControlFlow::WaitUntil(
-            std::time::Instant::now() + std::time::Duration::from_nanos(16_666_667),
-        );
+        *control_flow = ControlFlow::Wait;
+
 
         platform.handle_event(imgui.io_mut(), &gl_display.gl_window().window(), &event);
 
@@ -201,11 +109,12 @@ fn main() {
             Event::LoopDestroyed => {}
             Event::WindowEvent { event, .. } => match event {
                 WindowEvent::Resized(physical_size) => {
-                    /*surface = create_surface(&display, &fb_info, &mut gr_context);
+                    /*surface = create_surface(&display, &fb_info, &mut gr_context);*/
                     gl_display.gl_window().resize(physical_size);
+                    imgui.io_mut().display_size = [physical_size.width as f32, physical_size.height as f32];
                     state.with(|v| {
                         { v.borrow_mut().winsize = physical_size; }
-                    });*/
+                    });
                 },
                 WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
                 WindowEvent::KeyboardInput {
@@ -258,6 +167,7 @@ fn main() {
                     state.with(|v|events::update_viewport(Some(offset), Some(scale), &v, canvas));
                     //frame += 1;
                     gl_display.gl_window().window().request_redraw();
+                    should_redraw_skia = true;
                     debug!("Scale factor now {}", state.with(|v|v.borrow().factor));
                 },
                 WindowEvent::CursorMoved{ position, .. } => {
@@ -265,12 +175,10 @@ fn main() {
                     state.with(|v| {
                         let mode = v.borrow().mode;
                         
-                        let should_redraw = match mode {
+                        should_redraw_skia = match mode {
                             state::Mode::Select => { events::mouse_moved_select(position, &v, &mut canvas) },
                             state::Mode::Move => { events::mouse_moved_move(position, &v, &mut canvas) }
                         };
-
-                        if should_redraw { gl_display.gl_window().window().request_redraw(); }
                     });
                 },
                 WindowEvent::MouseInput{
@@ -292,6 +200,7 @@ fn main() {
                             ElementState::Released => {
                                 v.borrow_mut().show_sel_box = false;
                                 gl_display.gl_window().window().request_redraw();
+                                should_redraw_skia = true;
                             }
                         }
                     });
@@ -309,13 +218,14 @@ fn main() {
                 let mut frame_target = gl_display.draw();
                 let target = &mut out_texture_fb;
 
-                target.clear_color_and_depth((1.0, 1.0, 1.0, 1.0), 1.0);
+                //target.clear_color_and_depth((1.0, 1.0, 1.0, 1.0), 1.0);
 
                 skia_context =
                     Some(unsafe { skia_context.take().unwrap().make_current().unwrap() });
 
-                render_skia(&mut display);
-                render_imgui_frame(target, &mut imgui, &mut last_frame, &mut renderer);
+                // Yes, 4 is a magic number. 👻
+                if frame < 4 || should_redraw_skia { opengl::skia::redraw_skia(&mut display, &mut should_redraw_skia); }
+                opengl::imgui::render_imgui_frame(target, &mut imgui, &mut last_frame, &mut renderer);
                 frame_target
                     .draw(
                         &quad_vertex_buffer,
@@ -335,26 +245,6 @@ fn main() {
             },
             _ => return,
         }
+        frame += 1;
     });
-}
-
-fn render_imgui_frame(target: &mut glium::framebuffer::SimpleFrameBuffer, imgui: &mut imgui::Context, last_frame: &mut Instant, renderer: &mut ImguiRenderer) {
-    let io = imgui.io_mut();
-
-    *last_frame = io.update_delta_time(*last_frame);
-    let mut ui = imgui.frame();
-    run_ui(&mut ui);
-
-    let draw_data = ui.render();
-    renderer.render(target, draw_data).expect("Rendering failed");
-}
-
-fn render_skia(display: &mut reclutch_skia::SkiaGraphicsDisplay) {
-    let mut surface = &mut display.surface;
-    let canvas = surface.canvas();
-    let count = canvas.save();
-    let center = (HEIGHT as f32 / 4., WIDTH as f32 / 4.);
-    state.with(|v|renderer::render_frame(0, 12, 60, canvas));
-    //canvas.restore_to_count(count);
-    display.surface.flush_and_submit();
 }

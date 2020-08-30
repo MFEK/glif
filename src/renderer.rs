@@ -5,6 +5,7 @@ use super::state::state;
 
 pub mod constants;
 use self::constants::*;
+
 mod points; // point drawing functions
 mod guidelines;
 // This imports calc_x, etc. which transforms coordinates between .glif and Skia
