@@ -7,9 +7,13 @@ authors = ["Fredrick Brennan <copypaste@kittens.ph>"]
 
 [dependencies]
 skia-safe = { version = "0.32.1", features = ["gl"] }
+imgui-glium-renderer = "0.4.0"
+imgui-winit-support = "0.4.0"
+imgui = "0.4.0"
 gl = "0.14.0"
 glium = "0.27.0"
 xmltree = "0.10.1"
 lazy_static = "1.4.0"
 clap = "2.33.3"
 git-version = "0.3.4"
+thiserror = "1.0.20"

@@ -32,5 +32,10 @@ pub static RBEARING_STROKE: u32 = LBEARING_STROKE;
 pub const PI: f32 = std::f32::consts::PI;
 pub const DEGREES_IN_RADIANS: f32 = PI / 180.0;
 
+// Factors
+pub static SCALE_FACTOR: f32 = 0.05;
+pub static OFFSET_FACTOR: f32 = 10.;
+
 // Misc.
 pub const PEN_SIZE: f32 = 1.0;
+pub const CLEAR_COLOR: u32 = 0xff_c4c4c4;

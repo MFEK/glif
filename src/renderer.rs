@@ -3,7 +3,7 @@ use glifparser::{Handle, WhichHandle};
 use super::state::State;
 use super::state::state;
 
-mod constants;
+pub mod constants;
 use self::constants::*;
 mod points; // point drawing functions
 mod guidelines;
@@ -28,6 +28,7 @@ enum RendererPointType { Plain(UIPointType), WithPointNumber(UIPointType), WithP
 
 use std::thread::LocalKey;
 pub fn render_frame(frame: usize, fps: usize, bpm: usize, canvas: &mut Canvas) {
+    canvas.clear(CLEAR_COLOR);
     state.with(|v| {
         let step = 12.0 * bpm as f32 / 60.0 / fps as f32;
         let frame_count = (360.0 / step) as usize;
