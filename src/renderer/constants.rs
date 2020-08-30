@@ -39,3 +39,7 @@ pub static OFFSET_FACTOR: f32 = 10.;
 // Misc.
 pub const PEN_SIZE: f32 = 1.0;
 pub const CLEAR_COLOR: u32 = 0xff_c4c4c4;
+
+// Window
+pub const HEIGHT: u32 = 800;
+pub const WIDTH: u32 = HEIGHT;
