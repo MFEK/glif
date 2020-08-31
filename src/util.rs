@@ -1,12 +1,14 @@
 // Utilities
 pub mod argparser;
 
-use std::panic::set_hook;
-use std::option::Option;
-use std::fmt;
 use crate::glifparser::Codepoint;
+use std::fmt;
+use std::option::Option;
+use std::panic::set_hook;
 
-lazy_static!(pub static ref DEBUG: bool = { option_env!("DEBUG").is_some() }; );
+lazy_static! {
+    pub static ref DEBUG: bool = { option_env!("DEBUG").is_some() };
+};
 
 #[macro_export]
 macro_rules! debug {
@@ -35,10 +37,13 @@ impl RoundFloat for f32 {
 }
 
 impl fmt::LowerHex for Codepoint {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> { 
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
         match self {
-            Self::Hex(c) => { let cc = *c as u32; fmt::LowerHex::fmt(&cc, f)},
-            Self::Undefined => {fmt::LowerHex::fmt(&-1, f)}
+            Self::Hex(c) => {
+                let cc = *c as u32;
+                fmt::LowerHex::fmt(&cc, f)
+            }
+            Self::Undefined => fmt::LowerHex::fmt(&-1, f),
         }
     }
 }

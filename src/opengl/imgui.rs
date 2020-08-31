@@ -22,7 +22,12 @@ pub fn build_imgui_ui(ui: &mut imgui::Ui) {
         });
 }
 
-pub fn render_imgui_frame(target: &mut glium::framebuffer::SimpleFrameBuffer, imgui: &mut imgui::Context, last_frame: &mut Instant, renderer: &mut ImguiRenderer) {
+pub fn render_imgui_frame(
+    target: &mut glium::framebuffer::SimpleFrameBuffer,
+    imgui: &mut imgui::Context,
+    last_frame: &mut Instant,
+    renderer: &mut ImguiRenderer,
+) {
     let io = imgui.io_mut();
 
     *last_frame = io.update_delta_time(*last_frame);
@@ -30,5 +35,7 @@ pub fn render_imgui_frame(target: &mut glium::framebuffer::SimpleFrameBuffer, im
     build_imgui_ui(&mut ui);
 
     let draw_data = ui.render();
-    renderer.render(target, draw_data).expect("Rendering failed");
+    renderer
+        .render(target, draw_data)
+        .expect("Rendering failed");
 }

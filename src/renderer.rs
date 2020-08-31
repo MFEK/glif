@@ -8,7 +8,7 @@ use self::constants::*;
 
 mod guidelines;
 mod points; // point drawing functions
-// This imports calc_x, etc. which transforms coordinates between .glif and Skia
+            // This imports calc_x, etc. which transforms coordinates between .glif and Skia
 use self::points::calc::*;
 mod glyph;
 mod selbox;
