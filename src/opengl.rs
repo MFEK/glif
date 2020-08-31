@@ -3,15 +3,14 @@
 //! MIT licensed. I changed it quite a bit:
 //! See also: https://github.com/ctrlcctrlv/imgui-skia-example
 
+use glium::backend::Facade;
 use glium::texture::{MipmapsOption, SrgbFormat, SrgbTexture2d};
 use glium::Display as GlDisplay;
-use glium::{Program as GlProgram, IndexBuffer, VertexBuffer};
 use glium::GlObject;
-use glium::backend::Facade;
+use glium::{IndexBuffer, Program as GlProgram, VertexBuffer};
 
-mod reclutch_skia;
-pub mod skia;
-pub mod imgui; // Jazzfool's example makes a 3D cube, while I use Dear Imgui.
+pub mod imgui;
+pub mod skia; // Jazzfool's example makes a 3D cube, while I use Dear Imgui.
 
 #[derive(Copy, Clone)]
 pub struct TextureVertex {
@@ -37,7 +36,6 @@ const QUAD_VERTICES: [TextureVertex; 4] = [
 
 const QUAD_INDICES: [u32; 6] = [0, 1, 2, 0, 2, 3];
 
-
 pub fn create_texture(gl_display: &GlDisplay, window_size: (u32, u32)) -> SrgbTexture2d {
     SrgbTexture2d::empty_with_format(
         gl_display,
@@ -50,7 +48,8 @@ pub fn create_texture(gl_display: &GlDisplay, window_size: (u32, u32)) -> SrgbTe
 }
 
 pub fn quad_vertex_buffer(gl_display: &GlDisplay) -> VertexBuffer<TextureVertex> {
-    glium::VertexBuffer::new(gl_display, &QUAD_VERTICES).expect("Failed to initialize quad vertex buffer")
+    glium::VertexBuffer::new(gl_display, &QUAD_VERTICES)
+        .expect("Failed to initialize quad vertex buffer")
 }
 
 pub fn quad_indices(gl_display: &GlDisplay) -> IndexBuffer<u32> {
