@@ -1,12 +1,12 @@
-use crate::glifparser;
-use glifparser::{Handle, WhichHandle};
-use crate::state;
-use state::State;
-use skia_safe::{Canvas, Paint, PaintStyle, Path, Point};
-use skia_safe::path::Iter;
+use super::constants::*;
 use super::points;
 use super::points::calc::*;
-use super::constants::*;
+use crate::glifparser;
+use crate::state;
+use glifparser::{Handle, WhichHandle};
+use reclutch::skia::path::Iter;
+use reclutch::skia::{Canvas, Paint, PaintStyle, Path, Point};
+use state::State;
 use std::cell::RefCell;
 
 pub fn draw_glyph(canvas: &mut Canvas, v: &RefCell<State>) -> Path {
@@ -14,7 +14,7 @@ pub fn draw_glyph(canvas: &mut Canvas, v: &RefCell<State>) -> Path {
     paint.set_anti_alias(true);
     //paint.set_stroke_width(PEN_SIZE.max(canvas.image_info().dimensions().width as f32 / 360.0));
     paint.set_style(PaintStyle::StrokeAndFill);
-    paint.set_stroke_width(OUTLINE_STROKE_THICKNESS * (1./state.with(|v|v.borrow().factor)));
+    paint.set_stroke_width(OUTLINE_STROKE_THICKNESS * (1. / state.with(|v| v.borrow().factor)));
 
     let mut path = Path::new();
 
@@ -30,12 +30,12 @@ pub fn draw_glyph(canvas: &mut Canvas, v: &RefCell<State>) -> Path {
                 match point.ptype {
                     glifparser::PointType::Line => {
                         path.line_to((calc_x(point.x), calc_y(point.y)));
-                    },
+                    }
                     glifparser::PointType::Curve => {
                         let h1 = prevpoint.handle_or_colocated(WhichHandle::A, calc_x, calc_y);
                         let h2 = point.handle_or_colocated(WhichHandle::B, calc_x, calc_y);
-                        path.cubic_to(h1, h2, (calc_x(point.x), calc_y(point.y)) );
-                    },
+                        path.cubic_to(h1, h2, (calc_x(point.x), calc_y(point.y)));
+                    }
                     _ => {}
                 }
                 prevpoint = &point;
@@ -44,8 +44,8 @@ pub fn draw_glyph(canvas: &mut Canvas, v: &RefCell<State>) -> Path {
                 Some(lastpoint) => {
                     let h1 = prevpoint.handle_or_colocated(WhichHandle::A, calc_x, calc_y);
                     let h2 = firstpoint.handle_or_colocated(WhichHandle::B, calc_x, calc_y);
-                    path.cubic_to(h1, h2, (calc_x(firstpoint.x), calc_y(firstpoint.y)) );
-                },
+                    path.cubic_to(h1, h2, (calc_x(firstpoint.x), calc_y(firstpoint.y)));
+                }
                 None => {}
             }
             path.close();

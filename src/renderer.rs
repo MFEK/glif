@@ -1,31 +1,44 @@
 use super::glifparser;
-use glifparser::{Handle, WhichHandle};
-use super::state::State;
 use super::state::state;
+use super::state::State;
+use glifparser::{Handle, WhichHandle};
 
 pub mod constants;
 use self::constants::*;
 
-mod points; // point drawing functions
 mod guidelines;
+mod points; // point drawing functions
 // This imports calc_x, etc. which transforms coordinates between .glif and Skia
 use self::points::calc::*;
 mod glyph;
 mod selbox;
 
-use skia_safe::{
-    gradient_shader, Color, Matrix, Paint, PaintJoin, PaintStyle, Path, Point, TileMode, Rect, IRect, Canvas
+use reclutch::skia::{
+    gradient_shader, Canvas, Color, IRect, Matrix, Paint, PaintJoin, PaintStyle, Path, Point, Rect,
+    TileMode,
 };
 
-use std::cmp::min;
-use std::cell::RefCell;
 use glutin::dpi::PhysicalPosition;
+use std::cell::RefCell;
+use std::cmp::min;
 
 #[derive(PartialEq)]
-enum HandleStyle { Handlebars, Floating }
+enum HandleStyle {
+    Handlebars,
+    Floating,
+}
 #[derive(PartialEq)]
-pub enum UIPointType { Point, Handle(HandleStyle), Anchor }
-enum RendererPointType { Plain(UIPointType), WithPointNumber(UIPointType), WithPointPosition(UIPointType), WithPointNumberAndPosition(UIPointType) }
+pub enum UIPointType {
+    Point,
+    Handle(HandleStyle),
+    Anchor,
+}
+enum RendererPointType {
+    Plain(UIPointType),
+    WithPointNumber(UIPointType),
+    WithPointPosition(UIPointType),
+    WithPointNumberAndPosition(UIPointType),
+}
 
 use std::thread::LocalKey;
 pub fn render_frame(frame: usize, fps: usize, bpm: usize, canvas: &mut Canvas) {
@@ -57,7 +70,10 @@ pub fn render_frame(frame: usize, fps: usize, bpm: usize, canvas: &mut Canvas) {
 
         if v.borrow().show_sel_box {
             let rect = selbox::draw_selbox(canvas, &v);
-            let selected = selbox::build_sel_vec_from_rect(rect, v.borrow().glyph.as_ref().unwrap().glif.outline.as_ref());
+            let selected = selbox::build_sel_vec_from_rect(
+                rect,
+                v.borrow().glyph.as_ref().unwrap().glif.outline.as_ref(),
+            );
             v.borrow_mut().selected = selected;
         }
 
