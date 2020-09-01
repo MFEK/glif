@@ -16,7 +16,7 @@ Qglif is the premier program of the Modular Font Editor Q project. This project 
 
 ### Technical details
 
-Two OpenGL contexts are made: one for Skia and one for Dear ImGui. Skia is redrawn only when necessary, while Dear ImGui is redrawn upon every frame. At the start of the program, `glifparser.rs` parses the input `.glif` file and creates a Skia path. Keyboard events are handled by `glutin`, which triggers the appropriate actions on both the Skia canvas and Dear ImGui's UI.
+Two OpenGL contexts are made: one for Skia and one for Dear ImGui. Skia is redrawn only when necessary, while Dear ImGui is redrawn upon every frame. At the start of the program, `glifparser.rs` parses the input `.glif` file and creates a Skia path. Keyboard events are handled by `glutin`, which triggers the appropriate actions on both the Skia canvas and Dear ImGui's UI. If the cursor is over the toolbox, then clicks are not passed down to Skia&mdash;this has the benefit of not causing the canvas to zoom in when merely switching to the zoom tool.
 
 To make this as easy as possible to build, and cross-platform without hassle, the SVG icons and UI font (Ubuntu) is compiled right into the binary via the Rust `include_str!` / `include_bytes!` macros.
 
