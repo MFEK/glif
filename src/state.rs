@@ -35,6 +35,7 @@ pub struct State {
     pub selected: Vec<Point>,
     pub mousedown: bool,
     pub mousepos: PhysicalPosition<f64>,
+    pub absolute_mousepos: PhysicalPosition<f64>,
     pub corner_one: Option<PhysicalPosition<f64>>,
     pub corner_two: Option<PhysicalPosition<f64>>,
     // Whether pub to show the selection box on screen
@@ -55,6 +56,7 @@ impl State {
             selected: Vec::new(),
             mousedown: false,
             mousepos: PhysicalPosition { x: 0., y: 0. },
+            absolute_mousepos: PhysicalPosition { x: 0., y: 0. },
             corner_one: None,
             corner_two: None,
             show_sel_box: false,

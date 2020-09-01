@@ -1,5 +1,5 @@
-use crate::state;
 use crate::renderer::constants::*;
+use crate::state;
 use glutin::dpi::PhysicalPosition;
 use glutin::event::MouseButton;
 use reclutch::skia::{Canvas, Matrix};
@@ -29,15 +29,26 @@ pub fn update_viewport(
 pub fn update_mousepos(
     position: PhysicalPosition<f64>,
     v: &RefCell<state::State>,
+    pan: bool,
 ) -> PhysicalPosition<f64> {
     let factor = 1. / v.borrow().factor as f64;
     let uoffset = v.borrow().offset;
     let offset = (uoffset.0 as f64, uoffset.1 as f64);
-    //let mposition = PhysicalPosition::from(((position.x - offset.0) * factor, (position.y - offset.1) * factor));
-    let mposition =
-        PhysicalPosition::from(((position.x).floor() * factor, (position.y).floor() * factor));
+
+    let absolute_mposition =
+        PhysicalPosition::from(((position.x).floor(), (position.y).floor()));
+    let mposition = PhysicalPosition::from((
+        ((position.x).floor() - offset.0) * factor,
+        ((position.y).floor() - offset.1) * factor,
+    ));
+
+    v.borrow_mut().absolute_mousepos = absolute_mposition;
     v.borrow_mut().mousepos = mposition;
-    mposition
+    if pan {
+        absolute_mposition
+    } else {
+        mposition
+    }
 }
 
 pub fn mouse_moved_select(
@@ -45,7 +56,7 @@ pub fn mouse_moved_select(
     v: &RefCell<state::State>,
     canvas: &mut Canvas,
 ) -> bool {
-    let mposition = update_mousepos(position, &v);
+    let mposition = update_mousepos(position, &v, false);
     v.borrow_mut().corner_two = Some(mposition);
     v.borrow().show_sel_box
 }
@@ -55,9 +66,9 @@ pub fn mouse_moved_move(
     v: &RefCell<state::State>,
     canvas: &mut Canvas,
 ) -> bool {
-    let old_mposition = v.borrow().mousepos.clone();
+    let old_mposition = v.borrow().absolute_mousepos.clone();
     let mut offset = v.borrow().offset;
-    let mposition = update_mousepos(position, &v);
+    let mposition = update_mousepos(position, &v, true);
     if !v.borrow().mousedown {
         return false;
     }
@@ -121,7 +132,7 @@ pub fn mouse_moved_zoom(
     v: &RefCell<state::State>,
     canvas: &mut Canvas,
 ) -> bool {
-    let mposition = update_mousepos(position, &v);
+    let mposition = update_mousepos(position, &v, false);
     false
 }
 
@@ -133,9 +144,13 @@ pub fn mouse_released_zoom(
 ) -> bool {
     let mut scale = v.borrow().factor;
     match button {
-        MouseButton::Left => { scale = zoom_in_factor(scale, &v); },
-        MouseButton::Right => { scale = zoom_out_factor(scale, &v); },
-        _ => {},
+        MouseButton::Left => {
+            scale = zoom_in_factor(scale, &v);
+        }
+        MouseButton::Right => {
+            scale = zoom_out_factor(scale, &v);
+        }
+        _ => {}
     }
     update_viewport(None, Some(scale), &v, canvas);
     true
