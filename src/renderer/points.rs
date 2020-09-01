@@ -21,7 +21,6 @@ pub fn draw_directions(path: Path, canvas: &mut Canvas) {
     let mut piter = ContourMeasureIter::from_path(&path, false, None);
     for (cm) in piter {
         let (vec, mut tan) = cm.pos_tan(4.).unwrap();
-        println!("{:?} {:?}", vec, tan);
         draw_triangle_point(vec, tan, false, canvas);
     }
 }

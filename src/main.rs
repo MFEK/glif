@@ -228,42 +228,38 @@ fn main() {
                     if kstate != ElementState::Pressed {
                         return;
                     }
-                    let mut scale = state.with(|v| v.borrow().factor);
-                    let mut offset = state.with(|v| v.borrow().offset);
-                    match virtual_keycode {
-                        // Scales
-                        Some(VirtualKeyCode::Key1) => scale = 1.,
-                        Some(VirtualKeyCode::Equals) => {
-                            scale += SCALE_FACTOR;
-                        }
-                        Some(VirtualKeyCode::Minus) => {
-                            if scale >= 0.10 {
-                                scale += -SCALE_FACTOR;
-                            } else {
-                                return;
+                    state.with(|v| {
+                        let mut scale = v.borrow().factor;
+                        let mut offset = v.borrow().offset;
+                        match virtual_keycode {
+                            // Scales
+                            Some(VirtualKeyCode::Key1) => scale = 1.,
+                            Some(VirtualKeyCode::Equals) => {
+                                scale = events::zoom_in_factor(scale, &v);
                             }
+                            Some(VirtualKeyCode::Minus) => {
+                                scale = events::zoom_out_factor(scale, &v);
+                            }
+                            // Translations
+                            Some(VirtualKeyCode::Up) => {
+                                offset.1 += OFFSET_FACTOR;
+                            }
+                            Some(VirtualKeyCode::Down) => {
+                                offset.1 += -OFFSET_FACTOR;
+                            }
+                            Some(VirtualKeyCode::Left) => {
+                                offset.0 += OFFSET_FACTOR;
+                            }
+                            Some(VirtualKeyCode::Right) => {
+                                offset.0 += -OFFSET_FACTOR;
+                            }
+                            _ => return,
                         }
-                        // Translations
-                        Some(VirtualKeyCode::Up) => {
-                            offset.1 += OFFSET_FACTOR;
-                        }
-                        Some(VirtualKeyCode::Down) => {
-                            offset.1 += -OFFSET_FACTOR;
-                        }
-                        Some(VirtualKeyCode::Left) => {
-                            offset.0 += OFFSET_FACTOR;
-                        }
-                        Some(VirtualKeyCode::Right) => {
-                            offset.0 += -OFFSET_FACTOR;
-                        }
-                        _ => return,
-                    }
-                    display.perform_draw_closure(|canvas, _| {
-                        state.with(|v| {
+                        display.perform_draw_closure(|canvas, _| {
                             events::update_viewport(Some(offset), Some(scale), &v, canvas)
                         });
                     });
-                    //frame += 1;
+
                     should_redraw_skia = true;
                     debug!("Scale factor now {}", state.with(|v| v.borrow().factor));
                 }
@@ -273,9 +269,8 @@ fn main() {
                             let mode = v.borrow().mode;
 
                             should_redraw_skia = match mode {
-                                state::Mode::Select => {
-                                    events::mouse_moved_select(position, &v, canvas)
-                                }
+                                #[rustfmt::skip]
+                                state::Mode::Select => events::mouse_moved_select(position, &v, canvas),
                                 state::Mode::Pan => events::mouse_moved_move(position, &v, canvas),
                                 state::Mode::Zoom => events::mouse_moved_zoom(position, &v, canvas),
                             };
@@ -312,6 +307,9 @@ fn main() {
                                 ElementState::Released => {
                                     should_redraw_skia = match mode {
                                         state::Mode::Select => events::mouse_released_select(
+                                            position, &v, canvas, button,
+                                        ),
+                                        state::Mode::Zoom => events::mouse_released_zoom(
                                             position, &v, canvas, button,
                                         ),
                                         _ => false,

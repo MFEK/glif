@@ -1,4 +1,5 @@
 use crate::state;
+use crate::renderer::constants::*;
 use glutin::dpi::PhysicalPosition;
 use glutin::event::MouseButton;
 use reclutch::skia::{Canvas, Matrix};
@@ -64,21 +65,8 @@ pub fn mouse_moved_move(
     offset.1 += (mposition.y - old_mposition.y).floor() as f32;
     //offset = (mposition.x as f32, mposition.y as f32);
     v.borrow_mut().offset = offset;
-    println!(
-        "C: {:?}",
-        (mposition.x - old_mposition.x, mposition.y - old_mposition.y)
-    );
-    println!("O: {:?}", offset);
     update_viewport(None, None, &v, canvas);
     true
-}
-
-pub fn mouse_moved_zoom(
-    position: PhysicalPosition<f64>,
-    v: &RefCell<state::State>,
-    canvas: &mut Canvas,
-) -> bool {
-    false
 }
 
 pub fn mouse_button_select(
@@ -113,5 +101,42 @@ pub fn mouse_released_select(
     button: MouseButton,
 ) -> bool {
     v.borrow_mut().show_sel_box = false;
+    true
+}
+
+pub fn zoom_in_factor(factor: f32, v: &RefCell<state::State>) -> f32 {
+    v.borrow().factor + SCALE_FACTOR
+}
+
+pub fn zoom_out_factor(factor: f32, v: &RefCell<state::State>) -> f32 {
+    let mut scale = v.borrow().factor;
+    if scale >= 0.10 {
+        scale += -SCALE_FACTOR;
+    }
+    scale
+}
+
+pub fn mouse_moved_zoom(
+    position: PhysicalPosition<f64>,
+    v: &RefCell<state::State>,
+    canvas: &mut Canvas,
+) -> bool {
+    let mposition = update_mousepos(position, &v);
+    false
+}
+
+pub fn mouse_released_zoom(
+    position: PhysicalPosition<f64>,
+    v: &RefCell<state::State>,
+    canvas: &mut Canvas,
+    button: MouseButton,
+) -> bool {
+    let mut scale = v.borrow().factor;
+    match button {
+        MouseButton::Left => { scale = zoom_in_factor(scale, &v); },
+        MouseButton::Right => { scale = zoom_out_factor(scale, &v); },
+        _ => {},
+    }
+    update_viewport(None, Some(scale), &v, canvas);
     true
 }

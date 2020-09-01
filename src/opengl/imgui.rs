@@ -57,11 +57,11 @@ pub fn build_imgui_ui(ui: &mut imgui::Ui) {
                 if ui.is_item_clicked(imgui::MouseButton::Left) {
                     v.borrow_mut().mode = Mode::Pan;
                 }
+                ui.separator();
                 zoom_button.build(ui);
                 if ui.is_item_clicked(imgui::MouseButton::Left) {
                     v.borrow_mut().mode = Mode::Zoom;
                 }
-                ui.separator();
             });
     });
 }
