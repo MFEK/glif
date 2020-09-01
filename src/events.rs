@@ -35,8 +35,7 @@ pub fn update_mousepos(
     let uoffset = v.borrow().offset;
     let offset = (uoffset.0 as f64, uoffset.1 as f64);
 
-    let absolute_mposition =
-        PhysicalPosition::from(((position.x).floor(), (position.y).floor()));
+    let absolute_mposition = PhysicalPosition::from(((position.x).floor(), (position.y).floor()));
     let mposition = PhysicalPosition::from((
         ((position.x).floor() - offset.0) * factor,
         ((position.y).floor() - offset.1) * factor,

@@ -29,6 +29,7 @@ use glutin::event::{ElementState, Event, KeyboardInput, MouseButton, VirtualKeyC
 use glutin::event_loop::{ControlFlow, EventLoop};
 
 use reclutch::display::GraphicsDisplay;
+use reclutch::skia::{Contains, Rect, Point};
 
 use std::time::Instant;
 
@@ -167,6 +168,8 @@ fn main() {
 
         platform.handle_event(imgui.io_mut(), &gl_display.gl_window().window(), &event);
 
+        // These handle the Skia events. ImGui "events" don't really exist, see
+        // src/opengl/imgui.rs:fn build_imgui_ui.
         #[allow(deprecated)]
         match event {
             Event::LoopDestroyed => {}
@@ -253,15 +256,25 @@ fn main() {
                             Some(VirtualKeyCode::Right) => {
                                 offset.0 += -OFFSET_FACTOR;
                             }
-                            _ => return,
+                            // Modes
+                            Some(VirtualKeyCode::V) => {
+                                v.borrow_mut().mode = state::Mode::Select;
+                            }
+                            Some(VirtualKeyCode::A) => {
+                                v.borrow_mut().mode = state::Mode::Pan;
+                            }
+                            Some(VirtualKeyCode::Z) => {
+                                v.borrow_mut().mode = state::Mode::Zoom;
+                            }
+                            _ => {},
                         }
                         display.perform_draw_closure(|canvas, _| {
                             events::update_viewport(Some(offset), Some(scale), &v, canvas)
                         });
-                    });
 
-                    should_redraw_skia = true;
-                    debug!("Scale factor now {}", state.with(|v| v.borrow().factor));
+                        should_redraw_skia = true;
+                        debug!("Scale factor now {}; offset {:?}; mode {:?}", v.borrow().factor, v.borrow().offset, v.borrow().mode);
+                    });
                 }
                 WindowEvent::CursorMoved { position, .. } => {
                     display.perform_draw_closure(|canvas, _| {
@@ -282,8 +295,15 @@ fn main() {
                     button,
                     ..
                 } => {
-                    display.perform_draw_closure(|canvas, _| {
-                        state.with(|v| {
+                    // Ignore events if we are clicking on Dear ImGui toolbox.
+                    state.with(|v| {
+                        let toolbox_rect = opengl::imgui::toolbox_rect();
+                        let absolute_position = v.borrow().absolute_mousepos;
+                        if toolbox_rect.contains(Point::from((absolute_position.x as f32, absolute_position.y as f32))) {
+                            return
+                        }
+
+                        display.perform_draw_closure(|canvas, _| {
                             let mode = v.borrow().mode;
                             let position = v.borrow().mousepos;
                             v.borrow_mut().mousedown = mstate == ElementState::Pressed;
@@ -331,8 +351,6 @@ fn main() {
 
                 let target = &mut out_texture_fb;
 
-                //target.clear_color_and_depth((1.0, 1.0, 1.0, 1.0), 1.0);
-
                 skia_context =
                     Some(unsafe { skia_context.take().unwrap().make_current().unwrap() });
 
@@ -341,8 +359,8 @@ fn main() {
                     was_resized = false;
                 }
 
-                // Yes, 4 is a magic number. 👻
-                if frame < 4 || should_redraw_skia {
+                // Yes, 10 is a magic number. 👻
+                if frame < 10 || should_redraw_skia {
                     display.perform_draw_closure(|canvas, _| {
                         opengl::skia::redraw_skia(canvas, &mut should_redraw_skia);
                     });

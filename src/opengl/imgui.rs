@@ -12,13 +12,19 @@ use crate::state::{state, Icons, Mode};
 
 mod icons;
 
+// These are before transformation by state::state::dpi (glutin scale_factor)
+const TOOLBOX_OFFSET_X: f32 = 10.;
+const TOOLBOX_OFFSET_Y: f32 = TOOLBOX_OFFSET_X;
+const TOOLBOX_WIDTH: f32 = 50.;
+const TOOLBOX_HEIGHT: f32 = 200.;
+
 fn button_from_texture(tex: (imgui::TextureId, Rc<texture::Texture2d>)) -> imgui::ImageButton {
     imgui::ImageButton::new(tex.0, [tex.1.width() as f32, tex.1.height() as f32]).frame_padding(3)
 }
 
 pub fn build_imgui_ui(ui: &mut imgui::Ui) {
     state.with(|v| {
-        //let select_button = button_from_texture(&v.borrow().icons.as_ref().unwrap().select);
+        // These clones are "free" since it's an Rc<_>
         let select_ref = v.borrow().icons.as_ref().unwrap().select.clone();
         let mut select_button = button_from_texture(select_ref);
         let pan_ref = v.borrow().icons.as_ref().unwrap().pan.clone();
@@ -46,8 +52,11 @@ pub fn build_imgui_ui(ui: &mut imgui::Ui) {
                     | imgui::WindowFlags::NO_MOVE
                     | imgui::WindowFlags::NO_COLLAPSE,
             )
-            .position([10., 10.], imgui::Condition::Always)
-            .size([50.0, 200.0], imgui::Condition::Always)
+            .position(
+                [TOOLBOX_OFFSET_X, TOOLBOX_OFFSET_Y],
+                imgui::Condition::Always,
+            )
+            .size([TOOLBOX_WIDTH, TOOLBOX_HEIGHT], imgui::Condition::Always)
             .build(ui, || {
                 select_button.build(ui);
                 if ui.is_item_clicked(imgui::MouseButton::Left) {
@@ -111,4 +120,11 @@ pub fn render_imgui_frame(
     renderer
         .render(target, draw_data)
         .expect("Rendering failed");
+}
+
+use reclutch::skia::Rect;
+
+pub fn toolbox_rect() -> Rect {
+    let dpi = state.with(|v|v.borrow().dpi) as f32;
+    Rect::from_point_and_size((TOOLBOX_OFFSET_X * dpi, TOOLBOX_OFFSET_Y * dpi), (TOOLBOX_WIDTH * dpi, TOOLBOX_HEIGHT * dpi))
 }
