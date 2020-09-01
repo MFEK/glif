@@ -17,19 +17,22 @@ fn draw_guideline(color: Color, where_: f32, gtype: GuidelineType, canvas: &mut 
     match gtype {
         GuidelineType::Vertical => {
             state.with(|v| {
-                path.move_to((where_, -v.borrow().offset.1 * (1. / factor)));
-                path.line_to((where_, v.borrow().winsize.height as f32 * (1. / factor)));
+                path.move_to((where_, -(offset.1 * (1. / factor))));
+                path.line_to((
+                    where_,
+                    v.borrow().winsize.height as f32 * (1. / factor) + -(offset.1 * (1. / factor)),
+                ));
             });
         }
         GuidelineType::Horizontal => {
-            path.move_to((0., where_));
-            path.line_to((
-                state.with(|v| {
+            state.with(|v| {
+                path.move_to((-(offset.0 * (1. / factor)), where_));
+                path.line_to((
                     (v.borrow().winsize.width as f32 * (1. / factor))
-                        + (-(v.borrow().offset.0 * (1. / factor)))
-                }),
-                where_,
-            ));
+                        + (-(offset.0 * (1. / factor))),
+                    where_,
+                ));
+            });
         }
     }
     path.close();

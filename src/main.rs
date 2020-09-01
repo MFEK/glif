@@ -50,6 +50,9 @@ use renderer::constants::*;
 use std::fs;
 fn main() {
     let window_size = (WIDTH, HEIGHT);
+    state.with(|v| {
+        v.borrow_mut().winsize = window_size.into();
+    });
 
     let args = util::argparser::parse_args();
     let filename = args.filename;
