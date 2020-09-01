@@ -38,8 +38,9 @@ pub struct State {
     pub absolute_mousepos: PhysicalPosition<f64>,
     pub corner_one: Option<PhysicalPosition<f64>>,
     pub corner_two: Option<PhysicalPosition<f64>>,
-    // Whether pub to show the selection box on screen
+    // Whether to show the selection box on screen
     pub show_sel_box: bool,
+    pub show_point_numbers: bool,
     pub winsize: PhysicalSize<u32>, // for Skia
     pub factor: f32,
     pub offset: (f32, f32),
@@ -60,6 +61,7 @@ impl State {
             corner_one: None,
             corner_two: None,
             show_sel_box: false,
+            show_point_numbers: false,
             winsize: PhysicalSize {
                 height: 0,
                 width: 0,

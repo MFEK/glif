@@ -125,6 +125,9 @@ pub fn render_imgui_frame(
 use reclutch::skia::Rect;
 
 pub fn toolbox_rect() -> Rect {
-    let dpi = state.with(|v|v.borrow().dpi) as f32;
-    Rect::from_point_and_size((TOOLBOX_OFFSET_X * dpi, TOOLBOX_OFFSET_Y * dpi), (TOOLBOX_WIDTH * dpi, TOOLBOX_HEIGHT * dpi))
+    let dpi = state.with(|v| v.borrow().dpi) as f32;
+    Rect::from_point_and_size(
+        (TOOLBOX_OFFSET_X * dpi, TOOLBOX_OFFSET_Y * dpi),
+        (TOOLBOX_WIDTH * dpi, TOOLBOX_HEIGHT * dpi),
+    )
 }

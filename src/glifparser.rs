@@ -19,7 +19,7 @@ pub enum AnchorType {
     MarkBase,
 } // Undefined used everywhere for now as getting type requires parsing OpenType features, which we will be using nom to do since I have experience w/it.
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Handle {
     Colocated,
     At(f32, f32),

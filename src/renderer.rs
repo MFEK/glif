@@ -60,10 +60,18 @@ pub fn render_frame(frame: usize, fps: usize, bpm: usize, canvas: &mut Canvas) {
 
         let path = glyph::draw_glyph(canvas, &v);
 
+        let mut i: isize = -1;
         for outline in v.borrow().glyph.as_ref().unwrap().glif.outline.as_ref() {
             for contour in outline {
                 for point in contour {
-                    points::draw_complete_point(point, UIPointType::Point, false, canvas);
+                    if point.b != Handle::Colocated {
+                        i += 1;
+                    }
+                    points::draw_complete_point(point, Some(i), UIPointType::Point, false, canvas);
+                    if point.a != Handle::Colocated {
+                        i += 1;
+                    }
+                    i += 1;
                 }
             }
         }
@@ -78,7 +86,7 @@ pub fn render_frame(frame: usize, fps: usize, bpm: usize, canvas: &mut Canvas) {
         }
 
         for point in &v.borrow().selected {
-            points::draw_complete_point(point, UIPointType::Point, true, canvas);
+            points::draw_complete_point(point, None, UIPointType::Point, true, canvas);
         }
 
         points::draw_directions(path, canvas);

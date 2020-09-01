@@ -29,7 +29,7 @@ use glutin::event::{ElementState, Event, KeyboardInput, MouseButton, VirtualKeyC
 use glutin::event_loop::{ControlFlow, EventLoop};
 
 use reclutch::display::GraphicsDisplay;
-use reclutch::skia::{Contains, Rect, Point};
+use reclutch::skia::{Contains, Point, Rect};
 
 use std::time::Instant;
 
@@ -266,6 +266,13 @@ fn main() {
                             Some(VirtualKeyCode::Z) => {
                                 v.borrow_mut().mode = state::Mode::Zoom;
                             }
+                            // Toggles
+                            Some(VirtualKeyCode::Key3) => {
+                                let show_point_numbers = v.borrow_mut().show_point_numbers;
+                                if modifiers.shift() {
+                                    v.borrow_mut().show_point_numbers = !show_point_numbers;
+                                }
+                            }
                             _ => {},
                         }
                         display.perform_draw_closure(|canvas, _| {
@@ -295,8 +302,8 @@ fn main() {
                     button,
                     ..
                 } => {
-                    // Ignore events if we are clicking on Dear ImGui toolbox.
                     state.with(|v| {
+                        // Ignore events if we are clicking on Dear ImGui toolbox.
                         let toolbox_rect = opengl::imgui::toolbox_rect();
                         let absolute_position = v.borrow().absolute_mousepos;
                         if toolbox_rect.contains(Point::from((absolute_position.x as f32, absolute_position.y as f32))) {

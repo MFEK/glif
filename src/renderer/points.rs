@@ -1,6 +1,7 @@
 use super::{Handle, HandleStyle, UIPointType};
 use reclutch::skia::{
-    Canvas, ContourMeasureIter, Matrix, Paint, PaintStyle, Path, Point, Rect, Vector,
+    Canvas, ContourMeasureIter, Font, FontMgr, FontStyle, Matrix, Paint, PaintStyle, Path, Point,
+    Rect, TextBlob, Typeface, Vector,
 };
 pub mod calc;
 use self::calc::*;
@@ -152,8 +153,46 @@ fn draw_square_point(
     canvas.draw_path(&path, &paint);
 }
 
+fn draw_point_number(mut at: (f32, f32), number: isize, canvas: &mut Canvas) {
+    let factor = state.with(|v| v.borrow().factor);
+    let converted = number.to_string();
+    let mut paint = Paint::default();
+    paint.set_color(0xff_ff0000);
+    paint.set_anti_alias(true);
+
+    let font = Font::from_typeface_with_params(
+        Typeface::from_name("", FontStyle::bold()).expect("Failed to load bold font"),
+        14.0 * 1. / factor,
+        1.0,
+        0.0,
+    );
+
+    let blob =
+        TextBlob::from_str(&converted, &font).expect(&format!("Failed to shape number {}", number));
+
+    let (scalar, rect) = font.measure_str(&converted, Some(&paint));
+
+    let mut paint2 = Paint::default();
+    paint2.set_color(0xaa_ffffff);
+    paint2.set_anti_alias(true);
+    let mut path = Path::new();
+    let padding = 5.;
+    at = (at.0, at.1 - (padding + 20. * (1. / factor)));
+    let at_rect = Rect::from_point_and_size(at, (rect.width() + 5., rect.height() + 5.));
+    path.add_rect(at_rect, None);
+    path.close();
+    canvas.draw_path(&path, &paint2);
+
+    at = (
+        at.0 + (padding / 2.),
+        at.1 + ((padding / 2.) + 10. * (1. / factor)),
+    );
+    canvas.draw_text_blob(&blob, at, &paint);
+}
+
 fn draw_point(
     at: (f32, f32),
+    number: Option<isize>,
     kind: UIPointType,
     handles: (Handle, Handle),
     selected: bool,
@@ -209,6 +248,15 @@ fn draw_point(
             );
         }
     }
+
+    match number {
+        None => {}
+        Some(i) => {
+            if state.with(|v| v.borrow().show_point_numbers) {
+                draw_point_number(at, i, canvas);
+            }
+        }
+    }
 }
 
 fn draw_handle(h: Handle, selected: bool, canvas: &mut Canvas) {
@@ -217,6 +265,7 @@ fn draw_handle(h: Handle, selected: bool, canvas: &mut Canvas) {
         Handle::At(x, y) => {
             draw_point(
                 (calc_x(x), calc_y(y)),
+                None,
                 UIPointType::Handle(HandleStyle::Floating),
                 (Handle::At(0., 0.), Handle::At(0., 0.)),
                 selected,
@@ -260,6 +309,7 @@ fn draw_handlebars(a: Handle, b: Handle, at: (f32, f32), selected: bool, canvas:
 
 pub fn draw_complete_point(
     point: &glifparser::Point,
+    number: Option<isize>,
     kind: UIPointType,
     selected: bool,
     canvas: &mut Canvas,
@@ -273,6 +323,7 @@ pub fn draw_complete_point(
     );
     draw_point(
         (calc_x(point.x), calc_y(point.y)),
+        number,
         UIPointType::Point,
         (point.a, point.b),
         selected,
