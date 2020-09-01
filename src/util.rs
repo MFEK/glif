@@ -8,7 +8,7 @@ use std::panic::set_hook;
 
 lazy_static! {
     pub static ref DEBUG: bool = { option_env!("DEBUG").is_some() };
-};
+}
 
 #[macro_export]
 macro_rules! debug {
