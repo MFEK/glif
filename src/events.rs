@@ -1,5 +1,6 @@
 use crate::state;
 use glutin::dpi::PhysicalPosition;
+use glutin::event::MouseButton;
 use reclutch::skia::{Canvas, Matrix};
 use std::cell::RefCell;
 
@@ -69,5 +70,48 @@ pub fn mouse_moved_move(
     );
     println!("O: {:?}", offset);
     update_viewport(None, None, &v, canvas);
+    true
+}
+
+pub fn mouse_moved_zoom(
+    position: PhysicalPosition<f64>,
+    v: &RefCell<state::State>,
+    canvas: &mut Canvas,
+) -> bool {
+    false
+}
+
+pub fn mouse_button_select(
+    position: PhysicalPosition<f64>,
+    v: &RefCell<state::State>,
+    canvas: &mut Canvas,
+    button: MouseButton,
+) -> bool {
+    false
+}
+
+pub fn mouse_pressed_select(
+    position: PhysicalPosition<f64>,
+    v: &RefCell<state::State>,
+    canvas: &mut Canvas,
+    button: MouseButton,
+) -> bool {
+    v.borrow_mut().show_sel_box = true;
+    let position = v.borrow().mousepos;
+    let mposition = PhysicalPosition::from((position.x, position.y));
+    v.borrow_mut().mousepos = mposition;
+    if v.borrow().show_sel_box {
+        v.borrow_mut().corner_one = Some(mposition);
+    }
+    false
+}
+
+pub fn mouse_released_select(
+    position: PhysicalPosition<f64>,
+    v: &RefCell<state::State>,
+    canvas: &mut Canvas,
+    button: MouseButton,
+) -> bool {
+    v.borrow_mut().show_sel_box = false;
     true
 }

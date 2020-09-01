@@ -1,7 +1,13 @@
-#![feature(assoc_char_funcs, panic_info_message)]
 //! Qglif - A cross-platform .glif renderer and editor.
 //! Main author is Fredrick Brennan (@ctrlcctrlv); see AUTHORS.
 //! (c) 2020. Apache 2.0 licensed.
+#![feature(
+    assoc_char_funcs,
+    panic_info_message,
+    stmt_expr_attributes,
+    cell_leak,
+    or_patterns
+)]
 
 // Cargo.toml comments say what crates are used for what.
 #[macro_use]
@@ -49,6 +55,8 @@ use renderer::constants::*;
 
 use std::fs;
 fn main() {
+    util::set_panic_hook();
+
     let window_size = (WIDTH, HEIGHT);
     state.with(|v| {
         v.borrow_mut().winsize = window_size.into();
@@ -145,6 +153,11 @@ fn main() {
     let mut renderer =
         ImguiRenderer::init(&mut imgui, &gl_display).expect("Failed to initialize renderer");
 
+    state.with(|v| {
+        let icons = state::Icons::from_display(&gl_display, &mut renderer);
+        v.borrow_mut().icons = Some(icons);
+    });
+
     let mut should_redraw_skia = true;
     let mut frame = 0;
     let mut was_resized = false;
@@ -193,7 +206,15 @@ fn main() {
 
                     was_resized = true;
                 }
-                WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
+                WindowEvent::KeyboardInput {
+                    input:
+                        KeyboardInput {
+                            virtual_keycode: Some(VirtualKeyCode::Escape | VirtualKeyCode::Q),
+                            ..
+                        },
+                    ..
+                }
+                | WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
                 WindowEvent::KeyboardInput {
                     input:
                         KeyboardInput {
@@ -210,11 +231,6 @@ fn main() {
                     let mut scale = state.with(|v| v.borrow().factor);
                     let mut offset = state.with(|v| v.borrow().offset);
                     match virtual_keycode {
-                        // Quit
-                        Some(VirtualKeyCode::Q) => {
-                            *control_flow = ControlFlow::Exit;
-                            return;
-                        }
                         // Scales
                         Some(VirtualKeyCode::Key1) => scale = 1.,
                         Some(VirtualKeyCode::Equals) => {
@@ -248,7 +264,6 @@ fn main() {
                         });
                     });
                     //frame += 1;
-                    gl_display.gl_window().window().request_redraw();
                     should_redraw_skia = true;
                     debug!("Scale factor now {}", state.with(|v| v.borrow().factor));
                 }
@@ -261,7 +276,8 @@ fn main() {
                                 state::Mode::Select => {
                                     events::mouse_moved_select(position, &v, canvas)
                                 }
-                                state::Mode::Move => events::mouse_moved_move(position, &v, canvas),
+                                state::Mode::Pan => events::mouse_moved_move(position, &v, canvas),
+                                state::Mode::Zoom => events::mouse_moved_zoom(position, &v, canvas),
                             };
                         });
                     });
@@ -271,31 +287,38 @@ fn main() {
                     button,
                     ..
                 } => {
-                    if button != MouseButton::Left {
-                        return;
-                    }
-                    state.with(|v| {
-                        {
+                    display.perform_draw_closure(|canvas, _| {
+                        state.with(|v| {
+                            let mode = v.borrow().mode;
+                            let position = v.borrow().mousepos;
                             v.borrow_mut().mousedown = mstate == ElementState::Pressed;
-                        }
-                        if v.borrow().mode == state::Mode::Select {
-                            v.borrow_mut().show_sel_box = mstate == ElementState::Pressed;
-                        }
-                        match mstate {
-                            ElementState::Pressed => {
-                                let position = v.borrow().mousepos;
-                                let mposition = PhysicalPosition::from((position.x, position.y));
-                                v.borrow_mut().mousepos = mposition;
-                                if v.borrow().show_sel_box {
-                                    v.borrow_mut().corner_one = Some(mposition);
+
+                            should_redraw_skia = match mode {
+                                state::Mode::Select => {
+                                    events::mouse_button_select(position, &v, canvas, button)
+                                }
+                                _ => false,
+                            };
+
+                            match mstate {
+                                ElementState::Pressed => {
+                                    should_redraw_skia = match mode {
+                                        state::Mode::Select => events::mouse_pressed_select(
+                                            position, &v, canvas, button,
+                                        ),
+                                        _ => false,
+                                    };
+                                }
+                                ElementState::Released => {
+                                    should_redraw_skia = match mode {
+                                        state::Mode::Select => events::mouse_released_select(
+                                            position, &v, canvas, button,
+                                        ),
+                                        _ => false,
+                                    };
                                 }
                             }
-                            ElementState::Released => {
-                                v.borrow_mut().show_sel_box = false;
-                                gl_display.gl_window().window().request_redraw();
-                                should_redraw_skia = true;
-                            }
-                        }
+                        });
                     });
                 }
                 _ => (),
@@ -349,24 +372,6 @@ fn main() {
             }
             Event::MainEventsCleared => {
                 gl_display.gl_window().window().request_redraw();
-            }
-            Event::WindowEvent {
-                event:
-                    WindowEvent::KeyboardInput {
-                        input:
-                            KeyboardInput {
-                                virtual_keycode: Some(VirtualKeyCode::Escape),
-                                ..
-                            },
-                        ..
-                    },
-                ..
-            }
-            | Event::WindowEvent {
-                event: WindowEvent::CloseRequested,
-                ..
-            } => {
-                *control_flow = ControlFlow::Exit;
             }
             _ => return,
         }

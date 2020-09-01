@@ -1,8 +1,11 @@
 use super::glifparser;
 use glifparser::{Glif, Point};
 use glutin::dpi::{PhysicalPosition, PhysicalSize};
+use imgui;
 use reclutch::skia::Surface;
+
 use std::cell::RefCell;
+use std::rc::Rc;
 
 pub struct Glyph {
     pub glif: Glif,
@@ -11,8 +14,18 @@ pub struct Glyph {
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Mode {
-    Move,
+    Pan,
     Select,
+    Zoom,
+}
+
+use glium::texture;
+
+#[derive(Debug)]
+pub struct Icons {
+    pub select: (imgui::TextureId, Rc<texture::Texture2d>),
+    pub pan: (imgui::TextureId, Rc<texture::Texture2d>),
+    pub zoom: (imgui::TextureId, Rc<texture::Texture2d>),
 }
 
 // Thread local state.
@@ -30,6 +43,7 @@ pub struct State {
     pub factor: f32,
     pub offset: (f32, f32),
     pub dpi: f64, // from glutin scale_factor()
+    pub icons: Option<Icons>,
 }
 
 impl State {
@@ -51,6 +65,7 @@ impl State {
             factor: 1.,
             offset: (0., 0.),
             dpi: 1.,
+            icons: None,
         }
     }
 }
