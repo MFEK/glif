@@ -186,6 +186,9 @@ fn main() {
 
                     state.with(|v| {
                         v.borrow_mut().winsize = physical_size;
+                        display.perform_draw_closure(|canvas, _| {
+                            events::update_viewport(None, None, &v, canvas)
+                        });
                     });
 
                     was_resized = true;
