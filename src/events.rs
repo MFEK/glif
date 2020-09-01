@@ -1,6 +1,6 @@
 use crate::renderer::constants::*;
 use crate::state;
-use glutin::dpi::PhysicalPosition;
+use glutin::dpi::{PhysicalPosition, PhysicalSize};
 use glutin::event::MouseButton;
 use reclutch::skia::{Canvas, Matrix};
 use std::cell::RefCell;
@@ -50,15 +50,7 @@ pub fn update_mousepos(
     }
 }
 
-pub fn mouse_moved_select(
-    position: PhysicalPosition<f64>,
-    v: &RefCell<state::State>,
-    canvas: &mut Canvas,
-) -> bool {
-    let mposition = update_mousepos(position, &v, false);
-    v.borrow_mut().corner_two = Some(mposition);
-    v.borrow().show_sel_box
-}
+// Pan
 
 pub fn mouse_moved_move(
     position: PhysicalPosition<f64>,
@@ -77,6 +69,18 @@ pub fn mouse_moved_move(
     v.borrow_mut().offset = offset;
     update_viewport(None, None, &v, canvas);
     true
+}
+
+// Select
+
+pub fn mouse_moved_select(
+    position: PhysicalPosition<f64>,
+    v: &RefCell<state::State>,
+    canvas: &mut Canvas,
+) -> bool {
+    let mposition = update_mousepos(position, &v, false);
+    v.borrow_mut().corner_two = Some(mposition);
+    v.borrow().show_sel_box
 }
 
 pub fn mouse_button_select(
@@ -113,6 +117,8 @@ pub fn mouse_released_select(
     v.borrow_mut().show_sel_box = false;
     true
 }
+
+// Zoom
 
 pub fn zoom_in_factor(factor: f32, v: &RefCell<state::State>) -> f32 {
     v.borrow().factor + SCALE_FACTOR
@@ -151,6 +157,13 @@ pub fn mouse_released_zoom(
         }
         _ => {}
     }
-    update_viewport(None, Some(scale), &v, canvas);
+    let mut offset = v.borrow().offset;
+    let winsize = v.borrow().winsize;
+    let position = v.borrow().mousepos;
+    let center =
+        PhysicalPosition::<f32>::from((winsize.width as f32 / 2., winsize.height as f32 / 2.));
+    offset.0 = -(position.x as f32 / 2.);
+    offset.1 = -(position.y as f32 / 2.);
+    update_viewport(Some(offset), Some(scale), &v, canvas);
     true
 }

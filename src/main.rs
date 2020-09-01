@@ -12,6 +12,7 @@
 // Cargo.toml comments say what crates are used for what.
 #[macro_use]
 extern crate lazy_static;
+extern crate enum_iterator;
 #[macro_use]
 extern crate glium;
 extern crate clap;
@@ -31,6 +32,8 @@ use glutin::event_loop::{ControlFlow, EventLoop};
 use reclutch::display::GraphicsDisplay;
 use reclutch::skia::{Contains, Point, Rect};
 
+use enum_iterator::IntoEnumIterator;
+
 use std::time::Instant;
 
 #[macro_use]
@@ -46,7 +49,7 @@ use imgui_winit_support::{HiDpiMode, WinitPlatform};
 mod util;
 // Provides a thread-local global `state` variable
 mod state;
-use state::{state, Glyph};
+use state::{state, Glyph, PointLabels};
 mod events;
 mod glifparser;
 mod opengl;
@@ -268,9 +271,11 @@ fn main() {
                             }
                             // Toggles
                             Some(VirtualKeyCode::Key3) => {
-                                let show_point_numbers = v.borrow_mut().show_point_numbers;
+                                let point_labels = v.borrow().point_labels;
                                 if modifiers.shift() {
-                                    v.borrow_mut().show_point_numbers = !show_point_numbers;
+                                    let mut e = PointLabels::into_enum_iter().cycle().skip(1+point_labels as usize);
+                                    let pl = e.next().unwrap();
+                                    v.borrow_mut().point_labels = pl;
                                 }
                             }
                             _ => {},

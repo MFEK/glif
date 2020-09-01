@@ -1,7 +1,11 @@
+//! Global thread local state.
+
+use imgui;
+
 use super::glifparser;
+use enum_iterator::IntoEnumIterator;
 use glifparser::{Glif, Point};
 use glutin::dpi::{PhysicalPosition, PhysicalSize};
-use imgui;
 use reclutch::skia::Surface;
 
 use std::cell::RefCell;
@@ -17,6 +21,13 @@ pub enum Mode {
     Pan,
     Select,
     Zoom,
+}
+
+#[derive(IntoEnumIterator, Debug, Clone, Copy, PartialEq)]
+pub enum PointLabels {
+    None,
+    Numbered,
+    Locations,
 }
 
 use glium::texture;
@@ -40,7 +51,7 @@ pub struct State {
     pub corner_two: Option<PhysicalPosition<f64>>,
     // Whether to show the selection box on screen
     pub show_sel_box: bool,
-    pub show_point_numbers: bool,
+    pub point_labels: PointLabels,
     pub winsize: PhysicalSize<u32>, // for Skia
     pub factor: f32,
     pub offset: (f32, f32),
@@ -61,7 +72,7 @@ impl State {
             corner_one: None,
             corner_two: None,
             show_sel_box: false,
-            show_point_numbers: false,
+            point_labels: PointLabels::None,
             winsize: PhysicalSize {
                 height: 0,
                 width: 0,

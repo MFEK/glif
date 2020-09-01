@@ -1,3 +1,5 @@
+//! Skia renderer.
+
 use super::glifparser;
 use super::state::state;
 use super::state::State;

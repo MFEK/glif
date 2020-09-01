@@ -15,7 +15,7 @@ mod icons;
 // These are before transformation by state::state::dpi (glutin scale_factor)
 const TOOLBOX_OFFSET_X: f32 = 10.;
 const TOOLBOX_OFFSET_Y: f32 = TOOLBOX_OFFSET_X;
-const TOOLBOX_WIDTH: f32 = 50.;
+const TOOLBOX_WIDTH: f32 = 45.;
 const TOOLBOX_HEIGHT: f32 = 200.;
 
 fn button_from_texture(tex: (imgui::TextureId, Rc<texture::Texture2d>)) -> imgui::ImageButton {
