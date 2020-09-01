@@ -1,8 +1,11 @@
 #![feature(assoc_char_funcs, panic_info_message)]
+//! Qglif - A cross-platform .glif renderer and editor.
+//! Main author is Fredrick Brennan (@ctrlcctrlv); see AUTHORS.
+//! (c) 2020. Apache 2.0 licensed.
 
+// Cargo.toml comments say what crates are used for what.
 #[macro_use]
 extern crate lazy_static;
-extern crate thiserror;
 #[macro_use]
 extern crate glium;
 extern crate clap;
@@ -10,6 +13,7 @@ extern crate gl;
 extern crate xmltree;
 #[macro_use]
 extern crate git_version; // for util::parse_args
+extern crate nsvg;
 extern crate reclutch;
 
 use glium::glutin;
@@ -29,7 +33,7 @@ extern crate imgui_glium_renderer;
 extern crate imgui_winit_support;
 use imgui::Context as ImguiContext;
 use imgui_glium_renderer::Renderer as ImguiRenderer;
-use imgui_winit_support::WinitPlatform;
+use imgui_winit_support::{HiDpiMode, WinitPlatform};
 
 #[macro_use]
 mod util;
@@ -119,8 +123,22 @@ fn main() {
 
     let mut imgui = ImguiContext::create();
     let mut platform = WinitPlatform::init(&mut imgui);
+    platform.attach_window(
+        imgui.io_mut(),
+        &gl_display.gl_window().window(),
+        HiDpiMode::Default,
+    );
+    debug!("DPI is {}", gl_display.gl_window().window().scale_factor());
+
     imgui.set_ini_filename(None);
-    imgui.io_mut().display_size = [window_size.0 as f32, window_size.1 as f32];
+
+    state.with(|v| {
+        v.borrow_mut().dpi = gl_display.gl_window().window().scale_factor();
+    });
+
+    opengl::imgui::set_imgui_fonts(&mut imgui);
+    opengl::imgui::set_imgui_dpi(&mut imgui, window_size);
+
     let mut renderer =
         ImguiRenderer::init(&mut imgui, &gl_display).expect("Failed to initialize renderer");
 
@@ -150,8 +168,10 @@ fn main() {
                     .unwrap();
 
                     gl_display.gl_window().resize(physical_size);
-                    imgui.io_mut().display_size =
-                        [physical_size.width as f32, physical_size.height as f32];
+                    opengl::imgui::set_imgui_dpi(
+                        &mut imgui,
+                        (physical_size.width, physical_size.height),
+                    );
 
                     skia_context =
                         Some(unsafe { skia_context.take().unwrap().make_current().unwrap() });
@@ -282,7 +302,6 @@ fn main() {
                 )
                 .unwrap();
 
-                let mut frame_target = gl_display.draw();
                 let target = &mut out_texture_fb;
 
                 //target.clear_color_and_depth((1.0, 1.0, 1.0, 1.0), 1.0);
@@ -309,6 +328,7 @@ fn main() {
                     &mut last_frame,
                     &mut renderer,
                 );
+                let mut frame_target = gl_display.draw();
                 frame_target
                     .draw(
                         &quad_vertex_buffer,

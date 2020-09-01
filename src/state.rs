@@ -14,6 +14,7 @@ pub enum Mode {
     Move,
     Select,
 }
+
 // Thread local state.
 pub struct State {
     pub mode: Mode,
@@ -28,6 +29,7 @@ pub struct State {
     pub winsize: PhysicalSize<u32>, // for Skia
     pub factor: f32,
     pub offset: (f32, f32),
+    pub dpi: f64, // from glutin scale_factor()
 }
 
 impl State {
@@ -48,6 +50,7 @@ impl State {
             },
             factor: 1.,
             offset: (0., 0.),
+            dpi: 1.,
         }
     }
 }

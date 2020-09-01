@@ -6,14 +6,23 @@ authors = ["Fredrick Brennan <copypaste@kittens.ph>"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+# For display
 reclutch = { git = "https://github.com/jazzfool/reclutch", features = ["skia"] }
 imgui-glium-renderer = "0.4.0"
 imgui-winit-support = "0.4.0"
 imgui = "0.4.0"
 gl = "0.14.0"
 glium = "0.27.0"
+
+# For icons in toolbox
+nsvg = "0.5.1"
+
+# For glifparser
 xmltree = "0.10.1"
+
+# For global state
 lazy_static = "1.4.0"
+
+# For argument parsing
 clap = "2.33.3"
 git-version = "0.3.4"
-thiserror = "1.0.20"
