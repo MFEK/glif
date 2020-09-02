@@ -14,8 +14,10 @@ lazy_static! {
 macro_rules! debug {
     ($($arg:tt)*) => ({
         use crate::util::DEBUG;
-        eprint!("Debug: ");
-        if *DEBUG { eprintln!($($arg)*); }
+        if *DEBUG {
+            eprint!("Debug: ");
+            eprintln!($($arg)*);
+        }
     })
 }
 
