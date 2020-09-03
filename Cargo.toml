@@ -17,9 +17,6 @@ glium = "0.27.0"
 # For icons in toolbox
 nsvg = "0.5.1"
 
-# For glifparser
-xmltree = "0.10.1"
-
 # For global state
 lazy_static = "1.4.0"
 
@@ -30,6 +27,6 @@ git-version = "0.3.4"
 # For UI toggles
 enum-iterator = "=0.6.0"
 
-# For data type in glifparser
-dyn-clone = "=1.0.2"
-derivative = "2.1.1"
+## Our crates
+# parses .glif files and gives us a place to put arbitrary data
+glifparser = { git = "https://github.com/mfeq/glifparser" }

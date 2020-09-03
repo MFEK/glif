@@ -16,8 +16,12 @@ use std::iter::Peekable;
 
 type Color = u32;
 
-impl<T> From<&GlifPoint<T>> for Point {
-    fn from(p: &GlifPoint<T>) -> Self {
+trait SkiaFromGlyph<T> {
+    fn from_glif(p: &GlifPoint<T>) -> Point;
+}
+
+impl<T> SkiaFromGlyph<T> for Point {
+    fn from_glif(p: &GlifPoint<T>) -> Self {
         Point::from((calc_x(p.x), calc_y(p.y)))
     }
 }

@@ -17,11 +17,12 @@ extern crate enum_iterator;
 extern crate glium;
 extern crate clap;
 extern crate gl;
-extern crate xmltree;
 #[macro_use]
 extern crate git_version; // for util::parse_args
 extern crate nsvg;
 extern crate reclutch;
+// Our crates
+extern crate glifparser;
 
 use glium::glutin;
 use glium::{GlObject, Surface};
@@ -51,7 +52,6 @@ mod util;
 mod state;
 use state::{state, Glyph, PointLabels};
 mod events;
-mod glifparser;
 mod opengl;
 mod renderer;
 

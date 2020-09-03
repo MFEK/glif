@@ -38,14 +38,3 @@ impl RoundFloat for f32 {
     }
 }
 
-impl fmt::LowerHex for Codepoint {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
-        match self {
-            Self::Hex(c) => {
-                let cc = *c as u32;
-                fmt::LowerHex::fmt(&cc, f)
-            }
-            Self::Undefined => fmt::LowerHex::fmt(&-1, f),
-        }
-    }
-}
