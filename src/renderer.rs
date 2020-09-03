@@ -24,16 +24,18 @@ use glutin::dpi::PhysicalPosition;
 use std::cell::RefCell;
 use std::cmp::min;
 
-#[derive(PartialEq)]
-enum HandleStyle {
-    Handlebars,
-    Floating,
+#[derive(Clone, Copy, PartialEq)]
+pub enum HandleStyle {
+    None,
+    Handlebars((Handle, Handle)),
+    Floating((Handle, Handle)),
 }
-#[derive(PartialEq)]
+#[derive(Clone, Copy, PartialEq)]
 pub enum UIPointType {
-    Point,
-    Handle(HandleStyle),
+    Point(HandleStyle),
+    Handle,
     Anchor,
+    Direction,
 }
 enum RendererPointType {
     Plain(UIPointType),
@@ -69,7 +71,7 @@ pub fn render_frame(frame: usize, fps: usize, bpm: usize, canvas: &mut Canvas) {
                     if point.b != Handle::Colocated {
                         i += 1;
                     }
-                    points::draw_complete_point(point, Some(i), UIPointType::Point, false, canvas);
+                    points::draw_complete_point(point, Some(i), false, canvas);
                     if point.a != Handle::Colocated {
                         i += 1;
                     }
@@ -88,7 +90,7 @@ pub fn render_frame(frame: usize, fps: usize, bpm: usize, canvas: &mut Canvas) {
         }
 
         for point in &v.borrow().selected {
-            points::draw_complete_point(point, None, UIPointType::Point, true, canvas);
+            points::draw_complete_point(point, None, true, canvas);
         }
 
         points::draw_directions(path, canvas);

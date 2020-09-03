@@ -9,7 +9,7 @@ use reclutch::skia::{Canvas, Paint, PaintStyle, Path, Point};
 use state::State;
 use std::cell::RefCell;
 
-pub fn draw_glyph(canvas: &mut Canvas, v: &RefCell<State>) -> Path {
+pub fn draw_glyph<T>(canvas: &mut Canvas, v: &RefCell<State<T>>) -> Path {
     let mut paint = Paint::default();
     paint.set_anti_alias(true);
     //paint.set_stroke_width(PEN_SIZE.max(canvas.image_info().dimensions().width as f32 / 360.0));
@@ -23,8 +23,8 @@ pub fn draw_glyph(canvas: &mut Canvas, v: &RefCell<State>) -> Path {
     for outline in v.borrow().glyph.as_ref().unwrap().glif.outline.as_ref() {
         for contour in outline {
             path.move_to((calc_x(contour[0].x), calc_y(contour[0].y)));
-            let firstpoint: &glifparser::Point = contour.first().unwrap();
-            let mut prevpoint: &glifparser::Point = contour.first().unwrap();
+            let firstpoint: &glifparser::Point<T> = contour.first().unwrap();
+            let mut prevpoint: &glifparser::Point<T> = contour.first().unwrap();
             let mut pointiter = contour.iter().enumerate().peekable();
             for (i, point) in pointiter {
                 match point.ptype {

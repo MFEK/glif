@@ -14,10 +14,31 @@ use glifparser::Point as GlifPoint;
 
 use std::iter::Peekable;
 
-impl From<&GlifPoint> for Point {
-    fn from(p: &GlifPoint) -> Self {
+type Color = u32;
+
+impl<T> From<&GlifPoint<T>> for Point {
+    fn from(p: &GlifPoint<T>) -> Self {
         Point::from((calc_x(p.x), calc_y(p.y)))
     }
+}
+
+fn get_fill_and_stroke(kind: UIPointType, selected: bool) -> (Color, Color) {
+    let (fill, stroke) = if selected {
+        (SELECTED_FILL, SELECTED_STROKE)
+    } else {
+        match kind {
+            UIPointType::Handle => (HANDLE_FILL, HANDLE_STROKE),
+            UIPointType::Point(HandleStyle::Handlebars((Handle::At(_, _), Handle::Colocated)))
+            | UIPointType::Point(HandleStyle::Handlebars((Handle::Colocated, Handle::At(_, _)))) => {
+                (POINT_ONE_FILL, POINT_ONE_STROKE)
+            }
+            UIPointType::Point(HandleStyle::Handlebars((Handle::Colocated, Handle::Colocated))) | UIPointType::Direction => {
+                (POINT_SQUARE_FILL, POINT_SQUARE_STROKE)
+            }
+            _ => (POINT_TWO_FILL, POINT_TWO_STROKE),
+        }
+    };
+    (fill, stroke)
 }
 
 pub fn draw_directions(path: Path, canvas: &mut Canvas) {
@@ -35,6 +56,7 @@ pub fn draw_directions(path: Path, canvas: &mut Canvas) {
 // triangle is not isoceles. We then move to the "point" (path2[1]), make a line to the second
 // point (on the base), finish that segment, and close the path.
 fn draw_triangle_point(at: Point, along: Vector, selected: bool, canvas: &mut Canvas) {
+    let (fill, stroke) = get_fill_and_stroke(UIPointType::Direction, selected);
     let factor = state.with(|v| v.borrow().factor);
     let mut paint = Paint::default();
     paint.set_stroke_width(DIRECTION_STROKE_THICKNESS * (1. / factor));
@@ -74,10 +96,10 @@ fn draw_triangle_point(at: Point, along: Vector, selected: bool, canvas: &mut Ca
     path.close();
 
     paint.set_style(PaintStyle::StrokeAndFill);
-    paint.set_color(POINT_SQUARE_FILL);
+    paint.set_color(fill);
     canvas.draw_path(&path, &paint);
     paint.set_style(PaintStyle::Stroke);
-    paint.set_color(POINT_SQUARE_STROKE);
+    paint.set_color(stroke);
     canvas.draw_path(&path, &paint);
 }
 
@@ -88,29 +110,12 @@ fn draw_round_point(
     canvas: &mut Canvas,
     paint: &mut Paint,
 ) {
-    let stroke = if selected {
-        SELECTED_STROKE
-    } else {
-        if kind != UIPointType::Point {
-            HANDLE_STROKE
-        } else {
-            POINT_TWO_STROKE
-        }
-    };
-    let fill = if selected {
-        SELECTED_FILL
-    } else {
-        if kind != UIPointType::Point {
-            HANDLE_FILL
-        } else {
-            POINT_TWO_FILL
-        }
-    };
+    let (fill, stroke) = get_fill_and_stroke(kind, selected);
     let factor = state.with(|v| v.borrow().factor);
     let radius = POINT_RADIUS
         * (1. / factor)
-        * if selected && kind == UIPointType::Point {
-            2.
+        * if kind != UIPointType::Handle && selected {
+            1.75
         } else {
             1.
         };
@@ -125,33 +130,22 @@ fn draw_square_point(
     at: (f32, f32),
     kind: UIPointType,
     selected: bool,
-    stroke: u32,
-    fill: u32,
     canvas: &mut Canvas,
     paint: &mut Paint,
 ) {
+    let (fill, stroke) = get_fill_and_stroke(kind, selected);
     let factor = state.with(|v| v.borrow().factor);
-    let radius = (POINT_RADIUS * (1. / factor)) * 2. * if selected { 2. } else { 1. };
+    let radius = (POINT_RADIUS * (1. / factor)) * 2. * if selected { 1.75 } else { 1. };
 
     let mut path = Path::new();
-    match kind {
-        UIPointType::Point => {
-            paint.set_color(fill);
-        }
-        _ => unreachable!("Handle not round"),
-    }
+    paint.set_color(fill);
     path.add_rect(
         Rect::from_point_and_size((at.0 - radius / 2., at.1 - radius / 2.), (radius, radius)),
         None,
     );
     path.close();
     canvas.draw_path(&path, &paint);
-    match kind {
-        UIPointType::Point => {
-            paint.set_color(stroke);
-        }
-        _ => unreachable!("Handle not round"),
-    }
+    paint.set_color(stroke);
     paint.set_style(PaintStyle::Stroke);
     canvas.draw_path(&path, &paint);
 }
@@ -206,7 +200,6 @@ fn draw_point(
     original: (f32, f32),
     number: Option<isize>,
     kind: UIPointType,
-    handles: (Handle, Handle),
     selected: bool,
     canvas: &mut Canvas,
 ) {
@@ -217,48 +210,15 @@ fn draw_point(
     paint.set_stroke_width(POINT_STROKE_THICKNESS * (1. / factor));
     let radius = POINT_RADIUS * (1. / factor);
 
-    match handles {
-        (Handle::At(_, _), Handle::At(_, _)) => {
+    match kind {
+        UIPointType::Handle
+        | UIPointType::Point(HandleStyle::Handlebars((Handle::At(_, _), Handle::At(_, _)))) => {
             draw_round_point(at, kind, selected, canvas, &mut paint);
         }
-        (Handle::Colocated, Handle::At(_, _)) | (Handle::At(_, _), Handle::Colocated) => {
-            draw_square_point(
-                at,
-                kind,
-                selected,
-                if selected {
-                    SELECTED_STROKE
-                } else {
-                    POINT_ONE_STROKE
-                },
-                if selected {
-                    SELECTED_FILL
-                } else {
-                    POINT_ONE_FILL
-                },
-                canvas,
-                &mut paint,
-            );
+        UIPointType::Point(_) => {
+            draw_square_point(at, kind, selected, canvas, &mut paint);
         }
-        _ => {
-            draw_square_point(
-                at,
-                kind,
-                selected,
-                if selected {
-                    SELECTED_STROKE
-                } else {
-                    POINT_SQUARE_STROKE
-                },
-                if selected {
-                    SELECTED_FILL
-                } else {
-                    POINT_SQUARE_FILL
-                },
-                canvas,
-                &mut paint,
-            );
-        }
+        _ => {}
     }
 
     match number {
@@ -268,6 +228,11 @@ fn draw_point(
             PointLabels::Numbered => draw_point_number(at, i, canvas),
             PointLabels::Locations => draw_point_location(at, original, canvas),
         },
+    }
+
+    if let UIPointType::Point(HandleStyle::Handlebars((a, b))) = kind {
+        draw_handle(a, selected, canvas);
+        draw_handle(b, selected, canvas);
     }
 }
 
@@ -279,8 +244,7 @@ fn draw_handle(h: Handle, selected: bool, canvas: &mut Canvas) {
                 (calc_x(x), calc_y(y)),
                 (x, y),
                 None,
-                UIPointType::Handle(HandleStyle::Floating),
-                (Handle::At(0., 0.), Handle::At(0., 0.)),
+                UIPointType::Handle,
                 selected,
                 canvas,
             );
@@ -320,10 +284,9 @@ fn draw_handlebars(a: Handle, b: Handle, at: (f32, f32), selected: bool, canvas:
     canvas.draw_path(&path, &paint);
 }
 
-pub fn draw_complete_point(
-    point: &glifparser::Point,
+pub fn draw_complete_point<T>(
+    point: &glifparser::Point<T>,
     number: Option<isize>,
-    kind: UIPointType,
     selected: bool,
     canvas: &mut Canvas,
 ) {
@@ -338,11 +301,8 @@ pub fn draw_complete_point(
         (calc_x(point.x), calc_y(point.y)),
         (point.x, point.y),
         number,
-        UIPointType::Point,
-        (point.a, point.b),
+        UIPointType::Point(HandleStyle::Handlebars((point.a, point.b))),
         selected,
         canvas,
     );
-    draw_handle(point.a, selected, canvas);
-    draw_handle(point.b, selected, canvas);
 }

@@ -11,8 +11,8 @@ use reclutch::skia::Surface;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-pub struct Glyph {
-    pub glif: Glif,
+pub struct Glyph<T> {
+    pub glif: Glif<T>,
     pub filename: String,
 }
 
@@ -40,10 +40,10 @@ pub struct Icons {
 }
 
 // Thread local state.
-pub struct State {
+pub struct State<T> {
     pub mode: Mode,
-    pub glyph: Option<Glyph>,
-    pub selected: Vec<Point>,
+    pub glyph: Option<Glyph<T>>,
+    pub selected: Vec<Point<T>>,
     pub mousedown: bool,
     pub mousepos: PhysicalPosition<f64>,
     pub absolute_mousepos: PhysicalPosition<f64>,
@@ -59,8 +59,8 @@ pub struct State {
     pub icons: Option<Icons>,
 }
 
-impl State {
-    pub fn new() -> State {
+impl<T> State<T> {
+    pub fn new() -> State<T> {
         // FIXME: Making a new one doesn't get current mouse position nor window size.
         State {
             glyph: None,
@@ -85,4 +85,7 @@ impl State {
     }
 }
 
-thread_local!(pub static state: RefCell<State> = RefCell::new(State::new()));
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct PointData;
+
+thread_local!(pub static state: RefCell<State<Option<PointData>>> = RefCell::new(State::new()));

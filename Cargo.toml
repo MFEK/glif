@@ -29,3 +29,7 @@ git-version = "0.3.4"
 
 # For UI toggles
 enum-iterator = "=0.6.0"
+
+# For data type in glifparser
+dyn-clone = "=1.0.2"
+derivative = "2.1.1"

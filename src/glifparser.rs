@@ -8,7 +8,7 @@ pub enum PointType {
     QCurve,
     Line,
     OffCurve,
-} // Undefined used by new(), shouldn't appear in Point structs
+} // Undefined used by new(), shouldn't appear in Point<T> structs
 
 #[derive(Debug, Copy, Clone)]
 pub enum AnchorType {
@@ -61,21 +61,22 @@ type GlifOutline = Vec<GlifContour>;
 
 // A Skia-friendly point
 #[derive(Debug, Clone)]
-pub struct Point {
+pub struct Point<T> {
     pub x: f32,
     pub y: f32,
     pub a: Handle,
     pub b: Handle,
     name: Option<String>,
     pub ptype: PointType,
+    pub data: Option<T>,
 }
 
 pub enum WhichHandle {
     A,
     B,
 }
-impl Point {
-    pub fn new() -> Point {
+impl<T> Point<T> {
+    pub fn new() -> Point<T> {
         Point {
             x: 0.,
             y: 0.,
@@ -83,6 +84,7 @@ impl Point {
             b: Handle::Colocated,
             ptype: PointType::Undefined,
             name: None,
+            data: None
         }
     }
 
@@ -122,8 +124,8 @@ impl Anchor {
     }
 }
 
-pub type Contour = Vec<Point>;
-pub type Outline = Vec<Contour>;
+pub type Contour<T> = Vec<Point<T>>;
+pub type Outline<T> = Vec<Contour<T>>;
 
 #[derive(Debug, PartialEq)]
 pub enum Codepoint {
@@ -132,8 +134,8 @@ pub enum Codepoint {
 }
 
 #[derive(Debug)]
-pub struct Glif {
-    pub outline: Option<Outline>,
+pub struct Glif<T> {
+    pub outline: Option<Outline<T>>,
     pub anchors: Option<Vec<Anchor>>,
     pub width: u64,
     pub unicode: Codepoint,
@@ -160,7 +162,7 @@ fn parse_point_type(pt: Option<&str>) -> PointType {
     }
 }
 
-pub fn read_ufo_glif(glif: &str) -> Glif {
+pub fn read_ufo_glif<T>(glif: &str) -> Glif<T> {
     let mut glif = xmltree::Element::parse(glif.as_bytes()).expect("Invalid XML");
     let mut ret = Glif {
         outline: None,
@@ -276,12 +278,12 @@ pub fn read_ufo_glif(glif: &str) -> Glif {
 
     let mut goiter = goutline.iter();
 
-    let mut outline: Outline = Vec::new();
+    let mut outline: Outline<T> = Vec::new();
 
     let mut stack: VecDeque<&GlifPoint> = VecDeque::new();
 
     for gc in goutline.iter() {
-        let mut contour: Contour = Vec::new();
+        let mut contour: Contour<T> = Vec::new();
         for gp in gc.iter() {
             match gp.ptype {
                 PointType::OffCurve => {
@@ -298,6 +300,7 @@ pub fn read_ufo_glif(glif: &str) -> Glif {
                         b: Handle::from(h2),
                         name: gp.name.clone(),
                         ptype: gp.ptype,
+                        data: None
                     });
                 }
             }

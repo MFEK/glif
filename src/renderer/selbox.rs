@@ -11,7 +11,7 @@ use state::State;
 
 use crate::glifparser;
 
-pub fn draw_selbox(canvas: &mut Canvas, v: &RefCell<State>) -> Rect {
+pub fn draw_selbox<T>(canvas: &mut Canvas, v: &RefCell<State<T>>) -> Rect {
     let c1 = v
         .borrow()
         .corner_one
@@ -41,13 +41,13 @@ pub fn draw_selbox(canvas: &mut Canvas, v: &RefCell<State>) -> Rect {
 
 pub fn build_sel_vec_from_rect(
     rect: Rect,
-    outline: Option<&Vec<glifparser::Contour>>,
-) -> Vec<glifparser::Point> {
+    outline: Option<&Vec<glifparser::Contour<Option<state::PointData>>>>,
+) -> Vec<glifparser::Point<Option<state::PointData>>> {
     let mut selected = Vec::new();
     for o in outline {
         for contour in o {
             for point in contour {
-                if Rect::from(rect).contains(Point::from(point)) {
+                if Rect::from(rect).contains(Point::from((point.x, point.y))) {
                     selected.push(point.clone());
                 }
             }
