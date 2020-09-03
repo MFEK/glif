@@ -3,8 +3,12 @@ pub mod argparser;
 
 use crate::glifparser::Codepoint;
 use std::fmt;
+use std::env;
 use std::option::Option;
 use std::panic::set_hook;
+
+use backtrace::Backtrace;
+use colored::Colorize;
 
 lazy_static! {
     pub static ref DEBUG: bool = { option_env!("DEBUG").is_some() };
@@ -23,7 +27,13 @@ macro_rules! debug {
 
 pub fn set_panic_hook() {
     set_hook(Box::new(|info| {
-        println!("{:?}", info.message().unwrap());
+        eprintln!("\n{}\n", format!("{}", info.message().unwrap()).bright_red());
+
+        if env::var("RUST_BACKTRACE").is_ok() {
+            let mut bt = Backtrace::new();
+            bt.resolve();
+            eprintln!("Requested backtrace:\n{:?}", bt);
+        }
     }));
 }
 

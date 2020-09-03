@@ -13,6 +13,8 @@
 #[macro_use]
 extern crate lazy_static;
 extern crate enum_iterator;
+extern crate backtrace;
+extern crate colored;
 #[macro_use]
 extern crate glium;
 extern crate clap;

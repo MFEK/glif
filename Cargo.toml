@@ -27,6 +27,10 @@ git-version = "0.3.4"
 # For UI toggles
 enum-iterator = "=0.6.0"
 
+# Display backtraces
+backtrace = "0.3.0"
+colored = "2.0.0"
+
 ## Our crates
 # parses .glif files and gives us a place to put arbitrary data
 glifparser = { git = "https://github.com/mfeq/glifparser" }
