@@ -36,9 +36,8 @@ fn get_fill_and_stroke(kind: UIPointType, selected: bool) -> (Color, Color) {
             | UIPointType::Point(HandleStyle::Handlebars((Handle::Colocated, Handle::At(_, _)))) => {
                 (POINT_ONE_FILL, POINT_ONE_STROKE)
             }
-            UIPointType::Point(HandleStyle::Handlebars((Handle::Colocated, Handle::Colocated))) | UIPointType::Direction => {
-                (POINT_SQUARE_FILL, POINT_SQUARE_STROKE)
-            }
+            UIPointType::Point(HandleStyle::Handlebars((Handle::Colocated, Handle::Colocated)))
+            | UIPointType::Direction => (POINT_SQUARE_FILL, POINT_SQUARE_STROKE),
             _ => (POINT_TWO_FILL, POINT_TWO_STROKE),
         }
     };

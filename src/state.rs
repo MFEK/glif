@@ -9,11 +9,12 @@ use glutin::dpi::{PhysicalPosition, PhysicalSize};
 use reclutch::skia::Surface;
 
 use std::cell::RefCell;
+use std::path::PathBuf;
 use std::rc::Rc;
 
 pub struct Glyph<T> {
     pub glif: Glif<T>,
-    pub filename: String,
+    pub filename: PathBuf,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]

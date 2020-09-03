@@ -33,4 +33,5 @@ colored = "2.0.0"
 
 ## Our crates
 # parses .glif files and gives us a place to put arbitrary data
-glifparser = { git = "https://github.com/mfeq/glifparser" }
+#glifparser = { git = "https://github.com/mfeq/glifparser" }
+glifparser = { path = "../glifparser" }

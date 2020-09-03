@@ -2,8 +2,8 @@
 pub mod argparser;
 
 use crate::glifparser::Codepoint;
-use std::fmt;
 use std::env;
+use std::fmt;
 use std::option::Option;
 use std::panic::set_hook;
 
@@ -27,7 +27,10 @@ macro_rules! debug {
 
 pub fn set_panic_hook() {
     set_hook(Box::new(|info| {
-        eprintln!("\n{}\n", format!("{}", info.message().unwrap()).bright_red());
+        eprintln!(
+            "\n{}\n",
+            format!("{}", info.message().unwrap()).bright_red()
+        );
 
         if env::var("RUST_BACKTRACE").is_ok() {
             let mut bt = Backtrace::new();
@@ -47,4 +50,3 @@ impl RoundFloat for f32 {
         (self * 100.).round() / 100.
     }
 }
-

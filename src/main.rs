@@ -12,9 +12,9 @@
 // Cargo.toml comments say what crates are used for what.
 #[macro_use]
 extern crate lazy_static;
-extern crate enum_iterator;
 extern crate backtrace;
 extern crate colored;
+extern crate enum_iterator;
 #[macro_use]
 extern crate glium;
 extern crate clap;
@@ -50,6 +50,7 @@ use imgui_winit_support::{HiDpiMode, WinitPlatform};
 
 #[macro_use]
 mod util;
+mod io;
 // Provides a thread-local global `state` variable
 mod state;
 use state::{state, Glyph, PointLabels};
@@ -59,7 +60,6 @@ mod renderer;
 
 use renderer::constants::*;
 
-use std::fs;
 fn main() {
     util::set_panic_hook();
 
@@ -70,31 +70,7 @@ fn main() {
 
     let args = util::argparser::parse_args();
     let filename = args.filename;
-    let glif =
-        glifparser::read_ufo_glif(&fs::read_to_string(&filename).expect("Failed to read file"));
-    state.with(|v| {
-        v.borrow_mut().glyph = Some(Glyph {
-            glif,
-            filename: filename.clone(),
-        })
-    });
-    state.with(|v| {
-        v.borrow().glyph.as_ref().map(|glyph| {
-            let glif = &glyph.glif;
-            debug!(
-                "Loaded {:?} (U+{:04x}) from {}",
-                glif.name,
-                glif.unicode,
-                state.with(|v| v
-                    .borrow()
-                    .glyph
-                    .as_ref()
-                    .expect("Glyph NULL!?")
-                    .filename
-                    .clone())
-            );
-        });
-    });
+    let glif = io::load_glif(&filename);
 
     let event_loop = EventLoop::new();
 
