@@ -35,8 +35,18 @@ pub enum PointLabels {
 
 use glium::texture;
 
-pub struct PenData<T: 'static> {
-    pub contour: Option<&'static Contour<T>>,
+pub struct PenData {
+    pub contour: Option<usize>,   // index into Outline
+    pub cur_point: Option<usize>, // index into Contour
+}
+
+impl PenData {
+    fn new() -> Self {
+        PenData {
+            contour: None,
+            cur_point: None,
+        }
+    }
 }
 
 // Thread local state.
@@ -89,4 +99,4 @@ impl<T> State<T> {
 pub struct PointData;
 
 thread_local!(pub static STATE: RefCell<State<Option<PointData>>> = RefCell::new(State::new()));
-thread_local!(pub static PEN_DATA: RefCell<Option<PenData<Option<PointData>>>> = RefCell::new(None));
+thread_local!(pub static PEN_DATA: RefCell<PenData> = RefCell::new(PenData::new()));

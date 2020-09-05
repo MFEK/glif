@@ -214,6 +214,8 @@ fn main() {
                         return;
                     }
                     STATE.with(|v| {
+                        let mode = v.borrow().mode;
+                        let mut newmode = mode;
                         let mut scale = v.borrow().factor;
                         let mut offset = v.borrow().offset;
                         match virtual_keycode {
@@ -239,32 +241,47 @@ fn main() {
                                 offset.0 += -OFFSET_FACTOR;
                             }
                             // Modes
-                            Some(VirtualKeyCode::V) => {
-                                v.borrow_mut().mode = state::Mode::Select;
-                            }
                             Some(VirtualKeyCode::A) => {
-                                v.borrow_mut().mode = state::Mode::Pan;
+                                newmode = state::Mode::Pan;
+                            }
+                            Some(VirtualKeyCode::P) => {
+                                newmode = state::Mode::Pen;
+                            }
+                            Some(VirtualKeyCode::V) => {
+                                newmode = state::Mode::Select;
                             }
                             Some(VirtualKeyCode::Z) => {
-                                v.borrow_mut().mode = state::Mode::Zoom;
+                                newmode = state::Mode::Zoom;
                             }
                             // Toggles
                             Some(VirtualKeyCode::Key3) => {
                                 let point_labels = v.borrow().point_labels;
                                 if modifiers.shift() {
-                                    let mut e = PointLabels::into_enum_iter().cycle().skip(1+point_labels as usize);
+                                    let mut e = PointLabels::into_enum_iter()
+                                        .cycle()
+                                        .skip(1 + point_labels as usize);
                                     let pl = e.next().unwrap();
                                     v.borrow_mut().point_labels = pl;
                                 }
                             }
-                            _ => {},
+                            _ => {}
                         }
+                        if mode != newmode {
+                            v.borrow_mut().mode = newmode;
+                            events::mode_switched(mode, newmode);
+                        }
+
                         display.perform_draw_closure(|canvas, _| {
                             events::update_viewport(Some(offset), Some(scale), &v, canvas)
                         });
 
                         should_redraw_skia = true;
-                        debug!("Scale factor now {}; offset {:?}; mode {:?}", v.borrow().factor, v.borrow().offset, v.borrow().mode);
+                        debug!(
+                            "Scale factor now {}; offset {:?}; mode {:?}",
+                            v.borrow().factor,
+                            v.borrow().offset,
+                            v.borrow().mode
+                        );
                     });
                 }
                 WindowEvent::CursorMoved { position, .. } => {
@@ -274,10 +291,13 @@ fn main() {
 
                             should_redraw_skia = match mode {
                                 #[rustfmt::skip]
-                                state::Mode::Select => events::mouse_moved_select(position, &v, canvas),
                                 state::Mode::Pan => events::mouse_moved_move(position, &v, canvas),
+                                state::Mode::Pen => events::mouse_moved_pen(position, &v, canvas),
+                                state::Mode::Select => {
+                                    events::mouse_moved_select(position, &v, canvas)
+                                }
                                 state::Mode::Zoom => events::mouse_moved_zoom(position, &v, canvas),
-                                _ => {false}
+                                _ => false,
                             };
                         });
                     });
@@ -291,8 +311,11 @@ fn main() {
                         // Ignore events if we are clicking on Dear ImGui toolbox.
                         let toolbox_rect = opengl::imgui::toolbox_rect();
                         let absolute_position = v.borrow().absolute_mousepos;
-                        if toolbox_rect.contains(Point::from((absolute_position.x as f32, absolute_position.y as f32))) {
-                            return
+                        if toolbox_rect.contains(Point::from((
+                            absolute_position.x as f32,
+                            absolute_position.y as f32,
+                        ))) {
+                            return;
                         }
 
                         display.perform_draw_closure(|canvas, _| {
@@ -310,6 +333,9 @@ fn main() {
                             match mstate {
                                 ElementState::Pressed => {
                                     should_redraw_skia = match mode {
+                                        state::Mode::Pen => {
+                                            events::mouse_pressed_pen(position, &v, canvas, button)
+                                        }
                                         state::Mode::Select => events::mouse_pressed_select(
                                             position, &v, canvas, button,
                                         ),
@@ -318,6 +344,9 @@ fn main() {
                                 }
                                 ElementState::Released => {
                                     should_redraw_skia = match mode {
+                                        state::Mode::Pen => {
+                                            events::mouse_released_pen(position, &v, canvas, button)
+                                        }
                                         state::Mode::Select => events::mouse_released_select(
                                             position, &v, canvas, button,
                                         ),

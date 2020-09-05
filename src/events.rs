@@ -1,9 +1,17 @@
 use crate::renderer::constants::*;
+use crate::renderer::points::calc::*;
 use crate::state;
+use crate::{PEN_DATA, STATE};
+use state::{Mode, PenData, PointData};
+
 use glutin::dpi::{PhysicalPosition, PhysicalSize};
 use glutin::event::MouseButton;
 use reclutch::skia::{Canvas, Matrix};
+
 use std::cell::RefCell;
+use std::mem;
+
+// Generic events
 
 pub fn update_viewport<T>(
     offset: Option<(f32, f32)>,
@@ -165,5 +173,129 @@ pub fn mouse_released_zoom<T>(
     offset.0 = -(position.x as f32 / 2.);
     offset.1 = -(position.y as f32 / 2.);
     update_viewport(Some(offset), Some(scale), &v, canvas);
+    true
+}
+
+// Pen
+
+use glifparser::{self, Contour, Handle, Outline, Point, PointType};
+
+// $e of type RefCell<State<T>>
+macro_rules! get_outline_mut {
+    ($e:expr) => {
+        $e.borrow_mut()
+            .glyph
+            .as_mut()
+            .unwrap()
+            .glif
+            .outline
+            .as_mut()
+            .unwrap()
+    };
+}
+macro_rules! get_outline {
+    ($e:expr) => {
+        $e.borrow()
+            .glyph
+            .as_ref()
+            .unwrap()
+            .glif
+            .outline
+            .as_ref()
+            .unwrap()
+    };
+}
+
+pub fn mode_switched(from: Mode, to: Mode) {
+    assert!(from != to);
+    PEN_DATA.with(|v| v.borrow_mut().contour = None);
+}
+
+pub fn mouse_moved_pen(
+    position: PhysicalPosition<f64>,
+    v: &RefCell<state::State<Option<PointData>>>,
+    canvas: &mut Canvas,
+) -> bool {
+    let mposition = update_mousepos(position, &v, false);
+
+    PEN_DATA.with(|vv| {
+        let contour = vv.borrow().contour;
+        match contour {
+            Some(idx) => {
+                if v.borrow().mousedown {
+                    let mut last_point = get_outline!(v)[idx].last().unwrap().clone();
+
+                    let pos = (calc_x(mposition.x as f32), calc_y(mposition.y as f32));
+                    let offset = (last_point.x - pos.0, last_point.y - pos.1);
+                    let handle_b = (last_point.x + offset.0, last_point.y + offset.1);
+
+                    get_outline_mut!(v)[idx].last_mut().unwrap().a =
+                        Handle::At(calc_x(mposition.x as f32), calc_y(mposition.y as f32));
+                    get_outline_mut!(v)[idx].last_mut().unwrap().b =
+                        Handle::At(handle_b.0, handle_b.1);
+                } else {
+                    /*mem::replace(
+                        get_outline_mut!(v)[idx].last_mut().unwrap(),
+                        (Point::from_x_y_type((calc_x(mposition.x as f32), calc_y(mposition.y as f32)), PointType::Curve))
+                    );*/
+                }
+            }
+            None => {}
+        }
+    });
+
+    true
+}
+
+pub fn mouse_pressed_pen(
+    position: PhysicalPosition<f64>,
+    v: &RefCell<state::State<Option<PointData>>>,
+    canvas: &mut Canvas,
+    button: MouseButton,
+) -> bool {
+    let mposition = v.borrow().mousepos;
+
+    PEN_DATA.with(|vv| {
+        let contour = vv.borrow().contour;
+        match contour {
+            Some(idx) => {
+                get_outline_mut!(v)[idx].push(Point::from_x_y_type(
+                    (calc_x(mposition.x as f32), calc_y(mposition.y as f32)),
+                    PointType::Curve,
+                ));
+            }
+            None => {
+                let mut new_contour: Contour<Option<PointData>> = Vec::new();
+                new_contour.push(Point::from_x_y_type(
+                    (calc_x(mposition.x as f32), calc_y(mposition.y as f32)),
+                    PointType::Curve,
+                ));
+                get_outline_mut!(v).push(new_contour);
+                vv.borrow_mut().contour = Some(get_outline!(v).len() - 1);
+            }
+        }
+    });
+    true
+}
+
+pub fn mouse_released_pen(
+    position: PhysicalPosition<f64>,
+    v: &RefCell<state::State<Option<PointData>>>,
+    canvas: &mut Canvas,
+    button: MouseButton,
+) -> bool {
+    let mposition = v.borrow().mousepos;
+
+    PEN_DATA.with(|vv| {
+        //vv.borrow_mut().contour = None;
+        if let Some(idx) = vv.borrow().contour {
+            get_outline_mut!(v)[idx].last_mut().map(|point| {
+                if point.a != Handle::Colocated {
+                    point.ptype = PointType::Curve;
+                }
+            });
+        }
+    });
+
     true
 }

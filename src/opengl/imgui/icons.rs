@@ -25,7 +25,7 @@ impl Icons {
         // &* needed as these are lazy_static!'s
         let ret = Self {
             pan: load_icon(display, renderer, PAN_ICON_IMAGE.clone(), "pan"),
-            pen: load_icon(display, renderer, PEN_ICON_IMAGE.clone(), "pan"),
+            pen: load_icon(display, renderer, PEN_ICON_IMAGE.clone(), "pen"),
             select: load_icon(display, renderer, SELECT_ICON_IMAGE.clone(), "select"),
             zoom: load_icon(display, renderer, ZOOM_ICON_IMAGE.clone(), "zoom"),
         };

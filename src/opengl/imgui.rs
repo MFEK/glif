@@ -8,6 +8,7 @@ use std::borrow::Borrow;
 use std::rc::Rc;
 use std::time::Instant;
 
+use crate::events;
 use crate::state::Mode;
 use crate::STATE;
 
@@ -27,6 +28,7 @@ fn button_from_texture(tex: (imgui::TextureId, Rc<texture::Texture2d>)) -> imgui
 
 pub fn build_imgui_ui(ui: &mut imgui::Ui) {
     STATE.with(|v| {
+        let mode = v.borrow().mode;
         // These clones are "free" since it's an Rc<_>
         let pan_ref = v.borrow().icons.as_ref().unwrap().pan.clone();
         let mut pan_button = button_from_texture(pan_ref);
@@ -85,6 +87,11 @@ pub fn build_imgui_ui(ui: &mut imgui::Ui) {
                     v.borrow_mut().mode = Mode::Pen;
                 }
             });
+
+        let new_mode = v.borrow().mode;
+        if new_mode != mode {
+            events::mode_switched(mode, new_mode);
+        }
     });
 }
 
