@@ -47,7 +47,7 @@ pub fn build_sel_vec_from_rect(
     for o in outline {
         for contour in o {
             for point in contour {
-                if Rect::from(rect).contains(Point::from((point.x, point.y))) {
+                if Rect::from(rect).contains(Point::from((calc_x(point.x), calc_y(point.y)))) {
                     selected.push(point.clone());
                 }
             }

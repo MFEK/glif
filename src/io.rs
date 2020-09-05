@@ -1,10 +1,17 @@
 use crate::state::{state, Glyph};
+use crate::util::DEBUG;
+use std::env;
 use std::fs;
 use std::path::Path;
 
 pub fn load_glif<F: AsRef<Path> + Clone>(filename: F) {
     let glif =
         glifparser::read_ufo_glif(&fs::read_to_string(&filename).expect("Failed to read file"));
+
+    if env::var("DEBUG_DUMP_GLYPH").is_ok() {
+        debug!("{:?}", glif);
+    }
+
     state.with(|v| {
         v.borrow_mut().glyph = Some(Glyph {
             glif,

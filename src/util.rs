@@ -27,10 +27,12 @@ macro_rules! debug {
 
 pub fn set_panic_hook() {
     set_hook(Box::new(|info| {
-        eprintln!(
-            "\n{}\n",
-            format!("{}", info.message().unwrap()).bright_red()
-        );
+        let msg = info.payload().downcast_ref::<&str>();
+
+        match msg {
+            Some(info) => eprintln!("\n{}\n", info.bright_red()),
+            _ => {}
+        }
 
         if env::var("RUST_BACKTRACE").is_ok() {
             let mut bt = Backtrace::new();
