@@ -9,9 +9,9 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="23.999969"
+   width="28"
    height="44"
-   viewBox="0 0 6.3499918 11.641667"
+   viewBox="0 0 7.4083332 11.641667"
    version="1.1"
    id="svg1945"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
@@ -26,20 +26,20 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="5.6"
-     inkscape:cx="12.041742"
+     inkscape:cx="-17.690401"
      inkscape:cy="13.294114"
      inkscape:document-units="mm"
-     inkscape:current-layer="g347"
+     inkscape:current-layer="layer1"
      showgrid="false"
      units="px"
      fit-margin-top="1"
      fit-margin-left="1"
      fit-margin-right="1"
      fit-margin-bottom="1"
-     inkscape:window-width="724"
+     inkscape:window-width="1027"
      inkscape:window-height="815"
-     inkscape:window-x="1141"
-     inkscape:window-y="89"
+     inkscape:window-x="678"
+     inkscape:window-y="135"
      inkscape:window-maximized="0" />
   <metadata
      id="metadata1942">
@@ -61,35 +61,39 @@
     <g
        transform="matrix(0.26458333,0,0,0.26458333,-172.37604,103.0056)"
        id="g347"
-       style="filter:url(#filter16_d)">
+       style="filter:url(#filter16_d)" />
+    <g
+       id="g833">
       <path
-         d="m 776,227 h -12 v -8 -5 l -4,-6 4,-8 3,-13 h 5.857 l 3.143,13 4,8 -4,6 v 5 z"
+         style="filter:url(#filter16_d);fill:#dddddd"
+         inkscape:connector-curvature="0"
          id="path343"
-         inkscape:connector-curvature="0"
-         style="fill:#dddddd" />
+         d="m 778.00001,227 h -12 v -8 -5 l -4,-6 4,-8 3,-13 h 5.857 l 3.143,13 4,8 -4,6 v 5 z"
+         transform="matrix(0.26458333,0,0,0.26458333,-172.37604,103.0056)" />
       <path
-         d="m 776,227 h -12 v -8 -5 l -4,-6 4,-8 3,-13 h 5.857 l 3.143,13 4,8 -4,6 v 5 z"
-         id="path345"
+         style="filter:url(#filter16_d);fill:#dddddf;fill-opacity:0.94117647;stroke:#000000;stroke-width:2;stroke-linejoin:round"
          inkscape:connector-curvature="0"
-         style="fill:#dddddf;fill-opacity:0.94117647;stroke:#000000;stroke-width:2;stroke-linejoin:round" />
+         id="path345"
+         d="m 778.00001,227 h -12 v -8 -5 l -4,-6 4,-8 3,-13 h 5.857 l 3.143,13 4,8 -4,6 v 5 z"
+         transform="matrix(0.26458333,0,0,0.26458333,-172.37604,103.0056)" />
+      <rect
+         style="fill:#aaaaaa;stroke:#000000;stroke-width:0.52916664;stroke-linejoin:round;filter:url(#filter1_d)"
+         id="rect349"
+         height="2.1166666"
+         width="3.175"
+         y="160.94936"
+         x="30.294794" />
+      <path
+         style="stroke:#000000;stroke-width:0.52916664;stroke-linecap:round;stroke-linejoin:round;filter:url(#filter1_d)"
+         inkscape:connector-curvature="0"
+         id="path351"
+         d="m 31.882295,152.48269 v 5.82083" />
+      <circle
+         style="fill:#000000;stroke-width:0.26458332;filter:url(#filter1_d)"
+         id="circle353"
+         r="0.52916664"
+         cy="158.30353"
+         cx="31.882296" />
     </g>
-    <rect
-       x="29.765627"
-       y="160.94936"
-       width="3.175"
-       height="2.1166666"
-       id="rect349"
-       style="fill:#aaaaaa;stroke:#000000;stroke-width:0.52916664;stroke-linejoin:round;filter:url(#filter1_d)" />
-    <path
-       d="m 31.353128,152.48269 v 5.82083"
-       id="path351"
-       inkscape:connector-curvature="0"
-       style="stroke:#000000;stroke-width:0.52916664;stroke-linecap:round;stroke-linejoin:round;filter:url(#filter1_d)" />
-    <circle
-       cx="31.353128"
-       cy="158.30353"
-       r="0.52916664"
-       id="circle353"
-       style="fill:#000000;stroke-width:0.26458332;filter:url(#filter1_d)" />
   </g>
 </svg>

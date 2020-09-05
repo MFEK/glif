@@ -136,7 +136,7 @@ fn main() {
         ImguiRenderer::init(&mut imgui, &gl_display).expect("Failed to initialize renderer");
 
     state.with(|v| {
-        let icons = state::Icons::from_display(&gl_display, &mut renderer);
+        let icons = opengl::imgui::icons::Icons::from_display(&gl_display, &mut renderer);
         v.borrow_mut().icons = Some(icons);
     });
 
@@ -276,6 +276,7 @@ fn main() {
                                 state::Mode::Select => events::mouse_moved_select(position, &v, canvas),
                                 state::Mode::Pan => events::mouse_moved_move(position, &v, canvas),
                                 state::Mode::Zoom => events::mouse_moved_zoom(position, &v, canvas),
+                                _ => {false}
                             };
                         });
                     });

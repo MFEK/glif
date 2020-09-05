@@ -3,6 +3,7 @@
 use imgui;
 
 use super::glifparser;
+use crate::opengl::imgui::icons::Icons;
 use enum_iterator::IntoEnumIterator;
 use glifparser::{Glif, Point};
 use glutin::dpi::{PhysicalPosition, PhysicalSize};
@@ -20,6 +21,7 @@ pub struct Glyph<T> {
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Mode {
     Pan,
+    Pen,
     Select,
     Zoom,
 }
@@ -32,13 +34,6 @@ pub enum PointLabels {
 }
 
 use glium::texture;
-
-#[derive(Debug)]
-pub struct Icons {
-    pub select: (imgui::TextureId, Rc<texture::Texture2d>),
-    pub pan: (imgui::TextureId, Rc<texture::Texture2d>),
-    pub zoom: (imgui::TextureId, Rc<texture::Texture2d>),
-}
 
 // Thread local state.
 pub struct State<T> {

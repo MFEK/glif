@@ -8,15 +8,17 @@ use std::borrow::Borrow;
 use std::rc::Rc;
 use std::time::Instant;
 
-use crate::state::{state, Icons, Mode};
+use crate::state::{state, Mode};
 
-mod icons;
+pub mod icons;
+
+use self::icons::Icons;
 
 // These are before transformation by state::state::dpi (glutin scale_factor)
 const TOOLBOX_OFFSET_X: f32 = 10.;
 const TOOLBOX_OFFSET_Y: f32 = TOOLBOX_OFFSET_X;
 const TOOLBOX_WIDTH: f32 = 45.;
-const TOOLBOX_HEIGHT: f32 = 200.;
+const TOOLBOX_HEIGHT: f32 = 220.;
 
 fn button_from_texture(tex: (imgui::TextureId, Rc<texture::Texture2d>)) -> imgui::ImageButton {
     imgui::ImageButton::new(tex.0, [tex.1.width() as f32, tex.1.height() as f32]).frame_padding(3)
@@ -25,19 +27,24 @@ fn button_from_texture(tex: (imgui::TextureId, Rc<texture::Texture2d>)) -> imgui
 pub fn build_imgui_ui(ui: &mut imgui::Ui) {
     state.with(|v| {
         // These clones are "free" since it's an Rc<_>
-        let select_ref = v.borrow().icons.as_ref().unwrap().select.clone();
-        let mut select_button = button_from_texture(select_ref);
         let pan_ref = v.borrow().icons.as_ref().unwrap().pan.clone();
         let mut pan_button = button_from_texture(pan_ref);
+        let pen_ref = v.borrow().icons.as_ref().unwrap().pen.clone();
+        let mut pen_button = button_from_texture(pen_ref);
+        let select_ref = v.borrow().icons.as_ref().unwrap().select.clone();
+        let mut select_button = button_from_texture(select_ref);
         let zoom_ref = v.borrow().icons.as_ref().unwrap().zoom.clone();
         let mut zoom_button = button_from_texture(zoom_ref);
 
         match v.borrow().mode {
-            Mode::Select => {
-                select_button = select_button.background_col([0., 0., 0., 0.1]);
-            }
             Mode::Pan => {
                 pan_button = pan_button.background_col([0., 0., 0., 0.2]);
+            }
+            Mode::Pen => {
+                pen_button = pen_button.background_col([0., 0., 0., 0.2]);
+            }
+            Mode::Select => {
+                select_button = select_button.background_col([0., 0., 0., 0.2]);
             }
             Mode::Zoom => {
                 zoom_button = zoom_button.background_col([0., 0., 0., 0.2]);
@@ -70,6 +77,11 @@ pub fn build_imgui_ui(ui: &mut imgui::Ui) {
                 zoom_button.build(ui);
                 if ui.is_item_clicked(imgui::MouseButton::Left) {
                     v.borrow_mut().mode = Mode::Zoom;
+                }
+                ui.separator();
+                pen_button.build(ui);
+                if ui.is_item_clicked(imgui::MouseButton::Left) {
+                    v.borrow_mut().mode = Mode::Pen;
                 }
             });
     });
