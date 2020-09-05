@@ -1,5 +1,6 @@
-use crate::state::{state, Glyph};
+use crate::state::Glyph;
 use crate::util::DEBUG;
+use crate::STATE;
 use std::env;
 use std::fs;
 use std::path::Path;
@@ -12,20 +13,20 @@ pub fn load_glif<F: AsRef<Path> + Clone>(filename: F) {
         debug!("{:?}", glif);
     }
 
-    state.with(|v| {
+    STATE.with(|v| {
         v.borrow_mut().glyph = Some(Glyph {
             glif,
             filename: filename.as_ref().to_path_buf(),
         })
     });
-    state.with(|v| {
+    STATE.with(|v| {
         v.borrow().glyph.as_ref().map(|glyph| {
             let glif = &glyph.glif;
             debug!(
                 "Loaded {:?} (U+{:04x}) from {}",
                 glif.name,
                 glif.unicode,
-                state
+                STATE
                     .with(|v| v
                         .borrow()
                         .glyph

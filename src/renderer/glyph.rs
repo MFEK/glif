@@ -1,12 +1,11 @@
 use super::constants::*;
 use super::points;
 use super::points::calc::*;
-use crate::glifparser;
-use crate::state;
-use glifparser::{Handle, OutlineType, WhichHandle};
+use crate::state::State;
+use crate::STATE;
+use glifparser::{self, Handle, OutlineType, WhichHandle};
 use reclutch::skia::path::Iter;
 use reclutch::skia::{Canvas, Paint, PaintStyle, Path, Point};
-use state::State;
 use std::cell::RefCell;
 
 pub fn draw_glyph<T>(canvas: &mut Canvas, v: &RefCell<State<T>>) -> Path {
@@ -14,7 +13,7 @@ pub fn draw_glyph<T>(canvas: &mut Canvas, v: &RefCell<State<T>>) -> Path {
     paint.set_anti_alias(true);
     //paint.set_stroke_width(PEN_SIZE.max(canvas.image_info().dimensions().width as f32 / 360.0));
     paint.set_style(PaintStyle::StrokeAndFill);
-    paint.set_stroke_width(OUTLINE_STROKE_THICKNESS * (1. / state.with(|v| v.borrow().factor)));
+    paint.set_stroke_width(OUTLINE_STROKE_THICKNESS * (1. / STATE.with(|v| v.borrow().factor)));
 
     let mut path = Path::new();
 
@@ -54,9 +53,9 @@ pub fn draw_glyph<T>(canvas: &mut Canvas, v: &RefCell<State<T>>) -> Path {
             match contour.last() {
                 Some(lastpoint) => {
                     let h1 = lastpoint.handle_or_colocated(WhichHandle::A, calc_x, calc_y);
-                    let h2 = firstpoint.handle_or_colocated(WhichHandle::B, calc_x, calc_y);
                     match outline_type {
                         OutlineType::Cubic => {
+                            let h2 = firstpoint.handle_or_colocated(WhichHandle::B, calc_x, calc_y);
                             path.cubic_to(h1, h2, (calc_x(firstpoint.x), calc_y(firstpoint.y)))
                         }
                         OutlineType::Quadratic => {

@@ -1,8 +1,8 @@
 //! Skia renderer.
 
 use super::glifparser;
-use super::state::state;
-use super::state::State;
+use crate::state::State;
+use crate::STATE;
 use glifparser::{Handle, WhichHandle};
 
 pub mod constants;
@@ -47,7 +47,7 @@ enum RendererPointType {
 use std::thread::LocalKey;
 pub fn render_frame(frame: usize, fps: usize, bpm: usize, canvas: &mut Canvas) {
     canvas.clear(CLEAR_COLOR);
-    state.with(|v| {
+    STATE.with(|v| {
         let step = 12.0 * bpm as f32 / 60.0 / fps as f32;
         let frame_count = (360.0 / step) as usize;
 

@@ -8,7 +8,8 @@ use self::calc::*;
 
 use super::constants::*;
 use crate::glifparser;
-use crate::state::{state, PointLabels};
+use crate::state::PointLabels;
+use crate::STATE;
 
 use glifparser::Point as GlifPoint;
 
@@ -60,7 +61,7 @@ pub fn draw_directions(path: Path, canvas: &mut Canvas) {
 // point (on the base), finish that segment, and close the path.
 fn draw_triangle_point(at: Point, along: Vector, selected: bool, canvas: &mut Canvas) {
     let (fill, stroke) = get_fill_and_stroke(UIPointType::Direction, selected);
-    let factor = state.with(|v| v.borrow().factor);
+    let factor = STATE.with(|v| v.borrow().factor);
     let mut paint = Paint::default();
     paint.set_stroke_width(DIRECTION_STROKE_THICKNESS * (1. / factor));
     paint.set_anti_alias(true);
@@ -114,7 +115,7 @@ fn draw_round_point(
     paint: &mut Paint,
 ) {
     let (fill, stroke) = get_fill_and_stroke(kind, selected);
-    let factor = state.with(|v| v.borrow().factor);
+    let factor = STATE.with(|v| v.borrow().factor);
     let radius = POINT_RADIUS
         * (1. / factor)
         * if kind != UIPointType::Handle && selected {
@@ -137,7 +138,7 @@ fn draw_square_point(
     paint: &mut Paint,
 ) {
     let (fill, stroke) = get_fill_and_stroke(kind, selected);
-    let factor = state.with(|v| v.borrow().factor);
+    let factor = STATE.with(|v| v.borrow().factor);
     let radius = (POINT_RADIUS * (1. / factor)) * 2. * if selected { 1.75 } else { 1. };
 
     let mut path = Path::new();
@@ -164,7 +165,7 @@ fn draw_point_location(at: (f32, f32), original: (f32, f32), canvas: &mut Canvas
 }
 
 fn draw_string_at_point(mut at: (f32, f32), s: &str, canvas: &mut Canvas) {
-    let factor = state.with(|v| v.borrow().factor);
+    let factor = STATE.with(|v| v.borrow().factor);
     let mut paint = Paint::default();
     paint.set_color(0xff_ff0000);
     paint.set_anti_alias(true);
@@ -207,7 +208,7 @@ fn draw_point(
     canvas: &mut Canvas,
 ) {
     let mut paint = Paint::default();
-    let factor = state.with(|v| v.borrow().factor);
+    let factor = STATE.with(|v| v.borrow().factor);
     paint.set_anti_alias(true);
     paint.set_style(PaintStyle::StrokeAndFill);
     paint.set_stroke_width(POINT_STROKE_THICKNESS * (1. / factor));
@@ -226,7 +227,7 @@ fn draw_point(
 
     match number {
         None => {}
-        Some(i) => match state.with(|v| v.borrow().point_labels) {
+        Some(i) => match STATE.with(|v| v.borrow().point_labels) {
             PointLabels::None => {}
             PointLabels::Numbered => draw_point_number(at, i, canvas),
             PointLabels::Locations => draw_point_location(at, original, canvas),
@@ -258,7 +259,7 @@ fn draw_handle(h: Handle, selected: bool, canvas: &mut Canvas) {
 fn draw_handlebars(a: Handle, b: Handle, at: (f32, f32), selected: bool, canvas: &mut Canvas) {
     let mut path = Path::new();
     let mut paint = Paint::default();
-    let factor = state.with(|v| v.borrow().factor);
+    let factor = STATE.with(|v| v.borrow().factor);
 
     paint.set_anti_alias(true);
     paint.set_color(if selected {

@@ -1,11 +1,11 @@
 //! Global thread local state.
 
+use glifparser;
 use imgui;
 
-use super::glifparser;
 use crate::opengl::imgui::icons::Icons;
 use enum_iterator::IntoEnumIterator;
-use glifparser::{Glif, Point};
+use glifparser::{Contour, Glif, Point};
 use glutin::dpi::{PhysicalPosition, PhysicalSize};
 use reclutch::skia::Surface;
 
@@ -34,6 +34,10 @@ pub enum PointLabels {
 }
 
 use glium::texture;
+
+pub struct PenData<T: 'static> {
+    pub contour: Option<&'static Contour<T>>,
+}
 
 // Thread local state.
 pub struct State<T> {
@@ -84,4 +88,5 @@ impl<T> State<T> {
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct PointData;
 
-thread_local!(pub static state: RefCell<State<Option<PointData>>> = RefCell::new(State::new()));
+thread_local!(pub static STATE: RefCell<State<Option<PointData>>> = RefCell::new(State::new()));
+thread_local!(pub static PEN_DATA: RefCell<Option<PenData<Option<PointData>>>> = RefCell::new(None));

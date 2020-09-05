@@ -8,13 +8,14 @@ use std::borrow::Borrow;
 use std::rc::Rc;
 use std::time::Instant;
 
-use crate::state::{state, Mode};
+use crate::state::Mode;
+use crate::STATE;
 
 pub mod icons;
 
 use self::icons::Icons;
 
-// These are before transformation by state::state::dpi (glutin scale_factor)
+// These are before transformation by STATE.dpi (glutin scale_factor)
 const TOOLBOX_OFFSET_X: f32 = 10.;
 const TOOLBOX_OFFSET_Y: f32 = TOOLBOX_OFFSET_X;
 const TOOLBOX_WIDTH: f32 = 45.;
@@ -25,7 +26,7 @@ fn button_from_texture(tex: (imgui::TextureId, Rc<texture::Texture2d>)) -> imgui
 }
 
 pub fn build_imgui_ui(ui: &mut imgui::Ui) {
-    state.with(|v| {
+    STATE.with(|v| {
         // These clones are "free" since it's an Rc<_>
         let pan_ref = v.borrow().icons.as_ref().unwrap().pan.clone();
         let mut pan_button = button_from_texture(pan_ref);
@@ -88,7 +89,7 @@ pub fn build_imgui_ui(ui: &mut imgui::Ui) {
 }
 
 pub fn set_imgui_fonts(imgui: &mut imgui::Context) {
-    let dpi = state.with(|v| v.borrow().dpi as f32);
+    let dpi = STATE.with(|v| v.borrow().dpi as f32);
     let mut fontconfig = imgui::FontConfig::default();
     fontconfig.oversample_h = f32::ceil(dpi) as i32 + 1;
     fontconfig.oversample_v = fontconfig.oversample_h;
@@ -104,7 +105,7 @@ pub fn set_imgui_fonts(imgui: &mut imgui::Context) {
 }
 
 pub fn set_imgui_dpi(imgui: &mut imgui::Context, window_size: (u32, u32)) {
-    state.with(|v| {
+    STATE.with(|v| {
         let dpi = v.borrow().dpi as f32;
         imgui.style_mut().scale_all_sizes(dpi);
         imgui.io_mut().display_size = [
@@ -137,7 +138,7 @@ pub fn render_imgui_frame(
 use reclutch::skia::Rect;
 
 pub fn toolbox_rect() -> Rect {
-    let dpi = state.with(|v| v.borrow().dpi) as f32;
+    let dpi = STATE.with(|v| v.borrow().dpi) as f32;
     Rect::from_point_and_size(
         (TOOLBOX_OFFSET_X * dpi, TOOLBOX_OFFSET_Y * dpi),
         (TOOLBOX_WIDTH * dpi, TOOLBOX_HEIGHT * dpi),

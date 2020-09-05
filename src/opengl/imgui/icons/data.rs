@@ -4,10 +4,10 @@ pub type SvgImageData = (u32, u32, Vec<u8>);
 
 use nsvg;
 
-use crate::state::state;
+use crate::STATE;
 
 fn parse(name: &str, str: &'static str) -> SvgImageData {
-    let dpi = state.with(|v| v.borrow().dpi) * 96.;
+    let dpi = STATE.with(|v| v.borrow().dpi) * 96.;
     debug!("Building SVG icons with DPI {}", dpi);
     nsvg::parse_str(str, nsvg::Units::Pixel, dpi as f32)
         .expect(&format!("Failed to parse SVG {}", name))

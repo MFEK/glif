@@ -1,6 +1,6 @@
 use super::constants::*;
 use super::points::calc::*;
-use crate::state;
+use crate::{state, STATE};
 use reclutch::skia::{Canvas, Color, Paint, PaintStyle, Path};
 use state::State;
 
@@ -12,11 +12,11 @@ enum GuidelineType {
 fn draw_guideline(color: Color, where_: f32, gtype: GuidelineType, canvas: &mut Canvas) {
     let mut paint = Paint::default();
     let mut path = Path::new();
-    let factor = state.with(|v| v.borrow().factor);
-    let offset = state.with(|v| v.borrow().offset);
+    let factor = STATE.with(|v| v.borrow().factor);
+    let offset = STATE.with(|v| v.borrow().offset);
     match gtype {
         GuidelineType::Vertical => {
-            state.with(|v| {
+            STATE.with(|v| {
                 path.move_to((where_, -(offset.1 * (1. / factor))));
                 path.line_to((
                     where_,
@@ -25,7 +25,7 @@ fn draw_guideline(color: Color, where_: f32, gtype: GuidelineType, canvas: &mut 
             });
         }
         GuidelineType::Horizontal => {
-            state.with(|v| {
+            STATE.with(|v| {
                 path.move_to((-(offset.0 * (1. / factor)), where_));
                 path.line_to((
                     (v.borrow().winsize.width as f32 * (1. / factor))

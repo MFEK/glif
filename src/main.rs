@@ -53,7 +53,8 @@ mod util;
 mod io;
 // Provides a thread-local global `state` variable
 mod state;
-use state::{state, Glyph, PointLabels};
+use state::{Glyph, PointLabels};
+pub use state::{PEN_DATA, STATE};
 mod events;
 mod opengl;
 mod renderer;
@@ -64,7 +65,7 @@ fn main() {
     util::set_panic_hook();
 
     let window_size = (WIDTH, HEIGHT);
-    state.with(|v| {
+    STATE.with(|v| {
         v.borrow_mut().winsize = window_size.into();
     });
 
@@ -125,7 +126,7 @@ fn main() {
 
     imgui.set_ini_filename(None);
 
-    state.with(|v| {
+    STATE.with(|v| {
         v.borrow_mut().dpi = gl_display.gl_window().window().scale_factor();
     });
 
@@ -135,7 +136,7 @@ fn main() {
     let mut renderer =
         ImguiRenderer::init(&mut imgui, &gl_display).expect("Failed to initialize renderer");
 
-    state.with(|v| {
+    STATE.with(|v| {
         let icons = opengl::imgui::icons::Icons::from_display(&gl_display, &mut renderer);
         v.borrow_mut().icons = Some(icons);
     });
@@ -181,7 +182,7 @@ fn main() {
                     );
                     should_redraw_skia = true;
 
-                    state.with(|v| {
+                    STATE.with(|v| {
                         v.borrow_mut().winsize = physical_size;
                         display.perform_draw_closure(|canvas, _| {
                             events::update_viewport(None, None, &v, canvas)
@@ -212,7 +213,7 @@ fn main() {
                     if kstate != ElementState::Pressed {
                         return;
                     }
-                    state.with(|v| {
+                    STATE.with(|v| {
                         let mut scale = v.borrow().factor;
                         let mut offset = v.borrow().offset;
                         match virtual_keycode {
@@ -268,7 +269,7 @@ fn main() {
                 }
                 WindowEvent::CursorMoved { position, .. } => {
                     display.perform_draw_closure(|canvas, _| {
-                        state.with(|v| {
+                        STATE.with(|v| {
                             let mode = v.borrow().mode;
 
                             should_redraw_skia = match mode {
@@ -286,7 +287,7 @@ fn main() {
                     button,
                     ..
                 } => {
-                    state.with(|v| {
+                    STATE.with(|v| {
                         // Ignore events if we are clicking on Dear ImGui toolbox.
                         let toolbox_rect = opengl::imgui::toolbox_rect();
                         let absolute_position = v.borrow().absolute_mousepos;

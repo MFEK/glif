@@ -1,4 +1,4 @@
-use crate::state::state;
+use crate::STATE;
 use glium::texture::SrgbTexture2d;
 use reclutch::display::skia::{SkiaGraphicsDisplay, SkiaOpenGlTexture};
 use reclutch::skia::Canvas;
@@ -29,7 +29,7 @@ pub fn make_skia_display(
 pub fn redraw_skia(canvas: &mut Canvas, should_redraw_skia: &mut bool) {
     let count = canvas.save();
     let center = (HEIGHT as f32 / 4., WIDTH as f32 / 4.);
-    state.with(|v| render_frame(0, 12, 60, canvas));
+    STATE.with(|v| render_frame(0, 12, 60, canvas));
     //canvas.restore_to_count(count);
     *should_redraw_skia = false;
 }
