@@ -14,6 +14,9 @@ imgui = "0.4.0"
 gl = "0.14.0"
 glium = "0.27.0"
 
+# For choosing font for toolbox
+font-kit = "0.10.0"
+
 # For icons in toolbox
 nsvg = "0.5.1"
 

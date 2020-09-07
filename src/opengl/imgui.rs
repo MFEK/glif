@@ -5,8 +5,10 @@ use imgui;
 use imgui_glium_renderer::Renderer as ImguiRenderer;
 
 use std::borrow::Borrow;
-use std::rc::Rc;
+use std::fs;
+use std::path::PathBuf;
 use std::time::Instant;
+use std::{rc::Rc, sync::Arc};
 
 use crate::events;
 use crate::state::Mode;
@@ -104,17 +106,48 @@ pub fn build_imgui_ui(ui: &mut imgui::Ui) {
     });
 }
 
+use font_kit::{
+    family_name::FamilyName as FKFamilyName, handle::Handle as FKHandle, properties::Properties,
+    source::SystemSource,
+};
+
+struct Font {
+    data: Vec<u8>,
+    path: Option<PathBuf>,
+}
+
+fn load_font(family: &[FKFamilyName]) -> Font {
+    let source = SystemSource::new();
+    let font = source
+        .select_best_match(family, &Properties::new())
+        .unwrap();
+    match font {
+        FKHandle::Path { path, .. } => Font {
+            path: Some(path.clone()),
+            data: fs::read(path).expect("Failed to open font path system specified"),
+        },
+        FKHandle::Memory { bytes, .. } => Font {
+            path: None,
+            data: Arc::try_unwrap(bytes).expect("Failed to load in-memory font"),
+        },
+    }
+}
+
+lazy_static! {
+    static ref SYSTEMSANS: Font = load_font(&[
+        FKFamilyName::Title("Segoe UI".to_string()),
+        FKFamilyName::SansSerif
+    ]);
+    static ref SYSTEMMONO: Font = load_font(&[FKFamilyName::Monospace]);
+}
+
 pub fn set_imgui_fonts(imgui: &mut imgui::Context) {
     let dpi = STATE.with(|v| v.borrow().dpi as f32);
     let mut fontconfig = imgui::FontConfig::default();
     fontconfig.oversample_h = f32::ceil(dpi) as i32 + 1;
     fontconfig.oversample_v = fontconfig.oversample_h;
     imgui.fonts().add_font(&[imgui::FontSource::TtfData {
-        data: include_bytes!(concat!(
-            env!("PWD"),
-            "/",
-            "resources/fonts/Ubuntu-Regular.ttf"
-        )),
+        data: &SYSTEMSANS.data,
         size_pixels: 14.,
         config: Some(fontconfig),
     }]);

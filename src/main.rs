@@ -21,6 +21,7 @@ extern crate clap;
 extern crate gl;
 #[macro_use]
 extern crate git_version; // for util::parse_args
+extern crate font_kit;
 extern crate nsvg;
 extern crate reclutch;
 // Our crates

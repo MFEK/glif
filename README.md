@@ -18,7 +18,7 @@ Qglif is the premier program of the Modular Font Editor Q project. This project 
 
 Two OpenGL contexts are made: one for Skia and one for Dear ImGui. Skia is redrawn only when necessary, while Dear ImGui is redrawn upon every frame. At the start of the program, `glifparser.rs` parses the input `.glif` file and creates a Skia path. Keyboard events are handled by `glutin`, which triggers the appropriate actions on both the Skia canvas and Dear ImGui's UI. If the cursor is over the toolbox, then clicks are not passed down to Skia&mdash;this has the benefit of not causing the canvas to zoom in when merely switching to the zoom tool.
 
-To make this as easy as possible to build, and cross-platform without hassle, the SVG icons and UI font (Ubuntu) is compiled right into the binary via the Rust `include_str!` / `include_bytes!` macros.
+To make this as easy as possible to build, and cross-platform without hassle, the SVG icons are compiled right into the binary via the Rust `include_str!` macro.
 
 ## Contributing
 
@@ -35,3 +35,21 @@ Please format the codebase with `cargo fmt` before opening a pull request.
 ### Goals
 
 Contributions which do not work on at least GNU/Linux and Windows will be rejected; we want to be able to build Qglif on as many platforms as possible. Both Skia and Dear ImGui are cross-platform and should work everywhere OpenGL works.
+
+## License
+
+Copyright 2020 Fredrick Brennan & MFEQ Authors
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+**By contributing you release your contribution under the terms of the license.**
