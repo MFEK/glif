@@ -14,6 +14,8 @@ use crate::STATE;
 
 pub mod icons;
 
+pub use self::icons::set_icons;
+
 use self::icons::Icons;
 
 // These are before transformation by STATE.dpi (glutin scale_factor)
@@ -22,22 +24,29 @@ const TOOLBOX_OFFSET_Y: f32 = TOOLBOX_OFFSET_X;
 const TOOLBOX_WIDTH: f32 = 45.;
 const TOOLBOX_HEIGHT: f32 = 220.;
 
-fn button_from_texture(tex: (imgui::TextureId, Rc<texture::Texture2d>)) -> imgui::ImageButton {
-    imgui::ImageButton::new(tex.0, [tex.1.width() as f32, tex.1.height() as f32]).frame_padding(3)
+fn button_from_name(name: &'static str) -> imgui::ImageButton {
+    let (imgui_tex, gl_tex) = STATE.with(|v| {
+        v.borrow()
+            .icons
+            .as_ref()
+            .unwrap()
+            .get(name)
+            .unwrap()
+            .clone()
+    });
+    imgui::ImageButton::new(imgui_tex, [gl_tex.width() as f32, gl_tex.height() as f32])
+        .frame_padding(3)
 }
 
 pub fn build_imgui_ui(ui: &mut imgui::Ui) {
+    // These clones are "free" since it's an Rc<_>
+    let mut pan_button = button_from_name("pan");
+    let mut pen_button = button_from_name("pen");
+    let mut select_button = button_from_name("select");
+    let mut zoom_button = button_from_name("zoom");
+
     STATE.with(|v| {
         let mode = v.borrow().mode;
-        // These clones are "free" since it's an Rc<_>
-        let pan_ref = v.borrow().icons.as_ref().unwrap().pan.clone();
-        let mut pan_button = button_from_texture(pan_ref);
-        let pen_ref = v.borrow().icons.as_ref().unwrap().pen.clone();
-        let mut pen_button = button_from_texture(pen_ref);
-        let select_ref = v.borrow().icons.as_ref().unwrap().select.clone();
-        let mut select_button = button_from_texture(select_ref);
-        let zoom_ref = v.borrow().icons.as_ref().unwrap().zoom.clone();
-        let mut zoom_button = button_from_texture(zoom_ref);
 
         match v.borrow().mode {
             Mode::Pan => {

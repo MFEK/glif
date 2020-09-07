@@ -136,10 +136,7 @@ fn main() {
     let mut renderer =
         ImguiRenderer::init(&mut imgui, &gl_display).expect("Failed to initialize renderer");
 
-    STATE.with(|v| {
-        let icons = opengl::imgui::icons::Icons::from_display(&gl_display, &mut renderer);
-        v.borrow_mut().icons = Some(icons);
-    });
+    opengl::imgui::set_icons(&mut renderer, &gl_display);
 
     let mut should_redraw_skia = true;
     let mut frame = 0;
