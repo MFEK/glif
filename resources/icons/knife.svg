@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
@@ -9,104 +7,52 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="18"
-   height="43.999828"
-   viewBox="0 0 4.7624999 11.641622"
+   width="180px"
+   height="440px"
+   viewBox="0 0 180 440"
    version="1.1"
-   id="svg1945"
-   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
-   sodipodi:docname="knife.svg">
-  <defs
-     id="defs1939" />
-  <sodipodi:namedview
-     id="base"
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:pageopacity="0.0"
-     inkscape:pageshadow="2"
-     inkscape:zoom="5.6"
-     inkscape:cx="9.6845999"
-     inkscape:cy="11.579828"
-     inkscape:document-units="mm"
-     inkscape:current-layer="g347"
-     showgrid="false"
-     units="px"
-     fit-margin-top="1"
-     fit-margin-left="1"
-     fit-margin-right="1"
-     fit-margin-bottom="1"
-     inkscape:window-width="724"
-     inkscape:window-height="815"
-     inkscape:window-x="1141"
-     inkscape:window-y="89"
-     inkscape:window-maximized="0" />
+   id="svg19"
+   sodipodi:docname="knife.svg"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
   <metadata
-     id="metadata1942">
+     id="metadata25">
     <rdf:RDF>
       <cc:Work
          rdf:about="">
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
+  <defs
+     id="defs23" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="724"
+     inkscape:window-height="480"
+     id="namedview21"
+     showgrid="false"
+     showguides="false"
+     inkscape:zoom="0.75853273"
+     inkscape:cx="100.15933"
+     inkscape:cy="227.43868"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="surface1" />
   <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
-     id="layer1"
-     transform="translate(-28.801789,-151.49999)">
-    <g
-       transform="matrix(0.26458333,0,0,0.26458333,-172.37604,103.0056)"
-       id="g347"
-       style="filter:url(#filter16_d)">
-      <g
-         transform="translate(-64.642843,-1.7142706)"
-         id="g329"
-         style="fill:#ddddde;fill-opacity:0.9705883">
-        <path
-           d="m 839,210 -1,1 v 1 l 2,2 v 3 h 1 v 6 h -1.5 v 4 H 828 v -4 h -1 v -6 h 1 v -3 l 2,-2 v -1 l -2,-1 v -10 l 11,-13 z"
-           id="path325"
-           inkscape:connector-curvature="0"
-           style="fill:#ddddde;fill-opacity:0.9705883" />
-        <path
-           d="m 839,210 -1,1 v 1 l 2,2 v 3 h 1 v 6 h -1.5 v 4 H 828 v -4 h -1 v -6 h 1 v -3 l 2,-2 v -1 l -2,-1 v -10 l 11,-13 z"
-           id="path327"
-           inkscape:connector-curvature="0"
-           style="fill:#ddddde;fill-opacity:0.9705883;stroke:#000000;stroke-width:2;stroke-linejoin:round" />
-      </g>
-      <path
-         d="m 762.35717,215.28574 h 14 v 6 h -14 z"
-         id="path331"
-         inkscape:connector-curvature="0"
-         style="fill:#aaaaaa;stroke:#000000;stroke-width:2;stroke-linejoin:round;filter:url(#filter1_d)" />
-      <path
-         d="m 774.35717,190.28574 -11,13"
-         id="path333"
-         inkscape:connector-curvature="0"
-         style="stroke:#000000;stroke-width:2;filter:url(#filter1_d)" />
-      <path
-         d="m 765.35717,210.28574 h 8"
-         id="path335"
-         inkscape:connector-curvature="0"
-         style="stroke:#000000;stroke-width:2;filter:url(#filter1_d)" />
-      <path
-         d="m 768.35717,211.28574 v 5"
-         id="path337"
-         inkscape:connector-curvature="0"
-         style="stroke:#000000;stroke-width:2;filter:url(#filter1_d)" />
-      <path
-         d="m 766.35717,215.28574 v 6"
-         id="path339"
-         inkscape:connector-curvature="0"
-         style="stroke:#000000;stroke-width:2;filter:url(#filter1_d)" />
-      <path
-         d="m 772.35717,215.28574 v 5"
-         id="path341"
-         inkscape:connector-curvature="0"
-         style="stroke:#000000;stroke-width:2;filter:url(#filter1_d)" />
-    </g>
+     id="surface1">
+    <path
+       style="color:#000000;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:medium;line-height:normal;font-family:sans-serif;font-variant-ligatures:normal;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-feature-settings:normal;text-indent:0;text-align:start;text-decoration:none;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:normal;word-spacing:normal;text-transform:none;writing-mode:lr-tb;direction:ltr;text-orientation:mixed;dominant-baseline:auto;baseline-shift:baseline;text-anchor:start;white-space:normal;shape-padding:0;clip-rule:nonzero;display:inline;overflow:visible;visibility:visible;opacity:1;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:#000000;solid-opacity:1;vector-effect:none;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:20;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate"
+       d="M 139.70703 10 A 10.001 10.001 0 0 0 132.36328 13.535156 L 22.363281 143.53516 A 10.001 10.001 0 0 0 20 150 L 20 250 A 10.001 10.001 0 0 0 25.527344 258.94531 L 39.785156 266.07422 L 22.929688 282.92969 A 10.001 10.001 0 0 0 20 290 L 20 309.99414 A 10.001 10.001 0 0 0 11.583984 314.59766 A 10.001 10.001 0 0 0 11.089844 315.45898 A 10.001 10.001 0 0 0 11.087891 315.46484 A 10.001 10.001 0 0 0 10.681641 316.37305 A 10.001 10.001 0 0 0 10.679688 316.37891 A 10.001 10.001 0 0 0 10.365234 317.32031 A 10.001 10.001 0 0 0 10.363281 317.32617 A 10.001 10.001 0 0 0 10.146484 318.29688 A 10.001 10.001 0 0 0 10 320 L 10 380 A 10.001 10.001 0 0 0 20 390 L 20 420 A 10.001 10.001 0 0 0 30 430 L 145 430 A 10.001 10.001 0 0 0 155 420 L 155 390 L 160 390 A 10.001 10.001 0 0 0 168.41797 385.39648 A 10.001 10.001 0 0 0 168.91211 384.53516 A 10.001 10.001 0 0 0 168.91406 384.5293 A 10.001 10.001 0 0 0 169.32031 383.62109 A 10.001 10.001 0 0 0 169.32227 383.61523 A 10.001 10.001 0 0 0 169.63672 382.67383 A 10.001 10.001 0 0 0 169.63867 382.66797 A 10.001 10.001 0 0 0 169.85547 381.69727 A 10.001 10.001 0 0 0 170.00195 379.99414 L 170.00195 319.99414 A 10.001 10.001 0 0 0 160.00195 309.99414 L 160 309.99414 L 160 290 A 10.001 10.001 0 0 0 157.07031 282.92969 L 140 265.85938 L 140 264.14062 L 147.07031 257.07031 A 10.001 10.001 0 0 0 150 250 L 150 20 A 10.001 10.001 0 0 0 139.70703 10 z M 130 47.304688 L 130 66.34375 L 40 172.70703 L 40 153.67188 L 130 47.304688 z M 130 97.304688 L 130 245.85938 L 122.92969 252.92969 A 10.001 10.001 0 0 0 120 259.99414 L 60 259.99414 A 10.001 10.001 0 0 0 54.472656 251.05469 L 40 243.82812 L 40 203.66797 L 130 97.304688 z M 54.146484 279.99414 L 70.001953 279.99414 L 70.001953 309.99414 L 40 309.99414 L 40 294.14062 L 54.146484 279.99414 z M 90.001953 279.99414 L 125.85352 279.99414 L 140 294.14062 L 140 309.99414 L 90.001953 309.99414 L 90.001953 279.99414 z M 30.115234 329.99414 L 50.001953 329.99414 L 50.001953 369.99414 L 30.001953 369.99414 L 30.001953 330 A 10.001 10.001 0 0 0 30.115234 329.99414 z M 70.001953 329.99414 L 110.00195 329.99414 L 110.00195 369.99414 L 70.001953 369.99414 L 70.001953 329.99414 z M 130.00195 329.99414 L 149.83789 329.99414 A 10.001 10.001 0 0 0 150 330 L 150 369.99414 L 130.00195 369.99414 L 130.00195 329.99414 z M 40 389.99414 L 135 389.99414 L 135 410 L 40 410 L 40 389.99414 z "
+       id="path4" />
   </g>
 </svg>

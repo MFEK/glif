@@ -13,51 +13,45 @@
 #[macro_use]
 extern crate lazy_static;
 extern crate backtrace;
+extern crate clap;
 extern crate colored;
 extern crate enum_iterator;
 #[macro_use]
-extern crate glium;
-extern crate clap;
-extern crate gl;
-#[macro_use]
 extern crate git_version; // for util::parse_args
 extern crate font_kit;
-extern crate nsvg;
-extern crate reclutch;
+#[macro_use]
+extern crate skulpin;
+#[macro_use]
+extern crate skulpin_plugin_imgui;
+extern crate imgui_winit_support;
 // Our crates
 extern crate glifparser;
 
-use glium::glutin;
-use glium::{GlObject, Surface};
-use glutin::dpi::PhysicalPosition;
-use glutin::event::{ElementState, Event, KeyboardInput, MouseButton, VirtualKeyCode, WindowEvent};
-use glutin::event_loop::{ControlFlow, EventLoop};
+use skulpin::Window as _;
+pub use skulpin::{skia_safe, winit};
+use winit::dpi::{PhysicalPosition, PhysicalSize};
+use winit::event::{ElementState, Event, KeyboardInput, MouseButton, VirtualKeyCode, WindowEvent};
+use winit::event_loop::{ControlFlow, EventLoop};
 
-use reclutch::display::GraphicsDisplay;
-use reclutch::skia::{Contains, Point, Rect};
+use skia_safe::{Contains, Point, Rect};
 
 use enum_iterator::IntoEnumIterator;
 
 use std::time::Instant;
 
 #[macro_use]
-extern crate imgui; // for the macros, can't use one in imgui_glium_renderer
-#[macro_use]
-extern crate imgui_glium_renderer;
-extern crate imgui_winit_support;
-use imgui::Context as ImguiContext;
-use imgui_glium_renderer::Renderer as ImguiRenderer;
-use imgui_winit_support::{HiDpiMode, WinitPlatform};
+pub use skulpin_plugin_imgui::{imgui::Ui as ImguiUi, ImguiRendererPlugin};
+pub use skulpin_plugin_imgui::imgui as imgui_rs;
 
 #[macro_use]
 mod util;
 mod io;
-// Provides a thread-local global `state` variable
+// Provides a thread-local global `STATE` variable
 mod state;
 use state::{Glyph, PointLabels};
 pub use state::{PEN_DATA, STATE};
 mod events;
-mod opengl;
+mod imgui;
 mod renderer;
 
 use renderer::constants::*;
@@ -76,119 +70,85 @@ fn main() {
 
     let event_loop = EventLoop::new();
 
-    let wb = glutin::window::WindowBuilder::new()
+    let winit_window = winit::window::WindowBuilder::new()
         .with_title(format!("Qglif: {}", filename))
-        .with_inner_size(glutin::dpi::PhysicalSize::new(
+        .with_inner_size(PhysicalSize::new(
             window_size.0 as f64,
             window_size.1 as f64,
         ))
-        .with_resizable(true);
+        .with_resizable(true)
+        .build(&event_loop)
+        .expect("Failed to create window");
 
-    let cb = glutin::ContextBuilder::new()
-        .with_vsync(true)
-        .with_srgb(true);
+    let imgui_manager = imgui::support::init_imgui_manager(&winit_window);
+    imgui_manager.begin_frame(&winit_window);
 
-    let gl_display = glium::Display::new(wb, cb, &event_loop).unwrap();
+    let window = skulpin::WinitWindow::new(&winit_window);
 
-    let quad_vertex_buffer = opengl::quad_vertex_buffer(&gl_display);
-    let quad_indices = opengl::quad_indices(&gl_display);
-    let quad_program = opengl::quad_program(&gl_display);
-    let mut out_texture = opengl::create_texture(&gl_display, window_size);
-
-    let mut out_texture_depth =
-        glium::texture::DepthTexture2d::empty(&gl_display, window_size.0, window_size.1).unwrap();
-
-    let mut skia_context = Some(unsafe {
-        glutin::ContextBuilder::new()
-            .with_gl(glutin::GlRequest::Specific(glutin::Api::OpenGl, (3, 3)))
-            .with_shared_lists(&gl_display.gl_window())
-            .with_srgb(true)
-            .build_headless(
-                &event_loop,
-                glutin::dpi::PhysicalSize::new(window_size.0 as _, window_size.1 as _),
-            )
-            .unwrap()
-            .make_current()
-            .unwrap()
+    let mut imgui_plugin = None;
+    imgui_manager.with_context(|context| {
+        imgui_plugin = Some(Box::new(ImguiRendererPlugin::new(context)));
     });
 
-    let mut display = opengl::skia::make_skia_display(&out_texture, window_size);
+    let scale_to_fit = skulpin::skia_safe::matrix::ScaleToFit::Center;
+    let visible_range = skulpin::skia_safe::Rect {
+        left: 0.0,
+        right: window_size.0 as f32,
+        top: 0.0,
+        bottom: window_size.1 as f32,
+    };
+
+    // Create the renderer, which will draw to the window
+    let renderer = skulpin::RendererBuilder::new()
+        .use_vulkan_debug_layer(false)
+        .coordinate_system(skulpin::CoordinateSystem::None)
+        .add_plugin(imgui_plugin.unwrap())
+        .build(&window);
+
+    // Check if there were error setting up vulkan
+    if let Err(e) = renderer {
+        println!("Error during renderer construction: {:?}", e);
+        return;
+    }
+
+    let mut renderer = renderer.unwrap();
 
     let mut last_frame = Instant::now();
 
-    let mut imgui = ImguiContext::create();
-    let mut platform = WinitPlatform::init(&mut imgui);
-    platform.attach_window(
-        imgui.io_mut(),
-        &gl_display.gl_window().window(),
-        HiDpiMode::Default,
-    );
-    debug!("DPI is {}", gl_display.gl_window().window().scale_factor());
-
-    imgui.set_ini_filename(None);
+    //imgui.set_ini_filename(None);
 
     STATE.with(|v| {
-        v.borrow_mut().dpi = gl_display.gl_window().window().scale_factor();
+        v.borrow_mut().dpi = window.scale_factor();
     });
 
-    opengl::imgui::set_imgui_fonts(&mut imgui);
-    opengl::imgui::set_imgui_dpi(&mut imgui, window_size);
-
-    let mut renderer =
-        ImguiRenderer::init(&mut imgui, &gl_display).expect("Failed to initialize renderer");
-
-    opengl::imgui::set_icons(&mut renderer, &gl_display);
-
-    let mut should_redraw_skia = true;
+    let mut frame_count = 0;
     let mut frame = 0;
     let mut was_resized = false;
 
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Wait;
+        debug_events!("{:?}", event);
 
-        platform.handle_event(imgui.io_mut(), &gl_display.gl_window().window(), &event);
+        // Without this, the program will crash if it launches with the cursor over the window, as
+        // the mouse event occurs before the redraw, which means that it uses an uninitialized
+        // renderer. So we do this to assure first frame is drawn by RedrawRequested.
+        match event {
+            Event::RedrawRequested { .. } => {}
+            _ => {
+                if frame == 0 {
+                    return;
+                }
+            }
+        }
 
-        // These handle the Skia events. ImGui "events" don't really exist, see
-        // src/opengl/imgui.rs:fn build_imgui_ui.
+        let window = skulpin::WinitWindow::new(&winit_window);
+        imgui_manager.handle_event(&winit_window, &event);
+        // ImGui "events" don't really exist, click state etc. queried at time of drawing. It's an
+        // immediate mode GUI. We use our events to update our Skia canvas.
         #[allow(deprecated)]
         match event {
             Event::LoopDestroyed => {}
             Event::WindowEvent { event, .. } => match event {
-                WindowEvent::Resized(physical_size) => {
-                    out_texture = opengl::create_texture(
-                        &gl_display,
-                        (physical_size.width, physical_size.height),
-                    );
-                    out_texture_depth = glium::texture::DepthTexture2d::empty(
-                        &gl_display,
-                        physical_size.width,
-                        physical_size.height,
-                    )
-                    .unwrap();
-
-                    gl_display.gl_window().resize(physical_size);
-                    opengl::imgui::set_imgui_dpi(
-                        &mut imgui,
-                        (physical_size.width, physical_size.height),
-                    );
-
-                    skia_context =
-                        Some(unsafe { skia_context.take().unwrap().make_current().unwrap() });
-                    display = opengl::skia::make_skia_display(
-                        &out_texture,
-                        (physical_size.width, physical_size.height),
-                    );
-                    should_redraw_skia = true;
-
-                    STATE.with(|v| {
-                        v.borrow_mut().winsize = physical_size;
-                        display.perform_draw_closure(|canvas, _| {
-                            events::update_viewport(None, None, &v, canvas)
-                        });
-                    });
-
-                    was_resized = true;
-                }
                 WindowEvent::KeyboardInput {
                     input:
                         KeyboardInput {
@@ -269,11 +229,6 @@ fn main() {
                             events::mode_switched(mode, newmode);
                         }
 
-                        display.perform_draw_closure(|canvas, _| {
-                            events::update_viewport(Some(offset), Some(scale), &v, canvas)
-                        });
-
-                        should_redraw_skia = true;
                         debug!(
                             "Scale factor now {}; offset {:?}; mode {:?}",
                             v.borrow().factor,
@@ -283,11 +238,11 @@ fn main() {
                     });
                 }
                 WindowEvent::CursorMoved { position, .. } => {
-                    display.perform_draw_closure(|canvas, _| {
+                    renderer.draw(&window, |canvas, coordinate_system_helper| {
                         STATE.with(|v| {
                             let mode = v.borrow().mode;
 
-                            should_redraw_skia = match mode {
+                            match mode {
                                 #[rustfmt::skip]
                                 state::Mode::Pan => events::mouse_moved_move(position, &v, canvas),
                                 state::Mode::Pen => events::mouse_moved_pen(position, &v, canvas),
@@ -298,6 +253,8 @@ fn main() {
                                 _ => false,
                             };
                         });
+                        renderer::update_viewport(canvas);
+                        renderer::render_frame(canvas);
                     });
                 }
                 WindowEvent::MouseInput {
@@ -307,7 +264,7 @@ fn main() {
                 } => {
                     STATE.with(|v| {
                         // Ignore events if we are clicking on Dear ImGui toolbox.
-                        let toolbox_rect = opengl::imgui::toolbox_rect();
+                        let toolbox_rect = imgui::toolbox_rect();
                         let absolute_position = v.borrow().absolute_mousepos;
                         if toolbox_rect.contains(Point::from((
                             absolute_position.x as f32,
@@ -316,12 +273,12 @@ fn main() {
                             return;
                         }
 
-                        display.perform_draw_closure(|canvas, _| {
+                        renderer.draw(&window, |canvas, coordinate_system_helper| {
                             let mode = v.borrow().mode;
                             let position = v.borrow().mousepos;
                             v.borrow_mut().mousedown = mstate == ElementState::Pressed;
 
-                            should_redraw_skia = match mode {
+                            match mode {
                                 state::Mode::Select => {
                                     events::mouse_button_select(position, &v, canvas, button)
                                 }
@@ -330,7 +287,7 @@ fn main() {
 
                             match mstate {
                                 ElementState::Pressed => {
-                                    should_redraw_skia = match mode {
+                                    match mode {
                                         state::Mode::Pen => {
                                             events::mouse_pressed_pen(position, &v, canvas, button)
                                         }
@@ -341,7 +298,7 @@ fn main() {
                                     };
                                 }
                                 ElementState::Released => {
-                                    should_redraw_skia = match mode {
+                                    match mode {
                                         state::Mode::Pen => {
                                             events::mouse_released_pen(position, &v, canvas, button)
                                         }
@@ -355,58 +312,35 @@ fn main() {
                                     };
                                 }
                             }
+                            renderer::update_viewport(canvas);
+                            renderer::render_frame(canvas);
                         });
                     });
                 }
                 _ => (),
             },
             Event::RedrawRequested { .. } => {
-                let mut out_texture_fb = glium::framebuffer::SimpleFrameBuffer::with_depth_buffer(
-                    &gl_display,
-                    &out_texture,
-                    &out_texture_depth,
-                )
-                .unwrap();
+                if let Err(e) = renderer.draw(&window, |canvas, coordinate_system_helper| {
+                    imgui_manager.begin_frame(&winit_window);
+                    frame_count += 1;
 
-                let target = &mut out_texture_fb;
+                    renderer::update_viewport(canvas);
+                    renderer::render_frame(canvas);
 
-                skia_context =
-                    Some(unsafe { skia_context.take().unwrap().make_current().unwrap() });
+                    {
+                        imgui_manager.with_ui(|ui: &mut ImguiUi| {
+                            imgui::build_imgui_ui(ui);
+                        });
+                    }
 
-                if !should_redraw_skia && was_resized {
-                    should_redraw_skia = true;
-                    was_resized = false;
+                    imgui_manager.render(&winit_window);
+                }) {
+                    println!("Error during draw: {:?}", e);
+                    *control_flow = winit::event_loop::ControlFlow::Exit
                 }
-
-                // Yes, 10 is a magic number. 👻
-                if frame < 10 || should_redraw_skia {
-                    display.perform_draw_closure(|canvas, _| {
-                        opengl::skia::redraw_skia(canvas, &mut should_redraw_skia);
-                    });
-                }
-                display.present(None).unwrap();
-
-                opengl::imgui::render_imgui_frame(
-                    target,
-                    &mut imgui,
-                    &mut last_frame,
-                    &mut renderer,
-                );
-                let mut frame_target = gl_display.draw();
-                frame_target
-                    .draw(
-                        &quad_vertex_buffer,
-                        &quad_indices,
-                        &quad_program,
-                        &uniform! { tex: &out_texture },
-                        &Default::default(),
-                    )
-                    .unwrap();
-
-                frame_target.finish().unwrap();
             }
             Event::MainEventsCleared => {
-                gl_display.gl_window().window().request_redraw();
+                winit_window.request_redraw();
             }
             _ => return,
         }

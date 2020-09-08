@@ -4,8 +4,8 @@ use super::points::calc::*;
 use crate::state::State;
 use crate::STATE;
 use glifparser::{self, Handle, OutlineType, PointType, WhichHandle};
-use reclutch::skia::path::Iter;
-use reclutch::skia::{Canvas, Paint, PaintStyle, Path, Point};
+use skulpin::skia_safe::path::Iter;
+use skulpin::skia_safe::{Canvas, Paint, PaintStyle, Path, Point};
 use std::cell::RefCell;
 
 pub fn draw_glyph<T>(canvas: &mut Canvas, v: &RefCell<State<T>>) -> Path {

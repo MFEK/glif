@@ -7,18 +7,16 @@ authors = ["Fredrick Brennan <copypaste@kittens.ph>"]
 
 [dependencies]
 # For display
-reclutch = { git = "https://github.com/jazzfool/reclutch", features = ["skia"] }
-imgui-glium-renderer = "0.4.0"
+#skulpin = { git = "https://github.com/aclysma/skulpin", rev = "ca6da4ca64484f7854b8502b08a33cfd5bab98fc", features = ["skia_complete", "skulpin_winit"] }
+skulpin = { path = "../skulpin", features = ["skia_complete", "skulpin_winit"] }
+skulpin-plugin-imgui = { path = "../skulpin/skulpin-plugin-imgui" }
+sdl2 = { version = ">=0.33", features = ["bundled", "static-link"] }
 imgui-winit-support = "0.4.0"
-imgui = "0.4.0"
 gl = "0.14.0"
 glium = "0.27.0"
 
 # For choosing font for toolbox
 font-kit = "0.10.0"
-
-# For icons in toolbox
-nsvg = "0.5.1"
 
 # For global state
 lazy_static = "1.4.0"
@@ -36,5 +34,5 @@ colored = "2.0.0"
 
 ## Our crates
 # parses .glif files and gives us a place to put arbitrary data
-#glifparser = { git = "https://github.com/mfeq/glifparser" }
-glifparser = { path = "../glifparser" } # for development
+glifparser = { git = "https://github.com/mfeq/glifparser" }
+#glifparser = { path = "../glifparser" } # for development

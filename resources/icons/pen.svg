@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
@@ -9,91 +7,52 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="28"
-   height="44"
-   viewBox="0 0 7.4083332 11.641667"
+   width="280px"
+   height="440px"
+   viewBox="0 0 280 440"
    version="1.1"
-   id="svg1945"
-   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
-   sodipodi:docname="pen.svg">
-  <defs
-     id="defs1939" />
-  <sodipodi:namedview
-     id="base"
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:pageopacity="0.0"
-     inkscape:pageshadow="2"
-     inkscape:zoom="5.6"
-     inkscape:cx="-17.690401"
-     inkscape:cy="13.294114"
-     inkscape:document-units="mm"
-     inkscape:current-layer="layer1"
-     showgrid="false"
-     units="px"
-     fit-margin-top="1"
-     fit-margin-left="1"
-     fit-margin-right="1"
-     fit-margin-bottom="1"
-     inkscape:window-width="1027"
-     inkscape:window-height="815"
-     inkscape:window-x="678"
-     inkscape:window-y="135"
-     inkscape:window-maximized="0" />
+   id="svg13"
+   sodipodi:docname="pen2.svg"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
   <metadata
-     id="metadata1942">
+     id="metadata19">
     <rdf:RDF>
       <cc:Work
          rdf:about="">
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
+  <defs
+     id="defs17" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="724"
+     inkscape:window-height="480"
+     id="namedview15"
+     showgrid="false"
+     inkscape:zoom="0.53636364"
+     inkscape:cx="140"
+     inkscape:cy="294.57627"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="surface1"
+     showguides="false" />
   <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
-     id="layer1"
-     transform="translate(-28.178128,-151.95352)">
-    <g
-       transform="matrix(0.26458333,0,0,0.26458333,-172.37604,103.0056)"
-       id="g347"
-       style="filter:url(#filter16_d)" />
-    <g
-       id="g833">
-      <path
-         style="filter:url(#filter16_d);fill:#dddddd"
-         inkscape:connector-curvature="0"
-         id="path343"
-         d="m 778.00001,227 h -12 v -8 -5 l -4,-6 4,-8 3,-13 h 5.857 l 3.143,13 4,8 -4,6 v 5 z"
-         transform="matrix(0.26458333,0,0,0.26458333,-172.37604,103.0056)" />
-      <path
-         style="filter:url(#filter16_d);fill:#dddddf;fill-opacity:0.94117647;stroke:#000000;stroke-width:2;stroke-linejoin:round"
-         inkscape:connector-curvature="0"
-         id="path345"
-         d="m 778.00001,227 h -12 v -8 -5 l -4,-6 4,-8 3,-13 h 5.857 l 3.143,13 4,8 -4,6 v 5 z"
-         transform="matrix(0.26458333,0,0,0.26458333,-172.37604,103.0056)" />
-      <rect
-         style="fill:#aaaaaa;stroke:#000000;stroke-width:0.52916664;stroke-linejoin:round;filter:url(#filter1_d)"
-         id="rect349"
-         height="2.1166666"
-         width="3.175"
-         y="160.94936"
-         x="30.294794" />
-      <path
-         style="stroke:#000000;stroke-width:0.52916664;stroke-linecap:round;stroke-linejoin:round;filter:url(#filter1_d)"
-         inkscape:connector-curvature="0"
-         id="path351"
-         d="m 31.882295,152.48269 v 5.82083" />
-      <circle
-         style="fill:#000000;stroke-width:0.26458332;filter:url(#filter1_d)"
-         id="circle353"
-         r="0.52916664"
-         cy="158.30353"
-         cx="31.882296" />
-    </g>
+     id="surface1">
+    <path
+       style="color:#000000;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:medium;line-height:normal;font-family:sans-serif;font-variant-ligatures:normal;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-feature-settings:normal;text-indent:0;text-align:start;text-decoration:none;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:normal;word-spacing:normal;text-transform:none;writing-mode:lr-tb;direction:ltr;text-orientation:mixed;dominant-baseline:auto;baseline-shift:baseline;text-anchor:start;white-space:normal;shape-padding:0;clip-rule:nonzero;display:inline;overflow:visible;visibility:visible;opacity:1;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:#000000;solid-opacity:1;vector-effect:none;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:19.99999809;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate"
+       d="M 139.87109 9.8769531 A 10.001006 10.001006 0 0 0 138.48828 10 L 110 10 A 10.000999 10.000999 0 0 0 100.25391 17.753906 L 70.527344 146.60156 L 31.054688 225.52734 A 10.000999 10.000999 0 0 0 31.679688 235.54688 L 70 293.02734 L 70 339.18945 A 10.001006 10.001006 0 0 0 69.964844 339.99414 L 69.964844 420.01367 A 10.001006 10.001006 0 0 0 74.597656 428.41602 A 10.001006 10.001006 0 0 0 74.988281 428.63867 A 10.000999 10.000999 0 0 0 80 430 L 200 430 A 10.000999 10.000999 0 0 0 209.86133 421.64453 A 10.000999 10.000999 0 0 0 209.97656 420.65039 A 10.001006 10.001006 0 0 0 209.97656 420.63086 A 10.000999 10.000999 0 0 0 210 420.01367 L 210 339.99414 L 210 293.02734 L 248.32031 235.54688 A 10.000999 10.000999 0 0 0 248.94531 225.52734 L 209.45312 146.54297 L 178.28125 17.65625 A 10.000999 10.000999 0 0 0 168.57422 10 L 141.48438 10 A 10.001006 10.001006 0 0 0 139.87109 9.8769531 z M 117.94922 30 L 129.98047 30 L 129.98047 222.70898 C 124.01885 226.17103 120 232.60866 120 240 C 120 251.04688 128.95312 260 140 260 C 151.04688 260 160 251.04688 160 240 C 160 232.59393 155.96567 226.14448 149.98438 222.6875 L 149.98438 30 L 160.70312 30 L 190.27344 152.34375 A 10.000999 10.000999 0 0 0 191.05469 154.47266 L 228.45703 229.27734 L 191.67969 284.45312 A 10.000999 10.000999 0 0 0 190 290 L 190 330.0293 L 90 330.0293 L 90 290 A 10.000999 10.000999 0 0 0 88.320312 284.45312 L 51.542969 229.27734 L 88.945312 154.47266 A 10.000999 10.000999 0 0 0 89.746094 152.24609 L 117.94922 30 z M 90 350.0332 L 189.99414 350.0332 L 189.99414 409.97461 L 90 409.97461 L 90 350.0332 z "
+       id="path4" />
   </g>
 </svg>

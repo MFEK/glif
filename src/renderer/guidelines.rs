@@ -1,7 +1,7 @@
 use super::constants::*;
 use super::points::calc::*;
 use crate::{state, STATE};
-use reclutch::skia::{Canvas, Color, Paint, PaintStyle, Path};
+use skulpin::skia_safe::{Canvas, Color, Paint, PaintStyle, Path};
 use state::State;
 
 enum GuidelineType {
