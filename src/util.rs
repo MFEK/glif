@@ -12,16 +12,30 @@ use colored::Colorize;
 
 lazy_static! {
     pub static ref DEBUG: bool = { option_env!("DEBUG").is_some() };
+    pub static ref DEBUG_EVENTS: bool = { option_env!("DEBUG_EVENTS").is_some() };
+}
+
+macro_rules! debug_base {
+    ($e:tt, $($arg:tt)*) => ({
+        use crate::util::$e;
+        if *$e {
+            eprint!("{}: ", stringify!($e));
+            eprintln!($($arg)*);
+        }
+    })
 }
 
 #[macro_export]
 macro_rules! debug {
     ($($arg:tt)*) => ({
-        use crate::util::DEBUG;
-        if *DEBUG {
-            eprint!("Debug: ");
-            eprintln!($($arg)*);
-        }
+        debug_base!(DEBUG, $($arg)*);
+    })
+}
+
+#[macro_export]
+macro_rules! debug_events {
+    ($($arg:tt)*) => ({
+        debug_base!(DEBUG_EVENTS, $($arg)*);
     })
 }
 

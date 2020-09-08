@@ -1,5 +1,5 @@
 use super::{Handle, HandleStyle, UIPointType};
-use reclutch::skia::{
+use skulpin::skia_safe::{
     Canvas, ContourMeasureIter, Font, FontMgr, FontStyle, Matrix, Paint, PaintStyle, Path, Point,
     Rect, TextBlob, Typeface, Vector,
 };

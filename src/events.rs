@@ -4,9 +4,9 @@ use crate::state;
 use crate::{PEN_DATA, STATE};
 use state::{Mode, PenData, PointData};
 
-use glutin::dpi::{PhysicalPosition, PhysicalSize};
-use glutin::event::MouseButton;
-use reclutch::skia::{Canvas, Matrix};
+use skulpin::skia_safe::{Canvas, Matrix};
+use skulpin::winit::dpi::{PhysicalPosition, PhysicalSize};
+use skulpin::winit::event::MouseButton;
 
 use std::cell::RefCell;
 use std::mem;

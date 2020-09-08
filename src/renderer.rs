@@ -15,12 +15,12 @@ use self::points::calc::*;
 mod glyph;
 mod selbox;
 
-use reclutch::skia::{
+use skulpin::skia_safe::{
     gradient_shader, Canvas, Color, IRect, Matrix, Paint, PaintJoin, PaintStyle, Path, Point, Rect,
     TileMode,
 };
 
-use glutin::dpi::PhysicalPosition;
+use skulpin::winit::dpi::PhysicalPosition;
 use std::cell::RefCell;
 use std::cmp::min;
 
@@ -45,12 +45,9 @@ enum RendererPointType {
 }
 
 use std::thread::LocalKey;
-pub fn render_frame(frame: usize, fps: usize, bpm: usize, canvas: &mut Canvas) {
+pub fn render_frame(canvas: &mut Canvas) {
     canvas.clear(CLEAR_COLOR);
     STATE.with(|v| {
-        let step = 12.0 * bpm as f32 / 60.0 / fps as f32;
-        let frame_count = (360.0 / step) as usize;
-
         let size = {
             let dim = canvas.image_info().dimensions();
             min(dim.width, dim.height) as i32
@@ -95,4 +92,10 @@ pub fn render_frame(frame: usize, fps: usize, bpm: usize, canvas: &mut Canvas) {
 
         points::draw_directions(path, canvas);
     });
+}
+
+pub fn update_viewport(canvas: &mut Canvas) {
+    let mut scale = STATE.with(|v| v.borrow().factor);
+    let mut offset = STATE.with(|v| v.borrow().offset);
+    STATE.with(|v| ::events::update_viewport(Some(offset), Some(scale), &v, canvas));
 }

@@ -1,0 +1,9 @@
+pub const KNIFE: &[u8] = &[239, 128, 128, 0]; // U+F000
+pub const MEASURE: &[u8] = &[239, 128, 129, 0]; // U+F001
+pub const PAN: &[u8] = &[239, 128, 130, 0]; // U+F002
+pub const PEN: &[u8] = &[239, 128, 131, 0]; // U+F003
+pub const PENCIL: &[u8] = &[239, 128, 132, 0]; // U+F004
+pub const SELECT: &[u8] = &[239, 128, 133, 0]; // U+F005
+pub const SHAPES: &[u8] = &[239, 128, 134, 0]; // U+F006
+pub const TEXT: &[u8] = &[239, 128, 135, 0]; // U+F007
+pub const ZOOM: &[u8] = &[239, 128, 136, 0]; // U+F008

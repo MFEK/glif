@@ -1,9 +1,9 @@
 // Draw selection box
 use super::constants::*;
 use super::points::calc::*;
-use glutin::dpi::PhysicalPosition;
-use reclutch::skia::dash_path_effect;
-use reclutch::skia::{Canvas, Contains, Paint, PaintStyle, Path, Point, Rect};
+use skulpin::skia_safe::dash_path_effect;
+use skulpin::skia_safe::{Canvas, Contains, Paint, PaintStyle, Path, Point, Rect};
+use skulpin::winit::dpi::PhysicalPosition;
 use std::cell::RefCell;
 
 use crate::state;

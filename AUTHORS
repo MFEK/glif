@@ -1,6 +1,6 @@
 Source code:
 Fredrick Brennan (@ctrlcctrlv)
-@jazzfool
+Philip Degarmo (@aclysma) (src/opengl/imgui/support.rs - vendorized from Skulpin)
 
 Design, icons:
 Eli Heuer (@eliheuer)

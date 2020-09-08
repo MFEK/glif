@@ -3,11 +3,10 @@
 use glifparser;
 use imgui;
 
-use crate::opengl::imgui::icons::Icons;
 use enum_iterator::IntoEnumIterator;
 use glifparser::{Contour, Glif, Point};
-use glutin::dpi::{PhysicalPosition, PhysicalSize};
-use reclutch::skia::Surface;
+use skulpin::skia_safe::Surface;
+use skulpin::winit::dpi::{PhysicalPosition, PhysicalSize};
 
 use std::cell::RefCell;
 use std::path::PathBuf;
@@ -32,8 +31,6 @@ pub enum PointLabels {
     Numbered,
     Locations,
 }
-
-use glium::texture;
 
 pub struct PenData {
     pub contour: Option<usize>,   // index into Outline
@@ -66,7 +63,7 @@ pub struct State<T> {
     pub factor: f32,
     pub offset: (f32, f32),
     pub dpi: f64, // from glutin scale_factor()
-    pub icons: Option<Icons>,
+                  //pub icons: Option<Icons>,
 }
 
 impl<T> State<T> {
@@ -90,7 +87,7 @@ impl<T> State<T> {
             factor: 1.,
             offset: (0., 0.),
             dpi: 1.,
-            icons: None,
+            //icons: None,
         }
     }
 }
