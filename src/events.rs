@@ -5,13 +5,27 @@ use crate::{PEN_DATA, STATE};
 use state::{Mode, PenData, PointData};
 
 use skulpin::skia_safe::{Canvas, Matrix};
+use skulpin::winit;
 use skulpin::winit::dpi::{PhysicalPosition, PhysicalSize};
 use skulpin::winit::event::MouseButton;
+use skulpin::winit::window::Window;
 
 use std::cell::RefCell;
 use std::mem;
 
 // Generic events
+pub fn center_cursor(winit_window: &Window) -> Result<(), winit::error::ExternalError> {
+    let mut center = winit_window.outer_size();
+    center.width /= 2;
+    center.height /= 2;
+    STATE.with(|v| {
+        v.borrow_mut().absolute_mousepos = PhysicalPosition::from((center.width, center.height))
+    });
+    winit_window.set_cursor_position(winit::dpi::PhysicalPosition::new(
+        center.width as i32,
+        center.height as i32,
+    ))
+}
 
 pub fn update_viewport<T>(
     offset: Option<(f32, f32)>,
@@ -167,12 +181,18 @@ pub fn mouse_released_zoom<T>(
     }
     let mut offset = v.borrow().offset;
     let winsize = v.borrow().winsize;
-    let position = v.borrow().mousepos;
-    let center =
-        PhysicalPosition::<f32>::from((winsize.width as f32 / 2., winsize.height as f32 / 2.));
-    offset.0 = -(position.x as f32 / 2.);
-    offset.1 = -(position.y as f32 / 2.);
+    let position = v.borrow().absolute_mousepos;
+    let mut center = (
+        (winsize.width as f32 / 2.) + offset.0,
+        (winsize.height as f32 / 2.) + offset.1,
+    );
+    offset.0 = -(position.x as f32 - center.0);
+    offset.1 = -(position.y as f32 - center.1);
     update_viewport(Some(offset), Some(scale), &v, canvas);
+    debug!(
+        "Zoom triggered @ {}x{}, offset {:?}",
+        position.x, position.y, offset
+    );
     true
 }
 
