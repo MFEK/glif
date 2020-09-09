@@ -8,7 +8,7 @@ font.fontname = font.familyname = font.fullname = "QglifIconFont"
 
 WIDTH = 700
 
-fn = open("../../src/opengl/imgui/icons.rs", "wb")
+fn = open("../../src/imgui/icons.rs", "wb")
 
 i = 0
 for i, f in enumerate(glob.glob("*.svg")):
@@ -29,10 +29,7 @@ fn.close()
 
 
 font.encoding = "UnicodeBMP"
-
-if "compact" in dir(font):
-    font.compact()
-
+font.encoding = "compacted"
 font.autoWidth(0)
 
 font.save("icons.sfd")
