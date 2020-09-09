@@ -2,9 +2,9 @@
 // https://github.com/aclysma/skulpin/blob/24cff6ff1d1b6dadc8a9d8ae04a6065a9294f906/examples/imgui_support/mod.rs
 // License is MIT: https://github.com/aclysma/skulpin/blob/78ce6228851168fa53d95a1fdddfb2ea39168140/LICENSE-MIT
 
+use imgui_rs;
 use imgui_winit_support;
 use skulpin::winit;
-use skulpin_plugin_imgui::imgui as imgui_rs;
 
 use imgui_rs::sys as imgui_sys;
 

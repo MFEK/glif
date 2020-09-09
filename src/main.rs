@@ -60,10 +60,6 @@ fn main() {
     util::set_panic_hook();
 
     let window_size = (WIDTH, HEIGHT);
-    STATE.with(|v| {
-        v.borrow_mut().winsize = window_size.into();
-    });
-
     let args = util::argparser::parse_args();
     let filename = args.filename;
     let glif = io::load_glif(&filename);
@@ -79,6 +75,10 @@ fn main() {
         .with_resizable(true)
         .build(&event_loop)
         .expect("Failed to create window");
+
+    STATE.with(|v| {
+        v.borrow_mut().winsize = winit_window.inner_size();
+    });
 
     let imgui_manager = imgui::support::init_imgui_manager(&winit_window);
     imgui_manager.begin_frame(&winit_window);
@@ -101,7 +101,7 @@ fn main() {
     // Create the renderer, which will draw to the window
     let renderer = skulpin::RendererBuilder::new()
         .use_vulkan_debug_layer(false)
-        .coordinate_system(skulpin::CoordinateSystem::None)
+        .coordinate_system(skulpin::CoordinateSystem::Logical)
         .add_plugin(imgui_plugin.unwrap())
         .build(&window);
 
@@ -235,6 +235,13 @@ fn main() {
                             v.borrow().offset,
                             v.borrow().mode
                         );
+
+                        v.borrow_mut().offset = offset;
+                        v.borrow_mut().factor = scale;
+                    });
+                    renderer.draw(&window, |canvas, coordinate_system_helper| {
+                        renderer::update_viewport(canvas);
+                        renderer::render_frame(canvas);
                     });
                 }
                 WindowEvent::CursorMoved { position, .. } => {
@@ -305,9 +312,12 @@ fn main() {
                                         state::Mode::Select => events::mouse_released_select(
                                             position, &v, canvas, button,
                                         ),
-                                        state::Mode::Zoom => events::mouse_released_zoom(
-                                            position, &v, canvas, button,
-                                        ),
+                                        state::Mode::Zoom => {
+                                            events::mouse_released_zoom(
+                                                position, &v, canvas, button,
+                                            );
+                                            events::center_cursor(&winit_window).is_ok()
+                                        }
                                         _ => false,
                                     };
                                 }
