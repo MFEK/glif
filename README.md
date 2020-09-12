@@ -30,7 +30,7 @@ Apple charges a fee to "notarize" applications and without this "notarization" Q
 I typically build and run Qglif like this:
 
 ```
-RUSTFLAGS=-Awarnings DEBUG=y RUST_BACKTRACE=1 cargo run -- Q_.glif
+RUSTFLAGS=-Awarnings RUST_LOG=debug RUST_BACKTRACE=1 cargo run -- Q_.glif
 ```
 
 I welcome all contributions! Please open an issue first so we can discuss before you make big changes so no effort is wasted.

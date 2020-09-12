@@ -15,27 +15,13 @@ lazy_static! {
     pub static ref DEBUG_EVENTS: bool = { option_env!("DEBUG_EVENTS").is_some() };
 }
 
-macro_rules! debug_base {
-    ($e:tt, $($arg:tt)*) => ({
-        use crate::util::$e;
-        if *$e {
-            eprint!("{}: ", stringify!($e));
-            eprintln!($($arg)*);
-        }
-    })
-}
-
-#[macro_export]
-macro_rules! debug {
-    ($($arg:tt)*) => ({
-        debug_base!(DEBUG, $($arg)*);
-    })
-}
-
 #[macro_export]
 macro_rules! debug_events {
     ($($arg:tt)*) => ({
-        debug_base!(DEBUG_EVENTS, $($arg)*);
+        use crate::util::DEBUG_EVENTS;
+        if *DEBUG_EVENTS {
+            debug!($($arg)*);
+        }
     })
 }
 

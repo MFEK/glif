@@ -17,6 +17,9 @@ extern crate clap;
 extern crate colored;
 extern crate enum_iterator;
 #[macro_use]
+extern crate log;
+extern crate env_logger;
+#[macro_use]
 extern crate git_version; // for util::parse_args
 extern crate font_kit;
 #[macro_use]
@@ -57,6 +60,7 @@ mod renderer;
 use renderer::constants::*;
 
 fn main() {
+    env_logger::init();
     util::set_panic_hook();
 
     let window_size = (WIDTH, HEIGHT);
