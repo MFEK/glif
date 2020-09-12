@@ -14,11 +14,7 @@ I wrote it after, hopefully, learning from the mistakes made by George Williams 
 
 Qglif is the premier program of the Modular Font Editor Q project. This project aims to create a full font editor by making many small programs that will all work together, fulfilling the Unix adage that each program should have one task and do that task well. Qglif aims to do the task of drawing and editing glyphs well.
 
-### Technical details
-
-Two OpenGL contexts are made: one for Skia and one for Dear ImGui. Skia is redrawn only when necessary, while Dear ImGui is redrawn upon every frame. At the start of the program, `glifparser.rs` parses the input `.glif` file and creates a Skia path. Keyboard events are handled by `glutin`, which triggers the appropriate actions on both the Skia canvas and Dear ImGui's UI. If the cursor is over the toolbox, then clicks are not passed down to Skia&mdash;this has the benefit of not causing the canvas to zoom in when merely switching to the zoom tool.
-
-To make this as easy as possible to build, and cross-platform without hassle, the SVG icons are compiled right into the binary via the Rust `include_str!` macro.
+To make this as easy as possible to build, and cross-platform without hassle, the icon is compiled right into the binary via the Rust `include_str!` macro.
 
 ### Mac users
 
