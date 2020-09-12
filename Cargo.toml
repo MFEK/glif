@@ -7,13 +7,11 @@ authors = ["Fredrick Brennan <copypaste@kittens.ph>"]
 
 [dependencies]
 # For display
-#skulpin = { git = "https://github.com/aclysma/skulpin", rev = "ca6da4ca64484f7854b8502b08a33cfd5bab98fc", features = ["skia_complete", "skulpin_winit"] }
-skulpin = { path = "../skulpin", features = ["skia_complete", "skulpin_winit"] }
-skulpin-plugin-imgui = { path = "../skulpin/skulpin-plugin-imgui" }
-sdl2 = { version = ">=0.33", features = ["bundled", "static-link"] }
+# We might need to vendorize these some day. See aclysma/skulpin#66:
+# https://github.com/aclysma/skulpin/issues/66#issuecomment-689244118
+skulpin = { version = "0.10.0", default-features = false, features = ["skia_complete", "skulpin_winit"] }
+skulpin-plugin-imgui = "0.5.0"
 imgui-winit-support = "0.4.0"
-gl = "0.14.0"
-glium = "0.27.0"
 
 # For choosing font for toolbox
 font-kit = "0.10.0"
