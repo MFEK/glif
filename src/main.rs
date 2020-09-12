@@ -90,14 +90,6 @@ fn main() {
         imgui_plugin = Some(Box::new(ImguiRendererPlugin::new(context)));
     });
 
-    let scale_to_fit = skulpin::skia_safe::matrix::ScaleToFit::Center;
-    let visible_range = skulpin::skia_safe::Rect {
-        left: 0.0,
-        right: window_size.0 as f32,
-        top: 0.0,
-        bottom: window_size.1 as f32,
-    };
-
     // Create the renderer, which will draw to the window
     let renderer = skulpin::RendererBuilder::new()
         .prefer_fifo_present_mode()
@@ -115,8 +107,6 @@ fn main() {
     let mut renderer = renderer.unwrap();
 
     let mut last_frame = Instant::now();
-
-    //imgui.set_ini_filename(None);
 
     STATE.with(|v| {
         v.borrow_mut().dpi = window.scale_factor();
@@ -240,7 +230,6 @@ fn main() {
                         v.borrow_mut().offset = offset;
                         v.borrow_mut().factor = scale;
                     });
-                    winit_window.request_redraw();
                 }
                 WindowEvent::CursorMoved { position, .. } => {
                     STATE.with(|v| {
@@ -255,7 +244,6 @@ fn main() {
                             _ => false,
                         };
                     });
-                    winit_window.request_redraw();
                 }
                 WindowEvent::MouseInput {
                     state: mstate,
@@ -312,7 +300,11 @@ fn main() {
                                 };
                             }
                         }
-                        winit_window.request_redraw();
+                    });
+                }
+                WindowEvent::Resized(size) => {
+                    STATE.with(|v| {
+                        v.borrow_mut().winsize = size;
                     });
                 }
                 _ => (),
