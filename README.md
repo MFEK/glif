@@ -20,6 +20,15 @@ Two OpenGL contexts are made: one for Skia and one for Dear ImGui. Skia is redra
 
 To make this as easy as possible to build, and cross-platform without hassle, the SVG icons are compiled right into the binary via the Rust `include_str!` macro.
 
+### Mac users
+
+Apple charges a fee to "notarize" applications and without this "notarization" Qglif will not run correctly, or in some cases, at all. So, for the foreseeable future, you must _build Qglif from source on OS X_. This is not as hard as it sounds! :-)
+
+* Download and install the [Vulkan SDK](https://vulkan.lunarg.com/).
+* Download and install [`rustup`](https://rustup.rs/), selecting the `nightly` toolchain.
+* Pull this repository, and finally
+* Run the below command to get started.
+
 ## Contributing
 
 I typically build and run Qglif like this:
