@@ -100,6 +100,7 @@ fn main() {
 
     // Create the renderer, which will draw to the window
     let renderer = skulpin::RendererBuilder::new()
+        .prefer_fifo_present_mode()
         .use_vulkan_debug_layer(false)
         .coordinate_system(skulpin::CoordinateSystem::Logical)
         .add_plugin(imgui_plugin.unwrap())
@@ -239,30 +240,22 @@ fn main() {
                         v.borrow_mut().offset = offset;
                         v.borrow_mut().factor = scale;
                     });
-                    renderer.draw(&window, |canvas, coordinate_system_helper| {
-                        renderer::update_viewport(canvas);
-                        renderer::render_frame(canvas);
-                    });
+                    winit_window.request_redraw();
                 }
                 WindowEvent::CursorMoved { position, .. } => {
-                    renderer.draw(&window, |canvas, coordinate_system_helper| {
-                        STATE.with(|v| {
-                            let mode = v.borrow().mode;
+                    STATE.with(|v| {
+                        let mode = v.borrow().mode;
 
-                            match mode {
-                                #[rustfmt::skip]
-                                state::Mode::Pan => events::mouse_moved_move(position, &v, canvas),
-                                state::Mode::Pen => events::mouse_moved_pen(position, &v, canvas),
-                                state::Mode::Select => {
-                                    events::mouse_moved_select(position, &v, canvas)
-                                }
-                                state::Mode::Zoom => events::mouse_moved_zoom(position, &v, canvas),
-                                _ => false,
-                            };
-                        });
-                        renderer::update_viewport(canvas);
-                        renderer::render_frame(canvas);
+                        match mode {
+                            #[rustfmt::skip]
+                            state::Mode::Pan => events::mouse_moved_move(position, &v),
+                            state::Mode::Pen => events::mouse_moved_pen(position, &v),
+                            state::Mode::Select => events::mouse_moved_select(position, &v),
+                            state::Mode::Zoom => events::mouse_moved_zoom(position, &v),
+                            _ => false,
+                        };
                     });
+                    winit_window.request_redraw();
                 }
                 WindowEvent::MouseInput {
                     state: mstate,
@@ -280,51 +273,46 @@ fn main() {
                             return;
                         }
 
-                        renderer.draw(&window, |canvas, coordinate_system_helper| {
-                            let mode = v.borrow().mode;
-                            let position = v.borrow().mousepos;
-                            v.borrow_mut().mousedown = mstate == ElementState::Pressed;
+                        let mode = v.borrow().mode;
+                        let position = v.borrow().mousepos;
+                        v.borrow_mut().mousedown = mstate == ElementState::Pressed;
 
-                            match mode {
-                                state::Mode::Select => {
-                                    events::mouse_button_select(position, &v, canvas, button)
-                                }
-                                _ => false,
-                            };
-
-                            match mstate {
-                                ElementState::Pressed => {
-                                    match mode {
-                                        state::Mode::Pen => {
-                                            events::mouse_pressed_pen(position, &v, canvas, button)
-                                        }
-                                        state::Mode::Select => events::mouse_pressed_select(
-                                            position, &v, canvas, button,
-                                        ),
-                                        _ => false,
-                                    };
-                                }
-                                ElementState::Released => {
-                                    match mode {
-                                        state::Mode::Pen => {
-                                            events::mouse_released_pen(position, &v, canvas, button)
-                                        }
-                                        state::Mode::Select => events::mouse_released_select(
-                                            position, &v, canvas, button,
-                                        ),
-                                        state::Mode::Zoom => {
-                                            events::mouse_released_zoom(
-                                                position, &v, canvas, button,
-                                            );
-                                            events::center_cursor(&winit_window).is_ok()
-                                        }
-                                        _ => false,
-                                    };
-                                }
+                        match mode {
+                            state::Mode::Select => {
+                                events::mouse_button_select(position, &v, button)
                             }
-                            renderer::update_viewport(canvas);
-                            renderer::render_frame(canvas);
-                        });
+                            _ => false,
+                        };
+
+                        match mstate {
+                            ElementState::Pressed => {
+                                match mode {
+                                    state::Mode::Pen => {
+                                        events::mouse_pressed_pen(position, &v, button)
+                                    }
+                                    state::Mode::Select => {
+                                        events::mouse_pressed_select(position, &v, button)
+                                    }
+                                    _ => false,
+                                };
+                            }
+                            ElementState::Released => {
+                                match mode {
+                                    state::Mode::Pen => {
+                                        events::mouse_released_pen(position, &v, button)
+                                    }
+                                    state::Mode::Select => {
+                                        events::mouse_released_select(position, &v, button)
+                                    }
+                                    state::Mode::Zoom => {
+                                        events::mouse_released_zoom(position, &v, button);
+                                        events::center_cursor(&winit_window).is_ok()
+                                    }
+                                    _ => false,
+                                };
+                            }
+                        }
+                        winit_window.request_redraw();
                     });
                 }
                 _ => (),
@@ -334,7 +322,6 @@ fn main() {
                     imgui_manager.begin_frame(&winit_window);
                     frame_count += 1;
 
-                    renderer::update_viewport(canvas);
                     renderer::render_frame(canvas);
 
                     {

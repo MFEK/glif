@@ -31,7 +31,6 @@ pub fn update_viewport<T>(
     offset: Option<(f32, f32)>,
     scale: Option<f32>,
     v: &RefCell<state::State<T>>,
-    canvas: &mut Canvas,
 ) {
     let offset = match offset {
         None => v.borrow().offset,
@@ -41,9 +40,6 @@ pub fn update_viewport<T>(
         None => v.borrow().factor,
         Some(scale) => scale,
     };
-    let mut matrix = Matrix::new_identity();
-    matrix.set_scale_translate((scale, scale), offset);
-    canvas.set_matrix(&matrix);
     v.borrow_mut().factor = scale;
     v.borrow_mut().offset = offset;
 }
@@ -74,11 +70,7 @@ pub fn update_mousepos<T>(
 
 // Pan
 
-pub fn mouse_moved_move<T>(
-    position: PhysicalPosition<f64>,
-    v: &RefCell<state::State<T>>,
-    canvas: &mut Canvas,
-) -> bool {
+pub fn mouse_moved_move<T>(position: PhysicalPosition<f64>, v: &RefCell<state::State<T>>) -> bool {
     let old_mposition = v.borrow().absolute_mousepos.clone();
     let mut offset = v.borrow().offset;
     let mposition = update_mousepos(position, &v, true);
@@ -89,7 +81,7 @@ pub fn mouse_moved_move<T>(
     offset.1 += (mposition.y - old_mposition.y).floor() as f32;
     //offset = (mposition.x as f32, mposition.y as f32);
     v.borrow_mut().offset = offset;
-    update_viewport(None, None, &v, canvas);
+    update_viewport(None, None, &v);
     true
 }
 
@@ -98,7 +90,6 @@ pub fn mouse_moved_move<T>(
 pub fn mouse_moved_select<T>(
     position: PhysicalPosition<f64>,
     v: &RefCell<state::State<T>>,
-    canvas: &mut Canvas,
 ) -> bool {
     let mposition = update_mousepos(position, &v, false);
     v.borrow_mut().corner_two = Some(mposition);
@@ -108,7 +99,6 @@ pub fn mouse_moved_select<T>(
 pub fn mouse_button_select<T>(
     position: PhysicalPosition<f64>,
     v: &RefCell<state::State<T>>,
-    canvas: &mut Canvas,
     button: MouseButton,
 ) -> bool {
     false
@@ -117,7 +107,6 @@ pub fn mouse_button_select<T>(
 pub fn mouse_pressed_select<T>(
     position: PhysicalPosition<f64>,
     v: &RefCell<state::State<T>>,
-    canvas: &mut Canvas,
     button: MouseButton,
 ) -> bool {
     v.borrow_mut().show_sel_box = true;
@@ -133,7 +122,6 @@ pub fn mouse_pressed_select<T>(
 pub fn mouse_released_select<T>(
     position: PhysicalPosition<f64>,
     v: &RefCell<state::State<T>>,
-    canvas: &mut Canvas,
     button: MouseButton,
 ) -> bool {
     v.borrow_mut().show_sel_box = false;
@@ -154,11 +142,7 @@ pub fn zoom_out_factor<T>(factor: f32, v: &RefCell<state::State<T>>) -> f32 {
     scale
 }
 
-pub fn mouse_moved_zoom<T>(
-    position: PhysicalPosition<f64>,
-    v: &RefCell<state::State<T>>,
-    canvas: &mut Canvas,
-) -> bool {
+pub fn mouse_moved_zoom<T>(position: PhysicalPosition<f64>, v: &RefCell<state::State<T>>) -> bool {
     let mposition = update_mousepos(position, &v, false);
     false
 }
@@ -166,7 +150,6 @@ pub fn mouse_moved_zoom<T>(
 pub fn mouse_released_zoom<T>(
     position: PhysicalPosition<f64>,
     v: &RefCell<state::State<T>>,
-    canvas: &mut Canvas,
     button: MouseButton,
 ) -> bool {
     let mut scale = v.borrow().factor;
@@ -188,7 +171,7 @@ pub fn mouse_released_zoom<T>(
     );
     offset.0 = -(position.x as f32 - center.0);
     offset.1 = -(position.y as f32 - center.1);
-    update_viewport(Some(offset), Some(scale), &v, canvas);
+    update_viewport(Some(offset), Some(scale), &v);
     debug!(
         "Zoom triggered @ {}x{}, offset {:?}",
         position.x, position.y, offset
@@ -234,7 +217,6 @@ pub fn mode_switched(from: Mode, to: Mode) {
 pub fn mouse_moved_pen(
     position: PhysicalPosition<f64>,
     v: &RefCell<state::State<Option<PointData>>>,
-    canvas: &mut Canvas,
 ) -> bool {
     let mposition = update_mousepos(position, &v, false);
 
@@ -270,7 +252,6 @@ pub fn mouse_moved_pen(
 pub fn mouse_pressed_pen(
     position: PhysicalPosition<f64>,
     v: &RefCell<state::State<Option<PointData>>>,
-    canvas: &mut Canvas,
     button: MouseButton,
 ) -> bool {
     let mposition = v.borrow().mousepos;
@@ -301,7 +282,6 @@ pub fn mouse_pressed_pen(
 pub fn mouse_released_pen(
     position: PhysicalPosition<f64>,
     v: &RefCell<state::State<Option<PointData>>>,
-    canvas: &mut Canvas,
     button: MouseButton,
 ) -> bool {
     let mposition = v.borrow().mousepos;

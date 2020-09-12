@@ -14,6 +14,7 @@ pub mod points; // point drawing functions
 use self::points::calc::*;
 mod glyph;
 mod selbox;
+mod viewport;
 
 use skulpin::skia_safe::{
     gradient_shader, Canvas, Color, IRect, Matrix, Paint, PaintJoin, PaintStyle, Path, Point, Rect,
@@ -47,6 +48,7 @@ enum RendererPointType {
 use std::thread::LocalKey;
 pub fn render_frame(canvas: &mut Canvas) {
     canvas.clear(CLEAR_COLOR);
+    viewport::redraw_viewport(canvas);
     STATE.with(|v| {
         let size = {
             let dim = canvas.image_info().dimensions();
@@ -92,10 +94,4 @@ pub fn render_frame(canvas: &mut Canvas) {
 
         points::draw_directions(path, canvas);
     });
-}
-
-pub fn update_viewport(canvas: &mut Canvas) {
-    let mut scale = STATE.with(|v| v.borrow().factor);
-    let mut offset = STATE.with(|v| v.borrow().offset);
-    STATE.with(|v| ::events::update_viewport(Some(offset), Some(scale), &v, canvas));
 }
