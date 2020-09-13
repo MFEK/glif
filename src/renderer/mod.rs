@@ -9,6 +9,7 @@ pub mod constants;
 use self::constants::*;
 
 mod guidelines;
+pub use self::guidelines::{Guideline, GuidelineType};
 pub mod points; // point drawing functions
                 // This imports calc_x, etc. which transforms coordinates between .glif and Skia
 use self::points::calc::*;
@@ -60,6 +61,15 @@ pub fn render_frame(canvas: &mut Canvas) {
         guidelines::draw_lbearing(canvas);
         guidelines::draw_rbearing(v.borrow().glyph.as_ref().unwrap().glif.width, canvas);
         guidelines::draw_baseline(canvas);
+
+        for guideline in &v.borrow().glyph.as_ref().unwrap().guidelines {
+            guidelines::draw_guideline(
+                Color::from(LBEARING_STROKE),
+                calc_y(guideline.where_),
+                GuidelineType::Horizontal,
+                canvas,
+            );
+        }
 
         let path = glyph::draw_glyph(canvas, &v);
 

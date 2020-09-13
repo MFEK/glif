@@ -17,8 +17,10 @@ pub fn load_glif<F: AsRef<Path> + Clone>(filename: F) {
         v.borrow_mut().glyph = Some(Glyph {
             glif,
             filename: filename.as_ref().to_path_buf(),
+            guidelines: Vec::new(),
         })
     });
+
     STATE.with(|v| {
         v.borrow().glyph.as_ref().map(|glyph| {
             let glif = &glyph.glif;

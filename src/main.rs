@@ -29,6 +29,7 @@ extern crate skulpin_plugin_imgui;
 extern crate imgui_winit_support;
 // Our crates
 extern crate glifparser;
+extern crate mfeq_ipc;
 
 use skulpin::Window as _;
 pub use skulpin::{skia_safe, winit};
@@ -49,6 +50,7 @@ pub use skulpin_plugin_imgui::imgui as imgui_rs;
 #[macro_use]
 mod util;
 mod io;
+mod ipc;
 // Provides a thread-local global `STATE` variable
 mod state;
 use state::{Glyph, PointLabels};
@@ -67,6 +69,10 @@ fn main() {
     let args = util::argparser::parse_args();
     let filename = args.filename;
     let glif = io::load_glif(&filename);
+
+    if mfeq_ipc::module_available("Qmetadata".into()) == mfeq_ipc::Available::Yes {
+        ipc::fetch_metrics();
+    }
 
     let event_loop = EventLoop::new();
 

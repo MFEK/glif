@@ -4,12 +4,19 @@ use crate::{state, STATE};
 use skulpin::skia_safe::{Canvas, Color, Paint, PaintStyle, Path};
 use state::State;
 
-enum GuidelineType {
+pub enum GuidelineType {
     Horizontal,
     Vertical,
 }
 
-fn draw_guideline(color: Color, where_: f32, gtype: GuidelineType, canvas: &mut Canvas) {
+pub struct Guideline {
+    pub gtype: GuidelineType,
+    pub where_: f32,
+    pub selected: bool,
+    pub name: Option<String>,
+}
+
+pub fn draw_guideline(color: Color, where_: f32, gtype: GuidelineType, canvas: &mut Canvas) {
     let mut paint = Paint::default();
     let mut path = Path::new();
     let factor = STATE.with(|v| v.borrow().factor);

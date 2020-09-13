@@ -5,6 +5,8 @@ use imgui;
 
 use enum_iterator::IntoEnumIterator;
 use glifparser::{Contour, Glif, Point};
+use mfeq_ipc::IPCInfo;
+use renderer::Guideline;
 use skulpin::skia_safe::Surface;
 use skulpin::winit::dpi::{PhysicalPosition, PhysicalSize};
 
@@ -15,6 +17,7 @@ use std::rc::Rc;
 pub struct Glyph<T> {
     pub glif: Glif<T>,
     pub filename: PathBuf,
+    pub guidelines: Vec<Guideline>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -63,7 +66,7 @@ pub struct State<T> {
     pub factor: f32,
     pub offset: (f32, f32),
     pub dpi: f64, // from glutin scale_factor()
-                  //pub icons: Option<Icons>,
+    pub ipc_info: Option<mfeq_ipc::IPCInfo>,
 }
 
 impl<T> State<T> {
@@ -87,7 +90,7 @@ impl<T> State<T> {
             factor: 1.,
             offset: (0., 0.),
             dpi: 1.,
-            //icons: None,
+            ipc_info: None,
         }
     }
 }
