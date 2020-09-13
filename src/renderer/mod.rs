@@ -3,7 +3,7 @@
 use super::glifparser;
 use crate::state::State;
 use crate::STATE;
-use glifparser::{Handle, WhichHandle};
+use glifparser::{Handle, PointType, WhichHandle};
 
 pub mod constants;
 use self::constants::*;
@@ -76,6 +76,15 @@ pub fn render_frame(canvas: &mut Canvas) {
         let mut i: isize = -1;
         for outline in v.borrow().glyph.as_ref().unwrap().glif.outline.as_ref() {
             for contour in outline {
+                let mut prevpoint = contour.first().unwrap();
+                for point in contour {
+                    points::draw_handlebars(Some(prevpoint), point, false, canvas);
+                    prevpoint = &point;
+                }
+            }
+
+            for contour in outline {
+                let mut prevpoint = contour.first().unwrap();
                 for point in contour {
                     if point.b != Handle::Colocated {
                         i += 1;
@@ -85,6 +94,7 @@ pub fn render_frame(canvas: &mut Canvas) {
                         i += 1;
                     }
                     i += 1;
+                    prevpoint = &point;
                 }
             }
         }
@@ -96,6 +106,12 @@ pub fn render_frame(canvas: &mut Canvas) {
                 v.borrow().glyph.as_ref().unwrap().glif.outline.as_ref(),
             );
             v.borrow_mut().selected = selected;
+        }
+
+        for point in &v.borrow().selected {
+            if point.ptype != PointType::QCurve {
+                points::draw_handlebars(None, point, true, canvas);
+            }
         }
 
         for point in &v.borrow().selected {

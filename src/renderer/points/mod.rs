@@ -256,7 +256,12 @@ fn draw_handle(h: Handle, selected: bool, canvas: &mut Canvas) {
     }
 }
 
-fn draw_handlebars(a: Handle, b: Handle, at: (f32, f32), selected: bool, canvas: &mut Canvas) {
+pub fn draw_handlebars<T>(
+    prevpoint: Option<&glifparser::Point<T>>, // None in cubic mode when selecting as no access to prevpoints
+    point: &glifparser::Point<T>,
+    selected: bool,
+    canvas: &mut Canvas,
+) {
     let mut path = Path::new();
     let mut paint = Paint::default();
     let factor = STATE.with(|v| v.borrow().factor);
@@ -270,20 +275,30 @@ fn draw_handlebars(a: Handle, b: Handle, at: (f32, f32), selected: bool, canvas:
     paint.set_stroke_width(HANDLEBAR_THICKNESS * (1. / factor));
     paint.set_style(PaintStyle::Stroke);
 
-    match a {
+    match point.a {
         Handle::At(x, y) => {
             path.move_to((calc_x(x), calc_y(y)));
-            path.line_to((at.0, at.1));
+            path.line_to((calc_x(point.x), calc_y(point.y)));
         }
         _ => {
-            path.move_to((at.0, at.1));
+            path.move_to((calc_x(point.x), calc_y(point.y)));
         }
     }
-    match b {
+    match point.b {
         Handle::At(x, y) => {
             path.line_to((calc_x(x), calc_y(y)));
         }
         _ => {}
+    }
+    if point.ptype == glifparser::PointType::QCurve {
+        if let Some(pp) = prevpoint {
+            match pp.a {
+                Handle::At(x, y) => {
+                    path.line_to((calc_x(x), calc_y(y)));
+                }
+                _ => {}
+            }
+        }
     }
     canvas.draw_path(&path, &paint);
 }
@@ -294,13 +309,6 @@ pub fn draw_complete_point<T>(
     selected: bool,
     canvas: &mut Canvas,
 ) {
-    draw_handlebars(
-        point.a,
-        point.b,
-        (calc_x(point.x), calc_y(point.y)),
-        selected,
-        canvas,
-    );
     draw_point(
         (calc_x(point.x), calc_y(point.y)),
         (point.x, point.y),
