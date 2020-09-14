@@ -38,6 +38,13 @@ pub enum PointLabels {
     Locations,
 }
 
+#[derive(IntoEnumIterator, Debug, Clone, Copy, PartialEq)]
+pub enum PreviewMode {
+    None,
+    NoUnselectedPoints,
+    Paper,
+}
+
 pub struct PenData {
     pub contour: Option<usize>,   // index into Outline
     pub cur_point: Option<usize>, // index into Contour
@@ -65,6 +72,7 @@ pub struct State<T> {
     // Whether to show the selection box on screen
     pub show_sel_box: bool,
     pub point_labels: PointLabels,
+    pub preview_mode: PreviewMode,
     pub winsize: PhysicalSize<u32>, // for Skia
     pub factor: f32,
     pub offset: (f32, f32),
@@ -86,6 +94,7 @@ impl<T> State<T> {
             corner_two: None,
             show_sel_box: false,
             point_labels: PointLabels::None,
+            preview_mode: PreviewMode::None,
             winsize: PhysicalSize {
                 height: 0,
                 width: 0,

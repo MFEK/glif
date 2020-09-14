@@ -68,3 +68,23 @@ pub fn mode_switched(from: Mode, to: Mode) {
     assert!(from != to);
     PEN_DATA.with(|v| v.borrow_mut().contour = None);
 }
+
+#[macro_export]
+///! Given a field on the State struct, and an enumerator that implements IntoEnumIterator, cycle
+///! through its variants and update state. An optional condition is provided. $state is expected to
+///! be an inner thread::LocalKey<State>.
+macro_rules! trigger_toggle_on {
+    ($state:ident, $state_var:ident, $enum:ident, $cond:expr) => {
+        let $state_var = $state.borrow().$state_var;
+        if $cond {
+            let mut e = $enum::into_enum_iter()
+                .cycle()
+                .skip(1 + $state_var as usize);
+            let n = e.next().unwrap();
+            $state.borrow_mut().$state_var = n;
+        }
+    };
+    ($state:ident, $state_var:ident, $enum:ident) => {
+        trigger_toggle_on!($state, $state_var, $enum, true);
+    }
+}

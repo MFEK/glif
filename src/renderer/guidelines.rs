@@ -76,3 +76,20 @@ pub fn draw_baseline(canvas: &mut Canvas) {
         canvas,
     );
 }
+
+pub fn draw_all(canvas: &mut Canvas) {
+    STATE.with(|v| {
+        draw_lbearing(canvas);
+        draw_rbearing(v.borrow().glyph.as_ref().unwrap().glif.width, canvas);
+        draw_baseline(canvas);
+
+        for guideline in &v.borrow().glyph.as_ref().unwrap().guidelines {
+            draw_guideline(
+                Color::from(LBEARING_STROKE),
+                calc_y(guideline.where_),
+                GuidelineType::Horizontal,
+                canvas,
+            );
+        }
+    });
+}

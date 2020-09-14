@@ -49,12 +49,14 @@ pub use skulpin_plugin_imgui::{imgui::Ui as ImguiUi, ImguiRendererPlugin};
 
 // Provides thread-local global variables.
 pub mod state;
-pub use state::{Glyph, PointLabels};
-pub use state::{CONSOLE, PEN_DATA, STATE};
+pub use state::Glyph; // types
+pub use state::{PointLabels, PreviewMode}; // enums
+pub use state::{CONSOLE, PEN_DATA, STATE}; // globals
 
 mod filedialog;
 #[macro_use]
 mod util;
+#[macro_use]
 mod events;
 mod imgui;
 mod io;
@@ -244,16 +246,12 @@ fn main() {
                             Some(VirtualKeyCode::Z) => {
                                 newmode = state::Mode::Zoom;
                             }
-                            // Toggles
+                            // Toggles: trigger_toggle_on defined in events module
                             Some(VirtualKeyCode::Key3) => {
-                                let point_labels = v.borrow().point_labels;
-                                if modifiers.shift() {
-                                    let mut e = PointLabels::into_enum_iter()
-                                        .cycle()
-                                        .skip(1 + point_labels as usize);
-                                    let pl = e.next().unwrap();
-                                    v.borrow_mut().point_labels = pl;
-                                }
+                                trigger_toggle_on!(v, point_labels, PointLabels, modifiers.shift());
+                            }
+                            Some(VirtualKeyCode::Grave) => {
+                                trigger_toggle_on!(v, preview_mode, PreviewMode);
                             }
                             _ => {}
                         }

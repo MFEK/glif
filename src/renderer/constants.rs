@@ -38,7 +38,12 @@ pub static CONSOLE_FILL: u32 = 0xff_000000;
 pub static CONSOLE_TEXT_FILL: u32 = 0xff_ffffff;
 pub static CONSOLE_TEXT_ERROR_FILL: u32 = 0xff_ff0000;
 
-pub const CLEAR_COLOR: u32 = 0xff_c4c4c4;
+pub static BACKGROUND_COLOR: u32 = 0xff_c4c4c4;
+// "Paper" is the preview mode.
+pub static PAPER_BGCOLOR: u32 = 0xff_ffffff;
+// This is the automatic fill. Color (emoji) .glif's, when implemented, will ignore it, and can't
+// be set here.
+pub static PAPER_FILL: u32 = 0xff_000000;
 
 /* Math */
 pub const PI: f32 = std::f32::consts::PI;
@@ -69,3 +74,4 @@ lazy_static! {
 /* Window */
 pub const HEIGHT: u32 = 800;
 pub const WIDTH: u32 = HEIGHT;
+pub const PAPER_DRAW_GUIDELINES: bool = false;

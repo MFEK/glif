@@ -1,7 +1,7 @@
 //! Skia renderer.
 
 use super::glifparser;
-use crate::state::State;
+use crate::state::PreviewMode;
 use crate::{CONSOLE, STATE};
 use glifparser::{Handle, PointType, WhichHandle};
 
@@ -48,77 +48,30 @@ enum RendererPointType {
 }
 
 pub fn render_frame(canvas: &mut Canvas) {
-    canvas.clear(CLEAR_COLOR);
+    let pm = STATE.with(|v|v.borrow().preview_mode);
+    canvas.clear(if pm == PreviewMode::Paper { PAPER_BGCOLOR } else { BACKGROUND_COLOR });
     viewport::redraw_viewport(canvas);
-    STATE.with(|v| {
-        let size = {
-            let dim = canvas.image_info().dimensions();
-            min(dim.width, dim.height) as i32
-        };
 
-        let center = (size / 2, size / 2);
+    if pm != PreviewMode::Paper || PAPER_DRAW_GUIDELINES {
+        guidelines::draw_all(canvas);
+    }
+    let path = glyph::draw(canvas);
 
-        guidelines::draw_lbearing(canvas);
-        guidelines::draw_rbearing(v.borrow().glyph.as_ref().unwrap().glif.width, canvas);
-        guidelines::draw_baseline(canvas);
-
-        for guideline in &v.borrow().glyph.as_ref().unwrap().guidelines {
-            guidelines::draw_guideline(
-                Color::from(LBEARING_STROKE),
-                calc_y(guideline.where_),
-                GuidelineType::Horizontal,
-                canvas,
-            );
+    match pm {
+        PreviewMode::None => {
+            points::draw_all(canvas);
+            points::draw_selected(canvas);
         }
-
-        let path = glyph::draw_glyph(canvas, &v);
-
-        let mut i: isize = -1;
-        for outline in v.borrow().glyph.as_ref().unwrap().glif.outline.as_ref() {
-            for contour in outline {
-                let mut prevpoint = contour.first().unwrap();
-                for point in contour {
-                    points::draw_handlebars(Some(prevpoint), point, false, canvas);
-                    prevpoint = &point;
-                }
-            }
-
-            for contour in outline {
-                let mut prevpoint = contour.first().unwrap();
-                for point in contour {
-                    if point.b != Handle::Colocated {
-                        i += 1;
-                    }
-                    points::draw_complete_point(point, Some(i), false, canvas);
-                    if point.a != Handle::Colocated {
-                        i += 1;
-                    }
-                    i += 1;
-                    prevpoint = &point;
-                }
-            }
+        PreviewMode::NoUnselectedPoints => {
+            points::draw_selected(canvas);
         }
-
-        if v.borrow().show_sel_box {
-            let rect = selbox::draw_selbox(canvas, &v);
-            let selected = selbox::build_sel_vec_from_rect(
-                rect,
-                v.borrow().glyph.as_ref().unwrap().glif.outline.as_ref(),
-            );
-            v.borrow_mut().selected = selected;
+        PreviewMode::Paper => ()
+    }
+    match pm {
+        PreviewMode::Paper => (),
+        _ => {
+            points::draw_directions(path, canvas);
         }
-
-        for point in &v.borrow().selected {
-            if point.ptype != PointType::QCurve {
-                points::draw_handlebars(None, point, true, canvas);
-            }
-        }
-
-        for point in &v.borrow().selected {
-            points::draw_complete_point(point, None, true, canvas);
-        }
-
-        points::draw_directions(path, canvas);
-    });
+    }
     CONSOLE.with(|c| c.borrow_mut().draw(canvas));
 }
