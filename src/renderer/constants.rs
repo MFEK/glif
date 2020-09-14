@@ -5,6 +5,9 @@ pub static POINT_STROKE_THICKNESS: f32 = 3. * PEN_SIZE;
 pub static DIRECTION_STROKE_THICKNESS: f32 = 2. * PEN_SIZE;
 pub static HANDLE_STROKE_THICKNESS: f32 = 2.5 * PEN_SIZE;
 pub static POINT_RADIUS: f32 = 5. * PEN_SIZE;
+/// Triangles aren't really points, but we internally treat them as such. They represent directions.
+/// Also it's a factor, the area isn't *literally* six pixels even on DPI 1.0 :-)
+pub static TRIANGLE_POINT_AREA: f32 = (POINT_RADIUS + 1.) * PEN_SIZE;
 pub static HANDLE_RADIUS: f32 = 2.5 * PEN_SIZE;
 pub static HANDLEBAR_THICKNESS: f32 = 3. * PEN_SIZE;
 

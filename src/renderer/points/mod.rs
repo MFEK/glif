@@ -70,18 +70,18 @@ fn draw_triangle_point(at: Point, along: Vector, selected: bool, canvas: &mut Ca
     let mut path1 = Path::new();
 
     let mut vec = along.clone();
-    vec.set_length(6.0 * (1. / factor));
+    vec.set_length(TRIANGLE_POINT_AREA * (1. / factor));
 
     let mut matrix = Matrix::new_identity();
     matrix.set_rotate(90., at + vec);
 
-    vec.set_length(15.0 * (1. / factor));
+    vec.set_length(TRIANGLE_POINT_AREA * 2.5 * (1. / factor));
 
     path1.move_to(at + vec);
     path1.line_to(at);
     let mut path2 = Path::new();
     //vec.set_length(10.);
-    vec.set_length(12.0 * (1. / factor));
+    vec.set_length(TRIANGLE_POINT_AREA * 2. * (1. / factor));
     path2.move_to(at + vec);
     path2.line_to(at);
     path2.transform(&matrix);
