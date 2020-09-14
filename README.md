@@ -8,7 +8,7 @@ Very early glyph editor for the Modular Font Editor Q project.
 
 ## Overview
 
-Qglif mixes three technologies: Skia, a very powerful path rasterizer and manipulation library; Dear ImGui, an immediate mode OpenGL user interface toolkit; and Rust, a modern high-performance systems language.
+Qglif mixes three technologies: Skia, a very powerful path rasterizer and manipulation library; Dear ImGui, an immediate mode user interface toolkit; and Rust, a modern high-performance systems language.
 
 I wrote it after, hopefully, learning from the mistakes made by George Williams in FontForge, after being a user of FontForge for six years and a co-maintainer for one and a half years.
 
@@ -37,9 +37,13 @@ I welcome all contributions! Please open an issue first so we can discuss before
 
 Please format the codebase with `cargo fmt` before opening a pull request.
 
+### More debug output
+
+It is possible to get even more debug output out of Qglif for figuring out where problems lie. To ask Qglif to dump the parsed .glif file on runtime, pass `DEBUG_DUMP_GLYPH=Y`. To see every single `winit` event (warning: this will flood your stdout) pass `DEBUG_EVENTS=Y`.
+
 ### Goals
 
-Contributions which do not work on at least GNU/Linux and Windows will be rejected; we want to be able to build Qglif on as many platforms as possible. Both Skia and Dear ImGui are cross-platform and should work everywhere OpenGL works.
+Contributions which do not work on at least GNU/Linux and Windows will be rejected; we want to be able to build Qglif on as many platforms as possible. Both Skia and Dear ImGui are cross-platform; we use Vulkan and not OpenGL so we are future-proof even on OS X.
 
 ## License
 
