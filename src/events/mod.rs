@@ -86,5 +86,5 @@ macro_rules! trigger_toggle_on {
     };
     ($state:ident, $state_var:ident, $enum:ident) => {
         trigger_toggle_on!($state, $state_var, $enum, true);
-    }
+    };
 }

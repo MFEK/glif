@@ -1,4 +1,4 @@
-use super::{Handle, HandleStyle, UIPointType};
+use super::{Handle, UIPointType};
 use skulpin::skia_safe::{
     Canvas, ContourMeasureIter, Font, FontMgr, FontStyle, Matrix, Paint, PaintStyle, Path, Point,
     Rect, TextBlob, Typeface, Vector,
@@ -7,9 +7,9 @@ pub mod calc;
 use self::calc::*;
 
 use super::constants::*;
-use crate::glifparser;
-use crate::state::PointLabels;
 use super::selbox;
+use crate::glifparser;
+use crate::state::{HandleStyle, PointLabels};
 use crate::STATE;
 
 use glifparser::Point as GlifPoint;
@@ -34,12 +34,13 @@ fn get_fill_and_stroke(kind: UIPointType, selected: bool) -> (Color, Color) {
     } else {
         match kind {
             UIPointType::Handle => (HANDLE_FILL, HANDLE_STROKE),
-            UIPointType::Point(HandleStyle::Handlebars((Handle::At(_, _), Handle::Colocated)))
-            | UIPointType::Point(HandleStyle::Handlebars((Handle::Colocated, Handle::At(_, _)))) => {
+            UIPointType::Point((Handle::At(_, _), Handle::Colocated))
+            | UIPointType::Point((Handle::Colocated, Handle::At(_, _))) => {
                 (POINT_ONE_FILL, POINT_ONE_STROKE)
             }
-            UIPointType::Point(HandleStyle::Handlebars((Handle::Colocated, Handle::Colocated)))
-            | UIPointType::Direction => (POINT_SQUARE_FILL, POINT_SQUARE_STROKE),
+            UIPointType::Point((Handle::Colocated, Handle::Colocated)) | UIPointType::Direction => {
+                (POINT_SQUARE_FILL, POINT_SQUARE_STROKE)
+            }
             _ => (POINT_TWO_FILL, POINT_TWO_STROKE),
         }
     };
@@ -225,8 +226,7 @@ fn draw_point(
     } * (1. / factor);
 
     match kind {
-        UIPointType::Handle
-        | UIPointType::Point(HandleStyle::Handlebars((Handle::At(_, _), Handle::At(_, _)))) => {
+        UIPointType::Handle | UIPointType::Point((Handle::At(_, _), Handle::At(_, _))) => {
             draw_round_point(at, kind, selected, canvas, &mut paint);
         }
         UIPointType::Point(_) => {
@@ -244,9 +244,11 @@ fn draw_point(
         },
     }
 
-    if let UIPointType::Point(HandleStyle::Handlebars((a, b))) = kind {
-        draw_handle(a, selected, canvas);
-        draw_handle(b, selected, canvas);
+    if let UIPointType::Point((a, b)) = kind {
+        if STATE.with(|v| v.borrow().handle_style) != HandleStyle::None {
+            draw_handle(a, selected, canvas);
+            draw_handle(b, selected, canvas);
+        }
     }
 }
 
@@ -323,7 +325,7 @@ pub fn draw_complete_point<T>(
         (calc_x(point.x), calc_y(point.y)),
         (point.x, point.y),
         number,
-        UIPointType::Point(HandleStyle::Handlebars((point.a, point.b))),
+        UIPointType::Point((point.a, point.b)),
         selected,
         canvas,
     );
@@ -334,11 +336,13 @@ pub fn draw_all(canvas: &mut Canvas) {
     STATE.with(|v| {
         let mut i: isize = -1;
         for outline in v.borrow().glyph.as_ref().unwrap().glif.outline.as_ref() {
-            for contour in outline {
-                let mut prevpoint = contour.first().unwrap();
-                for point in contour {
-                    draw_handlebars(Some(prevpoint), point, false, canvas);
-                    prevpoint = &point;
+            if v.borrow().handle_style == HandleStyle::Handlebars {
+                for contour in outline {
+                    let mut prevpoint = contour.first().unwrap();
+                    for point in contour {
+                        draw_handlebars(Some(prevpoint), point, false, canvas);
+                        prevpoint = &point;
+                    }
                 }
             }
 
@@ -366,7 +370,6 @@ pub fn draw_all(canvas: &mut Canvas) {
             );
             v.borrow_mut().selected = selected;
         }
-
     });
 }
 
@@ -374,7 +377,9 @@ pub fn draw_selected(canvas: &mut Canvas) {
     STATE.with(|v| {
         for point in &v.borrow().selected {
             if point.ptype != glifparser::PointType::QCurve {
-                draw_handlebars(None, point, true, canvas);
+                if v.borrow().handle_style == HandleStyle::Handlebars {
+                    draw_handlebars(None, point, true, canvas);
+                }
             }
         }
 

@@ -50,7 +50,7 @@ pub use skulpin_plugin_imgui::{imgui::Ui as ImguiUi, ImguiRendererPlugin};
 // Provides thread-local global variables.
 pub mod state;
 pub use state::Glyph; // types
-pub use state::{PointLabels, PreviewMode}; // enums
+pub use state::{HandleStyle, PointLabels, PreviewMode}; // enums
 pub use state::{CONSOLE, PEN_DATA, STATE}; // globals
 
 mod filedialog;
@@ -251,7 +251,10 @@ fn main() {
                                 trigger_toggle_on!(v, point_labels, PointLabels, modifiers.shift());
                             }
                             Some(VirtualKeyCode::Grave) => {
-                                trigger_toggle_on!(v, preview_mode, PreviewMode);
+                                #[rustfmt::skip]
+                                trigger_toggle_on!(v, preview_mode, PreviewMode, !modifiers.shift());
+
+                                trigger_toggle_on!(v, handle_style, HandleStyle, modifiers.shift());
                             }
                             _ => {}
                         }

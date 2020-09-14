@@ -28,28 +28,20 @@ use std::cell::RefCell;
 use std::cmp::min;
 
 #[derive(Clone, Copy, PartialEq)]
-pub enum HandleStyle {
-    None,
-    Handlebars((Handle, Handle)),
-    Floating((Handle, Handle)),
-}
-#[derive(Clone, Copy, PartialEq)]
 pub enum UIPointType {
-    Point(HandleStyle),
+    Point((Handle, Handle)),
     Handle,
     Anchor,
     Direction,
 }
-enum RendererPointType {
-    Plain(UIPointType),
-    WithPointNumber(UIPointType),
-    WithPointPosition(UIPointType),
-    WithPointNumberAndPosition(UIPointType),
-}
 
 pub fn render_frame(canvas: &mut Canvas) {
-    let pm = STATE.with(|v|v.borrow().preview_mode);
-    canvas.clear(if pm == PreviewMode::Paper { PAPER_BGCOLOR } else { BACKGROUND_COLOR });
+    let pm = STATE.with(|v| v.borrow().preview_mode);
+    canvas.clear(if pm == PreviewMode::Paper {
+        PAPER_BGCOLOR
+    } else {
+        BACKGROUND_COLOR
+    });
     viewport::redraw_viewport(canvas);
 
     if pm != PreviewMode::Paper || PAPER_DRAW_GUIDELINES {
@@ -65,7 +57,7 @@ pub fn render_frame(canvas: &mut Canvas) {
         PreviewMode::NoUnselectedPoints => {
             points::draw_selected(canvas);
         }
-        PreviewMode::Paper => ()
+        PreviewMode::Paper => (),
     }
     match pm {
         PreviewMode::Paper => (),

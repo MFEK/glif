@@ -1,7 +1,7 @@
 use super::constants::*;
 use super::points;
 use super::points::calc::*;
-use crate::state::{PreviewMode, PointData, State};
+use crate::state::{PointData, PreviewMode, State};
 use crate::STATE;
 use glifparser::{self, Handle, OutlineType, PointType, WhichHandle};
 use skulpin::skia_safe::path::Iter;
@@ -18,7 +18,9 @@ pub fn draw(canvas: &mut Canvas) -> Path {
             paint.set_color(PAPER_FILL);
         } else {
             paint.set_style(PaintStyle::StrokeAndFill);
-            paint.set_stroke_width(OUTLINE_STROKE_THICKNESS * (1. / STATE.with(|v| v.borrow().factor)));
+            paint.set_stroke_width(
+                OUTLINE_STROKE_THICKNESS * (1. / STATE.with(|v| v.borrow().factor)),
+            );
             paint.set_color(OUTLINE_FILL);
         }
 
@@ -61,9 +63,16 @@ pub fn draw(canvas: &mut Canvas) -> Path {
                             let h1 = lastpoint.handle_or_colocated(WhichHandle::A, calc_x, calc_y);
                             match outline_type {
                                 OutlineType::Cubic => {
-                                    let h2 =
-                                        firstpoint.handle_or_colocated(WhichHandle::B, calc_x, calc_y);
-                                    path.cubic_to(h1, h2, (calc_x(firstpoint.x), calc_y(firstpoint.y)))
+                                    let h2 = firstpoint.handle_or_colocated(
+                                        WhichHandle::B,
+                                        calc_x,
+                                        calc_y,
+                                    );
+                                    path.cubic_to(
+                                        h1,
+                                        h2,
+                                        (calc_x(firstpoint.x), calc_y(firstpoint.y)),
+                                    )
                                 }
                                 OutlineType::Quadratic => {
                                     path.quad_to(h1, (calc_x(firstpoint.x), calc_y(firstpoint.y)))

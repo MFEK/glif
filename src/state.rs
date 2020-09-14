@@ -23,6 +23,14 @@ pub struct Glyph<T> {
 
 extern crate derive_more;
 use self::derive_more::Display;
+
+#[derive(IntoEnumIterator, Display, Debug, Clone, Copy, PartialEq)]
+pub enum HandleStyle {
+    None,
+    Handlebars,
+    Floating,
+}
+
 #[derive(Display, Debug, Clone, Copy, PartialEq)]
 pub enum Mode {
     Pan,
@@ -31,7 +39,7 @@ pub enum Mode {
     Zoom,
 }
 
-#[derive(IntoEnumIterator, Debug, Clone, Copy, PartialEq)]
+#[derive(IntoEnumIterator, Display, Debug, Clone, Copy, PartialEq)]
 pub enum PointLabels {
     None,
     Numbered,
@@ -72,6 +80,7 @@ pub struct State<T> {
     // Whether to show the selection box on screen
     pub show_sel_box: bool,
     pub point_labels: PointLabels,
+    pub handle_style: HandleStyle,
     pub preview_mode: PreviewMode,
     pub winsize: PhysicalSize<u32>, // for Skia
     pub factor: f32,
@@ -95,6 +104,7 @@ impl<T> State<T> {
             show_sel_box: false,
             point_labels: PointLabels::None,
             preview_mode: PreviewMode::None,
+            handle_style: HandleStyle::Handlebars,
             winsize: PhysicalSize {
                 height: 0,
                 width: 0,
