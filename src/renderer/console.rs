@@ -26,9 +26,9 @@ impl Console {
     }
 }
 
-use system_fonts;
 use skulpin::skia_safe::{Data, Font, FontStyle, Typeface};
 use std::fs;
+use system_fonts;
 lazy_static! {
     static ref MONO_FONT_BYTES: Option<Vec<u8>> = {
         match system_fonts::SYSTEMMONO.path {

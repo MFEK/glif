@@ -1,10 +1,7 @@
 // Select
 use super::prelude::*;
 
-pub fn mouse_moved<T>(
-    position: PhysicalPosition<f64>,
-    v: &RefCell<state::State<T>>,
-) -> bool {
+pub fn mouse_moved<T>(position: PhysicalPosition<f64>, v: &RefCell<state::State<T>>) -> bool {
     let mposition = update_mousepos(position, &v, false);
     v.borrow_mut().corner_two = Some(mposition);
     v.borrow().show_sel_box

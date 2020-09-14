@@ -1,4 +1,7 @@
-// Sizes
+//! Constants. This file should eventually become a config dotfile loaded & reloaded dynamically.
+//! See issue #7 (GitHub).
+
+/* Sizes */
 pub static OUTLINE_STROKE_THICKNESS: f32 = 1.5 * PEN_SIZE;
 pub static GUIDELINE_THICKNESS: f32 = OUTLINE_STROKE_THICKNESS;
 pub static POINT_STROKE_THICKNESS: f32 = 3. * PEN_SIZE;
@@ -11,7 +14,7 @@ pub static TRIANGLE_POINT_AREA: f32 = (POINT_RADIUS + 1.) * PEN_SIZE;
 pub static HANDLE_RADIUS: f32 = 2.5 * PEN_SIZE;
 pub static HANDLEBAR_THICKNESS: f32 = 3. * PEN_SIZE;
 
-// Colors
+/* Colors */
 pub static OUTLINE_FILL: u32 = 0xaa_000000;
 pub static OUTLINE_STROKE: u32 = 0xff_000000;
 pub static POINT_SQUARE_FILL: u32 = 0xff_6ae755;
@@ -37,15 +40,15 @@ pub static CONSOLE_TEXT_ERROR_FILL: u32 = 0xff_ff0000;
 
 pub const CLEAR_COLOR: u32 = 0xff_c4c4c4;
 
-// Math
+/* Math */
 pub const PI: f32 = std::f32::consts::PI;
 pub const DEGREES_IN_RADIANS: f32 = PI / 180.0;
 
-// Factors
+/* Factors */
 pub static SCALE_FACTOR: f32 = 0.05;
 pub static OFFSET_FACTOR: f32 = 10.;
 
-// Misc.
+/* Misc. */
 pub const PEN_SIZE: f32 = 1.0;
 pub const CONSOLE_TEXT_SIZE: f32 = 14.;
 pub const CONSOLE_PADDING_X: f32 = CONSOLE_TEXT_SIZE - (CONSOLE_TEXT_SIZE / 3.);
@@ -63,6 +66,6 @@ lazy_static! {
     ];
 }
 
-// Window
+/* Window */
 pub const HEIGHT: u32 = 800;
 pub const WIDTH: u32 = HEIGHT;

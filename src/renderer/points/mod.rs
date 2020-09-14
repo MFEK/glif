@@ -211,9 +211,17 @@ fn draw_point(
     let factor = STATE.with(|v| v.borrow().factor);
     paint.set_anti_alias(true);
     paint.set_style(PaintStyle::StrokeAndFill);
-    let thiccness = if kind == UIPointType::Handle {HANDLE_STROKE_THICKNESS} else {POINT_STROKE_THICKNESS};
+    let thiccness = if kind == UIPointType::Handle {
+        HANDLE_STROKE_THICKNESS
+    } else {
+        POINT_STROKE_THICKNESS
+    };
     paint.set_stroke_width(thiccness * (1. / factor));
-    let radius = if kind == UIPointType::Handle {HANDLE_RADIUS} else {POINT_RADIUS} * (1. / factor);
+    let radius = if kind == UIPointType::Handle {
+        HANDLE_RADIUS
+    } else {
+        POINT_RADIUS
+    } * (1. / factor);
 
     match kind {
         UIPointType::Handle

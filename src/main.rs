@@ -23,9 +23,9 @@ extern crate env_logger;
 extern crate git_version; // for util::parse_args
 extern crate font_kit;
 
+extern crate imgui_winit_support;
 extern crate skulpin;
 extern crate skulpin_plugin_imgui;
-extern crate imgui_winit_support;
 
 extern crate clipboard;
 // Our crates
@@ -44,8 +44,8 @@ use enum_iterator::IntoEnumIterator;
 
 use std::time::Instant;
 
-pub use skulpin_plugin_imgui::{imgui::Ui as ImguiUi, ImguiRendererPlugin};
 pub use skulpin_plugin_imgui::imgui as imgui_rs;
+pub use skulpin_plugin_imgui::{imgui::Ui as ImguiUi, ImguiRendererPlugin};
 
 // Provides thread-local global variables.
 pub mod state;
@@ -55,10 +55,10 @@ pub use state::{CONSOLE, PEN_DATA, STATE};
 mod filedialog;
 #[macro_use]
 mod util;
-mod io;
-mod ipc;
 mod events;
 mod imgui;
+mod io;
+mod ipc;
 mod renderer;
 mod system_fonts;
 
@@ -83,7 +83,10 @@ fn main() {
     let event_loop = EventLoop::new();
 
     let winit_window = winit::window::WindowBuilder::new()
-        .with_title(format!("Qglif: {}", filename.to_str().expect("Filename encoding erroneous")))
+        .with_title(format!(
+            "Qglif: {}",
+            filename.to_str().expect("Filename encoding erroneous")
+        ))
         .with_inner_size(PhysicalSize::new(
             window_size.0 as f64,
             window_size.1 as f64,

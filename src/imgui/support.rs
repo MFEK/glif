@@ -5,9 +5,9 @@
 use imgui_rs;
 use imgui_winit_support;
 use system_fonts;
-use skulpin::winit;
 
 use imgui_rs::sys as imgui_sys;
+use skulpin::winit;
 
 use std::sync::Arc;
 use std::sync::Mutex;
