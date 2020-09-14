@@ -47,18 +47,20 @@ use std::time::Instant;
 pub use skulpin_plugin_imgui::{imgui::Ui as ImguiUi, ImguiRendererPlugin};
 pub use skulpin_plugin_imgui::imgui as imgui_rs;
 
+// Provides thread-local global variables.
+pub mod state;
+pub use state::{Glyph, PointLabels};
+pub use state::{CONSOLE, PEN_DATA, STATE};
+
 mod filedialog;
 #[macro_use]
 mod util;
 mod io;
 mod ipc;
-// Provides thread-local global variables.
-mod state;
-use state::{Glyph, PointLabels};
-pub use state::{CONSOLE, PEN_DATA, STATE};
 mod events;
 mod imgui;
 mod renderer;
+mod system_fonts;
 
 use renderer::constants::*;
 
@@ -281,10 +283,10 @@ fn main() {
 
                         match mode {
                             #[rustfmt::skip]
-                            state::Mode::Pan => events::mouse_moved_move(position, &v),
-                            state::Mode::Pen => events::mouse_moved_pen(position, &v),
-                            state::Mode::Select => events::mouse_moved_select(position, &v),
-                            state::Mode::Zoom => events::mouse_moved_zoom(position, &v),
+                            state::Mode::Pan => events::pan::mouse_moved(position, &v),
+                            state::Mode::Pen => events::pen::mouse_moved(position, &v),
+                            state::Mode::Select => events::select::mouse_moved(position, &v),
+                            state::Mode::Zoom => events::zoom::mouse_moved(position, &v),
                             _ => false,
                         };
                     });
@@ -311,7 +313,7 @@ fn main() {
 
                         match mode {
                             state::Mode::Select => {
-                                events::mouse_button_select(position, &v, button)
+                                events::select::mouse_button(position, &v, button)
                             }
                             _ => false,
                         };
@@ -320,10 +322,10 @@ fn main() {
                             ElementState::Pressed => {
                                 match mode {
                                     state::Mode::Pen => {
-                                        events::mouse_pressed_pen(position, &v, button)
+                                        events::pen::mouse_pressed(position, &v, button)
                                     }
                                     state::Mode::Select => {
-                                        events::mouse_pressed_select(position, &v, button)
+                                        events::select::mouse_pressed(position, &v, button)
                                     }
                                     _ => false,
                                 };
@@ -331,13 +333,13 @@ fn main() {
                             ElementState::Released => {
                                 match mode {
                                     state::Mode::Pen => {
-                                        events::mouse_released_pen(position, &v, button)
+                                        events::pen::mouse_released(position, &v, button)
                                     }
                                     state::Mode::Select => {
-                                        events::mouse_released_select(position, &v, button)
+                                        events::select::mouse_released(position, &v, button)
                                     }
                                     state::Mode::Zoom => {
-                                        events::mouse_released_zoom(position, &v, button);
+                                        events::zoom::mouse_released(position, &v, button);
                                         events::center_cursor(&winit_window).is_ok()
                                     }
                                     _ => false,

@@ -4,6 +4,7 @@
 
 use imgui_rs;
 use imgui_winit_support;
+use system_fonts;
 use skulpin::winit;
 
 use imgui_rs::sys as imgui_sys;
@@ -295,7 +296,7 @@ fn init_imgui(window: &winit::window::Window) -> imgui_rs::Context {
 
     imgui.fonts().add_font(&[
         imgui_rs::FontSource::TtfData {
-            data: &super::SYSTEMSANS.data,
+            data: &system_fonts::SYSTEMSANS.data,
             size_pixels: font_size,
             config: Some(imgui_rs::FontConfig {
                 oversample_h: 3,

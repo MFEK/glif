@@ -26,13 +26,13 @@ impl Console {
     }
 }
 
-use imgui;
+use system_fonts;
 use skulpin::skia_safe::{Data, Font, FontStyle, Typeface};
 use std::fs;
 lazy_static! {
     static ref MONO_FONT_BYTES: Option<Vec<u8>> = {
-        match imgui::SYSTEMMONO.path {
-            Some(_) => Some(imgui::SYSTEMMONO.data.clone()),
+        match system_fonts::SYSTEMMONO.path {
+            Some(_) => Some(system_fonts::SYSTEMMONO.data.clone()),
             _ => None,
         }
     };
