@@ -3,7 +3,7 @@
 use clap; //argparse lib
 
 pub struct Args {
-    pub filename: String,
+    pub filename: Option<String>,
 }
 
 pub fn parse_args() -> Args {
@@ -13,11 +13,10 @@ pub fn parse_args() -> Args {
         .arg(
             clap::Arg::with_name("GLIF")
                 .help("Input UFO format .glif file")
-                .required(true)
                 .index(1),
         )
         .get_matches();
     Args {
-        filename: matches.value_of("GLIF").unwrap().to_string(),
+        filename: matches.value_of("GLIF").map(|s| s.to_string()),
     }
 }

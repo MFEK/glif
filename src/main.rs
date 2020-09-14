@@ -26,8 +26,9 @@ extern crate font_kit;
 extern crate skulpin;
 #[macro_use]
 extern crate skulpin_plugin_imgui;
-extern crate clipboard;
 extern crate imgui_winit_support;
+
+extern crate clipboard;
 // Our crates
 extern crate glifparser;
 extern crate mfeq_ipc;
@@ -48,6 +49,7 @@ use std::time::Instant;
 pub use skulpin_plugin_imgui::{imgui::Ui as ImguiUi, ImguiRendererPlugin};
 pub use skulpin_plugin_imgui::imgui as imgui_rs;
 
+mod filedialog;
 #[macro_use]
 mod util;
 mod io;
@@ -71,7 +73,7 @@ fn main() {
 
     let window_size = (WIDTH, HEIGHT);
     let args = util::argparser::parse_args();
-    let filename = args.filename;
+    let filename = filedialog::filename_or_panic(&args.filename, Some("*.glif"), None);
     let glif = io::load_glif(&filename);
 
     if mfeq_ipc::module_available("Qmetadata".into()) == mfeq_ipc::Available::Yes {
@@ -81,7 +83,7 @@ fn main() {
     let event_loop = EventLoop::new();
 
     let winit_window = winit::window::WindowBuilder::new()
-        .with_title(format!("Qglif: {}", filename))
+        .with_title(format!("Qglif: {}", filename.to_str().expect("Filename encoding erroneous")))
         .with_inner_size(PhysicalSize::new(
             window_size.0 as f64,
             window_size.1 as f64,
