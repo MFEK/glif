@@ -47,7 +47,6 @@ enum RendererPointType {
     WithPointNumberAndPosition(UIPointType),
 }
 
-use std::thread::LocalKey;
 pub fn render_frame(canvas: &mut Canvas) {
     canvas.clear(CLEAR_COLOR);
     viewport::redraw_viewport(canvas);

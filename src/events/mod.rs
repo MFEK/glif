@@ -227,7 +227,7 @@ pub fn mouse_moved_pen(
         match contour {
             Some(idx) => {
                 if v.borrow().mousedown {
-                    let mut last_point = get_outline!(v)[idx].last().unwrap().clone();
+                    let last_point = get_outline!(v)[idx].last().unwrap().clone();
 
                     let pos = (calc_x(mposition.x as f32), calc_y(mposition.y as f32));
                     let offset = (last_point.x - pos.0, last_point.y - pos.1);

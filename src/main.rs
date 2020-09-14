@@ -22,9 +22,8 @@ extern crate env_logger;
 #[macro_use]
 extern crate git_version; // for util::parse_args
 extern crate font_kit;
-#[macro_use]
+
 extern crate skulpin;
-#[macro_use]
 extern crate skulpin_plugin_imgui;
 extern crate imgui_winit_support;
 
@@ -45,7 +44,6 @@ use enum_iterator::IntoEnumIterator;
 
 use std::time::Instant;
 
-#[macro_use]
 pub use skulpin_plugin_imgui::{imgui::Ui as ImguiUi, ImguiRendererPlugin};
 pub use skulpin_plugin_imgui::imgui as imgui_rs;
 
@@ -73,7 +71,7 @@ fn main() {
 
     let window_size = (WIDTH, HEIGHT);
     let args = util::argparser::parse_args();
-    let filename = filedialog::filename_or_panic(&args.filename, Some("*.glif"), None);
+    let filename = filedialog::filename_or_panic(&args.filename, Some("glif"), None);
     let glif = io::load_glif(&filename);
 
     if mfeq_ipc::module_available("Qmetadata".into()) == mfeq_ipc::Available::Yes {

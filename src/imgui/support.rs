@@ -151,6 +151,7 @@ impl ImguiManager {
 
     // Get reference to the underlying font atlas. The ref will be valid as long as this object
     // is not destroyed
+    #[allow(dead_code)]
     pub fn font_atlas_texture(&self) -> &imgui_rs::FontAtlasTexture {
         let inner = self.inner.lock().unwrap();
         assert!(!inner.font_atlas_texture.is_null());
@@ -199,6 +200,7 @@ impl ImguiManager {
     }
 
     // Returns true if a frame has been started (and not ended)
+    #[allow(dead_code)]
     pub fn is_frame_started(&self) -> bool {
         let inner = self.inner.lock().unwrap();
         inner.ui.is_some()
@@ -223,6 +225,7 @@ impl ImguiManager {
     }
 
     // Returns draw data (render must be called first to end the frame)
+    #[allow(dead_code)]
     pub fn draw_data(&self) -> Option<&imgui_rs::DrawData> {
         let inner = self.inner.lock().unwrap();
 
@@ -241,18 +244,22 @@ impl ImguiManager {
         Some(draw_data)
     }
 
+    #[allow(dead_code)]
     pub fn want_capture_keyboard(&self) -> bool {
         self.inner.lock().unwrap().want_capture_keyboard
     }
 
+    #[allow(dead_code)]
     pub fn want_capture_mouse(&self) -> bool {
         self.inner.lock().unwrap().want_capture_mouse
     }
 
+    #[allow(dead_code)]
     pub fn want_set_mouse_pos(&self) -> bool {
         self.inner.lock().unwrap().want_set_mouse_pos
     }
 
+    #[allow(dead_code)]
     pub fn want_text_input(&self) -> bool {
         self.inner.lock().unwrap().want_text_input
     }

@@ -1,6 +1,5 @@
 use skulpin_plugin_imgui::imgui;
 
-use std::borrow::Borrow;
 use std::fs;
 use std::path::PathBuf;
 use std::time::Instant;
