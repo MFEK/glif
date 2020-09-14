@@ -2,12 +2,13 @@
 
 use super::glifparser;
 use crate::state::State;
-use crate::STATE;
+use crate::{CONSOLE, STATE};
 use glifparser::{Handle, PointType, WhichHandle};
 
 pub mod constants;
 use self::constants::*;
 
+pub mod console;
 mod guidelines;
 pub use self::guidelines::{Guideline, GuidelineType};
 pub mod points; // point drawing functions
@@ -120,4 +121,5 @@ pub fn render_frame(canvas: &mut Canvas) {
 
         points::draw_directions(path, canvas);
     });
+    CONSOLE.with(|c| c.borrow_mut().draw(canvas));
 }

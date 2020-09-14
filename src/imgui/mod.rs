@@ -10,6 +10,8 @@ use crate::events;
 use crate::state::Mode;
 use crate::STATE;
 
+use renderer::constants::CONSOLE_FONTS;
+
 pub mod icons;
 pub mod support;
 
@@ -77,9 +79,9 @@ use font_kit::{
     source::SystemSource,
 };
 
-struct Font {
-    data: Vec<u8>,
-    path: Option<PathBuf>,
+pub struct Font {
+    pub data: Vec<u8>,
+    pub path: Option<PathBuf>,
 }
 
 fn load_font(family: &[FKFamilyName]) -> Font {
@@ -100,11 +102,11 @@ fn load_font(family: &[FKFamilyName]) -> Font {
 }
 
 lazy_static! {
-    static ref SYSTEMSANS: Font = load_font(&[
+    pub static ref SYSTEMSANS: Font = load_font(&[
         FKFamilyName::Title("Segoe UI".to_string()),
         FKFamilyName::SansSerif
     ]);
-    static ref SYSTEMMONO: Font = load_font(&[FKFamilyName::Monospace]);
+    pub static ref SYSTEMMONO: Font = load_font(CONSOLE_FONTS.as_slice());
 }
 
 use skulpin::skia_safe::Rect;

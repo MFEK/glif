@@ -6,6 +6,7 @@ use imgui;
 use enum_iterator::IntoEnumIterator;
 use glifparser::{Contour, Glif, Point};
 use mfeq_ipc::IPCInfo;
+pub use renderer::console::Console as RendererConsole;
 use renderer::Guideline;
 use skulpin::skia_safe::Surface;
 use skulpin::winit::dpi::{PhysicalPosition, PhysicalSize};
@@ -20,7 +21,9 @@ pub struct Glyph<T> {
     pub guidelines: Vec<Guideline>,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+extern crate derive_more;
+use self::derive_more::Display;
+#[derive(Display, Debug, Clone, Copy, PartialEq)]
 pub enum Mode {
     Pan,
     Pen,
@@ -100,3 +103,4 @@ pub struct PointData;
 
 thread_local!(pub static STATE: RefCell<State<Option<PointData>>> = RefCell::new(State::new()));
 thread_local!(pub static PEN_DATA: RefCell<PenData> = RefCell::new(PenData::new()));
+thread_local!(pub static CONSOLE: RefCell<RendererConsole> = RefCell::new(RendererConsole::default()));

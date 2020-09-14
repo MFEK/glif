@@ -16,7 +16,7 @@ lazy_static! {
 }
 
 #[macro_export]
-macro_rules! debug_events {
+macro_rules! debug_event {
     ($($arg:tt)*) => ({
         use crate::util::DEBUG_EVENTS;
         if *DEBUG_EVENTS {
@@ -50,5 +50,14 @@ pub trait RoundFloat {
 impl RoundFloat for f32 {
     fn fround(self, digits: u8) -> Self {
         (self * 100.).round() / 100.
+    }
+}
+
+// This prevents debug!() etc from producing mojibake. Yes, really, this is the best solution. :-|
+#[cfg(target_family = "windows")]
+pub fn set_codepage_utf8() {
+    extern crate winapi;
+    unsafe {
+        debug_assert!(winapi::um::wincon::SetConsoleOutputCP(winapi::um::winnls::CP_UTF8) == 1);
     }
 }

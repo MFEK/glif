@@ -28,6 +28,12 @@ pub static SELECTED_STROKE: u32 = 0xff_ffa115;
 pub static LBEARING_STROKE: u32 = 0xff_7d7d7d;
 pub static RBEARING_STROKE: u32 = LBEARING_STROKE;
 
+pub static CONSOLE_FILL: u32 = 0xff_000000;
+pub static CONSOLE_TEXT_FILL: u32 = 0xff_ffffff;
+pub static CONSOLE_TEXT_ERROR_FILL: u32 = 0xff_ff0000;
+
+pub const CLEAR_COLOR: u32 = 0xff_c4c4c4;
+
 // Math
 pub const PI: f32 = std::f32::consts::PI;
 pub const DEGREES_IN_RADIANS: f32 = PI / 180.0;
@@ -38,7 +44,21 @@ pub static OFFSET_FACTOR: f32 = 10.;
 
 // Misc.
 pub const PEN_SIZE: f32 = 1.0;
-pub const CLEAR_COLOR: u32 = 0xff_c4c4c4;
+pub const CONSOLE_TEXT_SIZE: f32 = 14.;
+pub const CONSOLE_PADDING_X: f32 = CONSOLE_TEXT_SIZE - (CONSOLE_TEXT_SIZE / 3.);
+pub const CONSOLE_PADDING_Y_TOP: f32 = 3.;
+pub const CONSOLE_PADDING_Y_BOTTOM: f32 = CONSOLE_PADDING_Y_TOP / 2.;
+// List of fonts to try in order until we find the console font.
+// Warning: This is not (yet?) a fallback list. The first found font will be used for all glyphs
+// for now.
+use font_kit::family_name::FamilyName as FKFamilyName;
+lazy_static! {
+    pub static ref CONSOLE_FONTS: Vec<FKFamilyName> = vec![
+        FKFamilyName::Title("Inconsolata".to_string()),
+        FKFamilyName::Title("Consolas".to_string()),
+        FKFamilyName::Monospace
+    ];
+}
 
 // Window
 pub const HEIGHT: u32 = 800;

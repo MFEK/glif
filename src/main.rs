@@ -26,6 +26,7 @@ extern crate font_kit;
 extern crate skulpin;
 #[macro_use]
 extern crate skulpin_plugin_imgui;
+extern crate clipboard;
 extern crate imgui_winit_support;
 // Our crates
 extern crate glifparser;
@@ -51,10 +52,10 @@ pub use skulpin_plugin_imgui::imgui as imgui_rs;
 mod util;
 mod io;
 mod ipc;
-// Provides a thread-local global `STATE` variable
+// Provides thread-local global variables.
 mod state;
 use state::{Glyph, PointLabels};
-pub use state::{PEN_DATA, STATE};
+pub use state::{CONSOLE, PEN_DATA, STATE};
 mod events;
 mod imgui;
 mod renderer;
@@ -62,6 +63,9 @@ mod renderer;
 use renderer::constants::*;
 
 fn main() {
+    #[cfg(target_family = "windows")]
+    util::set_codepage_utf8();
+
     env_logger::init();
     util::set_panic_hook();
 
@@ -128,7 +132,7 @@ fn main() {
 
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Wait;
-        debug_events!("{:?}", event);
+        debug_event!("{:?}", event);
 
         // Without this, the program will crash if it launches with the cursor over the window, as
         // the mouse event occurs before the redraw, which means that it uses an uninitialized
@@ -153,12 +157,18 @@ fn main() {
                 WindowEvent::KeyboardInput {
                     input:
                         KeyboardInput {
-                            virtual_keycode: Some(VirtualKeyCode::Escape | VirtualKeyCode::Q),
+                            virtual_keycode: Some(VirtualKeyCode::Q),
                             ..
                         },
                     ..
+                } => {
+                    if !CONSOLE.with(|c| c.borrow().active) {
+                        *control_flow = ControlFlow::Exit;
+                    }
                 }
-                | WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
+                WindowEvent::CloseRequested => {
+                    *control_flow = ControlFlow::Exit;
+                }
                 WindowEvent::KeyboardInput {
                     input:
                         KeyboardInput {
@@ -172,6 +182,23 @@ fn main() {
                     if kstate != ElementState::Pressed {
                         return;
                     }
+
+                    if let Some(vk) = virtual_keycode {
+                        events::console::set_state(vk, modifiers);
+                    }
+
+                    // We write to the Console in ReceivedCharacter, not here.
+                    CONSOLE.with(|c| {
+                        if c.borrow().active {
+                            if let Some(VirtualKeyCode::V) = virtual_keycode {
+                                if modifiers.ctrl() {
+                                    c.borrow_mut().handle_clipboard();
+                                }
+                            }
+                            return;
+                        }
+                    });
+
                     STATE.with(|v| {
                         let mode = v.borrow().mode;
                         let mut newmode = mode;
@@ -228,18 +255,25 @@ fn main() {
                         if mode != newmode {
                             v.borrow_mut().mode = newmode;
                             events::mode_switched(mode, newmode);
-                        }
 
-                        debug!(
-                            "Scale factor now {}; offset {:?}; mode {:?}",
-                            v.borrow().factor,
-                            v.borrow().offset,
-                            v.borrow().mode
-                        );
+                            debug!(
+                                "Scale factor now {}; offset {:+}{:+}; mode {:?}",
+                                v.borrow().factor,
+                                v.borrow().offset.0,
+                                v.borrow().offset.1,
+                                v.borrow().mode
+                            );
+                        }
 
                         v.borrow_mut().offset = offset;
                         v.borrow_mut().factor = scale;
                     });
+                }
+                WindowEvent::ReceivedCharacter(ch) => {
+                    if !CONSOLE.with(|c| c.borrow().active) {
+                        return;
+                    }
+                    CONSOLE.with(|c| c.borrow_mut().handle_ch(ch));
                 }
                 WindowEvent::CursorMoved { position, .. } => {
                     STATE.with(|v| {

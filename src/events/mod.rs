@@ -1,7 +1,7 @@
 use crate::renderer::constants::*;
 use crate::renderer::points::calc::*;
 use crate::state;
-use crate::{PEN_DATA, STATE};
+use crate::{CONSOLE, PEN_DATA, STATE};
 use state::{Mode, PenData, PointData};
 
 use skulpin::skia_safe::{Canvas, Matrix};
@@ -12,6 +12,8 @@ use skulpin::winit::window::Window;
 
 use std::cell::RefCell;
 use std::mem;
+
+pub mod console;
 
 // Generic events
 pub fn center_cursor(winit_window: &Window) -> Result<(), winit::error::ExternalError> {
