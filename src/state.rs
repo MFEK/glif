@@ -87,6 +87,7 @@ pub struct State<T> {
     pub offset: (f32, f32),
     pub dpi: f64, // from glutin scale_factor()
     pub ipc_info: Option<mfeq_ipc::IPCInfo>,
+    pub quit_requested: bool,
 }
 
 impl<T> State<T> {
@@ -113,6 +114,7 @@ impl<T> State<T> {
             offset: (0., 0.),
             dpi: 1.,
             ipc_info: None,
+            quit_requested: false,
         }
     }
 }

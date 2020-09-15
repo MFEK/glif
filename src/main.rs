@@ -28,6 +28,8 @@ extern crate skulpin;
 extern crate skulpin_plugin_imgui;
 
 extern crate clipboard;
+extern crate regex;
+
 // Our crates
 extern crate glifparser;
 extern crate mfeq_ipc;
@@ -40,7 +42,7 @@ use winit::event_loop::{ControlFlow, EventLoop};
 
 use skia_safe::{Contains, Point, Rect};
 
-use enum_iterator::IntoEnumIterator;
+use enum_iterator::IntoEnumIterator as _;
 
 use std::time::Instant;
 
@@ -140,6 +142,9 @@ fn main() {
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Wait;
         debug_event!("{:?}", event);
+        if STATE.with(|v|v.borrow().quit_requested) {
+            *control_flow = ControlFlow::Exit;
+        }
 
         // Without this, the program will crash if it launches with the cursor over the window, as
         // the mouse event occurs before the redraw, which means that it uses an uninitialized
@@ -195,16 +200,16 @@ fn main() {
                     }
 
                     // We write to the Console in ReceivedCharacter, not here.
-                    CONSOLE.with(|c| {
+                    if CONSOLE.with(|c| {
                         if c.borrow().active {
                             if let Some(VirtualKeyCode::V) = virtual_keycode {
                                 if modifiers.ctrl() {
                                     c.borrow_mut().handle_clipboard();
                                 }
                             }
-                            return;
                         }
-                    });
+                        c.borrow().active
+                    }) { return };
 
                     STATE.with(|v| {
                         let mode = v.borrow().mode;

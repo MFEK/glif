@@ -29,9 +29,12 @@ pub fn set_panic_hook() {
     set_hook(Box::new(|info| {
         let msg = info.payload().downcast_ref::<&str>();
 
-        match msg {
-            Some(info) => eprintln!("\n{}\n", info.bright_red()),
-            _ => {}
+        if let Some(info) = msg {
+            eprintln!("\n{}\n", info.bright_red());
+        }
+
+        if let Some(args) = info.message() {
+            eprintln!("\n{}\n", args.to_string().bright_red());
         }
 
         if env::var("RUST_BACKTRACE").is_ok() {

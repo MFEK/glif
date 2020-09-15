@@ -3,6 +3,8 @@ use crate::CONSOLE;
 
 use clipboard::{ClipboardContext, ClipboardProvider};
 
+mod commands;
+
 use winit::event::{ModifiersState, VirtualKeyCode};
 // Only called if ElementState::Pressed
 pub fn set_state(vk: VirtualKeyCode, m: ModifiersState) {
@@ -17,8 +19,10 @@ pub fn set_state(vk: VirtualKeyCode, m: ModifiersState) {
             c.borrow_mut().active(false);
         }
         VirtualKeyCode::Return => {
+            if c.borrow().active {
+                run_command(&mut c.borrow_mut());
+            }
             c.borrow_mut().active(false);
-            run_command(&mut c.borrow_mut());
         }
         _ => {}
     });
@@ -51,7 +55,21 @@ impl RendererConsole {
     }
 }
 
+use regex::{self, Regex};
 pub fn run_command(c: &mut RendererConsole) {
-    debug!("Command requested to be run: {}", &c.stdin);
+    lazy_static! {
+        static ref COMMAND_RE: Regex = Regex::new(r"\s+").unwrap();
+    }
+
+    let cmdline: Vec<_> = COMMAND_RE.split(&c.stdin).collect();
+
+    let (command, args) = (&cmdline[0][1..], &cmdline[1..]);
+
+    commands::MAP.with(|m| {
+        m.get(command)
+            .map(|f| f(args.to_vec().iter().map(|s| s.to_string()).collect()))
+    });
+
+    debug!("Command requested to be run: {:?}", (command, args));
     c.stdin.clear()
 }

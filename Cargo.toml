@@ -47,6 +47,9 @@ derive_more = "0.99.10"
 # File dialog
 nfd = { git = "https://github.com/raphlinus/nfd-rs", rev = "5e09b79bf511e3a91ae8cefdb96e9734fa4a79c2" }
 
+# Command parsing for console
+regex = "1"
+
 ## Our crates
 # parses .glif files and gives us a place to put arbitrary data
 glifparser = { git = "https://github.com/mfeq/glifparser" }

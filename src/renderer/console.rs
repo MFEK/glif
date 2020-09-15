@@ -66,8 +66,12 @@ impl Console {
             let font =
                 Font::from_typeface_with_params(&*CONSOLE_TYPEFACE, 14. * (1. / factor), 1., 0.0);
             let winsize = v.borrow().winsize;
-            let mut topleft = (offset.0, (winsize.height as f32) * (1. / factor));
-            let mut size = ((winsize.width as f32) * (1. / factor), offset.1);
+            let mut topleft = (
+                -(offset.0 * (1. / factor)),
+                (winsize.height as f32) * (1. / factor),
+            );
+            topleft.1 -= offset.1 * (1. / factor);
+            let mut size = ((winsize.width as f32) * (1. / factor), 0.);
 
             let (_, trect) = font.measure_str("Q", None);
             topleft.1 -= (CONSOLE_PADDING_Y_TOP + CONSOLE_PADDING_Y_BOTTOM) * (1. / factor);
