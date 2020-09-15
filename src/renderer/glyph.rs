@@ -75,7 +75,23 @@ pub fn draw(canvas: &mut Canvas) -> Path {
                                     )
                                 }
                                 OutlineType::Quadratic => {
-                                    path.quad_to(h1, (calc_x(firstpoint.x), calc_y(firstpoint.y)))
+                                    match lastpoint.ptype {
+                                        PointType::QClose => {
+                                            // This is safe as a lone QClose is illegal and should
+                                            // cause a crash anyway if it's happening.
+                                            let prevpoint = &contour[contour.len() - 2];
+                                            let ph = prevpoint.handle_or_colocated(
+                                                WhichHandle::A,
+                                                calc_x,
+                                                calc_y,
+                                            );
+                                            path.quad_to(ph, h1)
+                                        }
+                                        _ => path.quad_to(
+                                            h1,
+                                            (calc_x(firstpoint.x), calc_y(firstpoint.y)),
+                                        ),
+                                    }
                                 }
                                 OutlineType::Spiro => panic!("Spiro as yet unimplemented."),
                             };

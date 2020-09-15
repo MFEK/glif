@@ -12,7 +12,7 @@ use crate::glifparser;
 use crate::state::{HandleStyle, PointLabels};
 use crate::STATE;
 
-use glifparser::Point as GlifPoint;
+use glifparser::{Point as GlifPoint, PointType};
 
 use std::iter::Peekable;
 
@@ -302,7 +302,7 @@ pub fn draw_handlebars<T>(
         }
         _ => {}
     }
-    if point.ptype == glifparser::PointType::QCurve {
+    if point.ptype == PointType::QCurve || point.ptype == PointType::QClose {
         if let Some(pp) = prevpoint {
             match pp.a {
                 Handle::At(x, y) => {
@@ -321,6 +321,10 @@ pub fn draw_complete_point<T>(
     selected: bool,
     canvas: &mut Canvas,
 ) {
+    if point.ptype == PointType::QClose {
+        return;
+    }
+
     draw_point(
         (calc_x(point.x), calc_y(point.y)),
         (point.x, point.y),
@@ -376,7 +380,7 @@ pub fn draw_all(canvas: &mut Canvas) {
 pub fn draw_selected(canvas: &mut Canvas) {
     STATE.with(|v| {
         for point in &v.borrow().selected {
-            if point.ptype != glifparser::PointType::QCurve {
+            if point.ptype != PointType::QCurve {
                 if v.borrow().handle_style == HandleStyle::Handlebars {
                     draw_handlebars(None, point, true, canvas);
                 }

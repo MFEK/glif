@@ -10,7 +10,7 @@ pub fn load_glif<F: AsRef<Path> + Clone>(filename: F) {
         glifparser::read_ufo_glif(&fs::read_to_string(&filename).expect("Failed to read file"));
 
     if env::var("DEBUG_DUMP_GLYPH").is_ok() {
-        debug!("{:?}", glif);
+        debug!("{:#?}", glif);
     }
 
     STATE.with(|v| {
