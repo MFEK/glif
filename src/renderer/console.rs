@@ -61,22 +61,15 @@ impl Console {
             return;
         }
         STATE.with(|v| {
-            let factor = v.borrow().factor;
-            let offset = v.borrow().offset;
-            let font =
-                Font::from_typeface_with_params(&*CONSOLE_TYPEFACE, 14. * (1. / factor), 1., 0.0);
+            let font = Font::from_typeface_with_params(&*CONSOLE_TYPEFACE, 14., 1., 0.0);
             let winsize = v.borrow().winsize;
-            let mut topleft = (
-                -(offset.0 * (1. / factor)),
-                (winsize.height as f32) * (1. / factor),
-            );
-            topleft.1 -= offset.1 * (1. / factor);
-            let mut size = ((winsize.width as f32) * (1. / factor), 0.);
+            let mut topleft = (0., winsize.height as f32);
+            let mut size = (winsize.width as f32, 0.);
 
             let (_, trect) = font.measure_str("Q", None);
-            topleft.1 -= (CONSOLE_PADDING_Y_TOP + CONSOLE_PADDING_Y_BOTTOM) * (1. / factor);
+            topleft.1 -= (CONSOLE_PADDING_Y_TOP + CONSOLE_PADDING_Y_BOTTOM);
             topleft.1 -= trect.height(); // premultiplied by font
-            size.1 += (CONSOLE_PADDING_Y_TOP + CONSOLE_PADDING_Y_BOTTOM) * (1. / factor);
+            size.1 += (CONSOLE_PADDING_Y_TOP + CONSOLE_PADDING_Y_BOTTOM);
             size.1 += trect.height(); // premultiplied by font
 
             // Draw background
@@ -95,8 +88,8 @@ impl Console {
                 .expect(&format!("Failed to shape {}", &self.stdin));
 
             paint.set_color(CONSOLE_TEXT_FILL);
-            topleft.0 += CONSOLE_PADDING_X * (1. / factor);
-            topleft.1 += CONSOLE_PADDING_Y_BOTTOM * (1. / factor);
+            topleft.0 += CONSOLE_PADDING_X;
+            topleft.1 += CONSOLE_PADDING_Y_BOTTOM;
             topleft.1 += trect.height(); // premultiplied by font
 
             canvas.draw_text_blob(&blob, topleft, &paint);
