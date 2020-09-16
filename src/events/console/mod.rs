@@ -67,7 +67,7 @@ pub fn run_command(c: &mut RendererConsole) {
 
     commands::MAP.with(|m| {
         m.get(command)
-            .map(|f| f(args.to_vec().iter().map(|s| s.to_string()).collect()))
+            .map(|(_, f)| f(args.to_vec().iter().map(|s| s.to_string()).collect()))
     });
 
     debug!("Command requested to be run: {:?}", (command, args));
