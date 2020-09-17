@@ -1,5 +1,7 @@
 [**This project has nothing to do with QAnon and I oppose QAnon completely.**](https://github.com/mfeq/mfeq/blob/master/doc/QAnon.md)
 
+[![Build Status](https://img.shields.io/github/workflow/status/mfeq/Qglif/Rust?label=Rust&logo=Rust)](https://github.com/mfeq/Qglif/actions?workflow=Rust)
+
 # Qglif
 
 Very early glyph editor for the Modular Font Editor Q project.
