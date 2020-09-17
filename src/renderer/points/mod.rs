@@ -1,7 +1,7 @@
 use super::{Handle, UIPointType};
 use skulpin::skia_safe::{
-    Canvas, ContourMeasureIter, Font, FontStyle, Matrix, Paint, PaintStyle, Path, Point,
-    Rect, TextBlob, Typeface, Vector,
+    Canvas, ContourMeasureIter, Font, FontStyle, Matrix, Paint, PaintStyle, Path, Point, Rect,
+    TextBlob, Typeface, Vector,
 };
 pub mod calc;
 use self::calc::*;
@@ -14,8 +14,6 @@ use crate::state::{HandleStyle, PointLabels};
 use crate::{STATE, TOOL_DATA}; // for get_outline(_mut)!
 
 use glifparser::{Point as GlifPoint, PointType};
-
-
 
 type Color = u32;
 
@@ -335,7 +333,6 @@ pub fn draw_complete_point<T>(
         canvas,
     );
 }
-
 
 pub fn draw_all(canvas: &mut Canvas) {
     STATE.with(|v| {

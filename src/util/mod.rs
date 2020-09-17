@@ -3,9 +3,7 @@ pub mod argparser;
 #[macro_use]
 pub mod macros;
 
-
 use std::env;
-
 
 use std::panic::set_hook;
 
@@ -13,8 +11,8 @@ use backtrace::Backtrace;
 use colored::Colorize;
 
 lazy_static! {
-    pub static ref DEBUG: bool =  option_env!("DEBUG").is_some() ;
-    pub static ref DEBUG_EVENTS: bool =  option_env!("DEBUG_EVENTS").is_some() ;
+    pub static ref DEBUG: bool = option_env!("DEBUG").is_some();
+    pub static ref DEBUG_EVENTS: bool = option_env!("DEBUG_EVENTS").is_some();
 }
 
 #[macro_export]

@@ -38,7 +38,6 @@ lazy_static! {
     };
 }
 
-
 lazy_static! {
     static ref CONSOLE_TYPEFACE: Typeface = {
         match &*MONO_FONT_BYTES {

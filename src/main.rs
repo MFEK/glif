@@ -35,11 +35,11 @@ extern crate regex;
 extern crate glifparser;
 extern crate mfeq_ipc;
 
-use skulpin::Window as _;
-pub use skulpin::{skia_safe, winit};
-use crate::winit::dpi::{LogicalSize};
+use crate::winit::dpi::LogicalSize;
 use crate::winit::event::{ElementState, Event, KeyboardInput, VirtualKeyCode, WindowEvent};
 use crate::winit::event_loop::{ControlFlow, EventLoop};
+use skulpin::Window as _;
+pub use skulpin::{skia_safe, winit};
 
 use crate::skia_safe::{Contains, Point};
 

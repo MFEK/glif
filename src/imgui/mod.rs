@@ -1,8 +1,5 @@
 use skulpin_plugin_imgui::imgui;
 
-
-
-
 use crate::events;
 use crate::state::Mode;
 use crate::STATE;

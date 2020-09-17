@@ -55,7 +55,7 @@ impl RendererConsole {
     }
 }
 
-use regex::{Regex};
+use regex::Regex;
 pub fn run_command(c: &mut RendererConsole) {
     lazy_static! {
         static ref COMMAND_RE: Regex = Regex::new(r"\s+").unwrap();

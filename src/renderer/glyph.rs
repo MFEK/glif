@@ -7,7 +7,6 @@ use glifparser::{self, OutlineType, PointType, WhichHandle};
 
 use skulpin::skia_safe::{Canvas, Paint, PaintStyle, Path};
 
-
 pub fn draw(canvas: &mut Canvas) -> Path {
     STATE.with(|v| {
         let mut paint = Paint::default();

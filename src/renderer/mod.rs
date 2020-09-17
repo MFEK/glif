@@ -1,9 +1,8 @@
 //! Skia renderer.
 
-
 use crate::state::PreviewMode;
 use crate::{CONSOLE, STATE};
-use glifparser::{Handle};
+use glifparser::Handle;
 
 pub mod constants;
 use self::constants::*;
@@ -22,10 +21,6 @@ use skulpin::skia_safe::{
     gradient_shader, Canvas, Color, IRect, Matrix, Paint, PaintJoin, PaintStyle, Path, Point, Rect,
     TileMode,
 };
-
-
-
-
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum UIPointType {

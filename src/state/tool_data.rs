@@ -35,7 +35,7 @@ impl ToolData {
 }
 
 use crate::events::MouseMeta;
-use crate::winit::event::{MouseButton};
+use crate::winit::event::MouseButton;
 impl From<MouseMeta> for Follow {
     fn from(m: MouseMeta) -> Follow {
         match m {

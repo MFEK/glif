@@ -1,8 +1,5 @@
 //! Global thread local state.
 
-
-
-
 use glifparser::{Glif, Point};
 
 pub use crate::renderer::console::Console as RendererConsole;
@@ -12,9 +9,6 @@ use skulpin::winit::dpi::{PhysicalPosition, PhysicalSize};
 
 use std::cell::RefCell;
 use std::path::PathBuf;
-
-
-
 
 mod tool_data;
 pub use self::tool_data::*;

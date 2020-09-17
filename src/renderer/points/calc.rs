@@ -1,5 +1,3 @@
-
-
 pub fn calc_x(x: f32) -> f32 {
     x
 }
