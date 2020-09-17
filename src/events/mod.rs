@@ -2,12 +2,19 @@ pub mod prelude;
 use self::prelude::*;
 
 pub mod console;
+
 pub mod pan;
 pub mod pen;
 pub mod select;
 pub mod zoom;
 
 pub use self::zoom::{zoom_in_factor, zoom_out_factor};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct MouseMeta {
+    pub modifiers: ModifiersState,
+    pub button: MouseButton,
+}
 
 // Generic events
 pub fn center_cursor(winit_window: &Window) -> Result<(), winit::error::ExternalError> {
@@ -66,7 +73,7 @@ pub fn update_mousepos<T>(
 
 pub fn mode_switched(from: Mode, to: Mode) {
     assert!(from != to);
-    PEN_DATA.with(|v| v.borrow_mut().contour = None);
+    TOOL_DATA.with(|v| v.borrow_mut().contour = None);
 }
 
 #[macro_export]

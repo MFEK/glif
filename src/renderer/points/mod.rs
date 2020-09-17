@@ -10,7 +10,8 @@ use super::constants::*;
 use super::selbox;
 use crate::glifparser;
 use crate::state::{HandleStyle, PointLabels};
-use crate::STATE;
+use crate::util;
+use crate::{STATE, TOOL_DATA}; // for get_outline(_mut)!
 
 use glifparser::{Point as GlifPoint, PointType};
 
@@ -379,6 +380,14 @@ pub fn draw_all(canvas: &mut Canvas) {
 
 pub fn draw_selected(canvas: &mut Canvas) {
     STATE.with(|v| {
+        TOOL_DATA.with(|p| {
+            let contour_idx = p.borrow().contour;
+            let point_idx = p.borrow().cur_point;
+            if let (Some(ci), Some(pi)) = (contour_idx, point_idx) {
+                draw_complete_point(&get_outline!(v)[ci][pi], None, true, canvas);
+            }
+        });
+
         for point in &v.borrow().selected {
             if point.ptype != PointType::QCurve {
                 if v.borrow().handle_style == HandleStyle::Handlebars {

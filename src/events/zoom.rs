@@ -21,10 +21,10 @@ pub fn mouse_moved<T>(position: PhysicalPosition<f64>, v: &RefCell<state::State<
 pub fn mouse_released<T>(
     position: PhysicalPosition<f64>,
     v: &RefCell<state::State<T>>,
-    button: MouseButton,
+    meta: MouseMeta,
 ) -> bool {
     let mut scale = v.borrow().factor;
-    match button {
+    match meta.button {
         MouseButton::Left => {
             scale = zoom_in_factor(scale, &v);
         }

@@ -3,7 +3,6 @@
 use glifparser;
 use imgui;
 
-use enum_iterator::IntoEnumIterator;
 use glifparser::{Contour, Glif, Point};
 use mfeq_ipc::IPCInfo;
 pub use renderer::console::Console as RendererConsole;
@@ -15,56 +14,18 @@ use std::cell::RefCell;
 use std::path::PathBuf;
 use std::rc::Rc;
 
+use derive_more::Display;
+
+mod tool_data;
+pub use self::tool_data::*;
+
+mod toggles;
+pub use self::toggles::*;
+
 pub struct Glyph<T> {
     pub glif: Glif<T>,
     pub filename: PathBuf,
     pub guidelines: Vec<Guideline>,
-}
-
-extern crate derive_more;
-use self::derive_more::Display;
-
-#[derive(IntoEnumIterator, Display, Debug, Clone, Copy, PartialEq)]
-pub enum HandleStyle {
-    None,
-    Handlebars,
-    Floating,
-}
-
-#[derive(Display, Debug, Clone, Copy, PartialEq)]
-pub enum Mode {
-    Pan,
-    Pen,
-    Select,
-    Zoom,
-}
-
-#[derive(IntoEnumIterator, Display, Debug, Clone, Copy, PartialEq)]
-pub enum PointLabels {
-    None,
-    Numbered,
-    Locations,
-}
-
-#[derive(IntoEnumIterator, Debug, Clone, Copy, PartialEq)]
-pub enum PreviewMode {
-    None,
-    NoUnselectedPoints,
-    Paper,
-}
-
-pub struct PenData {
-    pub contour: Option<usize>,   // index into Outline
-    pub cur_point: Option<usize>, // index into Contour
-}
-
-impl PenData {
-    fn new() -> Self {
-        PenData {
-            contour: None,
-            cur_point: None,
-        }
-    }
 }
 
 // Thread local state.
@@ -87,7 +48,7 @@ pub struct State<T> {
     pub offset: (f32, f32),
     pub dpi: f64, // from glutin scale_factor()
     pub ipc_info: Option<mfeq_ipc::IPCInfo>,
-    pub quit_requested: bool,
+    pub quit_requested: bool, // allows for quits from outside event loop, e.g. from command closures
 }
 
 impl<T> State<T> {
@@ -123,5 +84,4 @@ impl<T> State<T> {
 pub struct PointData;
 
 thread_local!(pub static STATE: RefCell<State<Option<PointData>>> = RefCell::new(State::new()));
-thread_local!(pub static PEN_DATA: RefCell<PenData> = RefCell::new(PenData::new()));
 thread_local!(pub static CONSOLE: RefCell<RendererConsole> = RefCell::new(RendererConsole::default()));

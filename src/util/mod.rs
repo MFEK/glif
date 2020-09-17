@@ -1,5 +1,7 @@
 // Utilities
 pub mod argparser;
+#[macro_use]
+pub mod macros;
 
 use crate::glifparser::Codepoint;
 use std::env;

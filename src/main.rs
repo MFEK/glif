@@ -15,6 +15,7 @@ extern crate lazy_static;
 extern crate backtrace;
 extern crate clap;
 extern crate colored;
+extern crate derive_more;
 extern crate enum_iterator;
 #[macro_use]
 extern crate log;
@@ -36,7 +37,7 @@ extern crate mfeq_ipc;
 
 use skulpin::Window as _;
 pub use skulpin::{skia_safe, winit};
-use winit::dpi::{PhysicalPosition, PhysicalSize};
+use winit::dpi::{LogicalSize, PhysicalPosition};
 use winit::event::{ElementState, Event, KeyboardInput, MouseButton, VirtualKeyCode, WindowEvent};
 use winit::event_loop::{ControlFlow, EventLoop};
 
@@ -44,6 +45,7 @@ use skia_safe::{Contains, Point, Rect};
 
 use enum_iterator::IntoEnumIterator as _;
 
+use std::env;
 use std::time::Instant;
 
 pub use skulpin_plugin_imgui::imgui as imgui_rs;
@@ -53,11 +55,11 @@ pub use skulpin_plugin_imgui::{imgui::Ui as ImguiUi, ImguiRendererPlugin};
 pub mod state;
 pub use state::Glyph; // types
 pub use state::{HandleStyle, PointLabels, PreviewMode}; // enums
-pub use state::{CONSOLE, PEN_DATA, STATE}; // globals
+pub use state::{CONSOLE, STATE, TOOL_DATA}; // globals
 
 mod filedialog;
 #[macro_use]
-mod util;
+pub mod util;
 #[macro_use]
 mod events;
 mod imgui;
@@ -72,6 +74,10 @@ fn main() {
     #[cfg(target_family = "windows")]
     util::set_codepage_utf8();
 
+    // Set log level to WARN by default, useful for glifparser warnings.
+    if env::var("RUST_LOG").is_err() {
+        env::set_var("RUST_LOG", "warn");
+    }
     env_logger::init();
     util::set_panic_hook();
 
@@ -91,10 +97,7 @@ fn main() {
             "Qglif: {}",
             filename.to_str().expect("Filename encoding erroneous")
         ))
-        .with_inner_size(PhysicalSize::new(
-            window_size.0 as f64,
-            window_size.1 as f64,
-        ))
+        .with_inner_size(LogicalSize::new(window_size.0 as f64, window_size.1 as f64))
         .with_resizable(true)
         .build(&event_loop)
         .expect("Failed to create window");
@@ -303,6 +306,7 @@ fn main() {
                 WindowEvent::MouseInput {
                     state: mstate,
                     button,
+                    modifiers,
                     ..
                 } => {
                     STATE.with(|v| {
@@ -316,13 +320,15 @@ fn main() {
                             return;
                         }
 
+                        let meta = events::MouseMeta{modifiers, button};
+
                         let mode = v.borrow().mode;
                         let position = v.borrow().mousepos;
                         v.borrow_mut().mousedown = mstate == ElementState::Pressed;
 
                         match mode {
                             state::Mode::Select => {
-                                events::select::mouse_button(position, &v, button)
+                                events::select::mouse_button(position, &v, meta)
                             }
                             _ => false,
                         };
@@ -331,10 +337,10 @@ fn main() {
                             ElementState::Pressed => {
                                 match mode {
                                     state::Mode::Pen => {
-                                        events::pen::mouse_pressed(position, &v, button)
+                                        events::pen::mouse_pressed(position, &v, meta)
                                     }
                                     state::Mode::Select => {
-                                        events::select::mouse_pressed(position, &v, button)
+                                        events::select::mouse_pressed(position, &v, meta)
                                     }
                                     _ => false,
                                 };
@@ -342,13 +348,13 @@ fn main() {
                             ElementState::Released => {
                                 match mode {
                                     state::Mode::Pen => {
-                                        events::pen::mouse_released(position, &v, button)
+                                        events::pen::mouse_released(position, &v, meta)
                                     }
                                     state::Mode::Select => {
-                                        events::select::mouse_released(position, &v, button)
+                                        events::select::mouse_released(position, &v, meta)
                                     }
                                     state::Mode::Zoom => {
-                                        events::zoom::mouse_released(position, &v, button);
+                                        events::zoom::mouse_released(position, &v, meta);
                                         events::center_cursor(&winit_window).is_ok()
                                     }
                                     _ => false,

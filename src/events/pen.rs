@@ -3,39 +3,13 @@ use super::prelude::*;
 
 use glifparser::{self, Contour, Handle, Outline, Point, PointType};
 
-// $e of type RefCell<State<T>>
-macro_rules! get_outline_mut {
-    ($e:expr) => {
-        $e.borrow_mut()
-            .glyph
-            .as_mut()
-            .unwrap()
-            .glif
-            .outline
-            .as_mut()
-            .unwrap()
-    };
-}
-macro_rules! get_outline {
-    ($e:expr) => {
-        $e.borrow()
-            .glyph
-            .as_ref()
-            .unwrap()
-            .glif
-            .outline
-            .as_ref()
-            .unwrap()
-    };
-}
-
 pub fn mouse_moved(
     position: PhysicalPosition<f64>,
     v: &RefCell<state::State<Option<PointData>>>,
 ) -> bool {
     let mposition = update_mousepos(position, &v, false);
 
-    PEN_DATA.with(|vv| {
+    TOOL_DATA.with(|vv| {
         let contour = vv.borrow().contour;
         match contour {
             Some(idx) => {
@@ -67,11 +41,11 @@ pub fn mouse_moved(
 pub fn mouse_pressed(
     position: PhysicalPosition<f64>,
     v: &RefCell<state::State<Option<PointData>>>,
-    button: MouseButton,
+    meta: MouseMeta,
 ) -> bool {
     let mposition = v.borrow().mousepos;
 
-    PEN_DATA.with(|vv| {
+    TOOL_DATA.with(|vv| {
         let contour = vv.borrow().contour;
         match contour {
             Some(idx) => {
@@ -97,11 +71,11 @@ pub fn mouse_pressed(
 pub fn mouse_released(
     position: PhysicalPosition<f64>,
     v: &RefCell<state::State<Option<PointData>>>,
-    button: MouseButton,
+    meta: MouseMeta,
 ) -> bool {
     let mposition = v.borrow().mousepos;
 
-    PEN_DATA.with(|vv| {
+    TOOL_DATA.with(|vv| {
         //vv.borrow_mut().contour = None;
         if let Some(idx) = vv.borrow().contour {
             get_outline_mut!(v)[idx].last_mut().map(|point| {

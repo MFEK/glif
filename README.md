@@ -16,14 +16,23 @@ Qglif is the premier program of the Modular Font Editor Q project. This project 
 
 To make this as easy as possible to build, and cross-platform without hassle, the icon is compiled right into the binary via the Rust `include_str!` macro.
 
+## Building
+
 ### Mac users
 
 Apple charges a fee to "notarize" applications and without this "notarization" Qglif will not run correctly, or in some cases, at all. So, for the foreseeable future, you must _build Qglif from source on OS X_. This is not as hard as it sounds! :-)
 
 * Download and install the [Vulkan SDK](https://vulkan.lunarg.com/).
+
+### For everyone
+
 * Download and install [`rustup`](https://rustup.rs/), selecting the `nightly` toolchain.
 * Pull this repository, and finally
 * Run the below command to get started.
+
+### Errors?
+
+If you previously pulled the repository and get errors related to `glifparser`, `mfeq-ipc`, or another local unstable dependency, try running `cargo update` to force Cargo to pull the latest versions from GitHub.
 
 ## Contributing
 
