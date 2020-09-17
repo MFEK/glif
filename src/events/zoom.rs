@@ -1,11 +1,11 @@
 // Zoom
 use super::prelude::*;
 
-pub fn zoom_in_factor<T>(factor: f32, v: &RefCell<state::State<T>>) -> f32 {
+pub fn zoom_in_factor<T>(_factor: f32, v: &RefCell<state::State<T>>) -> f32 {
     v.borrow().factor + SCALE_FACTOR
 }
 
-pub fn zoom_out_factor<T>(factor: f32, v: &RefCell<state::State<T>>) -> f32 {
+pub fn zoom_out_factor<T>(_factor: f32, v: &RefCell<state::State<T>>) -> f32 {
     let mut scale = v.borrow().factor;
     if scale >= 0.10 {
         scale += -SCALE_FACTOR;
@@ -14,12 +14,12 @@ pub fn zoom_out_factor<T>(factor: f32, v: &RefCell<state::State<T>>) -> f32 {
 }
 
 pub fn mouse_moved<T>(position: PhysicalPosition<f64>, v: &RefCell<state::State<T>>) -> bool {
-    let mposition = update_mousepos(position, &v, false);
+    let _mposition = update_mousepos(position, &v, false);
     false
 }
 
 pub fn mouse_released<T>(
-    position: PhysicalPosition<f64>,
+    _position: PhysicalPosition<f64>,
     v: &RefCell<state::State<T>>,
     meta: MouseMeta,
 ) -> bool {
@@ -36,7 +36,7 @@ pub fn mouse_released<T>(
     let mut offset = v.borrow().offset;
     let winsize = v.borrow().winsize;
     let position = v.borrow().absolute_mousepos;
-    let mut center = (
+    let center = (
         (winsize.width as f32 / 2.) + offset.0,
         (winsize.height as f32 / 2.) + offset.1,
     );

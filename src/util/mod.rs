@@ -3,18 +3,16 @@ pub mod argparser;
 #[macro_use]
 pub mod macros;
 
-use crate::glifparser::Codepoint;
 use std::env;
-use std::fmt;
-use std::option::Option;
+
 use std::panic::set_hook;
 
 use backtrace::Backtrace;
 use colored::Colorize;
 
 lazy_static! {
-    pub static ref DEBUG: bool = { option_env!("DEBUG").is_some() };
-    pub static ref DEBUG_EVENTS: bool = { option_env!("DEBUG_EVENTS").is_some() };
+    pub static ref DEBUG: bool = option_env!("DEBUG").is_some();
+    pub static ref DEBUG_EVENTS: bool = option_env!("DEBUG_EVENTS").is_some();
 }
 
 #[macro_export]
@@ -53,7 +51,7 @@ pub trait RoundFloat {
 }
 
 impl RoundFloat for f32 {
-    fn fround(self, digits: u8) -> Self {
+    fn fround(self, _digits: u8) -> Self {
         (self * 100.).round() / 100.
     }
 }

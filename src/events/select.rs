@@ -110,9 +110,9 @@ pub fn mouse_moved<T>(position: PhysicalPosition<f64>, v: &RefCell<state::State<
 
 // Placeholder
 pub fn mouse_button<T>(
-    position: PhysicalPosition<f64>,
-    v: &RefCell<state::State<T>>,
-    meta: MouseMeta,
+    _position: PhysicalPosition<f64>,
+    _v: &RefCell<state::State<T>>,
+    _meta: MouseMeta,
 ) -> bool {
     false
 }
@@ -125,8 +125,8 @@ fn clicked_point_or_handle(
 ) -> Option<(usize, usize, WhichHandle)> {
     let factor = v.borrow().factor;
     let mposition = update_mousepos(position, &v, true);
-    let mut contour_idx = 0;
-    let mut point_idx = 0;
+    let _contour_idx = 0;
+    let _point_idx = 0;
 
     // How we do this is quite naïve. For each click, we just iterate all points and check the
     // point and both handles. It's just a bunch of floating point comparisons in a compiled
@@ -207,9 +207,9 @@ pub fn mouse_pressed(
 }
 
 pub fn mouse_released<T>(
-    position: PhysicalPosition<f64>,
+    _position: PhysicalPosition<f64>,
     v: &RefCell<state::State<T>>,
-    meta: MouseMeta,
+    _meta: MouseMeta,
 ) -> bool {
     v.borrow_mut().show_sel_box = false;
     true

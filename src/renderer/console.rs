@@ -27,8 +27,8 @@ impl Console {
 }
 
 use skulpin::skia_safe::{Data, Font, FontStyle, Typeface};
-use std::fs;
-use system_fonts;
+
+use crate::system_fonts;
 lazy_static! {
     static ref MONO_FONT_BYTES: Option<Vec<u8>> = {
         match system_fonts::SYSTEMMONO.path {
@@ -38,7 +38,6 @@ lazy_static! {
     };
 }
 
-use std::cell::RefCell;
 lazy_static! {
     static ref CONSOLE_TYPEFACE: Typeface = {
         match &*MONO_FONT_BYTES {
@@ -67,9 +66,9 @@ impl Console {
             let mut size = (winsize.width as f32, 0.);
 
             let (_, trect) = font.measure_str("Q", None);
-            topleft.1 -= (CONSOLE_PADDING_Y_TOP + CONSOLE_PADDING_Y_BOTTOM);
+            topleft.1 -= CONSOLE_PADDING_Y_TOP + CONSOLE_PADDING_Y_BOTTOM;
             topleft.1 -= trect.height(); // premultiplied by font
-            size.1 += (CONSOLE_PADDING_Y_TOP + CONSOLE_PADDING_Y_BOTTOM);
+            size.1 += CONSOLE_PADDING_Y_TOP + CONSOLE_PADDING_Y_BOTTOM;
             size.1 += trect.height(); // premultiplied by font
 
             // Draw background
@@ -105,5 +104,5 @@ enum Return {
 struct Command {
     name: String,
     args: Vec<String>,
-    run: Fn() -> Return,
+    run: dyn Fn() -> Return,
 }

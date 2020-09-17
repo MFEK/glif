@@ -7,7 +7,7 @@ use skulpin::winit::dpi::PhysicalPosition;
 use std::cell::RefCell;
 
 use crate::state;
-use state::State;
+use crate::state::State;
 
 use crate::glifparser;
 

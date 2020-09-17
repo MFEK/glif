@@ -1,12 +1,11 @@
 use super::constants::*;
-use super::points;
+
 use super::points::calc::*;
-use crate::state::{PointData, PreviewMode, State};
+use crate::state::{PointData, PreviewMode};
 use crate::STATE;
-use glifparser::{self, Handle, OutlineType, PointType, WhichHandle};
-use skulpin::skia_safe::path::Iter;
-use skulpin::skia_safe::{Canvas, Paint, PaintStyle, Path, Point};
-use std::cell::RefCell;
+use glifparser::{self, OutlineType, PointType, WhichHandle};
+
+use skulpin::skia_safe::{Canvas, Paint, PaintStyle, Path};
 
 pub fn draw(canvas: &mut Canvas) -> Path {
     STATE.with(|v| {
@@ -36,8 +35,8 @@ pub fn draw(canvas: &mut Canvas) -> Path {
                 path.move_to((calc_x(contour[0].x), calc_y(contour[0].y)));
                 let firstpoint: &glifparser::Point<Option<PointData>> = contour.first().unwrap();
                 let mut prevpoint: &glifparser::Point<Option<PointData>> = contour.first().unwrap();
-                let mut pointiter = contour.iter().enumerate();
-                for (i, point) in pointiter {
+                let pointiter = contour.iter().enumerate();
+                for (_i, point) in pointiter {
                     match point.ptype {
                         PointType::Line => {
                             path.line_to((calc_x(point.x), calc_y(point.y)));

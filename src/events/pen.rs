@@ -39,9 +39,9 @@ pub fn mouse_moved(
 }
 
 pub fn mouse_pressed(
-    position: PhysicalPosition<f64>,
+    _position: PhysicalPosition<f64>,
     v: &RefCell<state::State<Option<PointData>>>,
-    meta: MouseMeta,
+    _meta: MouseMeta,
 ) -> bool {
     let mposition = v.borrow().mousepos;
 
@@ -69,11 +69,11 @@ pub fn mouse_pressed(
 }
 
 pub fn mouse_released(
-    position: PhysicalPosition<f64>,
+    _position: PhysicalPosition<f64>,
     v: &RefCell<state::State<Option<PointData>>>,
-    meta: MouseMeta,
+    _meta: MouseMeta,
 ) -> bool {
-    let mposition = v.borrow().mousepos;
+    let _mposition = v.borrow().mousepos;
 
     TOOL_DATA.with(|vv| {
         //vv.borrow_mut().contour = None;

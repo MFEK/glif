@@ -35,13 +35,13 @@ extern crate regex;
 extern crate glifparser;
 extern crate mfeq_ipc;
 
+use crate::winit::dpi::LogicalSize;
+use crate::winit::event::{ElementState, Event, KeyboardInput, VirtualKeyCode, WindowEvent};
+use crate::winit::event_loop::{ControlFlow, EventLoop};
 use skulpin::Window as _;
 pub use skulpin::{skia_safe, winit};
-use winit::dpi::{LogicalSize, PhysicalPosition};
-use winit::event::{ElementState, Event, KeyboardInput, MouseButton, VirtualKeyCode, WindowEvent};
-use winit::event_loop::{ControlFlow, EventLoop};
 
-use skia_safe::{Contains, Point, Rect};
+use crate::skia_safe::{Contains, Point};
 
 use enum_iterator::IntoEnumIterator as _;
 
@@ -53,9 +53,9 @@ pub use skulpin_plugin_imgui::{imgui::Ui as ImguiUi, ImguiRendererPlugin};
 
 // Provides thread-local global variables.
 pub mod state;
-pub use state::Glyph; // types
-pub use state::{HandleStyle, PointLabels, PreviewMode}; // enums
-pub use state::{CONSOLE, STATE, TOOL_DATA}; // globals
+pub use crate::state::Glyph; // types
+pub use crate::state::{HandleStyle, PointLabels, PreviewMode}; // enums
+pub use crate::state::{CONSOLE, STATE, TOOL_DATA}; // globals
 
 mod filedialog;
 #[macro_use]
@@ -68,7 +68,7 @@ mod ipc;
 mod renderer;
 mod system_fonts;
 
-use renderer::constants::*;
+use crate::renderer::constants::*;
 
 fn main() {
     #[cfg(target_family = "windows")]
@@ -84,7 +84,7 @@ fn main() {
     let window_size = (WIDTH, HEIGHT);
     let args = util::argparser::parse_args();
     let filename = filedialog::filename_or_panic(&args.filename, Some("glif"), None);
-    let glif = io::load_glif(&filename);
+    let _glif = io::load_glif(&filename);
 
     if mfeq_ipc::module_available("Qmetadata".into()) == mfeq_ipc::Available::Yes {
         ipc::fetch_metrics();
@@ -132,7 +132,7 @@ fn main() {
 
     let mut renderer = renderer.unwrap();
 
-    let mut last_frame = Instant::now();
+    let _last_frame = Instant::now();
 
     STATE.with(|v| {
         v.borrow_mut().dpi = window.scale_factor();
@@ -140,7 +140,7 @@ fn main() {
 
     let mut frame_count = 0;
     let mut frame = 0;
-    let mut was_resized = false;
+    let _was_resized = false;
 
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Wait;
@@ -371,7 +371,7 @@ fn main() {
                 _ => (),
             },
             Event::RedrawRequested { .. } => {
-                if let Err(e) = renderer.draw(&window, |canvas, coordinate_system_helper| {
+                if let Err(e) = renderer.draw(&window, |canvas, _coordinate_system_helper| {
                     imgui_manager.begin_frame(&winit_window);
                     frame_count += 1;
 
