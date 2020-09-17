@@ -34,23 +34,30 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ~/.cargo/registry
-          key: build-cargo-registry-${{ matrix.os }}-${{ hashFiles('**/Cargo.lock') }}
+          key: cargo-registry-${{ matrix.os }}-${{ hashFiles('**/Cargo.lock') }}
       - name: Cache cargo index
         uses: actions/cache@v1
         with:
           path: ~/.cargo/git
-          key: build-cargo-index-${{ matrix.os }}-${{ hashFiles('**/Cargo.lock') }}
-      - name: Cache cargo build
+          key: cargo-index-${{ matrix.os }}-${{ hashFiles('**/Cargo.lock') }}
+      - name: Cache target
         uses: actions/cache@v1
         with:
-          path: target
-          key: build-cargo-build-target-${{ matrix.os }}-${{ hashFiles('**/Cargo.lock') }}
+          path: target/debug
+          key: cargo-target-debug-${{ matrix.os }}-${{ hashFiles('**/Cargo.lock') }}
       - name: Run cargo build
         run: |
           cargo build --locked
       - name: Run cargo test
         run: |
           cargo test --locked
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: Qglif-${{ matrix.os }}
+          path: |
+            target/debug/Qglif
+            target/debug/Qglif.exe
 
   rustfmt:
     strategy:
