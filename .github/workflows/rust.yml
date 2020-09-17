@@ -10,8 +10,17 @@ jobs:
 
   build:
     strategy:
+      matrix:
+        platform: [linux, macos, windows]
+        include:
+          - platform: linux
+            os: ubuntu-20.04
+          - platform: macos
+            os: macos-10.15
+          - platform: windows
+            os: windows-2019
       fail-fast: false
-    runs-on: ubuntu-20.04
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -19,7 +28,8 @@ jobs:
           fetch-depth: 0
       - name: Fetch tags
         run: git fetch --tags
-      - name: Setup system dependencies
+      - if: matrix.platform == 'linux'
+        name: Setup system dependencies (Linux)
         run: sudo apt-get install libgtk-3-dev libxcb-shape0-dev libxcb-xfixes0-dev
       - name: Install Rust
         uses: actions-rs/toolchain@v1
@@ -27,27 +37,27 @@ jobs:
           toolchain: nightly
           override: true
           components: clippy
-      - name: Cache cargo registry
-        uses: actions/cache@v1
+      - name: Cache cargo builds
+        uses: actions/cache@v2
         with:
-          path: ~/.cargo/registry
-          key: build-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
-      - name: Cache cargo index
-        uses: actions/cache@v1
-        with:
-          path: ~/.cargo/git
-          key: build-cargo-index-${{ hashFiles('**/Cargo.lock') }}
-      - name: Cache cargo build
-        uses: actions/cache@v1
-        with:
-          path: target
-          key: build-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target/debug
+          key: cargo-${{ matrix.platform }}-${{ hashFiles('**/Cargo.lock') }}
       - name: Run cargo build
         run: |
           cargo build --locked
       - name: Run cargo test
         run: |
           cargo test --locked
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: Qglif-${{ matrix.platform }}
+          path: |
+            target/debug/Qglif
+            target/debug/Qglif.exe
 
   rustfmt:
     strategy:
@@ -79,21 +89,14 @@ jobs:
         with:
           toolchain: nightly
           override: true
-      - name: Cache cargo registry
-        uses: actions/cache@v1
+      - name: Cache cargo builds
+        uses: actions/cache@v2
         with:
-          path: ~/.cargo/registry
-          key: bloat-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
-      - name: Cache cargo index
-        uses: actions/cache@v1
-        with:
-          path: ~/.cargo/git
-          key: bloat-cargo-index-${{ hashFiles('**/Cargo.lock') }}
-      - name: Cache cargo build
-        uses: actions/cache@v1
-        with:
-          path: target
-          key: bloat-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: cargo-bloat-${{ matrix.platform }}-${{ hashFiles('**/Cargo.lock') }}
       - name: Run cargo bloat
         uses: orf/cargo-bloat-action@v1
         with:
