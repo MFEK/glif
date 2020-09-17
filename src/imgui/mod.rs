@@ -1,7 +1,7 @@
 use skulpin_plugin_imgui::imgui;
 
-use std::time::Instant;
-use std::{rc::Rc, sync::Arc};
+
+
 
 use crate::events;
 use crate::state::Mode;
@@ -36,7 +36,7 @@ pub fn build_and_check_button(ui: &imgui::Ui, mode: Mode, icon: &[u8]) {
     });
 }
 
-pub fn build_imgui_ui(mut ui: &mut imgui::Ui) {
+pub fn build_imgui_ui(ui: &mut imgui::Ui) {
     STATE.with(|v| {
         let mode = v.borrow().mode;
 

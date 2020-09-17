@@ -1,4 +1,4 @@
-use renderer::constants::CONSOLE_FONTS;
+use crate::renderer::constants::CONSOLE_FONTS;
 
 use font_kit::{
     family_name::FamilyName as FKFamilyName, handle::Handle as FKHandle, properties::Properties,

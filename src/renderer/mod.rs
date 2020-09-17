@@ -1,9 +1,9 @@
 //! Skia renderer.
 
-use super::glifparser;
+
 use crate::state::PreviewMode;
 use crate::{CONSOLE, STATE};
-use glifparser::{Handle, PointType, WhichHandle};
+use glifparser::{Handle};
 
 pub mod constants;
 use self::constants::*;
@@ -13,7 +13,7 @@ mod guidelines;
 pub use self::guidelines::{Guideline, GuidelineType};
 pub mod points; // point drawing functions
                 // This imports calc_x, etc. which transforms coordinates between .glif and Skia
-use self::points::calc::*;
+
 mod glyph;
 mod selbox;
 mod viewport;
@@ -23,9 +23,9 @@ use skulpin::skia_safe::{
     TileMode,
 };
 
-use skulpin::winit::dpi::PhysicalPosition;
-use std::cell::RefCell;
-use std::cmp::min;
+
+
+
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum UIPointType {

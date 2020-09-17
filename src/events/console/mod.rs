@@ -5,7 +5,7 @@ use clipboard::{ClipboardContext, ClipboardProvider};
 
 mod commands;
 
-use winit::event::{ModifiersState, VirtualKeyCode};
+use crate::winit::event::{ModifiersState, VirtualKeyCode};
 // Only called if ElementState::Pressed
 pub fn set_state(vk: VirtualKeyCode, m: ModifiersState) {
     CONSOLE.with(|c| match vk {
@@ -30,7 +30,7 @@ pub fn set_state(vk: VirtualKeyCode, m: ModifiersState) {
 
 const CHAR_BACKSPACE: char = '\x08';
 
-use state::RendererConsole;
+use crate::state::RendererConsole;
 impl RendererConsole {
     ///! Handle chars which will not trigger events (so, not :, Escape or Return)
     pub fn handle_ch(&mut self, ch: char) {
@@ -55,7 +55,7 @@ impl RendererConsole {
     }
 }
 
-use regex::{self, Regex};
+use regex::{Regex};
 pub fn run_command(c: &mut RendererConsole) {
     lazy_static! {
         static ref COMMAND_RE: Regex = Regex::new(r"\s+").unwrap();

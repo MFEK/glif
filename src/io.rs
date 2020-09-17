@@ -1,5 +1,5 @@
 use crate::state::Glyph;
-use crate::util::DEBUG;
+
 use crate::STATE;
 use std::env;
 use std::fs;

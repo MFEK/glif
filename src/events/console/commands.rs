@@ -2,7 +2,7 @@
 use crate::events;
 use std::collections::HashMap;
 
-type Callback = Box<(Fn(Vec<String>) -> () + 'static)>;
+type Callback = Box<(dyn Fn(Vec<String>) -> () + 'static)>;
 
 fn callback<F>(f: F) -> Callback
 where

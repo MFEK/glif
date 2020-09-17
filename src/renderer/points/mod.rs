@@ -1,6 +1,6 @@
 use super::{Handle, UIPointType};
 use skulpin::skia_safe::{
-    Canvas, ContourMeasureIter, Font, FontMgr, FontStyle, Matrix, Paint, PaintStyle, Path, Point,
+    Canvas, ContourMeasureIter, Font, FontStyle, Matrix, Paint, PaintStyle, Path, Point,
     Rect, TextBlob, Typeface, Vector,
 };
 pub mod calc;
@@ -10,12 +10,12 @@ use super::constants::*;
 use super::selbox;
 use crate::glifparser;
 use crate::state::{HandleStyle, PointLabels};
-use crate::util;
+
 use crate::{STATE, TOOL_DATA}; // for get_outline(_mut)!
 
 use glifparser::{Point as GlifPoint, PointType};
 
-use std::iter::Peekable;
+
 
 type Color = u32;
 
@@ -49,7 +49,7 @@ fn get_fill_and_stroke(kind: UIPointType, selected: bool) -> (Color, Color) {
 }
 
 pub fn draw_directions(path: Path, canvas: &mut Canvas) {
-    let mut piter = ContourMeasureIter::from_path(&path, false, None);
+    let piter = ContourMeasureIter::from_path(&path, false, None);
     for cm in piter {
         // Get vector and tangent -4 Skia units along the contur
         let (vec, tan) = cm.pos_tan(-4.).unwrap();
@@ -182,7 +182,7 @@ fn draw_string_at_point(mut at: (f32, f32), s: &str, canvas: &mut Canvas) {
 
     let blob = TextBlob::from_str(s, &font).expect(&format!("Failed to shape {}", s));
 
-    let (scalar, rect) = font.measure_str(s, Some(&paint));
+    let (_scalar, rect) = font.measure_str(s, Some(&paint));
 
     let mut paint2 = Paint::default();
     paint2.set_color(0xaa_ffffff);
@@ -220,7 +220,7 @@ fn draw_point(
         POINT_STROKE_THICKNESS
     };
     paint.set_stroke_width(thiccness * (1. / factor));
-    let radius = if kind == UIPointType::Handle {
+    let _radius = if kind == UIPointType::Handle {
         HANDLE_RADIUS
     } else {
         POINT_RADIUS
@@ -336,7 +336,7 @@ pub fn draw_complete_point<T>(
     );
 }
 
-use state::PreviewMode;
+
 pub fn draw_all(canvas: &mut Canvas) {
     STATE.with(|v| {
         let mut i: isize = -1;

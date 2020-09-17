@@ -1,8 +1,8 @@
 use super::constants::*;
 use super::points::calc::*;
-use crate::{state, STATE};
+use crate::{STATE};
 use skulpin::skia_safe::{Canvas, Color, Paint, PaintStyle, Path};
-use state::State;
+
 
 pub enum GuidelineType {
     Horizontal,

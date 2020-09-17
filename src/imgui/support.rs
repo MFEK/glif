@@ -2,17 +2,17 @@
 // https://github.com/aclysma/skulpin/blob/24cff6ff1d1b6dadc8a9d8ae04a6065a9294f906/examples/imgui_support/mod.rs
 // License is MIT: https://github.com/aclysma/skulpin/blob/78ce6228851168fa53d95a1fdddfb2ea39168140/LICENSE-MIT
 
-use imgui_rs;
+use crate::imgui_rs;
 use imgui_winit_support;
-use system_fonts;
+use crate::system_fonts;
 
-use imgui_rs::sys as imgui_sys;
+use crate::imgui_rs::sys as imgui_sys;
 use skulpin::winit;
 
 use std::sync::Arc;
 use std::sync::Mutex;
 
-use imgui_rs::internal::RawCast as _;
+use crate::imgui_rs::internal::RawCast as _;
 
 // Inner state for ImguiManager, which will be protected by a Mutex. Mutex protection required since
 // this object is Send but not Sync
@@ -267,7 +267,7 @@ impl ImguiManager {
 }
 
 fn init_imgui(window: &winit::window::Window) -> imgui_rs::Context {
-    use imgui_rs::Context;
+    use crate::imgui_rs::Context;
 
     let mut imgui = Context::create();
     {
