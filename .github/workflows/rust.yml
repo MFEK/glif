@@ -11,7 +11,14 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-20.04, macos-10.15, windows-2019]
+        platform: [linux, macos, windows]
+        include:
+          - platform: linux
+            os: ubuntu-20.04
+          - platform: macos
+            os: macos-10.15
+          - platform: windows
+            os: windows-2019
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
@@ -21,7 +28,7 @@ jobs:
           fetch-depth: 0
       - name: Fetch tags
         run: git fetch --tags
-      - if: startsWith(matrix.os, 'ubuntu')
+      - if: matrix.platform == 'linux'
         name: Setup system dependencies (Linux)
         run: sudo apt-get install libgtk-3-dev libxcb-shape0-dev libxcb-xfixes0-dev
       - name: Install Rust
@@ -34,17 +41,17 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ~/.cargo/registry
-          key: cargo-registry-${{ matrix.os }}-${{ hashFiles('**/Cargo.lock') }}
+          key: cargo-registry-${{ matrix.platform }}-${{ hashFiles('**/Cargo.lock') }}
       - name: Cache cargo index
         uses: actions/cache@v1
         with:
           path: ~/.cargo/git
-          key: cargo-index-${{ matrix.os }}-${{ hashFiles('**/Cargo.lock') }}
+          key: cargo-index-${{ matrix.platform }}-${{ hashFiles('**/Cargo.lock') }}
       - name: Cache target
         uses: actions/cache@v1
         with:
           path: target/debug
-          key: cargo-target-debug-${{ matrix.os }}-${{ hashFiles('**/Cargo.lock') }}
+          key: cargo-target-debug-${{ matrix.platform }}-${{ hashFiles('**/Cargo.lock') }}
       - name: Run cargo build
         run: |
           cargo build --locked
@@ -54,7 +61,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: Qglif-${{ matrix.os }}
+          name: Qglif-${{ matrix.platform }}
           path: |
             target/debug/Qglif
             target/debug/Qglif.exe
