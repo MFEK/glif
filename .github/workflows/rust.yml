@@ -37,21 +37,14 @@ jobs:
           toolchain: nightly
           override: true
           components: clippy
-      - name: Cache cargo registry
-        uses: actions/cache@v1
+      - name: Cache cargo builds
+        uses: actions/cache@v2
         with:
-          path: ~/.cargo/registry
-          key: cargo-registry-${{ matrix.platform }}-${{ hashFiles('**/Cargo.lock') }}
-      - name: Cache cargo index
-        uses: actions/cache@v1
-        with:
-          path: ~/.cargo/git
-          key: cargo-index-${{ matrix.platform }}-${{ hashFiles('**/Cargo.lock') }}
-      - name: Cache target
-        uses: actions/cache@v1
-        with:
-          path: target/debug
-          key: cargo-target-debug-${{ matrix.platform }}-${{ hashFiles('**/Cargo.lock') }}
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target/debug
+          key: cargo-${{ matrix.platform }}-${{ hashFiles('**/Cargo.lock') }}
       - name: Run cargo build
         run: |
           cargo build --locked
@@ -96,21 +89,14 @@ jobs:
         with:
           toolchain: nightly
           override: true
-      - name: Cache cargo registry
-        uses: actions/cache@v1
+      - name: Cache cargo builds
+        uses: actions/cache@v2
         with:
-          path: ~/.cargo/registry
-          key: bloat-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
-      - name: Cache cargo index
-        uses: actions/cache@v1
-        with:
-          path: ~/.cargo/git
-          key: bloat-cargo-index-${{ hashFiles('**/Cargo.lock') }}
-      - name: Cache cargo build
-        uses: actions/cache@v1
-        with:
-          path: target
-          key: bloat-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: cargo-bloat-${{ matrix.platform }}-${{ hashFiles('**/Cargo.lock') }}
       - name: Run cargo bloat
         uses: orf/cargo-bloat-action@v1
         with:
