@@ -52,8 +52,8 @@ regex = "1"
 
 ## Our crates
 # parses .glif files and gives us a place to put arbitrary data
-glifparser = { git = "https://github.com/mfeq/glifparser" }
-#glifparser = { path = "../glifparser" } # for development
+#glifparser = { git = "https://github.com/mfeq/glifparser" }
+glifparser = { path = "../glifparser" } # for development
 mfeq-ipc = { git = "https://github.com/mfeq/ipc" }
 
 # See src/util/mod.rs::set_codepage_utf8

@@ -10,6 +10,7 @@ use crate::state;
 use state::State;
 
 use crate::glifparser;
+use crate::util::math::FlipIfRequired as _;
 
 pub fn draw_selbox<T>(canvas: &mut Canvas, v: &RefCell<State<T>>) -> Rect {
     let c1 = v
@@ -40,9 +41,11 @@ pub fn draw_selbox<T>(canvas: &mut Canvas, v: &RefCell<State<T>>) -> Rect {
 }
 
 pub fn build_sel_vec_from_rect(
-    rect: Rect,
+    mut rect: Rect,
     outline: Option<&Vec<glifparser::Contour<Option<state::PointData>>>>,
 ) -> Vec<glifparser::Point<Option<state::PointData>>> {
+    rect.flip_if_required();
+
     let mut selected = Vec::new();
     for o in outline {
         for contour in o {

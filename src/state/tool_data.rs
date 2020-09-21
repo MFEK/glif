@@ -21,6 +21,7 @@ pub struct ToolData {
     pub cur_point: Option<usize>, // index into Contour
     pub handle: WhichHandle,      // if handle of cur_point selected, not point
     pub follow: Follow,           // determined currently by MouseButton
+    pub snap: f32,                // degrees to snap to. e.g. 45., 90.
 }
 
 impl ToolData {
@@ -30,6 +31,7 @@ impl ToolData {
             cur_point: None,
             handle: WhichHandle::Neither,
             follow: Follow::Mirror,
+            snap: 0.,
         }
     }
 }

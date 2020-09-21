@@ -79,10 +79,11 @@ pub fn mouse_moved<T>(position: PhysicalPosition<f64>, v: &RefCell<state::State<
                             if follow == Follow::Mirror {
                                 get_outline_mut!(v)[ci][pi].$mirror = Handle::At(hx + dx, hy + dy);
                             } else if follow == Follow::ForceLine {
-                                let (cx, cy) =
+                                let (px, py) =
                                     (get_outline!(v)[ci][pi].x, get_outline!(v)[ci][pi].y);
-                                let (dx, dy) = (cx - x, cy - y);
-                                get_outline_mut!(v)[ci][pi].$mirror = Handle::At(cx + dx, cy + dy);
+                                let (dx, dy) = (px - x, py - y);
+
+                                get_outline_mut!(v)[ci][pi].$mirror = Handle::At(px + dx, py + dy);
                             }
                         }
                         Handle::Colocated => (),
