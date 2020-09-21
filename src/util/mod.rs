@@ -2,6 +2,7 @@
 pub mod argparser;
 #[macro_use]
 pub mod macros;
+pub mod math;
 
 use std::env;
 
@@ -43,17 +44,6 @@ pub fn set_panic_hook() {
             eprintln!("Requested backtrace:\n{:?}", bt);
         }
     }));
-}
-
-// Trait necessary as f32 is primitive
-pub trait RoundFloat {
-    fn fround(self, digits: u8) -> Self;
-}
-
-impl RoundFloat for f32 {
-    fn fround(self, _digits: u8) -> Self {
-        (self * 100.).round() / 100.
-    }
 }
 
 // This prevents debug!() etc from producing mojibake. Yes, really, this is the best solution. :-|
