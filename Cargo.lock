@@ -1562,9 +1562,9 @@ dependencies = [
 
 [[package]]
 name = "skulpin-plugin-imgui"
-version = "0.5.0"
+version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "29a7a17b24c7b8a5298ab1d76499ab32c900f899ee6fb0ed107ab6e6c7d4dbfb"
+checksum = "97b132826ecb30810b3dbc644f5bae7f0fd49f1394bb93bd22d384c27ed4f04b"
 dependencies = [
  "imgui",
  "log",
