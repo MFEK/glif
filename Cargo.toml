@@ -16,7 +16,7 @@ edition = "2018"
 #skulpin-plugin-imgui = { path = "../skulpin/skulpin-plugin-imgui" }
 skulpin = { version = "0.10.0", default-features = false, features = ["skia_complete", "skulpin_winit"] }
 skulpin-plugin-imgui = { version = "0.5.0" }
-imgui-winit-support = "0.4.0"
+imgui-winit-support = "0.5.0"
 
 # For choosing font for toolbox
 font-kit = "0.10.0"
