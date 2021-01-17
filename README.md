@@ -2,9 +2,9 @@
 
 [![Build Status](https://img.shields.io/github/workflow/status/mfeq/Qglif/Rust?label=Rust&logo=Rust)](https://github.com/mfeq/Qglif/actions?workflow=Rust)
 
-# Qglif
+# glif
 
-Very early glyph editor for the Modular Font Editor Q project.
+Very early glyph editor for the Modular Font Editor K project.
 
 ![screenshot](https://raw.githubusercontent.com/mfeq/Qglif/master/doc/screenshot.png)
 
