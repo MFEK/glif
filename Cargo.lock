@@ -752,10 +752,11 @@ dependencies = [
 [[package]]
 name = "glifparser"
 version = "0.0.0"
-source = "git+https://github.com/mfeq/glifparser#5f5f1d760cd7074e6be8a335b96cb2bf1a3188b9"
+source = "git+https://github.com/mfek/glifparser#8d671602e80a6424c5afd1b39cb50c31b4fff867"
 dependencies = [
  "log",
  "xmltree",
+ "xmlwriter",
 ]
 
 [[package]]
@@ -975,7 +976,7 @@ dependencies = [
 [[package]]
 name = "mfeq-ipc"
 version = "0.0.0"
-source = "git+https://github.com/mfeq/ipc#f07ea86d152c052b9d532e9a896fb7db6025e1ed"
+source = "git+https://github.com/mfek/ipc#f07ea86d152c052b9d532e9a896fb7db6025e1ed"
 dependencies = [
  "log",
 ]
@@ -2006,3 +2007,9 @@ checksum = "f76badaccb0313f1f0cb6582c2973f2dd0620f9652eb7a5ff6ced0cc3ac922b3"
 dependencies = [
  "xml-rs",
 ]
+
+[[package]]
+name = "xmlwriter"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ec7a2a501ed189703dba8b08142f057e887dfc4b2cc4db2d343ac6376ba3e0b9"
