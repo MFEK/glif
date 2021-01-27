@@ -1552,7 +1552,7 @@ checksum = "d9a6736061ddaad5e4bd8117fec211cbee2a4d55cd3e9cc2b2f829074ee03624"
 dependencies = [
  "log",
  "skulpin-app-winit",
- "skulpin-renderer",
+ "skulpin-renderer 0.4.0",
  "skulpin-renderer-winit",
 ]
 
@@ -1563,19 +1563,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8af93815075a9a3aa9f278ba5c5d53e81d86bb803ea360bbee3d614d991c8da0"
 dependencies = [
  "log",
- "skulpin-renderer",
+ "skulpin-renderer 0.4.0",
  "skulpin-renderer-winit",
 ]
 
 [[package]]
 name = "skulpin-plugin-imgui"
-version = "0.5.0"
+version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "29a7a17b24c7b8a5298ab1d76499ab32c900f899ee6fb0ed107ab6e6c7d4dbfb"
+checksum = "4e5ebf8e3db9f289ec26a2b12baefbd0bf0e730b807f995a7db990af85f6da07"
 dependencies = [
  "imgui",
  "log",
- "skulpin-renderer",
+ "skulpin-renderer 0.5.1",
 ]
 
 [[package]]
@@ -1583,6 +1583,18 @@ name = "skulpin-renderer"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0372554bf77c6742c271589fbd0f63646de5e35c0604bfc8b5a85f5cb14375ca"
+dependencies = [
+ "ash",
+ "log",
+ "skia-bindings",
+ "skia-safe",
+]
+
+[[package]]
+name = "skulpin-renderer"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "04a72481bfddb03b22597f8b2cc5bc06c3dce299f7a83972b40e1c7e2c1b7bd5"
 dependencies = [
  "ash",
  "log",
@@ -1601,7 +1613,7 @@ dependencies = [
  "metal",
  "objc",
  "raw-window-handle",
- "skulpin-renderer",
+ "skulpin-renderer 0.4.0",
  "winapi 0.3.9",
  "winit",
 ]
