@@ -41,7 +41,7 @@ pub struct State<T> {
     pub factor: f32,
     pub offset: (f32, f32),
     pub dpi: f64, // from glutin scale_factor()
-    pub ipc_info: Option<mfeq_ipc::IPCInfo>,
+    pub ipc_info: Option<mfek_ipc::IPCInfo>,
     pub quit_requested: bool, // allows for quits from outside event loop, e.g. from command closures
 }
 

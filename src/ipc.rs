@@ -1,4 +1,4 @@
-use mfeq_ipc::{self, IPCInfo};
+use mfek_ipc::{self, IPCInfo};
 
 use crate::renderer::{Guideline, GuidelineType};
 use crate::STATE;
@@ -6,7 +6,7 @@ use crate::STATE;
 use std::{process, str};
 
 pub fn fetch_metrics() {
-    let qmdbin = mfeq_ipc::module_name("MFEKmetadata".into());
+    let qmdbin = mfek_ipc::module_name("MFEKmetadata".into());
     let filename = STATE.with(|v| v.borrow().glyph.as_ref().unwrap().filename.clone());
     let ipc_info = IPCInfo::from_glif_path("MFEKglif".to_string(), &filename);
 

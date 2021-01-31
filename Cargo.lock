@@ -17,7 +17,7 @@ dependencies = [
  "imgui-winit-support",
  "lazy_static",
  "log",
- "mfeq-ipc",
+ "mfek-ipc",
  "nfd",
  "regex",
  "skulpin",
@@ -974,9 +974,9 @@ dependencies = [
 ]
 
 [[package]]
-name = "mfeq-ipc"
+name = "mfek-ipc"
 version = "0.0.0"
-source = "git+https://github.com/mfek/ipc#f07ea86d152c052b9d532e9a896fb7db6025e1ed"
+source = "git+https://github.com/mfek/ipc#c0b924d5181792340d929fa02ee0dfbca2390d6e"
 dependencies = [
  "log",
 ]

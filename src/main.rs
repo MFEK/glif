@@ -1,6 +1,7 @@
 //! MFEKglif - A cross-platform .glif renderer and editor.
 //! Main author is Fredrick Brennan (@ctrlcctrlv); see AUTHORS.
 //! (c) 2020. Apache 2.0 licensed.
+#![allow(non_snake_case)] // for our name MFEKglif
 #![feature(
     assoc_char_funcs,
     panic_info_message,
@@ -33,7 +34,7 @@ extern crate regex;
 
 // Our crates
 extern crate glifparser;
-extern crate mfeq_ipc;
+extern crate mfek_ipc;
 
 use crate::winit::dpi::LogicalSize;
 use crate::winit::event::{ElementState, Event, KeyboardInput, VirtualKeyCode, WindowEvent};
@@ -86,7 +87,7 @@ fn main() {
     let filename = filedialog::filename_or_panic(&args.filename, Some("glif"), None);
     let _glif = io::load_glif(&filename);
 
-    if mfeq_ipc::module_available("MFEKmetadata".into()) == mfeq_ipc::Available::Yes {
+    if mfek_ipc::module_available("MFEKmetadata".into()) == mfek_ipc::Available::Yes {
         ipc::fetch_metrics();
     }
 
