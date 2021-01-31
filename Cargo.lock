@@ -109,6 +109,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "ash-window"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "905c4ca25f752e7ab3c3e8f2882625f876e4c3ea5feffbc83f81d697e043afd6"
+dependencies = [
+ "ash",
+ "raw-window-handle",
+ "raw-window-metal",
+]
+
+[[package]]
 name = "atty"
 version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -312,6 +323,37 @@ dependencies = [
  "block",
  "core-foundation 0.7.0",
  "core-graphics 0.19.2",
+ "foreign-types",
+ "libc",
+ "objc",
+]
+
+[[package]]
+name = "cocoa"
+version = "0.24.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6f63902e9223530efb4e26ccd0cf55ec30d592d3b42e21a28defc42a9586e832"
+dependencies = [
+ "bitflags",
+ "block",
+ "cocoa-foundation",
+ "core-foundation 0.9.1",
+ "core-graphics 0.22.1",
+ "foreign-types",
+ "libc",
+ "objc",
+]
+
+[[package]]
+name = "cocoa-foundation"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7ade49b65d560ca58c403a479bb396592b155c0185eada742ee323d1d68d6318"
+dependencies = [
+ "bitflags",
+ "block",
+ "core-foundation 0.9.1",
+ "core-graphics-types",
  "foreign-types",
  "libc",
  "objc",
@@ -959,21 +1001,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "metal"
-version = "0.18.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e198a0ee42bdbe9ef2c09d0b9426f3b2b47d90d93a4a9b0395c4cea605e92dc0"
-dependencies = [
- "bitflags",
- "block",
- "cocoa",
- "core-graphics 0.19.2",
- "foreign-types",
- "log",
- "objc",
-]
-
-[[package]]
 name = "mfek-ipc"
 version = "0.0.0"
 source = "git+https://github.com/mfek/ipc#c0b924d5181792340d929fa02ee0dfbca2390d6e"
@@ -1145,7 +1172,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "915b1b472bc21c53464d6c8461c9d3af805ba1ef837e1cac254428f4a77177b1"
 dependencies = [
  "malloc_buf",
- "objc_exception",
 ]
 
 [[package]]
@@ -1157,15 +1183,6 @@ dependencies = [
  "block",
  "objc",
  "objc_id",
-]
-
-[[package]]
-name = "objc_exception"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ad970fb455818ad6cba4c122ad012fae53ae8b4795f86378bce65e4f6bab2ca4"
-dependencies = [
- "cc",
 ]
 
 [[package]]
@@ -1336,6 +1353,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0a441a7a6c80ad6473bd4b74ec1c9a4c951794285bf941c2126f607c72e48211"
 dependencies = [
  "libc",
+]
+
+[[package]]
+name = "raw-window-metal"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2cd21ed1cdef7f1b1579b972148ba6058b5b545959a14d91ea83c4f0ea9f289b"
+dependencies = [
+ "cocoa 0.24.0",
+ "core-graphics 0.22.1",
+ "objc",
+ "raw-window-handle",
 ]
 
 [[package]]
@@ -1546,24 +1575,24 @@ dependencies = [
 
 [[package]]
 name = "skulpin"
-version = "0.10.0"
+version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d9a6736061ddaad5e4bd8117fec211cbee2a4d55cd3e9cc2b2f829074ee03624"
+checksum = "91af5c2b798f5aa3e10816ede791cf3ab38d32f1cc2482e99f06f2cc13208ed6"
 dependencies = [
  "log",
  "skulpin-app-winit",
- "skulpin-renderer",
+ "skulpin-renderer 0.5.1",
  "skulpin-renderer-winit",
 ]
 
 [[package]]
 name = "skulpin-app-winit"
-version = "0.4.0"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8af93815075a9a3aa9f278ba5c5d53e81d86bb803ea360bbee3d614d991c8da0"
+checksum = "daf156763a67080ce9a8965bba2b1c7cdee9f51f4e1fdb2b3ef6dcf7d9fbf63f"
 dependencies = [
  "log",
- "skulpin-renderer",
+ "skulpin-renderer 0.5.1",
  "skulpin-renderer-winit",
 ]
 
@@ -1575,7 +1604,7 @@ checksum = "29a7a17b24c7b8a5298ab1d76499ab32c900f899ee6fb0ed107ab6e6c7d4dbfb"
 dependencies = [
  "imgui",
  "log",
- "skulpin-renderer",
+ "skulpin-renderer 0.4.0",
 ]
 
 [[package]]
@@ -1591,19 +1620,27 @@ dependencies = [
 ]
 
 [[package]]
-name = "skulpin-renderer-winit"
-version = "0.4.0"
+name = "skulpin-renderer"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5dee4e5af396d7e8db2fed3d291626bd9053a69330fdd9f7e61530ee92c778e7"
+checksum = "04a72481bfddb03b22597f8b2cc5bc06c3dce299f7a83972b40e1c7e2c1b7bd5"
 dependencies = [
- "cocoa",
+ "ash",
  "log",
- "metal",
- "objc",
+ "skia-bindings",
+ "skia-safe",
+]
+
+[[package]]
+name = "skulpin-renderer-winit"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bc972e8252690259199c00f3e0a307082c6b666e57b72d629cf608e0396a0f01"
+dependencies = [
+ "ash-window",
+ "log",
  "raw-window-handle",
- "skulpin-renderer",
- "winapi 0.3.9",
- "winit",
+ "skulpin-renderer 0.5.1",
 ]
 
 [[package]]
@@ -1904,7 +1941,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1e4ccbf7ddb6627828eace16cacde80fc6bf4dbb3469f88487262a02cf8e7862"
 dependencies = [
  "bitflags",
- "cocoa",
+ "cocoa 0.20.2",
  "core-foundation 0.7.0",
  "core-graphics 0.19.2",
  "core-video-sys",
