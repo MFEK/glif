@@ -7,9 +7,9 @@ pub struct Args {
 }
 
 pub fn parse_args() -> Args {
-    let matches = clap::App::new("Qglif")
+    let matches = clap::App::new("MFEKglif")
         .version(&*format!("{}-alpha", git_version!()))
-        .about("Glyph editor, Modular Font Editor Q Project")
+        .about("Glyph editor, Modular Font Editor K Project")
         .arg(
             clap::Arg::with_name("GLIF")
                 .help("Input UFO format .glif file")

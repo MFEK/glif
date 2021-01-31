@@ -1,20 +1,18 @@
-[**This project has nothing to do with QAnon and I oppose QAnon completely.**](https://github.com/mfeq/mfeq/blob/master/doc/QAnon.md)
-
-[![Build Status](https://img.shields.io/github/workflow/status/mfeq/Qglif/Rust?label=Rust&logo=Rust)](https://github.com/mfeq/Qglif/actions?workflow=Rust)
+[![Build Status](https://img.shields.io/github/workflow/status/MFEK/glif/Rust?label=Rust&logo=Rust)](https://github.com/MFEK/glif/actions?workflow=Rust)
 
 # glif
 
 Very early glyph editor for the Modular Font Editor K project.
 
-![screenshot](https://raw.githubusercontent.com/mfeq/Qglif/master/doc/screenshot.png)
+<img src="https://raw.githubusercontent.com/MFEK/glif/master/doc/screenshot.png" width="300"><img src="https://raw.githubusercontent.com/MFEK/glif/master/doc/screenshot2.png" width="300">
 
 ## Overview
 
-Qglif mixes three technologies: Skia, a very powerful path rasterizer and manipulation library; Dear ImGui, an immediate mode user interface toolkit; and Rust, a modern high-performance systems language.
+MFEKglif mixes three technologies: Skia, a very powerful path rasterizer and manipulation library; Dear ImGui, an immediate mode user interface toolkit; and Rust, a modern high-performance systems language.
 
 I wrote it after, hopefully, learning from the mistakes made by George Williams in FontForge, after being a user of FontForge for six years and a co-maintainer for one and a half years.
 
-Qglif is the premier program of the Modular Font Editor Q project. This project aims to create a full font editor by making many small programs that will all work together, fulfilling the Unix adage that each program should have one task and do that task well. Qglif aims to do the task of drawing and editing glyphs well.
+MFEKglif is the premier program of the Modular Font Editor K project. This project aims to create a full font editor by making many small programs that will all work together, fulfilling the Unix adage that each program should have one task and do that task well. MFEKglif aims to do the task of drawing and editing glyphs well.
 
 To make this as easy as possible to build, and cross-platform without hassle, the icon is compiled right into the binary via the Rust `include_str!` macro.
 
@@ -22,7 +20,7 @@ To make this as easy as possible to build, and cross-platform without hassle, th
 
 ### Mac users
 
-Apple charges a fee to "notarize" applications and without this "notarization" Qglif will not run correctly, or in some cases, at all. So, for the foreseeable future, you must _build Qglif from source on OS X_. This is not as hard as it sounds! :-)
+Apple charges a fee to "notarize" applications and without this "notarization" MFEKglif will not run correctly, or in some cases, at all. So, for the foreseeable future, you must _build MFEKglif from source on OS X_. This is not as hard as it sounds! :-)
 
 * Download and install the [Vulkan SDK](https://vulkan.lunarg.com/).
 
@@ -38,7 +36,7 @@ If you previously pulled the repository and get errors related to `glifparser`, 
 
 ## Contributing
 
-I typically build and run Qglif like this:
+I typically build and run MFEKglif like this:
 
 ```
 RUSTFLAGS=-Awarnings RUST_LOG=debug RUST_BACKTRACE=1 cargo run -- Q_.glif
@@ -50,15 +48,15 @@ Please format the codebase with `cargo fmt` before opening a pull request.
 
 ### More debug output
 
-It is possible to get even more debug output out of Qglif for figuring out where problems lie. To ask Qglif to dump the parsed .glif file on runtime, pass `DEBUG_DUMP_GLYPH=Y`. To see every single `winit` event (warning: this will flood your stdout) pass `DEBUG_EVENTS=Y`.
+It is possible to get even more debug output out of MFEKglif for figuring out where problems lie. To ask MFEKglif to dump the parsed .glif file on runtime, pass `DEBUG_DUMP_GLYPH=Y`. To see every single `winit` event (warning: this will flood your stdout) pass `DEBUG_EVENTS=Y`.
 
 ### Goals
 
-Contributions which do not work on at least GNU/Linux and Windows will be rejected; we want to be able to build Qglif on as many platforms as possible. Both Skia and Dear ImGui are cross-platform; we use Vulkan and not OpenGL so we are future-proof even on OS X.
+Contributions which do not work on at least GNU/Linux and Windows will be rejected; we want to be able to build MFEKglif on as many platforms as possible. Both Skia and Dear ImGui are cross-platform; we use Vulkan and not OpenGL so we are future-proof even on OS X.
 
 ## License
 
-Copyright 2020 Fredrick Brennan & MFEQ Authors
+Copyright 2020 Fredrick Brennan & MFEK Authors
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use
 this software or any of the provided source code files except in compliance

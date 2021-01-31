@@ -1,4 +1,4 @@
-//! Qglif - A cross-platform .glif renderer and editor.
+//! MFEKglif - A cross-platform .glif renderer and editor.
 //! Main author is Fredrick Brennan (@ctrlcctrlv); see AUTHORS.
 //! (c) 2020. Apache 2.0 licensed.
 #![feature(
@@ -86,7 +86,7 @@ fn main() {
     let filename = filedialog::filename_or_panic(&args.filename, Some("glif"), None);
     let _glif = io::load_glif(&filename);
 
-    if mfeq_ipc::module_available("Qmetadata".into()) == mfeq_ipc::Available::Yes {
+    if mfeq_ipc::module_available("MFEKmetadata".into()) == mfeq_ipc::Available::Yes {
         ipc::fetch_metrics();
     }
 
@@ -94,7 +94,7 @@ fn main() {
 
     let winit_window = winit::window::WindowBuilder::new()
         .with_title(format!(
-            "Qglif: {}",
+            "Modular Font Editor K — Glyph editor — {}",
             filename.to_str().expect("Filename encoding erroneous")
         ))
         .with_inner_size(LogicalSize::new(window_size.0 as f64, window_size.1 as f64))
