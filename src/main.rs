@@ -35,6 +35,7 @@ extern crate regex;
 // Our crates
 extern crate glifparser;
 extern crate mfek_ipc;
+extern crate xmltree;
 
 use crate::winit::dpi::LogicalSize;
 use crate::winit::event::{ElementState, Event, KeyboardInput, VirtualKeyCode, WindowEvent};
@@ -86,6 +87,9 @@ fn main() {
     let args = util::argparser::parse_args();
     let filename = filedialog::filename_or_panic(&args.filename, Some("glif"), None);
     let _glif = io::load_glif(&filename);
+
+    // events for on_load_glif go here
+    events::vws::on_load_glif();
 
     if mfek_ipc::module_available("MFEKmetadata".into()) == mfek_ipc::Available::Yes {
         ipc::fetch_metrics();
@@ -255,6 +259,13 @@ fn main() {
                             Some(VirtualKeyCode::Z) => {
                                 newmode = state::Mode::Zoom;
                             }
+                            Some(VirtualKeyCode::S) => {
+                                if modifiers.ctrl() {
+                                    io::save_glif(v);
+                                } else {
+                                    newmode = state::Mode::VWS;
+                                }
+                            }
                             // Toggles: trigger_toggle_on defined in events module
                             Some(VirtualKeyCode::Key3) => {
                                 trigger_toggle_on!(v, point_labels, PointLabels, modifiers.shift());
@@ -298,7 +309,9 @@ fn main() {
                             #[rustfmt::skip]
                             state::Mode::Pan => events::pan::mouse_moved(position, &v),
                             state::Mode::Pen => events::pen::mouse_moved(position, &v),
-                            state::Mode::Select => events::select::mouse_moved(position, &v),
+                            state::Mode::Select => {    events::select::mouse_moved(position, &v);
+                                                        events::vws::update_previews(position, &v)},
+                            state::Mode::VWS => events::vws::mouse_moved(position, &v),
                             state::Mode::Zoom => events::zoom::mouse_moved(position, &v),
                             _ => false,
                         };
@@ -331,6 +344,9 @@ fn main() {
                             state::Mode::Select => {
                                 events::select::mouse_button(position, &v, meta)
                             }
+                            state::Mode::VWS => {
+                                events::vws::mouse_button(position, &v, meta)
+                            }
                             _ => false,
                         };
 
@@ -342,6 +358,9 @@ fn main() {
                                     }
                                     state::Mode::Select => {
                                         events::select::mouse_pressed(position, &v, meta)
+                                    }
+                                    state::Mode::VWS => {
+                                        events::vws::mouse_pressed(position, &v, meta)
                                     }
                                     _ => false,
                                 };
@@ -357,6 +376,9 @@ fn main() {
                                     state::Mode::Zoom => {
                                         events::zoom::mouse_released(position, &v, meta);
                                         events::center_cursor(&winit_window).is_ok()
+                                    }
+                                    state::Mode::VWS => {
+                                        events::vws::mouse_released(position, &v, meta)
                                     }
                                     _ => false,
                                 };

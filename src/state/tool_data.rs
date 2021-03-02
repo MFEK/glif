@@ -22,6 +22,10 @@ pub struct ToolData {
     pub handle: WhichHandle,      // if handle of cur_point selected, not point
     pub follow: Follow,           // determined currently by MouseButton
     pub snap: f32,                // degrees to snap to. e.g. 45., 90.
+
+    // was shift or control held for the initial click?
+    pub shift: bool,
+    pub ctrl: bool,
 }
 
 impl ToolData {
@@ -32,6 +36,8 @@ impl ToolData {
             handle: WhichHandle::Neither,
             follow: Follow::Mirror,
             snap: 0.,
+            shift: false,
+            ctrl: false,            
         }
     }
 }

@@ -17,6 +17,12 @@ mod glyph;
 mod selbox;
 mod viewport;
 
+// Provides thread-local global variables.
+pub use crate::state::Glyph; // types
+pub use crate::state::{Mode, HandleStyle, PointLabels}; // enums
+pub use crate::state::TOOL_DATA; // globals
+pub use crate::events::vws;
+
 use skulpin::skia_safe::{
     gradient_shader, Canvas, Color, IRect, Matrix, Paint, PaintJoin, PaintStyle, Path, Point, Rect,
     TileMode,
@@ -46,11 +52,17 @@ pub fn render_frame(canvas: &mut Canvas) {
         guidelines::draw_all(canvas);
     }
     let path = glyph::draw(canvas);
+    let _path = glyph::draw_previews(canvas);
 
     match pm {
         PreviewMode::None => {
             points::draw_all(canvas);
             points::draw_selected(canvas);
+            let mode = STATE.with(|v| v.borrow().mode);
+            match mode {
+                Mode::VWS => vws::draw_handles(canvas),
+                _ => {},
+            };
         }
         PreviewMode::NoUnselectedPoints => {
             points::draw_selected(canvas);
