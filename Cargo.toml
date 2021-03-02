@@ -57,8 +57,6 @@ glifparser = { git = "https://github.com/MatthewBlanchard/glifparser", branch = 
 
 MFEKMath = { git = "https://github.com/MFEK/math", branch = "main" }
 
-xmltree = "0.10.1"
-
 #glifparser = { path = "../glifparser" } # for development
 mfek-ipc = { git = "https://github.com/mfek/ipc" }
 
