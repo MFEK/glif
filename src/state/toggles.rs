@@ -14,6 +14,7 @@ pub enum Mode {
     Pen,
     Select,
     Zoom,
+    VWS,
 }
 
 #[derive(IntoEnumIterator, Display, Debug, Clone, Copy, PartialEq)]

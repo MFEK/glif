@@ -4,6 +4,8 @@ use crate::STATE;
 use std::env;
 use std::fs;
 use std::path::Path;
+use glifparser::Glif;
+use std::cell::RefCell;
 
 pub fn load_glif<F: AsRef<Path> + Clone>(filename: F) {
     let glif =
@@ -40,4 +42,44 @@ pub fn load_glif<F: AsRef<Path> + Clone>(filename: F) {
             );
         });
     });
+}
+
+pub fn save_glif(v: &RefCell<crate::state::State<Option<crate::state::PointData>>>) {
+    let mut _v = v.borrow_mut();
+    let _glyph = _v.glyph.as_ref().unwrap();
+    let filename: std::path::PathBuf = _glyph.filename.clone();
+
+    let mut lib = _glyph.glif.lib.as_ref().unwrap_or(&xmltree::Element::new("lib")).clone();
+    let vws_lib = &super::events::vws::generate_lib(_v.vws_contours.clone());
+
+    if let Some(vws) = vws_lib {
+        for child in &vws.children {
+            lib.children.push(child.clone());
+        }
+    }
+
+    let glif_string = {
+        let glif = &_glyph.glif;
+
+        let new_glif = Glif {
+            anchors: glif.anchors.clone(),
+            format: glif.format,
+            lib: Some(lib),
+            name: glif.name.clone(),
+            order: glif.order,
+            outline: glif.outline.clone(),
+            unicode: glif.unicode,
+            width: glif.width,
+        };
+
+        _v.glyph = Some(Glyph {
+            glif: new_glif,
+            filename: filename.clone(),
+            guidelines: Vec::new(),
+        });
+
+        glifparser::write_ufo_glif(&_v.glyph.as_ref().unwrap().glif)
+    };
+
+    fs::write(filename, glif_string).expect("Unable to write file");
 }

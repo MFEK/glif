@@ -53,7 +53,12 @@ regex = "1"
 
 ## Our crates
 # parses .glif files and gives us a place to put arbitrary data
-glifparser = { git = "https://github.com/mfek/glifparser" }
+glifparser = { git = "../glifparser" }
+
+MFEKMath = { git = "https://github.com/MFEK/math"}
+
+xmltree = "0.10.1"
+
 #glifparser = { path = "../glifparser" } # for development
 mfek-ipc = { git = "https://github.com/mfek/ipc" }
 

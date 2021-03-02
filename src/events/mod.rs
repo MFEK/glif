@@ -7,6 +7,7 @@ pub mod pan;
 pub mod pen;
 pub mod select;
 pub mod zoom;
+pub mod vws;
 
 pub use self::zoom::{zoom_in_factor, zoom_out_factor};
 
