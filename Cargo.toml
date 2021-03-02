@@ -53,9 +53,9 @@ regex = "1"
 
 ## Our crates
 # parses .glif files and gives us a place to put arbitrary data
-glifparser = { git = "../glifparser" }
+glifparser = { git = "https://github.com/MatthewBlanchard/glifparser", branch = "variable-width-stroking"}
 
-MFEKMath = { git = "https://github.com/MFEK/math"}
+MFEKMath = {git = "https://github.com/MFEK/math"}
 
 xmltree = "0.10.1"
 

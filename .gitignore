@@ -2,3 +2,4 @@
 *.swp
 tags
 /.vscode
+Cargo.lock
