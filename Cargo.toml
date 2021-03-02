@@ -55,7 +55,7 @@ regex = "1"
 # parses .glif files and gives us a place to put arbitrary data
 glifparser = { git = "https://github.com/MatthewBlanchard/glifparser", branch = "variable-width-stroking"}
 
-MFEKMath = {git = "https://github.com/MFEK/math"}
+MFEKMath = { git = "https://github.com/MFEK/math", branch = "main" }
 
 xmltree = "0.10.1"
 
