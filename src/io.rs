@@ -72,13 +72,7 @@ pub fn save_glif(v: &RefCell<crate::state::State<Option<crate::state::PointData>
             width: glif.width,
         };
 
-        _v.glyph = Some(Glyph {
-            glif: new_glif,
-            filename: filename.clone(),
-            guidelines: Vec::new(),
-        });
-
-        glifparser::write_ufo_glif(&_v.glyph.as_ref().unwrap().glif)
+        glifparser::write_ufo_glif(&new_glif)
     };
 
     fs::write(filename, glif_string).expect("Unable to write file");

@@ -6,13 +6,12 @@ use crate::imgui_rs;
 use crate::system_fonts;
 use imgui_winit_support;
 
+use crate::imgui as imgui;
+use crate::winit as winit;
 use crate::imgui_rs::sys as imgui_sys;
-use skulpin::winit;
 
 use std::sync::Arc;
 use std::sync::Mutex;
-
-use crate::imgui_rs::internal::RawCast as _;
 
 // Inner state for ImguiManager, which will be protected by a Mutex. Mutex protection required since
 // this object is Send but not Sync
@@ -116,7 +115,7 @@ impl ImguiManager {
                 // implemented upstream and I switch to using it
             }
             _ => {
-                platform.handle_event(context.io_mut(), &window, event);
+                platform.handle_event(context.io_mut(), window, event);
             }
         }
     }
