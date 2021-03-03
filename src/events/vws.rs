@@ -193,7 +193,6 @@ fn mouse_coords_to_handle_space(
     return mousepos.distance(start_pos);
 }
 
-// this function is more expensive than it lets on
 fn get_vws_handle_pos(v: &RefCell<state::State<Option<state::PointData>>>, contour_idx: usize, handle_idx: usize, side: WhichHandle) -> (Vector, Vector)
 {
     let vws_contour = get_vws_contour(v, contour_idx);
@@ -245,7 +244,6 @@ fn vws_clicked_point_or_handle(
 
         let size = ((POINT_RADIUS * 2.) + (POINT_STROKE_THICKNESS * 2.)) * (1. / factor);
         for (vws_handle_idx, bezier) in contour_pw.segs.iter().enumerate() {
-
             let start_point = bezier.start_point();
             let tangent = bezier.tangent_at(0.);
             let normal = Vector{x: tangent.y, y: -tangent.x}.normalize();
@@ -278,7 +276,41 @@ fn vws_clicked_point_or_handle(
             }
         }
 
+        if contour.first().unwrap().ptype == glifparser::PointType::Move 
+        {
+            let vws_handle_idx = contour_pw.segs.len();
+            let bezier = contour_pw.segs.last().unwrap();
+            let start_point = bezier.end_point();
+            let tangent = bezier.tangent_at(1.);
+            let normal = Vector{x: tangent.y, y: -tangent.x}.normalize();
 
+            let vws_handle = get_vws_handle(v, vws_contour, vws_handle_idx);
+
+            let handle_pos_left = start_point + normal * vws_handle.left_offset;
+            let handle_pos_right = start_point + normal * -vws_handle.right_offset;
+
+            let handle_left_point = SkPoint::new(
+                calc_x(handle_pos_left.x as f32) - (size / 2.),
+                calc_y(handle_pos_left.y as f32) - (size / 2.),
+            );
+            let handle_left_rect = SkRect::from_point_and_size(handle_left_point, (size, size));
+
+            let handle_right_point = SkPoint::new(
+                calc_x(handle_pos_right.x as f32) - (size / 2.),
+                calc_y(handle_pos_right.y as f32) - (size / 2.),
+            );
+            let handle_right_rect = SkRect::from_point_and_size(handle_right_point, (size, size));
+
+            let sk_mpos = SkPoint::new(mposition.x as f32, mposition.y as f32);
+
+            if handle_left_rect.contains(sk_mpos) {
+                return Some((contour_idx, vws_handle_idx, WhichHandle::A));
+            }
+            else if handle_right_rect.contains(sk_mpos)
+            {
+                return Some((contour_idx, vws_handle_idx, WhichHandle::B));
+            }
+        }
     }
 
     None
@@ -433,6 +465,34 @@ pub fn draw_handles(canvas: &mut Canvas) {
 
                 canvas.draw_path(&path, &paint);
             } 
+
+            if contour.first().unwrap().ptype == glifparser::PointType::Move 
+            {
+                let vws_handle_idx = contour_pw.segs.len();
+                let bezier = contour_pw.segs.last().unwrap();
+                let start_point = bezier.end_point();
+                let tangent = bezier.tangent_at(1.);
+                let normal = Vector{x: tangent.y, y: -tangent.x}.normalize();
+    
+                let vws_handle = get_vws_handle(v, vws_contour, vws_handle_idx);
+    
+                let handle_pos_left = start_point + normal * vws_handle.left_offset;
+                let handle_pos_right = start_point + normal * -vws_handle.right_offset;
+    
+                let mut path = Path::new();
+                let mut paint = Paint::default();
+
+                paint.set_anti_alias(true);
+                paint.set_color(HANDLEBAR_STROKE);
+                paint.set_stroke_width(HANDLEBAR_THICKNESS * (1. / factor));
+                paint.set_style(PaintStyle::Stroke);
+
+                path.move_to((calc_x(handle_pos_left.x as f32), calc_y(handle_pos_left.y as f32)));
+                path.line_to((calc_x(start_point.x as f32 ), calc_y(start_point.y as f32)));
+                path.line_to((calc_x(handle_pos_right.x as f32), calc_y(handle_pos_right.y as f32)));
+
+                canvas.draw_path(&path, &paint);
+            }
         }
     })
 }
