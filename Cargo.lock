@@ -3,7 +3,7 @@
 [[package]]
 name = "MFEKMath"
 version = "0.1.0"
-source = "git+https://github.com/MFEK/math?branch=main#035da9acd711862b5e4fd1d895649bd6ae86b73b"
+source = "git+https://github.com/MFEK/math?branch=main#ccd9dc8f55409cbccb3e68d2a04d6cff1a7bab57"
 dependencies = [
  "flo_curves",
  "glifparser",
@@ -713,7 +713,7 @@ dependencies = [
 [[package]]
 name = "flo_curves"
 version = "0.4.2"
-source = "git+https://github.com/MFEK/flo_curves?branch=master#23b3f8cb1d91cfad853cdc2f84756d8012dad40f"
+source = "git+https://github.com/MFEK/flo_curves?branch=master#b9123c8cfd0456856adbcf241d08817282f18c6b"
 dependencies = [
  "itertools",
  "roots",
