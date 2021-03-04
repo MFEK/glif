@@ -4,9 +4,109 @@ use super::prelude::*;
 use crate::state::Follow;
 use glifparser::{Handle, WhichHandle};
 use skulpin::skia_safe::{
-    Canvas, ContourMeasureIter, Font, FontStyle, Matrix, Paint, PaintStyle, Path, Point, Rect,
-    TextBlob, Typeface,
+    Canvas, Paint, PaintStyle, Path,
 };
+
+use skulpin_plugin_imgui::imgui;
+
+//
+// UI
+//
+fn build_and_check_vws_cap_combo(ui: &imgui::Ui)
+{
+    let contour_idx = TOOL_DATA.with(|v|
+        v.borrow().contour.unwrap()
+    );
+
+    let _vws_contour = STATE.with(|v| {
+        get_vws_contour(v, contour_idx)
+    });
+
+    if let Some(mut vws_contour) = _vws_contour {
+        let mut s_current_selection = cap_type_to_idx(vws_contour.cap_start_type);
+        let mut e_current_selection = cap_type_to_idx(vws_contour.cap_end_type);
+    
+        let options = [
+            imgui::im_str!("Round"),
+            imgui::im_str!("Square"),
+            imgui::im_str!("Custom")
+        ];
+    
+        imgui::ComboBox::new(imgui::im_str!("Start"))
+        .build_simple_string(ui, &mut s_current_selection, &options);
+    
+        imgui::ComboBox::new(imgui::im_str!("End"))
+        .build_simple_string(ui, &mut e_current_selection, &options);
+
+        let s_selection = idx_to_cap_type(s_current_selection);
+        let e_selection = idx_to_cap_type(e_current_selection);
+
+        vws_contour.cap_start_type = s_selection;
+        vws_contour.cap_end_type = e_selection;
+        STATE.with(|v| {
+            set_vws_contour_by_value(v, contour_idx, vws_contour);
+            generate_previews(v);
+        });
+    
+    }
+}
+
+fn cap_type_to_idx(ct: CapType) -> usize
+{
+    match ct {
+        CapType::Round => 0,
+        CapType::Square => 1,
+        CapType::Custom => 2,
+    }
+}
+
+fn idx_to_cap_type(idx: usize) -> CapType
+{
+    match idx {
+        0 => CapType::Round,
+        1 => CapType::Square,
+        2 => CapType::Custom,
+        _ => unreachable!()
+    }
+}
+
+// we redefine these constants here for positioning our window
+const TOOLBOX_OFFSET_X: f32 = 10.;
+const TOOLBOX_OFFSET_Y: f32 = TOOLBOX_OFFSET_X;
+const TOOLBOX_WIDTH: f32 = 55.;
+const TOOLBOX_HEIGHT: f32 = 220.;
+
+pub fn build_vws_settings_window(ui: &mut imgui::Ui)
+{
+    let countour_idx = TOOL_DATA.with(|v|
+        v.borrow().contour
+    );
+
+    // if we don't have a contour selected we don't draw this
+    if countour_idx.is_none() {
+        return;
+    }
+    
+    imgui::Window::new(imgui::im_str!("VWS Settings"))
+    .bg_alpha(1.) // See comment on fn redraw_skia
+    .flags(
+        #[rustfmt::skip]
+              imgui::WindowFlags::NO_RESIZE
+            | imgui::WindowFlags::NO_MOVE
+            | imgui::WindowFlags::NO_COLLAPSE,
+    )
+    .position(
+        [TOOLBOX_OFFSET_X, TOOLBOX_OFFSET_Y + TOOLBOX_HEIGHT + 30.],
+        imgui::Condition::Always,
+    )
+    .size([TOOLBOX_WIDTH*3., TOOLBOX_HEIGHT/2.], imgui::Condition::Always)
+    .build(ui, || build_and_check_vws_cap_combo(ui));
+        
+}
+
+// 
+// Loading
+//
 
 pub fn on_load_glif()
 {
@@ -33,7 +133,39 @@ pub fn generate_lib(vwscontours: Vec<VWSContour>) -> Option<xmltree::Element>
     return generate_vws_lib(&vwscontours)
 }
 
-fn get_vws_contour(v: &RefCell<state::State<Option<state::PointData>>>, contour_idx: usize) -> Option<usize>
+//
+// Manipulating
+//
+fn get_vws_contour(v: &RefCell<state::State<Option<state::PointData>>>, contour_idx: usize) -> Option<VWSContour>
+{
+    for (idx, vwscontour) in v.borrow().vws_contours.iter().enumerate() {
+        if vwscontour.id == contour_idx {
+            return Some(vwscontour.clone());
+        }
+    }
+
+    None
+}
+
+fn set_vws_contour_by_value(v: &RefCell<state::State<Option<state::PointData>>>, contour_idx: usize, vws_contour: VWSContour)
+{
+    let mut _v = v.borrow_mut();
+    let mut to_remove = None;
+
+    for (idx, vwscontour) in _v.vws_contours.iter().enumerate() {
+        if vwscontour.id == contour_idx {
+            to_remove = Some(idx);
+        }
+    }
+
+    if let Some(to_remove) = to_remove {
+        _v.vws_contours.remove(to_remove);
+    }
+
+    _v.vws_contours.push(vws_contour);
+}
+
+fn get_vws_contour_idx(v: &RefCell<state::State<Option<state::PointData>>>, contour_idx: usize) -> Option<usize>
 {
     for (idx, vwscontour) in v.borrow().vws_contours.iter().enumerate() {
         if vwscontour.id == contour_idx {
@@ -66,7 +198,10 @@ fn generate_vws_contour(v: &RefCell<state::State<Option<state::PointData>>>, con
 {
     let mut new_vws_contour = VWSContour {
         handles: Vec::new(),
-        id: contour_idx
+        id: contour_idx,
+        cap_start_type: CapType::Round,
+        cap_end_type: CapType::Round,
+        join_type: JoinType::Round
     };
 
     for i in 0.. get_outline!(v)[contour_idx].len() + 1 {
@@ -102,12 +237,12 @@ fn get_vws_handle(v: &RefCell<state::State<Option<state::PointData>>>, vcontour:
 
 fn set_vws_handle(v: &RefCell<state::State<Option<state::PointData>>>, contour_idx: usize, handle_idx: usize, side: WhichHandle, pos: f64)
 {
-    if get_vws_contour(v, contour_idx).is_none() {
+    if get_vws_contour_idx(v, contour_idx).is_none() {
         generate_vws_contour(v, contour_idx);
     }
 
     // we know this contour exists now
-    let vws_contour = get_vws_contour(v, contour_idx).unwrap();
+    let vws_contour = get_vws_contour_idx(v, contour_idx).unwrap();
 
     let id = v.borrow().vws_contours[vws_contour].id;
     let contour_pw =  Piecewise::from(&get_outline!(v)[id]);
@@ -131,12 +266,12 @@ fn set_vws_handle(v: &RefCell<state::State<Option<state::PointData>>>, contour_i
 
 fn set_all_vws_handles(v: &RefCell<state::State<Option<state::PointData>>>, contour_idx: usize, handle_idx: usize, side: WhichHandle, pos: f64)
 {
-    if get_vws_contour(v, contour_idx).is_none() {
+    if get_vws_contour_idx(v, contour_idx).is_none() {
         generate_vws_contour(v, contour_idx);
     }
 
     STATE.with(|v| {// we know this contour exists now
-        let vws_contour = get_vws_contour(v, contour_idx).unwrap();
+        let vws_contour = get_vws_contour_idx(v, contour_idx).unwrap();
 
         let mut borrowed_v = v.borrow_mut();
         for handle_idx in 0 .. borrowed_v.vws_contours[vws_contour].handles.len() {
@@ -164,16 +299,13 @@ fn generate_previews(v: &RefCell<state::State<Option<state::PointData>>>)
         let contour_pw = Piecewise::from(&get_outline!(v)[vws_contour.id]);
 
         let settings = VWSSettings {
-            join_type: JoinType::Round,
-            cap_type_start: CapType::Round,
-            cap_type_end: CapType::Round,
             cap_custom_start: None,
             cap_custom_end: None
         };
 
         use std::time::Instant;
         let t = Instant::now();
-        let vws_output = variable_width_stroke(&contour_pw, &vws_contour.handles, &settings);
+        let vws_output = variable_width_stroke(&contour_pw, &vws_contour, &settings);
         println!("{:.2}", t.elapsed().as_millis());
 
         for contour in vws_output.segs {
@@ -195,7 +327,7 @@ fn mouse_coords_to_handle_space(
 
 fn get_vws_handle_pos(v: &RefCell<state::State<Option<state::PointData>>>, contour_idx: usize, handle_idx: usize, side: WhichHandle) -> (Vector, Vector)
 {
-    let vws_contour = get_vws_contour(v, contour_idx);
+    let vws_contour = get_vws_contour_idx(v, contour_idx);
     let contour_pw = Piecewise::from(&get_outline!(v)[contour_idx]);
 
     if handle_idx < contour_pw.segs.len()
@@ -240,7 +372,7 @@ fn vws_clicked_point_or_handle(
     for (contour_idx, contour) in get_outline!(v).iter().enumerate() {
         let contour_pw = Piecewise::from(contour);
 
-        let vws_contour = get_vws_contour(v, contour_idx);
+        let vws_contour = get_vws_contour_idx(v, contour_idx);
 
         let size = ((POINT_RADIUS * 2.) + (POINT_STROKE_THICKNESS * 2.)) * (1. / factor);
         for (vws_handle_idx, bezier) in contour_pw.segs.iter().enumerate() {
@@ -339,12 +471,7 @@ pub fn mouse_pressed(
 
             true
         }),
-        None => TOOL_DATA.with(|p| {
-            p.borrow_mut().contour = None;
-            p.borrow_mut().cur_point = None;
-            p.borrow_mut().handle = WhichHandle::Neither;
-            false
-        }),
+        None => false
     };
 
     false
@@ -365,9 +492,6 @@ pub fn mouse_released(
     _meta: MouseMeta,
 ) -> bool {
     TOOL_DATA.with(|p| {
-        p.borrow_mut().contour = None;
-        p.borrow_mut().cur_point = None;
-        p.borrow_mut().handle = WhichHandle::Neither;
         true
     })
 }
@@ -421,7 +545,7 @@ pub fn update_previews(position: PhysicalPosition<f64>, v: &RefCell<state::State
 
 pub fn should_draw_contour(v: &RefCell<state::State<Option<state::PointData>>>, idx: usize) -> bool
 {
-    if get_vws_contour(v, idx).is_some()
+    if get_vws_contour_idx(v, idx).is_some()
     {
         return false;
     }
@@ -436,7 +560,7 @@ pub fn draw_handles(canvas: &mut Canvas) {
         for (contour_idx, contour) in get_outline!(v).iter().enumerate() {
             let contour_pw = Piecewise::from(contour);
     
-            let vws_contour = get_vws_contour(v, contour_idx);
+            let vws_contour = get_vws_contour_idx(v, contour_idx);
     
             let size = ((POINT_RADIUS * 2.) + (POINT_STROKE_THICKNESS * 2.)) * (1. / factor);
             let last_handle = 0;
