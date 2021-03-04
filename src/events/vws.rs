@@ -51,6 +51,58 @@ fn build_and_check_vws_cap_combo(ui: &imgui::Ui)
     }
 }
 
+fn build_and_check_vws_join_combo(ui: &imgui::Ui)
+{
+    let contour_idx = TOOL_DATA.with(|v|
+        v.borrow().contour.unwrap()
+    );
+
+    let _vws_contour = STATE.with(|v| {
+        get_vws_contour(v, contour_idx)
+    });
+
+    if let Some(mut vws_contour) = _vws_contour {
+        let mut current_selection = join_type_to_idx(vws_contour.join_type);
+    
+        let options = [
+            imgui::im_str!("Round"),
+            imgui::im_str!("Miter"),
+            imgui::im_str!("Bevel")
+        ];
+    
+        imgui::ComboBox::new(imgui::im_str!("Joins"))
+        .build_simple_string(ui, &mut current_selection, &options);
+    
+        let new_selection = idx_to_join_type(current_selection);
+
+        vws_contour.join_type = new_selection;
+        STATE.with(|v| {
+            set_vws_contour_by_value(v, contour_idx, vws_contour);
+            generate_previews(v);
+        });
+    
+    }
+}
+
+fn join_type_to_idx(jt: JoinType) -> usize {
+    match jt {
+        JoinType::Round => 0,
+        JoinType::Miter => 1,
+        JoinType::Bevel => 2,
+    }
+}
+
+fn idx_to_join_type(idx: usize) -> JoinType
+{
+    match idx {
+        0 => JoinType::Round,
+        1 => JoinType::Miter,
+        2 => JoinType::Bevel,
+        _ => unreachable!()
+    }
+}
+
+
 fn cap_type_to_idx(ct: CapType) -> usize
 {
     match ct {
@@ -100,7 +152,11 @@ pub fn build_vws_settings_window(ui: &mut imgui::Ui)
         imgui::Condition::Always,
     )
     .size([TOOLBOX_WIDTH*3., TOOLBOX_HEIGHT/2.], imgui::Condition::Always)
-    .build(ui, || build_and_check_vws_cap_combo(ui));
+    .build(ui, || {
+        build_and_check_vws_cap_combo(ui);
+        ui.separator();
+        build_and_check_vws_join_combo(ui);
+    });
         
 }
 
