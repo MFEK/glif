@@ -1,5 +1,6 @@
 pub mod prelude;
 use self::prelude::*;
+use glifparser::{Handle, WhichHandle};
 
 pub mod console;
 
@@ -74,7 +75,12 @@ pub fn update_mousepos<T>(
 
 pub fn mode_switched(from: Mode, to: Mode) {
     assert!(from != to);
-    TOOL_DATA.with(|v| v.borrow_mut().contour = None);
+    TOOL_DATA.with(|v| {
+        v.borrow_mut().contour = None;
+        v.borrow_mut().cur_point = None;
+        v.borrow_mut().handle = WhichHandle::Neither;
+    });
+    
 }
 
 #[macro_export]
