@@ -6,6 +6,7 @@ use std::fs;
 use std::path::Path;
 use glifparser::Glif;
 use std::cell::RefCell;
+use crate::events as events;
 
 pub fn load_glif<F: AsRef<Path> + Clone>(filename: F) {
     let glif =
@@ -76,4 +77,9 @@ pub fn save_glif(v: &RefCell<crate::state::State<Option<crate::state::PointData>
     };
 
     fs::write(filename, glif_string).expect("Unable to write file");
+}
+
+pub fn export_glif(v: &RefCell<crate::state::State<Option<crate::state::PointData>>>) 
+{
+    events::vws::export_vws();
 }
