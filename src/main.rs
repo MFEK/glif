@@ -266,6 +266,12 @@ fn main() {
                                     newmode = state::Mode::VWS;
                                 }
                             }
+                            Some(VirtualKeyCode::E) => {
+                                if modifiers.ctrl() {
+                                    println!("yeet");
+                                    io::export_glif(v);
+                                }
+                            }
                             // Toggles: trigger_toggle_on defined in events module
                             Some(VirtualKeyCode::Key3) => {
                                 trigger_toggle_on!(v, point_labels, PointLabels, modifiers.shift());
