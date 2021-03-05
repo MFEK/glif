@@ -2,12 +2,40 @@ use MFEKMath::{Piecewise, Evaluate, Vector, VWSContour, VWSSettings, VWSHandle, 
 use MFEKMath::variable_width_stroking::{InterpolationType, generate_vws_lib};
 use super::prelude::*;
 use crate::state::Follow;
+use crate::io::{save_glif, load_glif};
 use glifparser::{Handle, WhichHandle};
 use skulpin::skia_safe::{
     Canvas, Paint, PaintStyle, Path,
 };
 
+use std::{process};
+
 use skulpin_plugin_imgui::imgui;
+
+
+//
+// IPC
+//
+pub fn export_vws() {
+    if mfek_ipc::module_available("MFEKstroke") == mfek_ipc::Available::Yes {
+        return;
+    }
+
+    let qmdbin = mfek_ipc::module_name("MFEKstroke".into());
+
+    let filename = STATE.with(|v| {save_glif(v); v.borrow().glyph.as_ref().unwrap().filename.clone()});
+
+
+    let command = process::Command::new(qmdbin)
+        .arg("VWS")
+        .arg("-i")
+        .arg(filename.clone())
+        .arg("-o")
+        .arg(filename.clone())
+        .output();
+
+    load_glif(filename.clone());
+}
 
 //
 // UI
@@ -248,7 +276,8 @@ fn fix_vws_contour(v: &RefCell<state::State<Option<state::PointData>>>, contour_
             v.borrow_mut().vws_contours[contour_idx].handles.push(VWSHandle{
                 left_offset: 10.,
                 right_offset: 10.,
-                interpolation: InterpolationType::Linear
+                interpolation: InterpolationType::Linear,
+                tangent_offset: 0.
             })
         }
     }
@@ -268,7 +297,8 @@ fn generate_vws_contour(v: &RefCell<state::State<Option<state::PointData>>>, con
         new_vws_contour.handles.push(VWSHandle{
             left_offset: 10.,
             right_offset: 10.,
-            interpolation: InterpolationType::Linear
+            interpolation: InterpolationType::Linear,
+            tangent_offset: 0.
         })
     }
 
@@ -292,10 +322,11 @@ fn get_vws_handle(v: &RefCell<state::State<Option<state::PointData>>>, vcontour:
         left_offset: 10.,
         right_offset: 10.,
         interpolation: InterpolationType::Linear,
+        tangent_offset: 0.
     }
 }
 
-fn set_vws_handle(v: &RefCell<state::State<Option<state::PointData>>>, contour_idx: usize, handle_idx: usize, side: WhichHandle, pos: f64)
+fn set_vws_handle(v: &RefCell<state::State<Option<state::PointData>>>, contour_idx: usize, handle_idx: usize, side: WhichHandle, pos: f64, tangent: f64)
 {
     if get_vws_contour_idx(v, contour_idx).is_none() {
         generate_vws_contour(v, contour_idx);
@@ -307,20 +338,23 @@ fn set_vws_handle(v: &RefCell<state::State<Option<state::PointData>>>, contour_i
     let id = v.borrow().vws_contours[vws_contour].id;
     let contour_pw =  Piecewise::from(&get_outline!(v)[id]);
 
+    let side_multiplier = match side {
+        WhichHandle::A => 1.,
+        WhichHandle::B => -1.,
+        _ => unreachable!()
+    };
+
     if handle_idx == 0 && contour_pw.is_closed() {
         let last_handle = v.borrow().vws_contours[vws_contour].handles.len() - 1;
-        match side {
-            WhichHandle::A => v.borrow_mut().vws_contours[vws_contour].handles[last_handle].left_offset = pos,
-            WhichHandle::B => v.borrow_mut().vws_contours[vws_contour].handles[last_handle].right_offset = pos,
-            _ => {} // should be unreachable
-        }
+
+        v.borrow_mut().vws_contours[vws_contour].handles[last_handle].tangent_offset = side_multiplier * tangent;
+        v.borrow_mut().vws_contours[vws_contour].handles[last_handle].left_offset = pos;
+        v.borrow_mut().vws_contours[vws_contour].handles[last_handle].right_offset = pos;
     }
 
-    match side {
-        WhichHandle::A => v.borrow_mut().vws_contours[vws_contour].handles[handle_idx].left_offset = pos,
-        WhichHandle::B => v.borrow_mut().vws_contours[vws_contour].handles[handle_idx].right_offset = pos,
-        _ => {} // should be unreachable
-    }
+    v.borrow_mut().vws_contours[vws_contour].handles[handle_idx].tangent_offset = side_multiplier * tangent;
+    v.borrow_mut().vws_contours[vws_contour].handles[handle_idx].left_offset = pos;
+    v.borrow_mut().vws_contours[vws_contour].handles[handle_idx].right_offset = pos;
 
 }
 
@@ -366,7 +400,6 @@ fn generate_previews(v: &RefCell<state::State<Option<state::PointData>>>)
         use std::time::Instant;
         let t = Instant::now();
         let vws_output = variable_width_stroke(&contour_pw, &vws_contour, &settings);
-        println!("{:.2}", t.elapsed().as_millis());
 
         for contour in vws_output.segs {
             new_previews.push(contour.to_contour());
@@ -377,15 +410,30 @@ fn generate_previews(v: &RefCell<state::State<Option<state::PointData>>>)
 }
 
 fn mouse_coords_to_handle_space(
-    v: &RefCell<state::State<Option<state::PointData>>>, contour_idx: usize, handle_idx: usize, side: WhichHandle, mousepos: Vector
-) -> f64
+    v: &RefCell<state::State<Option<state::PointData>>>, contour_idx: usize, handle_idx: usize, side: WhichHandle, mouse_pos: Vector
+) -> (f64, f64)
 {
-    let (start_pos, handle_pos) = get_vws_handle_pos(v, contour_idx, handle_idx, side);
+    let (start_pos, tangent, handle_pos) = get_vws_handle_pos(v, contour_idx, handle_idx, side);
+    let side_multiplier = match side {
+        WhichHandle::A => -1.,
+        WhichHandle::B => 1.,
+        _ => unreachable!()
+    };
 
-    return mousepos.distance(start_pos);
+    let normal = Vector{ x: tangent.y, y: -tangent.x }.normalize();
+    let mouse_vec = start_pos - mouse_pos;
+    let mouse_vec_normal = mouse_vec.normalize();
+
+    println!("tangent: {:?} final: {:?}", tangent, mouse_vec_normal.dot(tangent) * mouse_vec.magnitude());
+
+    //return mouse_vec_normal.dot(handle_vec) * mouse_vec.magnitude();
+    let normal_offset = f64::max(mouse_vec_normal.dot(normal) * mouse_vec.magnitude() * side_multiplier, 0.);
+    let tangent_offset = mouse_vec_normal.dot(tangent) * mouse_vec.magnitude();
+
+    (normal_offset, tangent_offset)
 }
 
-fn get_vws_handle_pos(v: &RefCell<state::State<Option<state::PointData>>>, contour_idx: usize, handle_idx: usize, side: WhichHandle) -> (Vector, Vector)
+fn get_vws_handle_pos(v: &RefCell<state::State<Option<state::PointData>>>, contour_idx: usize, handle_idx: usize, side: WhichHandle) -> (Vector, Vector, Vector)
 {
     let vws_contour = get_vws_contour_idx(v, contour_idx);
     let contour_pw = Piecewise::from(&get_outline!(v)[contour_idx]);
@@ -395,12 +443,12 @@ fn get_vws_handle_pos(v: &RefCell<state::State<Option<state::PointData>>>, conto
         let vws_handle = get_vws_handle(v, vws_contour, handle_idx);
         let bezier = &contour_pw.segs[handle_idx];
         let start_point = bezier.start_point();
-        let tangent = bezier.tangent_at(0.);
+        let tangent = bezier.tangent_at(0.).normalize();
         let normal = Vector{x: tangent.y, y: -tangent.x}.normalize();
 
         match side {
-            WhichHandle::A => return (start_point, start_point + normal * vws_handle.left_offset),
-            WhichHandle::B => return (start_point, start_point + normal * vws_handle.left_offset),
+            WhichHandle::A => return (start_point, tangent, start_point + normal * vws_handle.left_offset + tangent * -vws_handle.tangent_offset),
+            WhichHandle::B => return (start_point, tangent, start_point + normal * -vws_handle.right_offset + tangent * vws_handle.tangent_offset),
             _ => panic!("Should be unreachable!")
         }
     }
@@ -413,8 +461,8 @@ fn get_vws_handle_pos(v: &RefCell<state::State<Option<state::PointData>>>, conto
         let normal = Vector{x: tangent.y, y: -tangent.x}.normalize();
 
         match side {
-            WhichHandle::A => return (start_point, start_point + normal * vws_handle.left_offset),
-            WhichHandle::B => return (start_point, start_point + normal * vws_handle.left_offset),
+            WhichHandle::A => return (start_point, tangent, start_point + normal * vws_handle.left_offset + tangent * -vws_handle.tangent_offset),
+            WhichHandle::B => return (start_point, tangent, start_point + normal * -vws_handle.right_offset + tangent * vws_handle.tangent_offset),
             _ => panic!("Should be unreachable!")
         }
     }
@@ -442,8 +490,8 @@ fn vws_clicked_point_or_handle(
 
             let vws_handle = get_vws_handle(v, vws_contour, vws_handle_idx);
 
-            let handle_pos_left = start_point + normal * vws_handle.left_offset;
-            let handle_pos_right = start_point + normal * -vws_handle.right_offset;
+            let handle_pos_left = start_point + normal * vws_handle.left_offset; //+ tangent * vws_handle.tangent_offset;
+            let handle_pos_right = start_point + normal * -vws_handle.right_offset; //+ tangent * vws_handle.tangent_offset;
 
             let handle_left_point = SkPoint::new(
                 calc_x(handle_pos_left.x as f32) - (size / 2.),
@@ -478,8 +526,8 @@ fn vws_clicked_point_or_handle(
 
             let vws_handle = get_vws_handle(v, vws_contour, vws_handle_idx);
 
-            let handle_pos_left = start_point + normal * vws_handle.left_offset;
-            let handle_pos_right = start_point + normal * -vws_handle.right_offset;
+            let handle_pos_left = start_point + normal * vws_handle.left_offset; //+ tangent * vws_handle.tangent_offset;
+            let handle_pos_right = start_point + normal * -vws_handle.right_offset; //+ tangent * vws_handle.tangent_offset;
 
             let handle_left_point = SkPoint::new(
                 calc_x(handle_pos_left.x as f32) - (size / 2.),
@@ -575,14 +623,15 @@ pub fn mouse_moved(position: PhysicalPosition<f64>, v: &RefCell<state::State<Opt
     match (contour, cur_point, which_handle) {
         // A control point (A or B) is being moved.
         (Some(ci), Some(pi), wh) => {
-            let new_pos = mouse_coords_to_handle_space(v, ci, pi, wh, Vector{x:x as f64, y:y as f64});
+            println!("{:?}", wh);
+            let (normal_offset, tangent_offset) = mouse_coords_to_handle_space(v, ci, pi, wh, Vector{x:x as f64, y:y as f64});
             // if shift is held down we scale all the points
             if shift || ctrl{
-                set_all_vws_handles(v, ci, pi, wh, new_pos);
+                set_all_vws_handles(v, ci, pi, wh, normal_offset);
             }
             else
             {
-                set_vws_handle(v, ci, pi, wh, new_pos);
+                set_vws_handle(v, ci, pi, wh, normal_offset, tangent_offset);
             }
 
             generate_previews(v);
@@ -622,19 +671,12 @@ pub fn draw_handles(canvas: &mut Canvas) {
             let contour_pw = Piecewise::from(contour);
     
             let vws_contour = get_vws_contour_idx(v, contour_idx);
-    
-            let size = ((POINT_RADIUS * 2.) + (POINT_STROKE_THICKNESS * 2.)) * (1. / factor);
-            let last_handle = 0;
+
             for (vws_handle_idx, bezier) in contour_pw.segs.iter().enumerate() {
     
-                let start_point = bezier.start_point();
-                let tangent = bezier.tangent_at(0.);
-                let normal = Vector{x: tangent.y, y: -tangent.x}.normalize();
-    
-                let vws_handle = get_vws_handle(v, vws_contour, vws_handle_idx);
-    
-                let handle_pos_left = start_point + normal * vws_handle.left_offset;
-                let handle_pos_right = start_point + normal * -vws_handle.right_offset;
+                let start_point = bezier.start_point();    
+                let handle_pos_left = get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::A).2;
+                let handle_pos_right = get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::B).2;
     
                 let mut path = Path::new();
                 let mut paint = Paint::default();
@@ -656,13 +698,9 @@ pub fn draw_handles(canvas: &mut Canvas) {
                 let vws_handle_idx = contour_pw.segs.len();
                 let bezier = contour_pw.segs.last().unwrap();
                 let start_point = bezier.end_point();
-                let tangent = bezier.tangent_at(1.);
-                let normal = Vector{x: tangent.y, y: -tangent.x}.normalize();
-    
-                let vws_handle = get_vws_handle(v, vws_contour, vws_handle_idx);
-    
-                let handle_pos_left = start_point + normal * vws_handle.left_offset;
-                let handle_pos_right = start_point + normal * -vws_handle.right_offset;
+        
+                let handle_pos_left = get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::A).2;
+                let handle_pos_right = get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::B).2;
     
                 let mut path = Path::new();
                 let mut paint = Paint::default();
