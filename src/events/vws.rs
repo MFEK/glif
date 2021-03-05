@@ -23,8 +23,10 @@ fn build_and_check_vws_cap_combo(ui: &imgui::Ui)
     });
 
     if let Some(mut vws_contour) = _vws_contour {
-        let mut s_current_selection = cap_type_to_idx(vws_contour.cap_start_type);
-        let mut e_current_selection = cap_type_to_idx(vws_contour.cap_end_type);
+        let old_s = cap_type_to_idx(vws_contour.cap_start_type);
+        let old_e = cap_type_to_idx(vws_contour.cap_end_type);
+        let mut s_current_selection = old_s;
+        let mut e_current_selection = old_e;
     
         let options = [
             imgui::im_str!("Round"),
@@ -41,13 +43,15 @@ fn build_and_check_vws_cap_combo(ui: &imgui::Ui)
         let s_selection = idx_to_cap_type(s_current_selection);
         let e_selection = idx_to_cap_type(e_current_selection);
 
-        vws_contour.cap_start_type = s_selection;
-        vws_contour.cap_end_type = e_selection;
-        STATE.with(|v| {
-            set_vws_contour_by_value(v, contour_idx, vws_contour);
-            generate_previews(v);
-        });
-    
+        // we only update the contour and previews when our selection changes
+        if old_s != s_current_selection || e_current_selection != old_e {
+            vws_contour.cap_start_type = s_selection;
+            vws_contour.cap_end_type = e_selection;
+            STATE.with(|v| {
+                set_vws_contour_by_value(v, contour_idx, vws_contour);
+                generate_previews(v);
+            });
+        }
     }
 }
 
@@ -548,6 +552,7 @@ pub fn mouse_released(
     _meta: MouseMeta,
 ) -> bool {
     TOOL_DATA.with(|p| {
+        p.borrow_mut().cur_point = None;
         true
     })
 }
