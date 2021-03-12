@@ -52,6 +52,8 @@ pub fn draw(canvas: &mut Canvas) -> Path {
                 let mut prevpoint: &glifparser::Point<Option<PointData>> = contour.first().unwrap();
                 let pointiter = contour.iter().enumerate();
                 for (_i, point) in pointiter {
+                    // the move_to handles the first point
+                    if _i == 0 { continue };
                     match point.ptype {
                         PointType::Line => {
                             path.line_to((calc_x(point.x), calc_y(point.y)));
@@ -71,6 +73,7 @@ pub fn draw(canvas: &mut Canvas) -> Path {
                     }
                     prevpoint = &point;
                 }
+                
                 if firstpoint.ptype != PointType::Move {
                     match contour.last() {
                         Some(lastpoint) => {
@@ -161,6 +164,7 @@ pub fn draw_previews(canvas: &mut Canvas) -> Path
                 let mut prevpoint: &glifparser::Point<Option<MFEKMath::piecewise::glif::PointData>> = contour.first().unwrap();
                 let pointiter = contour.iter().enumerate();
                 for (_i, point) in pointiter {
+                    if _i == 0 { continue };
                     match point.ptype {
                         PointType::Line => {
                             path.line_to((calc_x(point.x), calc_y(point.y)));

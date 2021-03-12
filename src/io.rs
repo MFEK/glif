@@ -7,6 +7,7 @@ use std::path::Path;
 use glifparser::Glif;
 use std::cell::RefCell;
 use crate::events as events;
+use crate::state as state;
 
 pub fn load_glif<F: AsRef<Path> + Clone>(filename: F) {
     let glif =
@@ -81,5 +82,6 @@ pub fn save_glif(v: &RefCell<crate::state::State<Option<crate::state::PointData>
 
 pub fn export_glif(v: &RefCell<crate::state::State<Option<crate::state::PointData>>>) 
 {
+    v.borrow_mut().mode = state::Mode::Select;
     events::vws::export_vws();
 }
