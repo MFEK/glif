@@ -83,6 +83,7 @@ pub fn mode_switched(from: Mode, to: Mode) {
     
 }
 
+
 #[macro_export]
 ///! Given a field on the State struct, and an enumerator that implements IntoEnumIterator, cycle
 ///! through its variants and update state. An optional condition is provided. $state is expected to
