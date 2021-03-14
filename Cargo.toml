@@ -60,8 +60,8 @@ MFEKMath = { git = "https://github.com/MFEK/math", branch = "vws-testing" }
 #glifparser = { path = "../glifparser" } # for development
 mfek-ipc = { git = "https://github.com/mfek/ipc" }
 
+xmltree = "0.10.1"
+
 # See src/util/mod.rs::set_codepage_utf8
 [target.'cfg(windows)'.dependencies]
 winapi = "0.3"
-
-xmltree = "0.10.1"
