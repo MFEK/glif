@@ -1,6 +1,11 @@
+export RUSTFLAGS := -Awarnings
+export RUST_LOG := debug
+export RUST_BACKTRACE := 1
+
+.PHONY: all
 all:
-	RUSTFLAGS=-Awarnings RUST_LOG=debug RUST_BACKTRACE=1 cargo build
+	cargo build
 
 .PHONY: testrun
 testrun:
-	RUSTFLAGS=-Awarnings RUST_LOG=debug RUST_BACKTRACE=1 cargo run -- Q_.glif
+	cargo run -- Q_.glif
