@@ -7,3 +7,4 @@ pub const SELECT: &[u8] = &[239, 128, 133, 0]; // U+F005
 pub const SHAPES: &[u8] = &[239, 128, 134, 0]; // U+F006
 pub const TEXT: &[u8] = &[239, 128, 135, 0]; // U+F007
 pub const ZOOM: &[u8] = &[239, 128, 136, 0]; // U+F008
+pub const VWS: &[u8] = &[239, 128, 137, 0]; // U+F009
