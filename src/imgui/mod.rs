@@ -57,7 +57,7 @@ pub fn build_imgui_ui(ui: &mut imgui::Ui) {
                 build_and_check_button(&ui, Mode::Zoom, &icons::ZOOM);
                 ui.separator();
                 build_and_check_button(&ui, Mode::Pen, &icons::PEN);
-                build_and_check_button(&ui, Mode::VWS, &icons::SHAPES);
+                build_and_check_button(&ui, Mode::VWS, &icons::VWS);
             });
 
         // here is where tools 'hook' into the menu building to create option menus of their own
