@@ -40,7 +40,7 @@ clipboard = "0.5.0"
 
 # Logging
 log = "0.4.11"
-env_logger = "0.7.1"
+env_logger = "0.8.3"
 
 # Gives us derive(Display)
 derive_more = "0.99.11"
