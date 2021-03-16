@@ -62,10 +62,10 @@ pub fn build_imgui_ui(ui: &mut imgui::Ui) {
 
         // here is where tools 'hook' into the menu building to create option menus of their own
         match mode {
-            Mode::VWS => {events::vws::build_vws_settings_window(ui)}
+            Mode::VWS => events::vws::build_vws_settings_window(ui),
             _ => {}
         }
-            
+
         let new_mode = v.borrow().mode;
         if new_mode != mode {
             // TODO: Use this event to handle the mode switching cleanup for VWS in a nicer way

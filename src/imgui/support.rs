@@ -6,9 +6,9 @@ use crate::imgui_rs;
 use crate::system_fonts;
 use imgui_winit_support;
 
-use crate::imgui as imgui;
-use crate::winit as winit;
+use crate::imgui;
 use crate::imgui_rs::sys as imgui_sys;
+use crate::winit;
 
 use std::sync::Arc;
 use std::sync::Mutex;
