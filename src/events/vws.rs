@@ -2,13 +2,16 @@ use super::prelude::*;
 use crate::io::{load_glif, save_glif};
 use crate::state::Follow;
 use glifparser::{Handle, WhichHandle};
-use skulpin::skia_safe::{Canvas, Paint, PaintStyle, Path};
+use skulpin::skia_safe::{Canvas, Paint, PaintStyle, Path as SkiaPath};
 use MFEKMath::variable_width_stroking::{generate_vws_lib, InterpolationType};
 use MFEKMath::{
     parse_vws_lib, variable_width_stroke, CapType, Evaluate, JoinType, Piecewise, VWSContour,
     VWSHandle, VWSSettings, Vector,
 };
 
+use std::ffi::OsStr;
+use std::fs;
+use std::path::Path;
 use std::process;
 
 use skulpin_plugin_imgui::imgui;
@@ -16,10 +19,10 @@ use skulpin_plugin_imgui::imgui;
 //
 // IPC
 //
-pub fn export_vws() {
+pub fn export_vws<F: AsRef<OsStr> + AsRef<Path> + Clone>(filename: F) {
     let qmdbin = mfek_ipc::module_name("MFEKstroke".into());
 
-    let filename = STATE.with(|v| {
+    let cur_file = STATE.with(|v| {
         save_glif(v);
         v.borrow().glyph.as_ref().unwrap().filename.clone()
     });
@@ -27,22 +30,33 @@ pub fn export_vws() {
     let command = process::Command::new(qmdbin)
         .arg("VWS")
         .arg("-i")
-        .arg(filename.clone())
+        .arg(cur_file.clone())
         .arg("-o")
         .arg(filename.clone())
         .output();
 
     match command {
-        Ok(output) => println!("{:?}", output),
+        Ok(output) => {
+            println!("{:?}", output);
+
+            if !output.status.success() {
+                return
+            }
+
+            // this step makes ../glyphs/E.glif and E.glif equal
+            let canonical_cur_file = fs::canonicalize(&cur_file);
+            let canonical_filename = fs::canonicalize(&filename);
+            // we've got to clear the VWS contours after this or we're gonna crash
+            if canonical_cur_file.is_ok() && canonical_filename.is_ok() && canonical_cur_file.unwrap() == canonical_filename.unwrap() {
+                STATE.with(|v| {
+                    v.borrow_mut().vws_contours = Vec::new();
+                });
+            }
+
+            load_glif(cur_file.clone());
+        },
         Err(output) => println!("{:?}", output),
     }
-
-    // we've got to clear the VWS contours after this or we're gonna crash
-    STATE.with(|v| {
-        v.borrow_mut().vws_contours = Vec::new();
-    });
-
-    load_glif(filename.clone());
 }
 
 //
@@ -798,7 +812,7 @@ pub fn draw_handles(canvas: &mut Canvas) {
                 let handle_pos_right =
                     get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::B).2;
 
-                let mut path = Path::new();
+                let mut path = SkiaPath::new();
                 let mut paint = Paint::default();
 
                 paint.set_anti_alias(true);
@@ -829,7 +843,7 @@ pub fn draw_handles(canvas: &mut Canvas) {
                 let handle_pos_right =
                     get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::B).2;
 
-                let mut path = Path::new();
+                let mut path = SkiaPath::new();
                 let mut paint = Paint::default();
 
                 paint.set_anti_alias(true);
