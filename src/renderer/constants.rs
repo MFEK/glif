@@ -27,6 +27,7 @@ pub static POINT_TWO_STROKE: u32 = 0xff_4428ec;
 pub static HANDLE_FILL: u32 = 0xff_ff57ee;
 pub static HANDLE_STROKE: u32 = 0xff_b928ec;
 pub static HANDLEBAR_STROKE: u32 = 0xff_7e28ec;
+pub static RIB_STROKE: u32 = 0xaa_ff7e7e;
 
 pub static SELECTED_FILL: u32 = 0xff_ffed50;
 pub static SELECTED_STROKE: u32 = 0xff_ffa115;

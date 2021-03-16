@@ -56,13 +56,13 @@ pub fn render_frame(canvas: &mut Canvas) {
 
     match pm {
         PreviewMode::None => {
-            points::draw_all(canvas);
-            points::draw_selected(canvas);
             let mode = STATE.with(|v| v.borrow().mode);
             match mode {
                 Mode::VWS => vws::draw_handles(canvas),
                 _ => {}
             };
+            points::draw_all(canvas);
+            points::draw_selected(canvas);
         }
         PreviewMode::NoUnselectedPoints => {
             points::draw_selected(canvas);
