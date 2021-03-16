@@ -6,9 +6,11 @@ export RUST_BACKTRACE := 1
 all:
 	cargo build
 
+TESTFILE := $(if $(TESTFILE),$(TESTFILE),Q_.glif)
+
 .PHONY: testrun
 testrun:
-	cargo run -- Q_.glif
+	cargo run -- $(TESTFILE)
 
 .PHONY: fmt
 fmt:
