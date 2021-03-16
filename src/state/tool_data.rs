@@ -37,7 +37,7 @@ impl ToolData {
             follow: Follow::Mirror,
             snap: 0.,
             shift: false,
-            ctrl: false,            
+            ctrl: false,
         }
     }
 }

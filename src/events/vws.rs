@@ -1,17 +1,17 @@
-use MFEKMath::{Piecewise, Evaluate, Vector, VWSContour, VWSSettings, VWSHandle, variable_width_stroke, parse_vws_lib, JoinType, CapType};
-use MFEKMath::variable_width_stroking::{InterpolationType, generate_vws_lib};
 use super::prelude::*;
+use crate::io::{load_glif, save_glif};
 use crate::state::Follow;
-use crate::io::{save_glif, load_glif};
 use glifparser::{Handle, WhichHandle};
-use skulpin::skia_safe::{
-    Canvas, Paint, PaintStyle, Path,
+use skulpin::skia_safe::{Canvas, Paint, PaintStyle, Path};
+use MFEKMath::variable_width_stroking::{generate_vws_lib, InterpolationType};
+use MFEKMath::{
+    parse_vws_lib, variable_width_stroke, CapType, Evaluate, JoinType, Piecewise, VWSContour,
+    VWSHandle, VWSSettings, Vector,
 };
 
-use std::{process};
+use std::process;
 
 use skulpin_plugin_imgui::imgui;
-
 
 //
 // IPC
@@ -19,8 +19,10 @@ use skulpin_plugin_imgui::imgui;
 pub fn export_vws() {
     let qmdbin = mfek_ipc::module_name("MFEKstroke".into());
 
-    let filename = STATE.with(|v| {save_glif(v); v.borrow().glyph.as_ref().unwrap().filename.clone()});
-
+    let filename = STATE.with(|v| {
+        save_glif(v);
+        v.borrow().glyph.as_ref().unwrap().filename.clone()
+    });
 
     let command = process::Command::new(qmdbin)
         .arg("VWS")
@@ -32,47 +34,48 @@ pub fn export_vws() {
 
     match command {
         Ok(output) => println!("{:?}", output),
-        Err(output) => println!("{:?}", output)
+        Err(output) => println!("{:?}", output),
     }
 
-        // we've got to clear the VWS contours after this or we're gonna crash
+    // we've got to clear the VWS contours after this or we're gonna crash
     STATE.with(|v| {
         v.borrow_mut().vws_contours = Vec::new();
     });
-    
+
     load_glif(filename.clone());
 }
 
 //
 // UI
 //
-fn build_and_check_vws_cap_combo(ui: &imgui::Ui)
-{
-    let contour_idx = TOOL_DATA.with(|v|
-        v.borrow().contour.unwrap()
-    );
+fn build_and_check_vws_cap_combo(ui: &imgui::Ui) {
+    let contour_idx = TOOL_DATA.with(|v| v.borrow().contour.unwrap());
 
-    let _vws_contour = STATE.with(|v| {
-        get_vws_contour(v, contour_idx)
-    });
+    let _vws_contour = STATE.with(|v| get_vws_contour(v, contour_idx));
 
     if let Some(mut vws_contour) = _vws_contour {
         let old_s = cap_type_to_idx(vws_contour.cap_start_type);
         let old_e = cap_type_to_idx(vws_contour.cap_end_type);
         let mut s_current_selection = old_s;
         let mut e_current_selection = old_e;
-    
+
         let options = [
             imgui::im_str!("Round"),
             imgui::im_str!("Square"),
-            imgui::im_str!("Custom")
+            imgui::im_str!("Custom"),
         ];
-    
-        imgui::ComboBox::new(imgui::im_str!("Start"))
-        .build_simple_string(ui, &mut s_current_selection, &options);
-    
-        imgui::ComboBox::new(imgui::im_str!("End"))
-        .build_simple_string(ui, &mut e_current_selection, &options);
+
+        imgui::ComboBox::new(imgui::im_str!("Start")).build_simple_string(
+            ui,
+            &mut s_current_selection,
+            &options,
+        );
+
+        imgui::ComboBox::new(imgui::im_str!("End")).build_simple_string(
+            ui,
+            &mut e_current_selection,
+            &options,
+        );
 
         let s_selection = idx_to_cap_type(s_current_selection);
         let e_selection = idx_to_cap_type(e_current_selection);
@@ -89,28 +92,26 @@ fn build_and_check_vws_cap_combo(ui: &imgui::Ui)
     }
 }
 
-fn build_and_check_vws_join_combo(ui: &imgui::Ui)
-{
-    let contour_idx = TOOL_DATA.with(|v|
-        v.borrow().contour.unwrap()
-    );
+fn build_and_check_vws_join_combo(ui: &imgui::Ui) {
+    let contour_idx = TOOL_DATA.with(|v| v.borrow().contour.unwrap());
 
-    let _vws_contour = STATE.with(|v| {
-        get_vws_contour(v, contour_idx)
-    });
+    let _vws_contour = STATE.with(|v| get_vws_contour(v, contour_idx));
 
     if let Some(mut vws_contour) = _vws_contour {
         let mut current_selection = join_type_to_idx(vws_contour.join_type);
-    
+
         let options = [
             imgui::im_str!("Round"),
             imgui::im_str!("Miter"),
-            imgui::im_str!("Bevel")
+            imgui::im_str!("Bevel"),
         ];
-    
-        imgui::ComboBox::new(imgui::im_str!("Joins"))
-        .build_simple_string(ui, &mut current_selection, &options);
-    
+
+        imgui::ComboBox::new(imgui::im_str!("Joins")).build_simple_string(
+            ui,
+            &mut current_selection,
+            &options,
+        );
+
         let new_selection = idx_to_join_type(current_selection);
 
         vws_contour.join_type = new_selection;
@@ -118,7 +119,6 @@ fn build_and_check_vws_join_combo(ui: &imgui::Ui)
             set_vws_contour_by_value(v, contour_idx, vws_contour);
             generate_previews(v);
         });
-    
     }
 }
 
@@ -130,19 +130,16 @@ fn join_type_to_idx(jt: JoinType) -> usize {
     }
 }
 
-fn idx_to_join_type(idx: usize) -> JoinType
-{
+fn idx_to_join_type(idx: usize) -> JoinType {
     match idx {
         0 => JoinType::Round,
         1 => JoinType::Miter,
         2 => JoinType::Bevel,
-        _ => unreachable!()
+        _ => unreachable!(),
     }
 }
 
-
-fn cap_type_to_idx(ct: CapType) -> usize
-{
+fn cap_type_to_idx(ct: CapType) -> usize {
     match ct {
         CapType::Round => 0,
         CapType::Square => 1,
@@ -150,13 +147,12 @@ fn cap_type_to_idx(ct: CapType) -> usize
     }
 }
 
-fn idx_to_cap_type(idx: usize) -> CapType
-{
+fn idx_to_cap_type(idx: usize) -> CapType {
     match idx {
         0 => CapType::Round,
         1 => CapType::Square,
         2 => CapType::Custom,
-        _ => unreachable!()
+        _ => unreachable!(),
     }
 }
 
@@ -166,72 +162,66 @@ const TOOLBOX_OFFSET_Y: f32 = TOOLBOX_OFFSET_X;
 const TOOLBOX_WIDTH: f32 = 55.;
 const TOOLBOX_HEIGHT: f32 = 220.;
 
-pub fn build_vws_settings_window(ui: &mut imgui::Ui)
-{
-    let countour_idx = TOOL_DATA.with(|v|
-        v.borrow().contour
-    );
+pub fn build_vws_settings_window(ui: &mut imgui::Ui) {
+    let countour_idx = TOOL_DATA.with(|v| v.borrow().contour);
 
     // if we don't have a contour selected we don't draw this
     if countour_idx.is_none() {
         return;
     }
-    
+
     imgui::Window::new(imgui::im_str!("VWS Settings"))
-    .bg_alpha(1.) // See comment on fn redraw_skia
-    .flags(
-        #[rustfmt::skip]
+        .bg_alpha(1.) // See comment on fn redraw_skia
+        .flags(
+            #[rustfmt::skip]
               imgui::WindowFlags::NO_RESIZE
-            | imgui::WindowFlags::NO_MOVE
-            | imgui::WindowFlags::NO_COLLAPSE,
-    )
-    .position(
-        [TOOLBOX_OFFSET_X, TOOLBOX_OFFSET_Y + TOOLBOX_HEIGHT + 30.],
-        imgui::Condition::Always,
-    )
-    .size([TOOLBOX_WIDTH*3., TOOLBOX_HEIGHT/2.], imgui::Condition::Always)
-    .build(ui, || {
-        build_and_check_vws_cap_combo(ui);
-        ui.separator();
-        build_and_check_vws_join_combo(ui);
-    });
-        
+                | imgui::WindowFlags::NO_MOVE
+                | imgui::WindowFlags::NO_COLLAPSE,
+        )
+        .position(
+            [TOOLBOX_OFFSET_X, TOOLBOX_OFFSET_Y + TOOLBOX_HEIGHT + 30.],
+            imgui::Condition::Always,
+        )
+        .size(
+            [TOOLBOX_WIDTH * 3., TOOLBOX_HEIGHT / 2.],
+            imgui::Condition::Always,
+        )
+        .build(ui, || {
+            build_and_check_vws_cap_combo(ui);
+            ui.separator();
+            build_and_check_vws_join_combo(ui);
+        });
 }
 
-// 
+//
 // Loading
 //
 
-pub fn on_load_glif()
-{
+pub fn on_load_glif() {
     STATE.with(|v| {
-
         let mut _v = v.borrow_mut();
 
-        if let Some(vws_contours) = parse_vws_lib(&_v.glyph.as_ref().unwrap().glif)
-        {
+        if let Some(vws_contours) = parse_vws_lib(&_v.glyph.as_ref().unwrap().glif) {
             println!("herp");
             _v.vws_contours = vws_contours.0;
             _v.glyph.as_mut().unwrap().glif.lib = Some(vws_contours.1);
         }
     });
 
-    STATE.with(|v| {
-        generate_previews(v)
-    })
-
+    STATE.with(|v| generate_previews(v))
 }
 
-pub fn generate_lib(vwscontours: Vec<VWSContour>) -> Option<xmltree::Element>
-{
-    return generate_vws_lib(&vwscontours)
+pub fn generate_lib(vwscontours: Vec<VWSContour>) -> Option<xmltree::Element> {
+    return generate_vws_lib(&vwscontours);
 }
 
 //
 // Manipulating
 //
-fn get_vws_contour(v: &RefCell<state::State<Option<state::PointData>>>, contour_idx: usize) -> Option<VWSContour>
-{
+fn get_vws_contour(
+    v: &RefCell<state::State<Option<state::PointData>>>,
+    contour_idx: usize,
+) -> Option<VWSContour> {
     for vwscontour in v.borrow().vws_contours.iter() {
         if vwscontour.id == contour_idx {
             return Some(vwscontour.clone());
@@ -241,8 +231,11 @@ fn get_vws_contour(v: &RefCell<state::State<Option<state::PointData>>>, contour_
     None
 }
 
-fn set_vws_contour_by_value(v: &RefCell<state::State<Option<state::PointData>>>, contour_idx: usize, vws_contour: VWSContour)
-{
+fn set_vws_contour_by_value(
+    v: &RefCell<state::State<Option<state::PointData>>>,
+    contour_idx: usize,
+    vws_contour: VWSContour,
+) {
     let mut _v = v.borrow_mut();
     let mut to_remove = None;
 
@@ -259,8 +252,10 @@ fn set_vws_contour_by_value(v: &RefCell<state::State<Option<state::PointData>>>,
     _v.vws_contours.push(vws_contour);
 }
 
-fn get_vws_contour_idx(v: &RefCell<state::State<Option<state::PointData>>>, contour_idx: usize) -> Option<usize>
-{
+fn get_vws_contour_idx(
+    v: &RefCell<state::State<Option<state::PointData>>>,
+    contour_idx: usize,
+) -> Option<usize> {
     for (idx, vwscontour) in v.borrow().vws_contours.iter().enumerate() {
         if vwscontour.id == contour_idx {
             return Some(idx);
@@ -270,54 +265,55 @@ fn get_vws_contour_idx(v: &RefCell<state::State<Option<state::PointData>>>, cont
     None
 }
 
-fn fix_vws_contour(v: &RefCell<state::State<Option<state::PointData>>>, contour_idx: usize) 
-{
+fn fix_vws_contour(v: &RefCell<state::State<Option<state::PointData>>>, contour_idx: usize) {
     let contour_size = get_outline!(v)[contour_idx].len();
     let vws_contour_size = v.borrow().vws_contours[contour_idx].handles.len();
 
     let difference = vws_contour_size - (contour_size + 1);
-    if difference != 0
-    {
-        for _i in 0 .. difference {
-            v.borrow_mut().vws_contours[contour_idx].handles.push(VWSHandle{
-                left_offset: 10.,
-                right_offset: 10.,
-                interpolation: InterpolationType::Linear,
-                tangent_offset: 0.
-            })
+    if difference != 0 {
+        for _i in 0..difference {
+            v.borrow_mut().vws_contours[contour_idx]
+                .handles
+                .push(VWSHandle {
+                    left_offset: 10.,
+                    right_offset: 10.,
+                    interpolation: InterpolationType::Linear,
+                    tangent_offset: 0.,
+                })
         }
     }
 }
 
-fn generate_vws_contour(v: &RefCell<state::State<Option<state::PointData>>>, contour_idx: usize)
-{
+fn generate_vws_contour(v: &RefCell<state::State<Option<state::PointData>>>, contour_idx: usize) {
     let mut new_vws_contour = VWSContour {
         handles: Vec::new(),
         id: contour_idx,
         cap_start_type: CapType::Round,
         cap_end_type: CapType::Round,
-        join_type: JoinType::Round
+        join_type: JoinType::Round,
     };
 
-    for _i in 0.. get_outline!(v)[contour_idx].len() + 1 {
-        new_vws_contour.handles.push(VWSHandle{
+    for _i in 0..get_outline!(v)[contour_idx].len() + 1 {
+        new_vws_contour.handles.push(VWSHandle {
             left_offset: 10.,
             right_offset: 10.,
             interpolation: InterpolationType::Linear,
-            tangent_offset: 0.
+            tangent_offset: 0.,
         })
     }
 
     v.borrow_mut().vws_contours.push(new_vws_contour);
 }
 
-fn get_vws_handle(v: &RefCell<state::State<Option<state::PointData>>>, vcontour: Option<usize>, handle_idx: usize) -> VWSHandle
-{
+fn get_vws_handle(
+    v: &RefCell<state::State<Option<state::PointData>>>,
+    vcontour: Option<usize>,
+    handle_idx: usize,
+) -> VWSHandle {
     if let Some(vc) = vcontour {
         // if the contour exists but this handle doesn't we're gonna add handles until we've got
         // the right amount
-        if v.borrow().vws_contours[vc].handles.len() < handle_idx
-        {
+        if v.borrow().vws_contours[vc].handles.len() < handle_idx {
             fix_vws_contour(v, vc);
         }
 
@@ -328,12 +324,18 @@ fn get_vws_handle(v: &RefCell<state::State<Option<state::PointData>>>, vcontour:
         left_offset: 10.,
         right_offset: 10.,
         interpolation: InterpolationType::Linear,
-        tangent_offset: 0.
-    }
+        tangent_offset: 0.,
+    };
 }
 
-fn set_vws_handle(v: &RefCell<state::State<Option<state::PointData>>>, contour_idx: usize, handle_idx: usize, side: WhichHandle, pos: f64, tangent: f64)
-{
+fn set_vws_handle(
+    v: &RefCell<state::State<Option<state::PointData>>>,
+    contour_idx: usize,
+    handle_idx: usize,
+    side: WhichHandle,
+    pos: f64,
+    tangent: f64,
+) {
     if get_vws_contour_idx(v, contour_idx).is_none() {
         generate_vws_contour(v, contour_idx);
     }
@@ -342,44 +344,56 @@ fn set_vws_handle(v: &RefCell<state::State<Option<state::PointData>>>, contour_i
     let vws_contour = get_vws_contour_idx(v, contour_idx).unwrap();
 
     let id = v.borrow().vws_contours[vws_contour].id;
-    let contour_pw =  Piecewise::from(&get_outline!(v)[id]);
+    let contour_pw = Piecewise::from(&get_outline!(v)[id]);
 
     let side_multiplier = match side {
         WhichHandle::A => 1.,
         WhichHandle::B => -1.,
-        _ => unreachable!()
+        _ => unreachable!(),
     };
 
     let mirror = TOOL_DATA.with(|p| p.borrow().follow == Follow::Mirror);
     let constrain = TOOL_DATA.with(|p| p.borrow().ctrl == true);
 
-    let tangent_offset = if constrain {0.} else {side_multiplier * tangent};
+    let tangent_offset = if constrain {
+        0.
+    } else {
+        side_multiplier * tangent
+    };
 
     if handle_idx == 0 && contour_pw.is_closed() {
         let last_handle = v.borrow().vws_contours[vws_contour].handles.len() - 1;
 
-        v.borrow_mut().vws_contours[vws_contour].handles[last_handle].tangent_offset = tangent_offset;
+        v.borrow_mut().vws_contours[vws_contour].handles[last_handle].tangent_offset =
+            tangent_offset;
 
         match side {
-            WhichHandle::A => v.borrow_mut().vws_contours[vws_contour].handles[last_handle].left_offset = pos,
-            WhichHandle::B => v.borrow_mut().vws_contours[vws_contour].handles[last_handle].right_offset = pos,
-            _ => {},
+            WhichHandle::A => {
+                v.borrow_mut().vws_contours[vws_contour].handles[last_handle].left_offset = pos
+            }
+            WhichHandle::B => {
+                v.borrow_mut().vws_contours[vws_contour].handles[last_handle].right_offset = pos
+            }
+            _ => {}
         }
 
         if mirror {
             v.borrow_mut().vws_contours[vws_contour].handles[last_handle].left_offset = pos;
             v.borrow_mut().vws_contours[vws_contour].handles[last_handle].right_offset = pos;
             v.borrow_mut().vws_contours[vws_contour].handles[last_handle].tangent_offset = tangent;
-        }
-        else
-        {
-            v.borrow_mut().vws_contours[vws_contour].handles[last_handle].tangent_offset = tangent_offset;
+        } else {
+            v.borrow_mut().vws_contours[vws_contour].handles[last_handle].tangent_offset =
+                tangent_offset;
         }
     }
 
     match side {
-        WhichHandle::A => v.borrow_mut().vws_contours[vws_contour].handles[handle_idx].left_offset = pos,
-        WhichHandle::B => v.borrow_mut().vws_contours[vws_contour].handles[handle_idx].right_offset = pos,
+        WhichHandle::A => {
+            v.borrow_mut().vws_contours[vws_contour].handles[handle_idx].left_offset = pos
+        }
+        WhichHandle::B => {
+            v.borrow_mut().vws_contours[vws_contour].handles[handle_idx].right_offset = pos
+        }
         _ => {
             v.borrow_mut().vws_contours[vws_contour].handles[handle_idx].left_offset = pos;
             v.borrow_mut().vws_contours[vws_contour].handles[handle_idx].right_offset = pos;
@@ -389,25 +403,30 @@ fn set_vws_handle(v: &RefCell<state::State<Option<state::PointData>>>, contour_i
     if mirror {
         v.borrow_mut().vws_contours[vws_contour].handles[handle_idx].left_offset = pos;
         v.borrow_mut().vws_contours[vws_contour].handles[handle_idx].right_offset = pos;
-        v.borrow_mut().vws_contours[vws_contour].handles[handle_idx].tangent_offset = tangent_offset;
-    }
-    else
-    {
-        v.borrow_mut().vws_contours[vws_contour].handles[handle_idx].tangent_offset = tangent_offset;
+        v.borrow_mut().vws_contours[vws_contour].handles[handle_idx].tangent_offset =
+            tangent_offset;
+    } else {
+        v.borrow_mut().vws_contours[vws_contour].handles[handle_idx].tangent_offset =
+            tangent_offset;
     }
 }
 
-fn set_all_vws_handles(v: &RefCell<state::State<Option<state::PointData>>>, contour_idx: usize, side: WhichHandle, pos: f64)
-{
+fn set_all_vws_handles(
+    v: &RefCell<state::State<Option<state::PointData>>>,
+    contour_idx: usize,
+    side: WhichHandle,
+    pos: f64,
+) {
     if get_vws_contour_idx(v, contour_idx).is_none() {
         generate_vws_contour(v, contour_idx);
     }
 
-    STATE.with(|v| {// we know this contour exists now
+    STATE.with(|v| {
+        // we know this contour exists now
         let vws_contour = get_vws_contour_idx(v, contour_idx).unwrap();
 
         let mut borrowed_v = v.borrow_mut();
-        for handle_idx in 0 .. borrowed_v.vws_contours[vws_contour].handles.len() {
+        for handle_idx in 0..borrowed_v.vws_contours[vws_contour].handles.len() {
             let follow = TOOL_DATA.with(|v| v.borrow().follow);
 
             if follow == Follow::Mirror {
@@ -415,8 +434,12 @@ fn set_all_vws_handles(v: &RefCell<state::State<Option<state::PointData>>>, cont
                 borrowed_v.vws_contours[vws_contour].handles[handle_idx].right_offset = pos;
             } else {
                 match side {
-                    WhichHandle::A => borrowed_v.vws_contours[vws_contour].handles[handle_idx].left_offset = pos,
-                    WhichHandle::B => borrowed_v.vws_contours[vws_contour].handles[handle_idx].right_offset = pos,
+                    WhichHandle::A => {
+                        borrowed_v.vws_contours[vws_contour].handles[handle_idx].left_offset = pos
+                    }
+                    WhichHandle::B => {
+                        borrowed_v.vws_contours[vws_contour].handles[handle_idx].right_offset = pos
+                    }
                     _ => {} // should be unreachable
                 }
             }
@@ -424,8 +447,7 @@ fn set_all_vws_handles(v: &RefCell<state::State<Option<state::PointData>>>, cont
     });
 }
 
-fn generate_previews(v: &RefCell<state::State<Option<state::PointData>>>)
-{
+fn generate_previews(v: &RefCell<state::State<Option<state::PointData>>>) {
     let mut new_previews = Vec::new();
 
     for vws_contour in &v.borrow().vws_contours {
@@ -433,7 +455,7 @@ fn generate_previews(v: &RefCell<state::State<Option<state::PointData>>>)
 
         let settings = VWSSettings {
             cap_custom_start: None,
-            cap_custom_end: None
+            cap_custom_end: None,
         };
 
         let vws_output = variable_width_stroke(&contour_pw, &vws_contour, &settings);
@@ -447,69 +469,124 @@ fn generate_previews(v: &RefCell<state::State<Option<state::PointData>>>)
 }
 
 fn mouse_coords_to_handle_space(
-    v: &RefCell<state::State<Option<state::PointData>>>, contour_idx: usize, handle_idx: usize, side: WhichHandle, mouse_pos: Vector
-) -> (f64, f64)
-{
+    v: &RefCell<state::State<Option<state::PointData>>>,
+    contour_idx: usize,
+    handle_idx: usize,
+    side: WhichHandle,
+    mouse_pos: Vector,
+) -> (f64, f64) {
     let (start_pos, tangent, _handle_pos) = get_vws_handle_pos(v, contour_idx, handle_idx, side);
     let side_multiplier = match side {
         WhichHandle::A => -1.,
         WhichHandle::B => 1.,
-        _ => unreachable!()
+        _ => unreachable!(),
     };
 
     let tangent = tangent.normalize();
-    let normal = Vector{ x: tangent.y, y: -tangent.x }.normalize();
+    let normal = Vector {
+        x: tangent.y,
+        y: -tangent.x,
+    }
+    .normalize();
     let mouse_vec = start_pos - mouse_pos;
     let mouse_vec_normal = mouse_vec.normalize();
 
-    println!("tangent: {:?} final: {:?}", tangent, mouse_vec_normal.dot(tangent) * mouse_vec.magnitude());
+    println!(
+        "tangent: {:?} final: {:?}",
+        tangent,
+        mouse_vec_normal.dot(tangent) * mouse_vec.magnitude()
+    );
 
     //return mouse_vec_normal.dot(handle_vec) * mouse_vec.magnitude();
-    let normal_offset = f64::max(mouse_vec_normal.dot(normal) * mouse_vec.magnitude() * side_multiplier, 0.);
+    let normal_offset = f64::max(
+        mouse_vec_normal.dot(normal) * mouse_vec.magnitude() * side_multiplier,
+        0.,
+    );
     let tangent_offset = mouse_vec_normal.dot(tangent) * mouse_vec.magnitude();
 
     (normal_offset, tangent_offset)
 }
 
-fn get_vws_handle_pos(v: &RefCell<state::State<Option<state::PointData>>>, contour_idx: usize, handle_idx: usize, side: WhichHandle) -> (Vector, Vector, Vector)
-{
+fn get_vws_handle_pos(
+    v: &RefCell<state::State<Option<state::PointData>>>,
+    contour_idx: usize,
+    handle_idx: usize,
+    side: WhichHandle,
+) -> (Vector, Vector, Vector) {
     let vws_contour = get_vws_contour_idx(v, contour_idx);
     let contour_pw = Piecewise::from(&get_outline!(v)[contour_idx]);
 
-    if handle_idx < contour_pw.segs.len()
-    {
+    if handle_idx < contour_pw.segs.len() {
         let vws_handle = get_vws_handle(v, vws_contour, handle_idx);
         let bezier = &contour_pw.segs[handle_idx];
         let start_point = bezier.start_point();
         let tangent = bezier.tangent_at(0.).normalize();
-        let normal = Vector{x: tangent.y, y: -tangent.x}.normalize();
+        let normal = Vector {
+            x: tangent.y,
+            y: -tangent.x,
+        }
+        .normalize();
 
         let max_tangent = f64::max(vws_handle.right_offset, vws_handle.left_offset);
 
         let scaled_tangent_offset = match side {
-            WhichHandle::A => vws_handle.left_offset/max_tangent,
-            WhichHandle::B => vws_handle.right_offset/max_tangent,
-            WhichHandle::Neither => panic!("Should be unreachable!")
+            WhichHandle::A => vws_handle.left_offset / max_tangent,
+            WhichHandle::B => vws_handle.right_offset / max_tangent,
+            WhichHandle::Neither => panic!("Should be unreachable!"),
         };
 
         match side {
-            WhichHandle::A => return (start_point, tangent, start_point + normal * vws_handle.left_offset + tangent * -vws_handle.tangent_offset * scaled_tangent_offset),
-            WhichHandle::B => return (start_point, tangent, start_point + normal * -vws_handle.right_offset + tangent * vws_handle.tangent_offset * scaled_tangent_offset),
-            _ => panic!("Should be unreachable!")
+            WhichHandle::A => {
+                return (
+                    start_point,
+                    tangent,
+                    start_point
+                        + normal * vws_handle.left_offset
+                        + tangent * -vws_handle.tangent_offset * scaled_tangent_offset,
+                )
+            }
+            WhichHandle::B => {
+                return (
+                    start_point,
+                    tangent,
+                    start_point
+                        + normal * -vws_handle.right_offset
+                        + tangent * vws_handle.tangent_offset * scaled_tangent_offset,
+                )
+            }
+            _ => panic!("Should be unreachable!"),
         }
-    }
-    else
-    {
+    } else {
         let vws_handle = get_vws_handle(v, vws_contour, handle_idx);
         let bezier = &contour_pw.segs.last().unwrap();
         let start_point = bezier.end_point();
         let tangent = bezier.tangent_at(1.).normalize();
-        let normal = Vector{x: tangent.y, y: -tangent.x}.normalize();
+        let normal = Vector {
+            x: tangent.y,
+            y: -tangent.x,
+        }
+        .normalize();
 
         match side {
-            WhichHandle::A => return (start_point, tangent, start_point + normal * vws_handle.left_offset + tangent * -vws_handle.tangent_offset),
-            WhichHandle::B => return (start_point, tangent, start_point + normal * -vws_handle.right_offset + tangent * vws_handle.tangent_offset),
-            _ => panic!("Should be unreachable!")
+            WhichHandle::A => {
+                return (
+                    start_point,
+                    tangent,
+                    start_point
+                        + normal * vws_handle.left_offset
+                        + tangent * -vws_handle.tangent_offset,
+                )
+            }
+            WhichHandle::B => {
+                return (
+                    start_point,
+                    tangent,
+                    start_point
+                        + normal * -vws_handle.right_offset
+                        + tangent * vws_handle.tangent_offset,
+                )
+            }
+            _ => panic!("Should be unreachable!"),
         }
     }
 }
@@ -527,10 +604,11 @@ fn vws_clicked_point_or_handle(
         let contour_pw = Piecewise::from(contour);
 
         let size = ((POINT_RADIUS * 2.) + (POINT_STROKE_THICKNESS * 2.)) * (1. / factor);
-        for vws_handle_idx in 0 .. contour_pw.segs.len() {
-
-            let handle_pos_left = get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::A).2;
-            let handle_pos_right = get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::B).2;
+        for vws_handle_idx in 0..contour_pw.segs.len() {
+            let handle_pos_left =
+                get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::A).2;
+            let handle_pos_right =
+                get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::B).2;
 
             let handle_left_point = SkPoint::new(
                 calc_x(handle_pos_left.x as f32) - (size / 2.),
@@ -548,19 +626,18 @@ fn vws_clicked_point_or_handle(
 
             if handle_left_rect.contains(sk_mpos) {
                 return Some((contour_idx, vws_handle_idx, WhichHandle::A));
-            }
-            else if handle_right_rect.contains(sk_mpos)
-            {
+            } else if handle_right_rect.contains(sk_mpos) {
                 return Some((contour_idx, vws_handle_idx, WhichHandle::B));
             }
         }
 
-        if contour.first().unwrap().ptype == glifparser::PointType::Move 
-        {
+        if contour.first().unwrap().ptype == glifparser::PointType::Move {
             let vws_handle_idx = contour_pw.segs.len();
 
-            let handle_pos_left = get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::A).2;
-            let handle_pos_right = get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::B).2;
+            let handle_pos_left =
+                get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::A).2;
+            let handle_pos_right =
+                get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::B).2;
 
             let handle_left_point = SkPoint::new(
                 calc_x(handle_pos_left.x as f32) - (size / 2.),
@@ -578,9 +655,7 @@ fn vws_clicked_point_or_handle(
 
             if handle_left_rect.contains(sk_mpos) {
                 return Some((contour_idx, vws_handle_idx, WhichHandle::A));
-            }
-            else if handle_right_rect.contains(sk_mpos)
-            {
+            } else if handle_right_rect.contains(sk_mpos) {
                 return Some((contour_idx, vws_handle_idx, WhichHandle::B));
             }
         }
@@ -612,7 +687,7 @@ pub fn mouse_pressed(
 
             true
         }),
-        None => false
+        None => false,
     };
 
     false
@@ -639,7 +714,10 @@ pub fn mouse_released(
 }
 
 /// Get indexes stored by clicked_point_or_handle and move the points they refer to around.
-pub fn mouse_moved(position: PhysicalPosition<f64>, v: &RefCell<state::State<Option<state::PointData>>>) -> bool {
+pub fn mouse_moved(
+    position: PhysicalPosition<f64>,
+    v: &RefCell<state::State<Option<state::PointData>>>,
+) -> bool {
     let mposition = update_mousepos(position, &v, false);
     if !v.borrow().mousedown {
         return false;
@@ -656,13 +734,20 @@ pub fn mouse_moved(position: PhysicalPosition<f64>, v: &RefCell<state::State<Opt
         // A control point (A or B) is being moved.
         (Some(ci), Some(pi), wh) => {
             println!("{:?}", wh);
-            let (normal_offset, tangent_offset) = mouse_coords_to_handle_space(v, ci, pi, wh, Vector{x:x as f64, y:y as f64});
+            let (normal_offset, tangent_offset) = mouse_coords_to_handle_space(
+                v,
+                ci,
+                pi,
+                wh,
+                Vector {
+                    x: x as f64,
+                    y: y as f64,
+                },
+            );
             // if shift is held down we scale all the points
             if shift {
                 set_all_vws_handles(v, ci, wh, normal_offset);
-            }
-            else
-            {
+            } else {
                 set_vws_handle(v, ci, pi, wh, normal_offset, tangent_offset);
             }
 
@@ -675,7 +760,10 @@ pub fn mouse_moved(position: PhysicalPosition<f64>, v: &RefCell<state::State<Opt
     true
 }
 
-pub fn update_previews(position: PhysicalPosition<f64>, v: &RefCell<state::State<Option<state::PointData>>>) -> bool {
+pub fn update_previews(
+    position: PhysicalPosition<f64>,
+    v: &RefCell<state::State<Option<state::PointData>>>,
+) -> bool {
     let mposition = update_mousepos(position, &v, false);
     if !v.borrow().mousedown {
         return false;
@@ -685,13 +773,14 @@ pub fn update_previews(position: PhysicalPosition<f64>, v: &RefCell<state::State
     true
 }
 
-pub fn should_draw_contour(v: &RefCell<state::State<Option<state::PointData>>>, idx: usize) -> bool
-{
-    if get_vws_contour_idx(v, idx).is_some()
-    {
+pub fn should_draw_contour(
+    v: &RefCell<state::State<Option<state::PointData>>>,
+    idx: usize,
+) -> bool {
+    if get_vws_contour_idx(v, idx).is_some() {
         return false;
     }
-    
+
     return true;
 }
 
@@ -701,13 +790,14 @@ pub fn draw_handles(canvas: &mut Canvas) {
 
         for (contour_idx, contour) in get_outline!(v).iter().enumerate() {
             let contour_pw = Piecewise::from(contour);
-    
+
             for (vws_handle_idx, bezier) in contour_pw.segs.iter().enumerate() {
-    
-                let start_point = bezier.start_point();    
-                let handle_pos_left = get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::A).2;
-                let handle_pos_right = get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::B).2;
-    
+                let start_point = bezier.start_point();
+                let handle_pos_left =
+                    get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::A).2;
+                let handle_pos_right =
+                    get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::B).2;
+
                 let mut path = Path::new();
                 let mut paint = Paint::default();
 
@@ -716,22 +806,29 @@ pub fn draw_handles(canvas: &mut Canvas) {
                 paint.set_stroke_width(HANDLEBAR_THICKNESS * (1. / factor));
                 paint.set_style(PaintStyle::Stroke);
 
-                path.move_to((calc_x(handle_pos_left.x as f32), calc_y(handle_pos_left.y as f32)));
-                path.line_to((calc_x(start_point.x as f32 ), calc_y(start_point.y as f32)));
-                path.line_to((calc_x(handle_pos_right.x as f32), calc_y(handle_pos_right.y as f32)));
+                path.move_to((
+                    calc_x(handle_pos_left.x as f32),
+                    calc_y(handle_pos_left.y as f32),
+                ));
+                path.line_to((calc_x(start_point.x as f32), calc_y(start_point.y as f32)));
+                path.line_to((
+                    calc_x(handle_pos_right.x as f32),
+                    calc_y(handle_pos_right.y as f32),
+                ));
 
                 canvas.draw_path(&path, &paint);
-            } 
+            }
 
-            if contour.first().unwrap().ptype == glifparser::PointType::Move 
-            {
+            if contour.first().unwrap().ptype == glifparser::PointType::Move {
                 let vws_handle_idx = contour_pw.segs.len();
                 let bezier = contour_pw.segs.last().unwrap();
                 let start_point = bezier.end_point();
-        
-                let handle_pos_left = get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::A).2;
-                let handle_pos_right = get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::B).2;
-    
+
+                let handle_pos_left =
+                    get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::A).2;
+                let handle_pos_right =
+                    get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::B).2;
+
                 let mut path = Path::new();
                 let mut paint = Paint::default();
 
@@ -740,9 +837,15 @@ pub fn draw_handles(canvas: &mut Canvas) {
                 paint.set_stroke_width(HANDLEBAR_THICKNESS * (1. / factor));
                 paint.set_style(PaintStyle::Stroke);
 
-                path.move_to((calc_x(handle_pos_left.x as f32), calc_y(handle_pos_left.y as f32)));
-                path.line_to((calc_x(start_point.x as f32 ), calc_y(start_point.y as f32)));
-                path.line_to((calc_x(handle_pos_right.x as f32), calc_y(handle_pos_right.y as f32)));
+                path.move_to((
+                    calc_x(handle_pos_left.x as f32),
+                    calc_y(handle_pos_left.y as f32),
+                ));
+                path.line_to((calc_x(start_point.x as f32), calc_y(start_point.y as f32)));
+                path.line_to((
+                    calc_x(handle_pos_right.x as f32),
+                    calc_y(handle_pos_right.y as f32),
+                ));
 
                 canvas.draw_path(&path, &paint);
             }

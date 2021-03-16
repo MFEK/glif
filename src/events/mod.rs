@@ -7,8 +7,8 @@ pub mod console;
 pub mod pan;
 pub mod pen;
 pub mod select;
-pub mod zoom;
 pub mod vws;
+pub mod zoom;
 
 pub use self::zoom::{zoom_in_factor, zoom_out_factor};
 
@@ -80,9 +80,7 @@ pub fn mode_switched(from: Mode, to: Mode) {
         v.borrow_mut().cur_point = None;
         v.borrow_mut().handle = WhichHandle::Neither;
     });
-    
 }
-
 
 #[macro_export]
 ///! Given a field on the State struct, and an enumerator that implements IntoEnumIterator, cycle

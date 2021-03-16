@@ -18,10 +18,10 @@ mod selbox;
 mod viewport;
 
 // Provides thread-local global variables.
-pub use crate::state::Glyph; // types
-pub use crate::state::{Mode, HandleStyle, PointLabels}; // enums
-pub use crate::state::TOOL_DATA; // globals
 pub use crate::events::vws;
+pub use crate::state::Glyph; // types
+pub use crate::state::TOOL_DATA; // globals
+pub use crate::state::{HandleStyle, Mode, PointLabels}; // enums
 
 use skulpin::skia_safe::{
     gradient_shader, Canvas, Color, IRect, Matrix, Paint, PaintJoin, PaintStyle, Path, Point, Rect,
@@ -61,7 +61,7 @@ pub fn render_frame(canvas: &mut Canvas) {
             let mode = STATE.with(|v| v.borrow().mode);
             match mode {
                 Mode::VWS => vws::draw_handles(canvas),
-                _ => {},
+                _ => {}
             };
         }
         PreviewMode::NoUnselectedPoints => {

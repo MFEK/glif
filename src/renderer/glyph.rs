@@ -9,7 +9,7 @@ use skulpin::skia_safe::{Canvas, Paint, PaintStyle, Path};
 
 pub use crate::state::Glyph; // types
 pub use crate::state::{HandleStyle, PointLabels}; // enums
-pub use crate::state::{CONSOLE, TOOL_DATA, Mode}; // globals
+pub use crate::state::{Mode, CONSOLE, TOOL_DATA}; // globals
 
 pub use crate::events::vws;
 
@@ -39,9 +39,7 @@ pub fn draw(canvas: &mut Canvas) -> Path {
                     continue;
                 }
 
-                let should_draw = STATE.with(|v|  {
-                    vws::should_draw_contour(&v, idx)
-                });
+                let should_draw = STATE.with(|v| vws::should_draw_contour(&v, idx));
 
                 if !should_draw {
                     continue;
@@ -53,7 +51,9 @@ pub fn draw(canvas: &mut Canvas) -> Path {
                 let pointiter = contour.iter().enumerate();
                 for (_i, point) in pointiter {
                     // the move_to handles the first point
-                    if _i == 0 { continue };
+                    if _i == 0 {
+                        continue;
+                    };
                     match point.ptype {
                         PointType::Line => {
                             path.line_to((calc_x(point.x), calc_y(point.y)));
@@ -73,7 +73,7 @@ pub fn draw(canvas: &mut Canvas) -> Path {
                     }
                     prevpoint = &point;
                 }
-                
+
                 if firstpoint.ptype != PointType::Move {
                     match contour.last() {
                         Some(lastpoint) => {
@@ -133,8 +133,7 @@ pub fn draw(canvas: &mut Canvas) -> Path {
 }
 
 // TODO: Move the shared functionality between these two functions into it's own function.
-pub fn draw_previews(canvas: &mut Canvas) -> Path
-{
+pub fn draw_previews(canvas: &mut Canvas) -> Path {
     STATE.with(|v| {
         let mut paint = Paint::default();
         paint.set_anti_alias(true);
@@ -160,11 +159,16 @@ pub fn draw_previews(canvas: &mut Canvas) -> Path
                     continue;
                 }
                 path.move_to((calc_x(contour[0].x), calc_y(contour[0].y)));
-                let firstpoint: &glifparser::Point<Option<MFEKMath::piecewise::glif::PointData>> = contour.first().unwrap();
-                let mut prevpoint: &glifparser::Point<Option<MFEKMath::piecewise::glif::PointData>> = contour.first().unwrap();
+                let firstpoint: &glifparser::Point<Option<MFEKMath::piecewise::glif::PointData>> =
+                    contour.first().unwrap();
+                let mut prevpoint: &glifparser::Point<
+                    Option<MFEKMath::piecewise::glif::PointData>,
+                > = contour.first().unwrap();
                 let pointiter = contour.iter().enumerate();
                 for (_i, point) in pointiter {
-                    if _i == 0 { continue };
+                    if _i == 0 {
+                        continue;
+                    };
                     match point.ptype {
                         PointType::Line => {
                             path.line_to((calc_x(point.x), calc_y(point.y)));

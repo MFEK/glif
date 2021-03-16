@@ -1,13 +1,13 @@
 use crate::state::Glyph;
 
+use crate::events;
+use crate::state;
 use crate::STATE;
+use glifparser::Glif;
+use std::cell::RefCell;
 use std::env;
 use std::fs;
 use std::path::Path;
-use glifparser::Glif;
-use std::cell::RefCell;
-use crate::events as events;
-use crate::state as state;
 
 pub fn load_glif<F: AsRef<Path> + Clone>(filename: F) {
     let glif =
@@ -51,7 +51,12 @@ pub fn save_glif(v: &RefCell<crate::state::State<Option<crate::state::PointData>
     let _glyph = _v.glyph.as_ref().unwrap();
     let filename: std::path::PathBuf = _glyph.filename.clone();
 
-    let mut lib = _glyph.glif.lib.as_ref().unwrap_or(&xmltree::Element::new("lib")).clone();
+    let mut lib = _glyph
+        .glif
+        .lib
+        .as_ref()
+        .unwrap_or(&xmltree::Element::new("lib"))
+        .clone();
     let vws_lib = &super::events::vws::generate_lib(_v.vws_contours.clone());
 
     if let Some(vws) = vws_lib {
@@ -80,8 +85,7 @@ pub fn save_glif(v: &RefCell<crate::state::State<Option<crate::state::PointData>
     fs::write(filename, glif_string).expect("Unable to write file");
 }
 
-pub fn export_glif(v: &RefCell<crate::state::State<Option<crate::state::PointData>>>) 
-{
+pub fn export_glif(v: &RefCell<crate::state::State<Option<crate::state::PointData>>>) {
     v.borrow_mut().mode = state::Mode::Select;
     events::vws::export_vws();
 }
