@@ -802,7 +802,7 @@ pub fn draw_handles(canvas: &mut Canvas) {
                 let mut paint = Paint::default();
 
                 paint.set_anti_alias(true);
-                paint.set_color(HANDLEBAR_STROKE);
+                paint.set_color(RIB_STROKE);
                 paint.set_stroke_width(HANDLEBAR_THICKNESS * (1. / factor));
                 paint.set_style(PaintStyle::Stroke);
 
@@ -833,7 +833,7 @@ pub fn draw_handles(canvas: &mut Canvas) {
                 let mut paint = Paint::default();
 
                 paint.set_anti_alias(true);
-                paint.set_color(HANDLEBAR_STROKE);
+                paint.set_color(RIB_STROKE);
                 paint.set_stroke_width(HANDLEBAR_THICKNESS * (1. / factor));
                 paint.set_style(PaintStyle::Stroke);
 
