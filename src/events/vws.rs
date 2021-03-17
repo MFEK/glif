@@ -40,21 +40,24 @@ pub fn export_vws<F: AsRef<OsStr> + AsRef<Path> + Clone>(filename: F) {
             println!("{:?}", output);
 
             if !output.status.success() {
-                return
+                return;
             }
 
             // this step makes ../glyphs/E.glif and E.glif equal
             let canonical_cur_file = fs::canonicalize(&cur_file);
             let canonical_filename = fs::canonicalize(&filename);
             // we've got to clear the VWS contours after this or we're gonna crash
-            if canonical_cur_file.is_ok() && canonical_filename.is_ok() && canonical_cur_file.unwrap() == canonical_filename.unwrap() {
+            if canonical_cur_file.is_ok()
+                && canonical_filename.is_ok()
+                && canonical_cur_file.unwrap() == canonical_filename.unwrap()
+            {
                 STATE.with(|v| {
                     v.borrow_mut().vws_contours = Vec::new();
                 });
             }
 
             load_glif(cur_file.clone());
-        },
+        }
         Err(output) => println!("{:?}", output),
     }
 }
