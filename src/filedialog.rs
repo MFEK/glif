@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-extern crate nfd;
+use nfd;
 
 pub fn filename_or_panic(
     filename: &Option<String>,

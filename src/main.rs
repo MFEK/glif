@@ -11,31 +11,29 @@
 )]
 
 // Cargo.toml comments say what crates are used for what.
+use backtrace;
+use clap;
+use colored;
+use derive_more;
+use enum_iterator;
 #[macro_use]
-extern crate lazy_static;
-extern crate backtrace;
-extern crate clap;
-extern crate colored;
-extern crate derive_more;
-extern crate enum_iterator;
+use log::debug;
+use env_logger;
 #[macro_use]
-extern crate log;
-extern crate env_logger;
-#[macro_use]
-extern crate git_version; // for util::parse_args
-extern crate font_kit;
+use git_version; // for util::parse_args
+use font_kit;
 
-extern crate imgui_winit_support;
-extern crate skulpin;
-extern crate skulpin_plugin_imgui;
+use imgui_winit_support;
+use skulpin;
+use skulpin_plugin_imgui;
 
-extern crate clipboard;
-extern crate regex;
+use clipboard;
+use regex;
 
 // Our crates
-extern crate glifparser;
-extern crate mfek_ipc;
-extern crate xmltree;
+use glifparser;
+use mfek_ipc;
+use xmltree;
 
 use crate::winit::dpi::LogicalSize;
 use crate::winit::event::{ElementState, Event, KeyboardInput, VirtualKeyCode, WindowEvent};

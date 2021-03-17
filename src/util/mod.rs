@@ -10,6 +10,7 @@ use std::panic::set_hook;
 
 use backtrace::Backtrace;
 use colored::Colorize;
+use lazy_static::lazy_static;
 
 lazy_static! {
     pub static ref DEBUG: bool = option_env!("DEBUG").is_some();
@@ -49,7 +50,7 @@ pub fn set_panic_hook() {
 // This prevents debug!() etc from producing mojibake. Yes, really, this is the best solution. :-|
 #[cfg(target_family = "windows")]
 pub fn set_codepage_utf8() {
-    extern crate winapi;
+    use winapi;
     unsafe {
         debug_assert!(winapi::um::wincon::SetConsoleOutputCP(winapi::um::winnls::CP_UTF8) == 1);
     }

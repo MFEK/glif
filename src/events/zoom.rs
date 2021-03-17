@@ -1,6 +1,8 @@
 // Zoom
 use super::prelude::*;
 
+use log::debug;
+
 pub fn zoom_in_factor<T>(_factor: f32, v: &RefCell<state::State<T>>) -> f32 {
     v.borrow().factor + SCALE_FACTOR
 }

@@ -1,3 +1,4 @@
+use log::error;
 use mfek_ipc::{self, IPCInfo};
 
 use crate::renderer::{Guideline, GuidelineType};
