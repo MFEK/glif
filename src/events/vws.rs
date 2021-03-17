@@ -2,6 +2,7 @@ use super::prelude::*;
 use crate::io::{load_glif, save_glif};
 use crate::state::Follow;
 use glifparser::{Handle, WhichHandle};
+use log::debug;
 use skulpin::skia_safe::{Canvas, Paint, PaintStyle, Path as SkiaPath};
 use MFEKMath::variable_width_stroking::{generate_vws_lib, InterpolationType};
 use MFEKMath::{

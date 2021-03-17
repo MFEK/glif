@@ -1,3 +1,5 @@
+use lazy_static::lazy_static;
+
 use crate::renderer::constants::CONSOLE_FONTS;
 
 use font_kit::{
