@@ -268,7 +268,6 @@ fn main() {
                             }
                             Some(VirtualKeyCode::E) => {
                                 if modifiers.ctrl() {
-                                    println!("yeet");
                                     io::export_glif(v);
                                 }
                             }

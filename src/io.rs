@@ -85,7 +85,11 @@ pub fn save_glif(v: &RefCell<crate::state::State<Option<crate::state::PointData>
     fs::write(filename, glif_string).expect("Unable to write file");
 }
 
+use crate::filedialog;
+
 pub fn export_glif(v: &RefCell<crate::state::State<Option<crate::state::PointData>>>) {
+    let cur_file = v.borrow().glyph.as_ref().unwrap().filename.clone();
+    let filename = filedialog::save_filename(Some("glif"), None);
     v.borrow_mut().mode = state::Mode::Select;
-    events::vws::export_vws();
+    events::vws::export_vws(filename.unwrap_or(cur_file));
 }
