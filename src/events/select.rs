@@ -197,9 +197,7 @@ pub fn mouse_pressed(
 
     if !single_point {
         v.borrow_mut().show_sel_box = true;
-        let position = v.borrow().mousepos;
-        let mposition = PhysicalPosition::from((position.x, position.y));
-        v.borrow_mut().mousepos = mposition;
+        let mposition = update_mousepos(position, &v, true);
         if v.borrow().show_sel_box {
             v.borrow_mut().corner_one = Some(mposition);
             v.borrow_mut().corner_two = Some(mposition);
