@@ -3,7 +3,7 @@
 [[package]]
 name = "MFEKMath"
 version = "0.1.0"
-source = "git+https://github.com/MFEK/math?branch=vws-testing#93a63494e55a6f29c3fe36a6b4d6c3489518ebac"
+source = "git+https://github.com/MFEK/math?branch=vws-testing#454943394f40558cdf30f4f6ad4a0d28d3218f9b"
 dependencies = [
  "flo_curves",
  "glifparser",
