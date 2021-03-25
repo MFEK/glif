@@ -6,7 +6,6 @@ use MFEKMath::VWSContour;
 pub use crate::renderer::console::Console as RendererConsole;
 use crate::renderer::Guideline;
 
-use skulpin::winit::dpi::{PhysicalPosition, PhysicalSize};
 
 use std::cell::RefCell;
 use std::path::PathBuf;
@@ -29,16 +28,16 @@ pub struct State<T> {
     pub glyph: Option<Glyph<T>>,
     pub selected: Vec<Point<T>>,
     pub mousedown: bool,
-    pub mousepos: PhysicalPosition<f64>,
-    pub absolute_mousepos: PhysicalPosition<f64>,
-    pub corner_one: Option<PhysicalPosition<f64>>,
-    pub corner_two: Option<PhysicalPosition<f64>>,
+    pub mousepos: (f64, f64),
+    pub absolute_mousepos: (f64, f64),
+    pub corner_one: Option<(f64, f64)>,
+    pub corner_two: Option<(f64, f64)>,
     // Whether to show the selection box on screen
     pub show_sel_box: bool,
     pub point_labels: PointLabels,
     pub handle_style: HandleStyle,
     pub preview_mode: PreviewMode,
-    pub winsize: PhysicalSize<u32>, // for Skia
+    pub winsize: (u32, u32), // for Skia
     pub factor: f32,
     pub offset: (f32, f32),
     pub dpi: f64, // from glutin scale_factor()
@@ -56,18 +55,15 @@ impl<T> State<T> {
             mode: Mode::Select,
             selected: Vec::new(),
             mousedown: false,
-            mousepos: PhysicalPosition { x: 0., y: 0. },
-            absolute_mousepos: PhysicalPosition { x: 0., y: 0. },
+            mousepos: (0., 0.),
+            absolute_mousepos: (0., 0.),
             corner_one: None,
             corner_two: None,
             show_sel_box: false,
             point_labels: PointLabels::None,
             preview_mode: PreviewMode::None,
             handle_style: HandleStyle::Handlebars,
-            winsize: PhysicalSize {
-                height: 0,
-                width: 0,
-            },
+            winsize: (0, 0),
             factor: 1.,
             offset: (0., 0.),
             dpi: 1.,

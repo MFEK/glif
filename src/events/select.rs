@@ -4,14 +4,14 @@ use crate::state::Follow;
 use glifparser::{Handle, WhichHandle};
 
 /// Get indexes stored by clicked_point_or_handle and move the points they refer to around.
-pub fn mouse_moved<T>(position: PhysicalPosition<f64>, v: &RefCell<state::State<T>>) -> bool {
+pub fn mouse_moved<T>(position: (f64, f64), v: &RefCell<state::State<T>>) -> bool {
     let mposition = update_mousepos(position, &v, false);
     if !v.borrow().mousedown {
         return false;
     }
 
-    let x = calc_x(mposition.x as f32);
-    let y = calc_y(mposition.y as f32);
+    let x = calc_x(mposition.0 as f32);
+    let y = calc_y(mposition.1 as f32);
     let follow = TOOL_DATA.with(|p| p.borrow().follow);
     let contour = TOOL_DATA.with(|p| p.borrow().contour);
     let cur_point = TOOL_DATA.with(|p| p.borrow().cur_point);
@@ -111,7 +111,7 @@ pub fn mouse_moved<T>(position: PhysicalPosition<f64>, v: &RefCell<state::State<
 
 // Placeholder
 pub fn mouse_button<T>(
-    _position: PhysicalPosition<f64>,
+    _position: (f64, f64),
     _v: &RefCell<state::State<T>>,
     _meta: MouseMeta,
 ) -> bool {
@@ -121,7 +121,7 @@ pub fn mouse_button<T>(
 /// Transform mouse click position into indexes into STATE.glyph.glif.outline and the handle if
 /// applicable, and store it in TOOL_DATA.
 fn clicked_point_or_handle(
-    position: PhysicalPosition<f64>,
+    position: (f64, f64),
     v: &RefCell<state::State<Option<state::PointData>>>,
 ) -> Option<(usize, usize, WhichHandle)> {
     let factor = v.borrow().factor;
@@ -152,7 +152,7 @@ fn clicked_point_or_handle(
             let b_rect = SkRect::from_point_and_size(b_tl, (size, size));
 
             // winit::PhysicalPosition as an SkPoint
-            let sk_mpos = SkPoint::new(mposition.x as f32, mposition.y as f32);
+            let sk_mpos = SkPoint::new(mposition.0 as f32, mposition.1 as f32);
 
             if point_rect.contains(sk_mpos) {
                 return Some((contour_idx, point_idx, WhichHandle::Neither));
@@ -167,7 +167,7 @@ fn clicked_point_or_handle(
 }
 
 pub fn mouse_pressed(
-    position: PhysicalPosition<f64>,
+    position: (f64, f64),
     v: &RefCell<state::State<Option<state::PointData>>>,
     meta: MouseMeta,
 ) -> bool {
@@ -197,18 +197,17 @@ pub fn mouse_pressed(
     if !single_point {
         v.borrow_mut().show_sel_box = true;
         let position = v.borrow().mousepos;
-        let mposition = PhysicalPosition::from((position.x, position.y));
-        v.borrow_mut().mousepos = mposition;
+        v.borrow_mut().mousepos = position;
         if v.borrow().show_sel_box {
-            v.borrow_mut().corner_one = Some(mposition);
-            v.borrow_mut().corner_two = Some(mposition);
+            v.borrow_mut().corner_one = Some(position);
+            v.borrow_mut().corner_two = Some(position);
         }
     }
     false
 }
 
 pub fn mouse_released<T>(
-    _position: PhysicalPosition<f64>,
+    _position: (f64, f64),
     v: &RefCell<state::State<T>>,
     _meta: MouseMeta,
 ) -> bool {

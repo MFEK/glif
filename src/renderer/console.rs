@@ -62,8 +62,8 @@ impl Console {
         STATE.with(|v| {
             let font = Font::from_typeface_with_params(&*CONSOLE_TYPEFACE, 14., 1., 0.0);
             let winsize = v.borrow().winsize;
-            let mut topleft = (0., winsize.height as f32);
-            let mut size = (winsize.width as f32, 0.);
+            let mut topleft = (0., winsize.1 as f32);
+            let mut size = (winsize.0 as f32, 0.);
 
             let (_, trect) = font.measure_str("Q", None);
             topleft.1 -= CONSOLE_PADDING_Y_TOP + CONSOLE_PADDING_Y_BOTTOM;

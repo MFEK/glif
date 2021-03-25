@@ -3,7 +3,6 @@ use super::constants::*;
 use super::points::calc::*;
 use skulpin::skia_safe::dash_path_effect;
 use skulpin::skia_safe::{Canvas, Contains, Paint, PaintStyle, Path, Point, Rect};
-use skulpin::winit::dpi::PhysicalPosition;
 use std::cell::RefCell;
 
 use crate::state;
@@ -16,17 +15,17 @@ pub fn draw_selbox<T>(canvas: &mut Canvas, v: &RefCell<State<T>>) -> Rect {
     let c1 = v
         .borrow()
         .corner_one
-        .unwrap_or(PhysicalPosition { x: 0., y: 0. });
+        .unwrap_or((0., 0.));
     let c2 = v
         .borrow()
         .corner_two
-        .unwrap_or(PhysicalPosition { x: 0., y: 0. });
+        .unwrap_or((0., 0.));
 
     let mut path = Path::new();
     let mut paint = Paint::default();
     let rect = Rect::from_point_and_size(
-        (c1.x as f32, c1.y as f32),
-        ((c2.x - c1.x) as f32, (c2.y - c1.y) as f32),
+        (c1.0 as f32, c1.1 as f32),
+        ((c2.0 - c1.0) as f32, (c2.1 - c1.1) as f32),
     );
     path.add_rect(rect, None);
     path.close();

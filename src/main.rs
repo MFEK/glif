@@ -25,9 +25,7 @@ extern crate env_logger;
 extern crate git_version; // for util::parse_args
 extern crate font_kit;
 
-extern crate imgui_winit_support;
 extern crate skulpin;
-extern crate skulpin_plugin_imgui;
 
 extern crate clipboard;
 extern crate regex;
@@ -37,52 +35,51 @@ extern crate glifparser;
 extern crate mfek_ipc;
 extern crate xmltree;
 
-use crate::winit::dpi::LogicalSize;
-use crate::winit::event::{ElementState, Event, KeyboardInput, VirtualKeyCode, WindowEvent};
-use crate::winit::event_loop::{ControlFlow, EventLoop};
-use skulpin::Window as _;
-pub use skulpin::{skia_safe, winit};
+extern crate sdl2;
+
+use command::{Command, CommandInfo};
+use imgui as imgui_rs;
+use imgui_rs::{Context, DrawData, FontAtlasRef};
+
+//use renderer::render_frame;
+use sdl2::{event::{self, Event, WindowEvent}, keyboard::Mod};
+use sdl2::keyboard::Keycode;
+use skulpin::{CoordinateSystemHelper, LogicalSize, RendererBuilder, rafx::api::RafxExtents2D, rafx::api::RafxQueueType, skia_safe::{RCHandle, SamplingOptions}};
+pub use skulpin::skia_safe;
+
+use skulpin::rafx::api::ash;
+use ash::vk;
 
 use crate::skia_safe::{Contains, Point};
 
 use enum_iterator::IntoEnumIterator as _;
 
-use std::env;
+use std::{borrow::BorrowMut, collections::HashSet, convert::TryInto, env};
 use std::time::Instant;
 
-pub use skulpin_plugin_imgui::imgui as imgui_rs;
-pub use skulpin_plugin_imgui::{imgui::Ui as ImguiUi, ImguiRendererPlugin};
-
 // Provides thread-local global variables.
+
 pub mod state;
 pub use crate::state::Glyph; // types
 pub use crate::state::{HandleStyle, PointLabels, PreviewMode}; // enums
 pub use crate::state::{CONSOLE, STATE, TOOL_DATA}; // globals
+
 
 mod filedialog;
 #[macro_use]
 pub mod util;
 #[macro_use]
 mod events;
-mod imgui;
+mod user_interface;
 mod io;
 mod ipc;
 mod renderer;
 mod system_fonts;
+mod command;
 
 use crate::renderer::constants::*;
 
 fn main() {
-    #[cfg(target_family = "windows")]
-    util::set_codepage_utf8();
-
-    // Set log level to WARN by default, useful for glifparser warnings.
-    if env::var("RUST_LOG").is_err() {
-        env::set_var("RUST_LOG", "warn");
-    }
-    env_logger::init();
-    util::set_panic_hook();
-
     let window_size = (WIDTH, HEIGHT);
     let args = util::argparser::parse_args();
     let filename = filedialog::filename_or_panic(&args.filename, Some("glif"), None);
@@ -95,39 +92,48 @@ fn main() {
         ipc::fetch_metrics();
     }
 
-    let event_loop = EventLoop::new();
+    // SDL initialization
+    let sdl_context = sdl2::init().expect("Failed to initialize sdl2");
+    let video_subsystem = sdl_context
+        .video()
+        .expect("Failed to create sdl video subsystem");
 
-    let winit_window = winit::window::WindowBuilder::new()
-        .with_title(format!(
-            "Modular Font Editor K — Glyph editor — {}",
-            filename.to_str().expect("Filename encoding erroneous")
-        ))
-        .with_inner_size(LogicalSize::new(window_size.0 as f64, window_size.1 as f64))
-        .with_resizable(true)
-        .build(&event_loop)
+    let logical_size = LogicalSize {
+        width: WIDTH,
+        height: HEIGHT,
+    };
+
+    let scale_to_fit = skulpin::skia_safe::matrix::ScaleToFit::Center;
+    let visible_range = skulpin::skia_safe::Rect {
+        left: 0.0,
+        right: logical_size.width as f32,
+        top: 0.0,
+        bottom: logical_size.height as f32,
+    };
+
+    let window = video_subsystem
+        .window("MFEKglif", logical_size.width, logical_size.height)
+        .position_centered()
+        .allow_highdpi()
+        .resizable()
+        .build()
         .expect("Failed to create window");
 
-    STATE.with(|v| {
-        v.borrow_mut().winsize = winit_window.inner_size();
-    });
+    
+    // Skulpin initialization 
+    let (window_width, window_height) = window.vulkan_drawable_size();
 
-    let imgui_manager = imgui::support::init_imgui_manager(&winit_window);
-    imgui_manager.begin_frame(&winit_window);
+    let extents = RafxExtents2D {
+        width: window_width,
+        height: window_height,
+    };
 
-    let window = skulpin::WinitWindow::new(&winit_window);
-
-    let mut imgui_plugin = None;
-    imgui_manager.with_context(|context| {
-        imgui_plugin = Some(Box::new(ImguiRendererPlugin::new(context)));
-    });
-
-    // Create the renderer, which will draw to the window
-    let renderer = skulpin::RendererBuilder::new()
-        .prefer_fifo_present_mode()
-        .use_vulkan_debug_layer(false)
-        .coordinate_system(skulpin::CoordinateSystem::Logical)
-        .add_plugin(imgui_plugin.unwrap())
-        .build(&window);
+    let renderer = RendererBuilder::new()
+        .coordinate_system(skulpin::CoordinateSystem::VisibleRange(
+            visible_range,
+            scale_to_fit,
+        ))
+        .build(&window, extents);
 
     // Check if there were error setting up vulkan
     if let Err(e) = renderer {
@@ -137,81 +143,64 @@ fn main() {
 
     let mut renderer = renderer.unwrap();
 
-    let _last_frame = Instant::now();
+    // set up imgui
+    let mut imgui = setup_imgui();
+    let mut imgui_sdl2 = imgui_sdl2::ImguiSdl2::new(&mut imgui, &window);
+    let imgui_renderer = Renderer::new(&mut imgui);
 
-    STATE.with(|v| {
-        v.borrow_mut().dpi = window.scale_factor();
-    });
+    let mut event_pump = sdl_context
+        .event_pump()
+        .expect("Could not create sdl event pump");
 
-    let mut frame_count = 0;
-    let mut frame = 0;
-    let _was_resized = false;
+    command::initialize_keybinds();
 
-    event_loop.run(move |event, _, control_flow| {
-        *control_flow = ControlFlow::Wait;
-        debug_event!("{:?}", event);
-        if STATE.with(|v|v.borrow().quit_requested) {
-            *control_flow = ControlFlow::Exit;
-        }
+    'main_loop: loop {
+                // Create a set of pressed Keys.
+        let keys_down: HashSet<Keycode> = event_pump
+            .keyboard_state()
+            .pressed_scancodes()
+            .filter_map(Keycode::from_scancode)
+            .collect();
 
-        // Without this, the program will crash if it launches with the cursor over the window, as
-        // the mouse event occurs before the redraw, which means that it uses an uninitialized
-        // renderer. So we do this to assure first frame is drawn by RedrawRequested.
-        match event {
-            Event::RedrawRequested { .. } => {}
-            _ => {
-                if frame == 0 {
-                    return;
+        // event handling
+        for event in event_pump.poll_iter() {
+            imgui_sdl2.handle_event(&mut imgui, &event);
+            if imgui_sdl2.ignore_event(&event) { continue; };
+
+            // we're gonna handle some of these events before handling commands
+            match event {
+                Event::Quit { .. } => break 'main_loop,
+                Event::KeyDown { keycode: Some(Keycode::Q), .. } => break 'main_loop,
+                Event::KeyDown { keycode: Some(Keycode::S), keymod: km, .. } => {
+                    if km.contains(Mod::LSHIFTMOD | Mod::RSHIFTMOD){
+                        STATE.with(|v| {
+                            io::save_glif(v);
+                        });
+                        continue;
+                    }
                 }
+                Event::KeyDown { keycode: Some(Keycode::E), keymod: km, .. } => {
+                    if km.contains(Mod::LSHIFTMOD | Mod::RSHIFTMOD){
+                        STATE.with(|v| {
+                            io::export_glif(v);
+                        });
+                        continue;
+                    }
+                }
+                _ => {}
             }
-        }
 
-        let window = skulpin::WinitWindow::new(&winit_window);
-        imgui_manager.handle_event(&winit_window, &event);
-        // ImGui "events" don't really exist, click state etc. queried at time of drawing. It's an
-        // immediate mode GUI. We use our events to update our Skia canvas.
-        #[allow(deprecated)]
-        match event {
-            Event::LoopDestroyed => {}
-            Event::WindowEvent { event, .. } => match event {
-                WindowEvent::KeyboardInput {
-                    input:
-                        KeyboardInput {
-                            virtual_keycode: Some(VirtualKeyCode::Q),
-                            ..
-                        },
-                    ..
-                } => {
-                    if !CONSOLE.with(|c| c.borrow().active) {
-                        *control_flow = ControlFlow::Exit;
-                    }
-                }
-                WindowEvent::CloseRequested => {
-                    *control_flow = ControlFlow::Exit;
-                }
-                WindowEvent::KeyboardInput {
-                    input:
-                        KeyboardInput {
-                            virtual_keycode,
-                            modifiers,
-                            state: kstate,
-                            ..
-                        },
-                    ..
-                } => {
-                    if kstate != ElementState::Pressed {
-                        return;
+            match event {
+                Event::KeyDown { keycode, keymod, ..} => {
+                    if let Some(vk) = keycode {
+                        events::console::set_state(vk, keymod);
                     }
 
-                    if let Some(vk) = virtual_keycode {
-                        events::console::set_state(vk, modifiers);
-                    }
-
-                    // We write to the Console in ReceivedCharacter, not here.
+                    //We send ctr+v to the console if it's open
                     if CONSOLE.with(|c| {
                         if c.borrow().active {
-                            if let Some(VirtualKeyCode::V) = virtual_keycode {
-                                if modifiers.ctrl() {
+                            if let Some(Keycode::V) = keycode {
+                                if keymod.contains(Mod::LCTRLMOD | Mod::RCTRLMOD) {
                                     c.borrow_mut().handle_clipboard();
                                 }
                             }
@@ -224,65 +213,61 @@ fn main() {
                         let mut newmode = mode;
                         let mut scale = v.borrow().factor;
                         let mut offset = v.borrow().offset;
-                        match virtual_keycode {
-                            // Scales
-                            Some(VirtualKeyCode::Key1) => scale = 1.,
-                            Some(VirtualKeyCode::Equals) => {
-                                scale = events::zoom_in_factor(scale, &v);
+
+                        let command: Option<CommandInfo> = match keycode {
+                            Some(keycode) => {
+                                command::keycode_to_command(&keycode, &keys_down)
                             }
-                            Some(VirtualKeyCode::Minus) => {
-                                scale = events::zoom_out_factor(scale, &v);
-                            }
-                            // Translations
-                            Some(VirtualKeyCode::Up) => {
-                                offset.1 += OFFSET_FACTOR;
-                            }
-                            Some(VirtualKeyCode::Down) => {
-                                offset.1 += -OFFSET_FACTOR;
-                            }
-                            Some(VirtualKeyCode::Left) => {
-                                offset.0 += OFFSET_FACTOR;
-                            }
-                            Some(VirtualKeyCode::Right) => {
-                                offset.0 += -OFFSET_FACTOR;
-                            }
-                            // Modes
-                            Some(VirtualKeyCode::A) => {
-                                newmode = state::Mode::Pan;
-                            }
-                            Some(VirtualKeyCode::P) => {
-                                newmode = state::Mode::Pen;
-                            }
-                            Some(VirtualKeyCode::V) => {
-                                newmode = state::Mode::Select;
-                            }
-                            Some(VirtualKeyCode::Z) => {
-                                newmode = state::Mode::Zoom;
-                            }
-                            Some(VirtualKeyCode::S) => {
-                                if modifiers.ctrl() {
-                                    io::save_glif(v);
-                                } else {
+
+                            _ => None
+                        };
+
+                        if let Some(command_info) = command {
+                            match command_info.command {
+                                Command::ResetScale => {
+                                    scale = 1.;
+                                }
+                                Command::ZoomIn => {
+                                    scale = events::zoom_in_factor(scale, &v);
+                                }
+                                Command::ZoomOut => {
+                                    scale = events::zoom_out_factor(scale, &v);
+                                }
+                                Command::NudgeUp => {
+                                    offset.1 += OFFSET_FACTOR;
+                                }
+                                Command::NudgeDown => {
+                                    offset.1 -= OFFSET_FACTOR;
+                                }
+                                Command::NudgeLeft => {
+                                    offset.0 += OFFSET_FACTOR;
+                                }
+                                Command::NudgeRight => {
+                                    offset.0 -= OFFSET_FACTOR;
+                                }
+                                Command::ToolPen => {
+                                    newmode = state::Mode::Pen;
+                                }
+                                Command::ToolSelect => {
+                                    newmode = state::Mode::Select;
+                                }
+                                Command::ToolZoom => {
+                                    newmode = state::Mode::Zoom;
+                                }
+                                Command::ToolVWS => {
                                     newmode = state::Mode::VWS;
                                 }
-                            }
-                            Some(VirtualKeyCode::E) => {
-                                if modifiers.ctrl() {
-                                    io::export_glif(v);
+                                Command::TogglePointLabels => {
+                                    trigger_toggle_on!(v, point_labels, PointLabels, command_info.command_mod.shift);
                                 }
-                            }
-                            // Toggles: trigger_toggle_on defined in events module
-                            Some(VirtualKeyCode::Key3) => {
-                                trigger_toggle_on!(v, point_labels, PointLabels, modifiers.shift());
-                            }
-                            Some(VirtualKeyCode::Grave) => {
-                                #[rustfmt::skip]
-                                trigger_toggle_on!(v, preview_mode, PreviewMode, !modifiers.shift());
+                                Command::TogglePreviewMode => {
+                                    trigger_toggle_on!(v, preview_mode, PreviewMode, !command_info.command_mod.shift);
+                                }
 
-                                trigger_toggle_on!(v, handle_style, HandleStyle, modifiers.shift());
+                                _ => { unreachable!("The remaining Command enums should never be returned.")}
                             }
-                            _ => {}
                         }
+
                         if mode != newmode {
                             v.borrow_mut().mode = newmode;
                             events::mode_switched(mode, newmode);
@@ -299,14 +284,10 @@ fn main() {
                         v.borrow_mut().offset = offset;
                         v.borrow_mut().factor = scale;
                     });
-                }
-                WindowEvent::ReceivedCharacter(ch) => {
-                    if !CONSOLE.with(|c| c.borrow().active) {
-                        return;
-                    }
-                    CONSOLE.with(|c| c.borrow_mut().handle_ch(ch));
-                }
-                WindowEvent::CursorMoved { position, .. } => {
+                },
+
+                Event::MouseMotion { x, y, .. } => {
+                    let position = (x as f64, y as f64);
                     STATE.with(|v| {
                         let mode = v.borrow().mode;
 
@@ -321,29 +302,16 @@ fn main() {
                             _ => false,
                         };
                     });
-                }
-                WindowEvent::MouseInput {
-                    state: mstate,
-                    button,
-                    modifiers,
-                    ..
-                } => {
+                },
+
+                Event::MouseButtonDown { mouse_btn, .. } => {
                     STATE.with(|v| {
-                        // Ignore events if we are clicking on Dear ImGui toolbox.
-                        let toolbox_rect = imgui::toolbox_rect();
-                        let absolute_position = v.borrow().absolute_mousepos;
-                        if toolbox_rect.contains(Point::from((
-                            absolute_position.x as f32,
-                            absolute_position.y as f32,
-                        ))) {
-                            return;
-                        }
-
-                        let meta = events::MouseMeta{modifiers, button};
-
+                        let keymod = command::key_down_to_mod(&keys_down);
+                        let meta = events::MouseMeta{ button: mouse_btn, modifiers: keymod };
+    
                         let mode = v.borrow().mode;
                         let position = v.borrow().mousepos;
-                        v.borrow_mut().mousedown = mstate == ElementState::Pressed;
+                        v.borrow_mut().mousedown = true;
 
                         match mode {
                             state::Mode::Select => {
@@ -355,73 +323,256 @@ fn main() {
                             _ => false,
                         };
 
-                        match mstate {
-                            ElementState::Pressed => {
-                                match mode {
-                                    state::Mode::Pen => {
-                                        events::pen::mouse_pressed(position, &v, meta)
-                                    }
-                                    state::Mode::Select => {
-                                        events::select::mouse_pressed(position, &v, meta)
-                                    }
-                                    state::Mode::VWS => {
-                                        events::vws::mouse_pressed(position, &v, meta)
-                                    }
-                                    _ => false,
-                                };
+                        match mode {
+                            state::Mode::Pen => {
+                                events::pen::mouse_pressed(position, &v, meta)
                             }
-                            ElementState::Released => {
-                                match mode {
-                                    state::Mode::Pen => {
-                                        events::pen::mouse_released(position, &v, meta)
-                                    }
-                                    state::Mode::Select => {
-                                        events::select::mouse_released(position, &v, meta)
-                                    }
-                                    state::Mode::Zoom => {
-                                        events::zoom::mouse_released(position, &v, meta);
-                                        events::center_cursor(&winit_window).is_ok()
-                                    }
-                                    state::Mode::VWS => {
-                                        events::vws::mouse_released(position, &v, meta)
-                                    }
-                                    _ => false,
-                                };
+                            state::Mode::Select => {
+                                events::select::mouse_pressed(position, &v, meta)
                             }
-                        }
+                            state::Mode::VWS => {
+                                events::vws::mouse_pressed(position, &v, meta)
+                            }
+                            _ => false,
+                        };
                     });
-                }
-                WindowEvent::Resized(size) => {
+                },
+
+
+                Event::MouseButtonUp { mouse_btn , .. } => {
                     STATE.with(|v| {
-                        v.borrow_mut().winsize = size;
+                        let keymod = command::key_down_to_mod(&keys_down);
+                        let meta = events::MouseMeta{ button: mouse_btn, modifiers: keymod };
+    
+                        let mode = v.borrow().mode;
+                        let position = v.borrow().mousepos;
+                        v.borrow_mut().mousedown = false;
+
+                        match mode {
+                            state::Mode::Pen => {
+                                events::pen::mouse_released(position, &v, meta)
+                            }
+                            state::Mode::Select => {
+                                events::select::mouse_released(position, &v, meta)
+                            }
+                            state::Mode::Zoom => {
+                                events::zoom::mouse_released(position, &v, meta)
+                                //events::center_cursor(&winit_window).is_ok()
+                            }
+                            state::Mode::VWS => {
+                                events::vws::mouse_released(position, &v, meta)
+                            }
+                            _ => false,
+                        };
                     });
-                }
-                _ => (),
-            },
-            Event::RedrawRequested { .. } => {
-                if let Err(e) = renderer.draw(&window, |canvas, _coordinate_system_helper| {
-                    imgui_manager.begin_frame(&winit_window);
-                    frame_count += 1;
+                },
 
-                    renderer::render_frame(canvas);
+                Event::Window {win_event, .. } => {
+                    match win_event {
+                        WindowEvent::Resized(x, y) => {
+                            STATE.with(|v| {
+                                v.borrow_mut().winsize = (x as u32, y as u32);
+                            });
+                        }
 
-                    {
-                        imgui_manager.with_ui(|ui: &mut ImguiUi| {
-                            imgui::build_imgui_ui(ui);
-                        });
+                        _ => {}
                     }
+                }
+                _ => {}
+            }
+        }
 
-                    imgui_manager.render(&winit_window);
-                }) {
-                    println!("Error during draw: {:?}", e);
-                    *control_flow = winit::event_loop::ControlFlow::Exit
+        // build and render imgui
+        imgui_sdl2.prepare_frame(imgui.io_mut(), &window, &event_pump.mouse_state());
+        let mut ui = imgui.frame();
+        crate::user_interface::build_imgui_ui(&mut ui);
+
+        imgui_sdl2.prepare_render(&ui, &window);           
+        let dd = ui.render();
+
+
+        // draw glyph preview and imgui with skia
+        let (window_width, window_height) = window.vulkan_drawable_size();
+        let extents = RafxExtents2D {
+            width: window_width,
+            height: window_height,
+        };
+
+
+        renderer
+            .draw(extents, 1.0, |canvas, coordinate_system_helper| {
+                renderer::render_frame(canvas);
+                
+                imgui_renderer.render_imgui(canvas, dd);
+            })
+            .unwrap();
+
+    }
+
+}
+
+fn setup_imgui() -> Context 
+{
+    let mut imgui = Context::create();
+    {
+        // Fix incorrect colors with sRGB framebuffer
+        fn imgui_gamma_to_linear(col: [f32; 4]) -> [f32; 4] {
+            let x = col[0].powf(2.2);
+            let y = col[1].powf(2.2);
+            let z = col[2].powf(2.2);
+            let w = 1.0 - (1.0 - col[3]).powf(2.2);
+            [x, y, z, w]
+        }
+
+        let style = imgui.style_mut();
+        for col in 0..style.colors.len() {
+            style.colors[col] = imgui_gamma_to_linear(style.colors[col]);
+        }
+    }
+
+    imgui.set_ini_filename(None);
+    imgui.style_mut().use_light_colors();
+
+    // TODO: Implement proper DPI scaling
+    let scale_factor = 1.;
+    let font_size = (16.0 * scale_factor) as f32;
+    let icon_font_size = (36.0 * scale_factor) as f32;
+
+    imgui.fonts().add_font(&[
+        imgui::FontSource::TtfData {
+            data: &system_fonts::SYSTEMSANS.data,
+            size_pixels: font_size,
+            config: Some(imgui::FontConfig {
+                oversample_h: 3,
+                oversample_v: 3,
+                ..Default::default()
+            }),
+        },
+        imgui_rs::FontSource::TtfData {
+            data: include_bytes!("../resources/fonts/icons.ttf"),
+            size_pixels: icon_font_size,
+            config: Some(imgui_rs::FontConfig {
+                glyph_ranges: imgui_rs::FontGlyphRanges::from_slice(&[
+                    0xF000 as u16,
+                    0xF100 as u16,
+                    0,
+                ]),
+                ..Default::default()
+            }),
+        },
+    ]);
+
+
+    imgui
+}
+
+struct Renderer {
+    // this holds the skia formatted font atlas
+    skfont_paint: skia_safe::Paint,
+}
+
+impl Renderer {
+    fn build_paint(atlas: &mut imgui::FontAtlasRefMut, font_paint: &mut skia_safe::Paint)
+    {
+        let imfont_texture = atlas.build_alpha8_texture();
+        let dimensions = skia_safe::ISize::new(imfont_texture.width as i32, imfont_texture.height as i32);
+        let imgfont_a8 = skia_safe::ImageInfo::new_a8(dimensions);
+        
+        let pixels = unsafe {
+            skia_safe::Data::new_bytes(imfont_texture.data)
+        };
+
+        let pixmap = skia_safe::Pixmap::new(&imgfont_a8, imfont_texture.data, imgfont_a8.min_row_bytes());
+        let font_image = skia_safe::Image::from_raster_data(&imgfont_a8, pixels, pixmap.row_bytes());
+
+        let local_matrix = skia_safe::Matrix::scale((1.0 / imfont_texture.width as f32, 1.0 / imfont_texture.height as f32));
+        let sampling_options = skia_safe::SamplingOptions::new(skia_safe::FilterMode::Nearest, skia_safe::MipmapMode::None);
+        let tile_mode = skia_safe::TileMode::Repeat;
+
+        let font_shader = font_image.unwrap().to_shader((tile_mode, tile_mode), sampling_options, &local_matrix);
+
+        font_paint.set_shader(font_shader);
+        font_paint.set_color(skia_safe::Color::WHITE);
+    }
+
+    pub fn new(im_context: &mut Context) -> Self
+    {
+        let mut font_paint = skia_safe::Paint::default();
+        Self::build_paint(&mut im_context.fonts(), &mut font_paint);
+    
+        Renderer {
+            skfont_paint: font_paint,
+        }
+    }
+
+    pub fn render_imgui(&self, canvas: &mut skia_safe::Canvas, data: &DrawData)
+    {
+        for draw_list in data.draw_lists() {
+            let mut idx: Vec<u16> = Vec::new();
+            let mut pos: Vec<skia_safe::Point> = Vec::new();
+            let mut uv: Vec<skia_safe::Point> = Vec::new();
+            let mut color: Vec<skia_safe::Color> = Vec::new();
+
+            // we've got to translate the vertex buffer from imgui into Skia friendly types
+            // thankfully skia_safe gives us a constructor for Color so we don't have to swizzle the colors as Skia expects BGR order
+            for vertex in draw_list.vtx_buffer() {
+                pos.push(skia_safe::Point {
+                    x: vertex.pos[0],
+                    y: vertex.pos[1]
+                });
+
+                uv.push(skia_safe::Point {
+                    x: vertex.uv[0],
+                    y: vertex.uv[1]
+                });
+
+                color.push(skia_safe::Color::from_argb(
+                    vertex.col[3],
+                    vertex.col[0],
+                    vertex.col[1],
+                    vertex.col[2],
+                ));
+            }
+            
+            // we build our index buffer
+            for index in draw_list.idx_buffer() {
+                idx.push(*index);
+            }
+
+            // so now we've got to loop through imgui's cmd buffer and draw everything with canvas.draw_vertices
+            for cmd in draw_list.commands() {
+                let mut arc = skia_safe::AutoCanvasRestore::guard(canvas, true);
+                match cmd {
+                    imgui::DrawCmd::RawCallback {
+                        callback,
+                        raw_cmd
+                    } => {
+                        todo!("Raw callbacks unimplemented!")
+                    }
+                    imgui::DrawCmd::ResetRenderState => {
+                        todo!("Reset render state unimplemented!")
+                    }
+                    imgui::DrawCmd::Elements {
+                        count,
+                        cmd_params,
+                    } => {
+                        //TODO: Handle images that aren't our font atlas
+                        let id_index = cmd_params.texture_id;
+
+                        let clip_rect = cmd_params.clip_rect;
+                        let skclip_rect = skia_safe::Rect::new(clip_rect[0], clip_rect[1], clip_rect[2], clip_rect[3]);
+
+                        let vertex_mode = skia_safe::vertices::VertexMode::Triangles;
+                        let idx_offset = cmd_params.idx_offset;
+                        let idx_slice = Some(&idx[idx_offset .. idx_offset + count]);
+
+                        arc.clip_rect(skclip_rect, skia_safe::ClipOp::default(), true);
+                        let vertices = skia_safe::Vertices::new_copy(vertex_mode, &pos, &uv, &color, idx_slice);
+                        arc.draw_vertices(&vertices, skia_safe::BlendMode::Modulate, &self.skfont_paint);
+                    }
+                    _ => {}
                 }
             }
-            Event::MainEventsCleared => {
-                winit_window.request_redraw();
-            }
-            _ => return,
         }
-        frame += 1;
-    });
+    }
 }

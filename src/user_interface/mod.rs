@@ -1,11 +1,11 @@
-use skulpin_plugin_imgui::imgui;
+use imgui;
 
 use crate::events;
 use crate::state::Mode;
 use crate::STATE;
 
 pub mod icons;
-pub mod support;
+//pub mod support;
 
 // These are before transformation by STATE.dpi (glutin scale_factor)
 const TOOLBOX_OFFSET_X: f32 = 10.;

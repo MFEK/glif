@@ -1,5 +1,6 @@
 use derive_more::Display;
 use glifparser::WhichHandle;
+use sdl2::keyboard::Mod;
 
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq)]
 /// Point following behavior when using the arrow tool
@@ -43,7 +44,7 @@ impl ToolData {
 }
 
 use crate::events::MouseMeta;
-use crate::winit::event::MouseButton;
+use crate::sdl2::mouse::MouseButton;
 impl From<MouseMeta> for Follow {
     fn from(m: MouseMeta) -> Follow {
         match m {
@@ -51,7 +52,7 @@ impl From<MouseMeta> for Follow {
                 button: MouseButton::Left,
                 modifiers,
             } => {
-                if modifiers.ctrl() {
+                if modifiers.ctrl {
                     Follow::ForceLine
                 } else {
                     Follow::Mirror
