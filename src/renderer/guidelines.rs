@@ -79,7 +79,10 @@ pub fn draw_baseline(canvas: &mut Canvas) {
 pub fn draw_all(canvas: &mut Canvas) {
     STATE.with(|v| {
         draw_lbearing(canvas);
-        draw_rbearing(v.borrow().glyph.as_ref().unwrap().glif.width, canvas);
+        match v.borrow().glyph.as_ref().unwrap().glif.width {
+            Some(w) => draw_rbearing(w, canvas),
+            None => {}
+        }
         draw_baseline(canvas);
 
         for guideline in &v.borrow().glyph.as_ref().unwrap().guidelines {
