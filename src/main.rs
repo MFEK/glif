@@ -16,11 +16,8 @@ use clap;
 use colored;
 use derive_more;
 use enum_iterator;
-#[macro_use]
-use log::debug;
+use log::{error, debug};
 use env_logger;
-#[macro_use]
-use git_version; // for util::parse_args
 use font_kit;
 
 use imgui_winit_support;
@@ -411,7 +408,7 @@ fn main() {
 
                     imgui_manager.render(&winit_window);
                 }) {
-                    println!("Error during draw: {:?}", e);
+                    error!("Error during draw: {:?}", e);
                     *control_flow = winit::event_loop::ControlFlow::Exit
                 }
             }
