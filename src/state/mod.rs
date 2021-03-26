@@ -1,7 +1,7 @@
 //! Global thread local state.
 
 use glifparser::{Contour, Glif, Outline, Point};
-use MFEKMath::VWSContour;
+use MFEKmath::VWSContour;
 
 pub use crate::renderer::console::Console as RendererConsole;
 use crate::renderer::Guideline;
@@ -44,7 +44,7 @@ pub struct State<T> {
     pub dpi: f64, // from glutin scale_factor()
     pub ipc_info: Option<mfek_ipc::IPCInfo>,
     pub quit_requested: bool, // allows for quits from outside event loop, e.g. from command closures
-    pub vws_previews: Option<Outline<Option<MFEKMath::piecewise::glif::PointData>>>,
+    pub vws_previews: Option<Outline<Option<MFEKmath::piecewise::glif::PointData>>>,
     pub vws_contours: Vec<VWSContour>,
 }
 

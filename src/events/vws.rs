@@ -4,8 +4,8 @@ use crate::state::Follow;
 use glifparser::{Handle, WhichHandle};
 use log::debug;
 use skulpin::skia_safe::{Canvas, Paint, PaintStyle, Path as SkiaPath};
-use MFEKMath::variable_width_stroking::{generate_vws_lib, InterpolationType};
-use MFEKMath::{
+use MFEKmath::variable_width_stroking::{generate_vws_lib, InterpolationType};
+use MFEKmath::{
     parse_vws_lib, variable_width_stroke, CapType, Evaluate, JoinType, Piecewise, VWSContour,
     VWSHandle, VWSSettings, Vector,
 };

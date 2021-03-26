@@ -159,11 +159,9 @@ pub fn draw_previews(canvas: &mut Canvas) -> Path {
                     continue;
                 }
                 path.move_to((calc_x(contour[0].x), calc_y(contour[0].y)));
-                let firstpoint: &glifparser::Point<Option<MFEKMath::piecewise::glif::PointData>> =
+                let firstpoint: &glifparser::Point<Option<MFEKmath::piecewise::glif::PointData>> =
                     contour.first().unwrap();
-                let mut prevpoint: &glifparser::Point<
-                    Option<MFEKMath::piecewise::glif::PointData>,
-                > = contour.first().unwrap();
+                let mut prevpoint: &glifparser::Point<Option<MFEKmath::piecewise::glif::PointData>> = contour.first().unwrap();
                 let pointiter = contour.iter().enumerate();
                 for (_i, point) in pointiter {
                     if _i == 0 {
