@@ -20,7 +20,7 @@ pub struct MouseMeta {
 
 // Generic events
 pub fn center_cursor(winit_window: &Window) -> Result<(), winit::error::ExternalError> {
-    let mut center = winit_window.outer_size();
+    let mut center = winit_window.inner_size();
     center.width /= 2;
     center.height /= 2;
     STATE.with(|v| {
