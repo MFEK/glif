@@ -16,9 +16,9 @@ use clap;
 use colored;
 use derive_more;
 use enum_iterator;
-use log::{error, debug};
 use env_logger;
 use font_kit;
+use log::{debug, error};
 
 use imgui_winit_support;
 use skulpin;
