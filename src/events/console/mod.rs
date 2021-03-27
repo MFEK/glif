@@ -11,12 +11,6 @@ use sdl2::keyboard::Mod;
 // Only called if ElementState::Pressed
 pub fn set_state(vk: Keycode, m: Mod) {
     CONSOLE.with(|c| match vk {
-        Keycode::Semicolon => {
-            if !m.contains(Mod::LSHIFTMOD | Mod::RSHIFTMOD) {
-                return;
-            }
-            c.borrow_mut().active(true);
-        }
         Keycode::Escape => {
             c.borrow_mut().active(false);
         }

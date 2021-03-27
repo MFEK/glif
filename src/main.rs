@@ -87,6 +87,7 @@ fn main() {
 
     let (sdl_context, window) = initialize_sdl();
     
+    
     // Skulpin initialization TODO: proper error handling
     let mut renderer = initialize_skulpin_renderer(&window).unwrap();
 
@@ -102,21 +103,21 @@ fn main() {
     command::initialize_keybinds();
 
     'main_loop: loop {
-                // Create a set of pressed Keys.
+        // Create a set of pressed Keys.
         let keys_down: HashSet<Keycode> = event_pump
             .keyboard_state()
             .pressed_scancodes()
             .filter_map(Keycode::from_scancode)
             .collect();
 
-        // event handling
+        // sdl event handling
         for event in event_pump.poll_iter() {
             imgui_sdl2.handle_event(&mut imgui, &event);
             if imgui_sdl2.ignore_event(&event) { continue; };
 
             // we're gonna handle some of these events before handling commands so that we don't have the logic for this stuff
             // intertwined in command handling
-            match event {
+            match &event {
                 Event::Quit { .. } => break 'main_loop,
                 Event::KeyDown { keycode: Some(Keycode::Q), keymod: km,  .. } => {
                     if km.contains(Mod::LCTRLMOD | Mod::RCTRLMOD){
@@ -139,14 +140,25 @@ fn main() {
                         continue;
                     }
                 }
+
+                // we're gonna handle console text input here too as this should steal input from the command system
+                Event::TextInput { text, ..} => {
+                    if CONSOLE.with(|c| { return c.borrow_mut().active }) {
+                        for ch in text.chars() {
+                            CONSOLE.with(|c| { c.borrow_mut().handle_ch(ch) });
+                        }
+                    }
+                }
                 _ => {}
             }
 
             match event {
-                Event::KeyDown { keycode,  ..} => {
+                Event::KeyDown { keycode, keymod,  ..} => {
                     // we don't care about keydown events that have no keycode
                     if !keycode.is_some() { continue; }
                     let keycode = keycode.unwrap();
+
+                    events::console::set_state(keycode, keymod);
 
                     STATE.with(|v| {
                         let mode = v.borrow().mode;
@@ -198,6 +210,11 @@ fn main() {
                             }
                             Command::TogglePreviewMode => {
                                 trigger_toggle_on!(v, preview_mode, PreviewMode, !command_info.command_mod.shift);
+                            }
+                            Command::ToggleConsole => {
+                                CONSOLE.with(|c| { 
+                                    c.borrow_mut().active = true;
+                                });
                             }
 
                             _ => { unreachable!("The remaining Command enums should never be returned.")}
@@ -353,10 +370,16 @@ fn initialize_sdl() -> (Sdl, Window)
         .video()
         .expect("Failed to create sdl video subsystem");
 
+    video_subsystem.text_input().start();
+    
     let logical_size = LogicalSize {
         width: WIDTH,
         height: HEIGHT,
     };
+
+    STATE.with(|v| {
+        v.borrow_mut().winsize = (WIDTH as u32, HEIGHT as u32);
+    });
 
     let window = video_subsystem
         .window("MFEKglif", logical_size.width, logical_size.height)

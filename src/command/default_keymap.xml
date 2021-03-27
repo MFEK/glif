@@ -53,6 +53,8 @@
     <binding command = "TogglePointLabels" key = "3"/>
     <binding command = "TogglePreviewMode" key = "`"/>
 
+    <!-- console -->
+    <binding command = "ToggleConsole" key = ";"/>
 
     <!-- mod keys -->
     <mod name = "ShiftMod" key = "LShift"/>

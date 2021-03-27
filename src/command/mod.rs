@@ -32,6 +32,9 @@ pub enum Command {
     TogglePointLabels,
     TogglePreviewMode,
 
+    // console
+    ToggleConsole,
+
     ShiftMod,
     CtrlMod
 }

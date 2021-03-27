@@ -26,7 +26,7 @@ impl Console {
     }
 }
 
-use skulpin::skia_safe::{Data, Font, FontStyle, Typeface};
+use skulpin::skia_safe::{Data, Font, FontStyle, Matrix, Typeface};
 
 use crate::system_fonts;
 lazy_static! {
@@ -59,6 +59,11 @@ impl Console {
         if !self.active {
             return;
         }
+
+        canvas.save();
+        let mut matrix = Matrix::new_identity();
+        matrix.set_scale((1., 1.), None);
+        
         STATE.with(|v| {
             let font = Font::from_typeface_with_params(&*CONSOLE_TYPEFACE, 14., 1., 0.0);
             let winsize = v.borrow().winsize;
@@ -93,6 +98,8 @@ impl Console {
 
             canvas.draw_text_blob(&blob, topleft, &paint);
         });
+
+        canvas.restore();
     }
 }
 
