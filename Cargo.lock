@@ -29,8 +29,8 @@ dependencies = [
  "git-version",
  "glifparser",
  "imgui",
- "imgui-rs-vulkan-renderer",
  "imgui-sdl2",
+ "imgui-skia-renderer",
  "lazy_static",
  "log",
  "mfek-ipc",
@@ -220,12 +220,6 @@ name = "bumpalo"
 version = "3.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "63396b8a4b9de3f4fdfb320ab6080762242f66a8ef174c49d8e19b674db4cdbe"
-
-[[package]]
-name = "bytemuck"
-version = "1.5.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bed57e2090563b83ba8f83366628ce535a7584c9afa4c9fc0612a03925c6df58"
 
 [[package]]
 name = "byteorder"
@@ -823,18 +817,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "imgui-rs-vulkan-renderer"
-version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1d79face1355d6de260a62c3931b350d75e21e8ee8733720c83b2f3fa9d4413a"
-dependencies = [
- "ash",
- "imgui",
- "log",
- "ultraviolet",
-]
-
-[[package]]
 name = "imgui-sdl2"
 version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -842,6 +824,15 @@ checksum = "836dafdf4d29be5a44a5acc38aac2dc3a2e8a6bfc461aa48d309fb2a56832a53"
 dependencies = [
  "imgui",
  "sdl2",
+]
+
+[[package]]
+name = "imgui-skia-renderer"
+version = "0.1.0"
+source = "git+https://github.com/MFEK/imgui-skia-renderer.rlib?branch=main#4c11d05dfe97b7df878ebcbe7778b27ab6aad134"
+dependencies = [
+ "imgui",
+ "skia-safe",
 ]
 
 [[package]]
@@ -1362,15 +1353,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "71d301d4193d031abdd79ff7e3dd721168a9572ef3fe51a1517aba235bd8f86e"
 
 [[package]]
-name = "safe_arch"
-version = "0.5.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c1ff3d6d9696af502cc3110dacce942840fb06ff4514cad92236ecc455f2ce05"
-dependencies = [
- "bytemuck",
-]
-
-[[package]]
 name = "same-file"
 version = "1.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1669,15 +1651,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ultraviolet"
-version = "0.7.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c6650a58414f856056ccc651abd3b9d80c384206250c3a621224497503a0f9f2"
-dependencies = [
- "wide",
-]
-
-[[package]]
 name = "unicode-bidi"
 version = "0.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1894,16 +1867,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d011071ae14a2f6671d0b74080ae0cd8ebf3a6f8c9589a2cd45f23126fe29724"
 dependencies = [
  "libc",
-]
-
-[[package]]
-name = "wide"
-version = "0.5.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "80b27c76ecc22bd81fe681d9c9eac81e002d7b7048105ee4608f57c4e92e9211"
-dependencies = [
- "bytemuck",
- "safe_arch",
 ]
 
 [[package]]

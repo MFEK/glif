@@ -28,8 +28,8 @@ lazy_static = "1.4.0"
 
 # For immediate mode GUI
 imgui = "0.7.0"
-imgui-rs-vulkan-renderer = "0.7.0"
 imgui-sdl2 = "0.14.0"
+imgui-skia-renderer = {git = "https://github.com/MFEK/imgui-skia-renderer.rlib", branch = "main"}
 
 # For argument parsing
 clap = "2.33.3"
