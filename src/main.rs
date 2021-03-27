@@ -87,7 +87,6 @@ fn main() {
 
     let (sdl_context, window) = initialize_sdl();
     
-    
     // Skulpin initialization TODO: proper error handling
     let mut renderer = initialize_skulpin_renderer(&window).unwrap();
 
@@ -147,6 +146,7 @@ fn main() {
                         for ch in text.chars() {
                             CONSOLE.with(|c| { c.borrow_mut().handle_ch(ch) });
                         }
+                        continue;
                     }
                 }
                 _ => {}
@@ -159,6 +159,7 @@ fn main() {
                     let keycode = keycode.unwrap();
 
                     events::console::set_state(keycode, keymod);
+                    if CONSOLE.with(|c| { c.borrow_mut().active } ) { continue; }
 
                     STATE.with(|v| {
                         let mode = v.borrow().mode;
