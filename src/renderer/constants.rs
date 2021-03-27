@@ -15,7 +15,7 @@ pub static HANDLE_RADIUS: f32 = 2.5 * PEN_SIZE;
 pub static HANDLEBAR_THICKNESS: f32 = 3. * PEN_SIZE;
 
 /* Colors */
-pub static OUTLINE_FILL: u32 = 0xaa_000000;
+pub static OUTLINE_FILL: u32 = 0xff_666666;
 pub static OUTLINE_STROKE: u32 = 0xff_000000;
 pub static POINT_SQUARE_FILL: u32 = 0xff_6ae755;
 pub static POINT_SQUARE_STROKE: u32 = 0xff_208e53;

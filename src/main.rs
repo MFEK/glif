@@ -44,7 +44,7 @@ use imgui_rs::{Context, DrawData, FontAtlasRef};
 //use renderer::render_frame;
 use sdl2::{event::{self, Event, WindowEvent}, keyboard::Mod};
 use sdl2::keyboard::Keycode;
-use skulpin::{CoordinateSystemHelper, LogicalSize, RendererBuilder, rafx::api::RafxExtents2D, rafx::api::RafxQueueType, skia_safe::{RCHandle, SamplingOptions}};
+use skulpin::{CoordinateSystemHelper, LogicalSize, RendererBuilder, rafx::api::RafxExtents2D, rafx::api::RafxQueueType, skia_safe::{Matrix, RCHandle, SamplingOptions}};
 pub use skulpin::skia_safe;
 
 use skulpin::rafx::api::ash;
@@ -103,7 +103,7 @@ fn main() {
         height: HEIGHT,
     };
 
-    let scale_to_fit = skulpin::skia_safe::matrix::ScaleToFit::Center;
+    let scale_to_fit = skulpin::skia_safe::matrix::ScaleToFit::Start;
     let visible_range = skulpin::skia_safe::Rect {
         left: 0.0,
         right: logical_size.width as f32,
@@ -115,6 +115,7 @@ fn main() {
         .window("MFEKglif", logical_size.width, logical_size.height)
         .position_centered()
         .allow_highdpi()
+        .vulkan()
         .resizable()
         .build()
         .expect("Failed to create window");
@@ -167,10 +168,15 @@ fn main() {
             imgui_sdl2.handle_event(&mut imgui, &event);
             if imgui_sdl2.ignore_event(&event) { continue; };
 
-            // we're gonna handle some of these events before handling commands
+            // we're gonna handle some of these events before handling commands so that we don't have the logic for this stuff
+            // intertwined in command handling
             match event {
                 Event::Quit { .. } => break 'main_loop,
-                Event::KeyDown { keycode: Some(Keycode::Q), .. } => break 'main_loop,
+                Event::KeyDown { keycode: Some(Keycode::Q), keymod: km,  .. } => {
+                    if km.contains(Mod::LSHIFTMOD | Mod::RSHIFTMOD){
+                        break 'main_loop;
+                    }
+                }
                 Event::KeyDown { keycode: Some(Keycode::S), keymod: km, .. } => {
                     if km.contains(Mod::LSHIFTMOD | Mod::RSHIFTMOD){
                         STATE.with(|v| {
@@ -192,22 +198,6 @@ fn main() {
 
             match event {
                 Event::KeyDown { keycode, keymod, ..} => {
-                    if let Some(vk) = keycode {
-                        events::console::set_state(vk, keymod);
-                    }
-
-                    //We send ctr+v to the console if it's open
-                    if CONSOLE.with(|c| {
-                        if c.borrow().active {
-                            if let Some(Keycode::V) = keycode {
-                                if keymod.contains(Mod::LCTRLMOD | Mod::RCTRLMOD) {
-                                    c.borrow_mut().handle_clipboard();
-                                }
-                            }
-                        }
-                        c.borrow().active
-                    }) { return };
-
                     STATE.with(|v| {
                         let mode = v.borrow().mode;
                         let mut newmode = mode;
@@ -356,8 +346,9 @@ fn main() {
                                 events::select::mouse_released(position, &v, meta)
                             }
                             state::Mode::Zoom => {
-                                events::zoom::mouse_released(position, &v, meta)
-                                //events::center_cursor(&winit_window).is_ok()
+                                events::zoom::mouse_released(position, &v, meta);
+                                events::center_cursor(&sdl_context, &window);
+                                true
                             }
                             state::Mode::VWS => {
                                 events::vws::mouse_released(position, &v, meta)
@@ -402,7 +393,6 @@ fn main() {
         renderer
             .draw(extents, 1.0, |canvas, coordinate_system_helper| {
                 renderer::render_frame(canvas);
-                
                 imgui_renderer.render_imgui(canvas, dd);
             })
             .unwrap();
@@ -505,8 +495,13 @@ impl Renderer {
         }
     }
 
-    pub fn render_imgui(&self, canvas: &mut skia_safe::Canvas, data: &DrawData)
+    pub fn render_imgui(&self, canvas: &mut skia_safe::Canvas, data: &DrawData, )
     {
+        canvas.save();
+        let mut matrix = Matrix::new_identity();
+        matrix.set_scale((1., 1.), None);
+    
+        canvas.set_matrix(&matrix.into());
         for draw_list in data.draw_lists() {
             let mut idx: Vec<u16> = Vec::new();
             let mut pos: Vec<skia_safe::Point> = Vec::new();

@@ -12,7 +12,7 @@ pub mod zoom;
 
 pub use self::zoom::{zoom_in_factor, zoom_out_factor};
 use crate::command::CommandMod;
-use sdl2::mouse::MouseButton;
+use sdl2::{Sdl, mouse::MouseButton};
 use sdl2::keyboard::Mod;
 use sdl2::video::Window;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -22,23 +22,16 @@ pub struct MouseMeta {
 }
 
 // Generic events
-pub fn center_cursor(sdl_window: &Window) -> Result<(), ()> {
-    /*
+pub fn center_cursor(sdl_context: &Sdl, sdl_window: &Window) {
     let mut center = sdl_window.size();
     center.0 /= 2;
     center.1 /= 2;
     STATE.with(|v| {
-        v.borrow_mut().absolute_mousepos = (center.width, center.height)
+        v.borrow_mut().absolute_mousepos = (center.0 as f64, center.1 as f64)
     });
 
-    sdl_window.set
-    winit_window.set_cursor_position(winit::dpi::PhysicalPosition::new(
-        center.width as i32,
-        center.height as i32,
-    ))
-    */
-
-    return Ok(())
+    
+    sdl_context.mouse().warp_mouse_in_window(&sdl_window, center.0 as i32, center.1 as i32);
 }
 
 pub fn update_viewport<T>(
