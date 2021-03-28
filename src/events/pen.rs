@@ -38,7 +38,7 @@ pub fn mouse_moved(position: (f64, f64), v: &RefCell<state::State<Option<PointDa
 pub fn mouse_pressed(
     _position: (f64, f64),
     v: &RefCell<state::State<Option<PointData>>>,
-    _meta: MouseMeta,
+    mmeta: MouseMeta,
 ) -> bool {
     let mposition = v.borrow().mousepos;
 
@@ -55,7 +55,11 @@ pub fn mouse_pressed(
                 let mut new_contour: Contour<Option<PointData>> = Vec::new();
                 new_contour.push(Point::from_x_y_type(
                     (calc_x(mposition.0 as f32), calc_y(mposition.1 as f32)),
-                    PointType::Curve,
+                    if mmeta.modifiers.shift {
+                        PointType::Move
+                    } else {
+                        PointType::Curve
+                    },
                 ));
                 get_outline_mut!(v).push(new_contour);
                 vv.borrow_mut().contour = Some(get_outline!(v).len() - 1);
@@ -76,7 +80,7 @@ pub fn mouse_released(
         //vv.borrow_mut().contour = None;
         if let Some(idx) = vv.borrow().contour {
             get_outline_mut!(v)[idx].last_mut().map(|point| {
-                if point.a != Handle::Colocated {
+                if point.a != Handle::Colocated && point.ptype != PointType::Move {
                     point.ptype = PointType::Curve;
                 }
             });

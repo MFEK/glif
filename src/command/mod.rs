@@ -109,23 +109,17 @@ pub fn key_down_to_mod(keys_down: &HashSet<Keycode>) -> CommandMod {
         ctrl: false,
     };
 
-    KEYMAP.with(|v| {
-        for (key, value) in v.borrow().keybindings.iter() {
-            match value {
-                Command::ShiftMod => {
-                    if keys_down.get(&key).is_some() {
-                        keymod.shift = true;
-                    }
-                }
-                Command::CtrlMod => {
-                    if keys_down.get(&key).is_some() {
-                        keymod.ctrl = true;
-                    }
-                }
-                _ => {}
+    for key in keys_down.iter() {
+        match key {
+            Keycode::LShift | Keycode::RShift => {
+                keymod.shift = true;
             }
+            Keycode::LCtrl | Keycode::RCtrl => {
+                keymod.ctrl = true;
+            }
+            _ => {}
         }
-    });
+    }
 
     return keymod;
 }
