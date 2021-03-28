@@ -15,7 +15,7 @@ pub mod points; // point drawing functions
 
 mod glyph;
 mod selbox;
-mod viewport;
+pub mod viewport;
 
 // Provides thread-local global variables.
 pub use crate::events::vws;

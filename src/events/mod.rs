@@ -11,25 +11,26 @@ pub mod vws;
 pub mod zoom;
 
 pub use self::zoom::{zoom_in_factor, zoom_out_factor};
-
+use crate::command::CommandMod;
+use sdl2::keyboard::Mod;
+use sdl2::video::Window;
+use sdl2::{mouse::MouseButton, Sdl};
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MouseMeta {
-    pub modifiers: ModifiersState,
+    pub modifiers: CommandMod,
     pub button: MouseButton,
 }
 
 // Generic events
-pub fn center_cursor(winit_window: &Window) -> Result<(), winit::error::ExternalError> {
-    let mut center = winit_window.inner_size();
-    center.width /= 2;
-    center.height /= 2;
-    STATE.with(|v| {
-        v.borrow_mut().absolute_mousepos = PhysicalPosition::from((center.width, center.height))
-    });
-    winit_window.set_cursor_position(winit::dpi::PhysicalPosition::new(
-        center.width as i32,
-        center.height as i32,
-    ))
+pub fn center_cursor(sdl_context: &Sdl, sdl_window: &Window) {
+    let mut center = sdl_window.size();
+    center.0 /= 2;
+    center.1 /= 2;
+    STATE.with(|v| v.borrow_mut().absolute_mousepos = (center.0 as f64, center.1 as f64));
+
+    sdl_context
+        .mouse()
+        .warp_mouse_in_window(&sdl_window, center.0 as i32, center.1 as i32);
 }
 
 pub fn update_viewport<T>(
@@ -50,19 +51,19 @@ pub fn update_viewport<T>(
 }
 
 pub fn update_mousepos<T>(
-    position: PhysicalPosition<f64>,
+    position: (f64, f64),
     v: &RefCell<state::State<T>>,
     pan: bool,
-) -> PhysicalPosition<f64> {
+) -> (f64, f64) {
     let factor = 1. / v.borrow().factor as f64;
     let uoffset = v.borrow().offset;
     let offset = (uoffset.0 as f64, uoffset.1 as f64);
 
-    let absolute_mposition = PhysicalPosition::from(((position.x).floor(), (position.y).floor()));
-    let mposition = PhysicalPosition::from((
-        ((position.x).floor() - offset.0) * factor,
-        ((position.y).floor() - offset.1) * factor,
-    ));
+    let absolute_mposition = ((position.0).floor(), (position.1).floor());
+    let mposition = (
+        ((position.0).floor() - offset.0) * factor,
+        ((position.1).floor() - offset.1) * factor,
+    );
 
     v.borrow_mut().absolute_mousepos = absolute_mposition;
     v.borrow_mut().mousepos = mposition;

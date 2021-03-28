@@ -7,20 +7,16 @@ use log::debug;
 
 mod commands;
 
-use crate::winit::event::{ModifiersState, VirtualKeyCode};
+use sdl2::keyboard::Keycode;
+use sdl2::keyboard::Mod;
+
 // Only called if ElementState::Pressed
-pub fn set_state(vk: VirtualKeyCode, m: ModifiersState) {
+pub fn set_state(vk: Keycode, m: Mod) {
     CONSOLE.with(|c| match vk {
-        VirtualKeyCode::Semicolon => {
-            if !m.shift() {
-                return;
-            }
-            c.borrow_mut().active(true);
-        }
-        VirtualKeyCode::Escape => {
+        Keycode::Escape => {
             c.borrow_mut().active(false);
         }
-        VirtualKeyCode::Return => {
+        Keycode::Return => {
             if c.borrow().active {
                 run_command(&mut c.borrow_mut());
             }

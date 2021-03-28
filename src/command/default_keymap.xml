@@ -1,0 +1,65 @@
+<!--
+    Example binding:
+        <binding command = "ToolPen" keycode = "A"/>
+
+    Commands:
+
+        // zoom
+        ResetScale
+        ZoomIn
+        ZoomOut
+
+        // move camera
+        NudgeUp
+        NudgeDown
+        NudgeLeft
+        NudgeRight
+
+        // tools
+        ToolPen
+        ToolSelect
+        ToolZoom
+        ToolVWS
+
+        // view modes
+        TogglePointLabels
+        TogglePreviewMode
+
+        // mod
+        ShiftMod
+        CtrlMod
+-->
+
+<keybindings>
+    <!-- zoom -->
+    <binding command = "ResetScale" key = "1"/>
+    <binding command = "ZoomIn" key = "="/>
+    <binding command = "ZoomOut" key = "-"/>
+
+    <!-- move camera -->
+    <binding command = "NudgeUp" key = "Up"/>
+    <binding command = "NudgeDown" key = "Down"/>
+    <binding command = "NudgeLeft" key = "Left"/>
+    <binding command = "NudgeRight" key = "Right"/>
+
+    <!-- tools -->
+    <binding command = "ToolPen" key = "A"/>
+    <binding command = "ToolPen" key = "P"/>
+    <binding command = "ToolSelect" key = "V"/>
+    <binding command = "ToolZoom" key = "Z"/>
+    <binding command = "ToolVWS" key = "S"/>
+
+    <!-- view modes -->
+    <binding command = "TogglePointLabels" key = "3"/>
+    <binding command = "TogglePreviewMode" key = "`"/>
+
+    <!-- console -->
+    <binding command = "ToggleConsole" key = ";"/>
+
+    <!-- mod keys -->
+    <mod name = "ShiftMod" key = "LShift"/>
+    <mod name = "CtrlMod" key = "LCtrl"/>
+
+    <mod name = "ShiftMod" key = "RShift"/>
+    <mod name = "CtrlMod" key = "RCtrl"/>
+</keybindings>
