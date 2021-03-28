@@ -54,10 +54,10 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: Qglif-${{ matrix.platform }}
+          name: MFEKglif-${{ matrix.platform }}
           path: |
-            target/debug/Qglif
-            target/debug/Qglif.exe
+            target/debug/MFEKglif
+            target/debug/MFEKglif.exe
 
   rustfmt:
     strategy:
