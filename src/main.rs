@@ -119,12 +119,12 @@ fn main() {
             match &event {
                 Event::Quit { .. } => break 'main_loop,
                 Event::KeyDown { keycode: Some(Keycode::Q), keymod: km,  .. } => {
-                    if km.contains(Mod::LCTRLMOD | Mod::RCTRLMOD){
+                    if km.contains(Mod::LCTRLMOD) || km.contains(Mod::RCTRLMOD) {
                         break 'main_loop;
                     }
                 }
                 Event::KeyDown { keycode: Some(Keycode::S), keymod: km, .. } => {
-                    if km.contains(Mod::LSHIFTMOD | Mod::RSHIFTMOD){
+                    if km.contains(Mod::LSHIFTMOD) || km.contains(Mod::RSHIFTMOD) {
                         STATE.with(|v| {
                             io::save_glif(v);
                         });
@@ -132,7 +132,7 @@ fn main() {
                     }
                 }
                 Event::KeyDown { keycode: Some(Keycode::E), keymod: km, .. } => {
-                    if km.contains(Mod::LSHIFTMOD | Mod::RSHIFTMOD){
+                    if km.contains(Mod::LSHIFTMOD) || km.contains(Mod::RSHIFTMOD) {
                         STATE.with(|v| {
                             io::export_glif(v);
                         });
