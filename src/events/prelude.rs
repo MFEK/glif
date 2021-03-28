@@ -12,10 +12,6 @@ pub use crate::{CONSOLE, STATE, TOOL_DATA};
 // Skia/Winit stuff
 pub use skulpin::skia_safe::Contains as _;
 pub use skulpin::skia_safe::{Canvas, Matrix, Path as SkPath, Point as SkPoint, Rect as SkRect};
-pub use skulpin::winit;
-pub use skulpin::winit::dpi::{PhysicalPosition, PhysicalSize};
-pub use skulpin::winit::event::{ModifiersState, MouseButton};
-pub use skulpin::winit::window::Window;
 
 // std
 pub use std::cell::RefCell;
