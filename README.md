@@ -16,6 +16,10 @@ MFEKglif is the premier program of the Modular Font Editor K project. This proje
 
 To make this as easy as possible to build, and cross-platform without hassle, the icon is compiled right into the binary via the Rust `include_str!` macro.
 
+## Running from artifacts
+
+MFEKglif is still alpha-quality software, and a numbered release hasn't been made yet. Before 1.0 is out, though, you can test it out with the artifacts function in GitHub. Go to [«Actions»](https://github.com/MFEK/glif/actions), choose a commit, and download the artifact for your OS. Three are uploaded: MFEKglif-linux, MFEKglif-windows, and MFEKglif-macos (not notarized).
+
 ## Building
 
 ### Mac users
