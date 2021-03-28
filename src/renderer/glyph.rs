@@ -17,10 +17,16 @@ pub use crate::events::vws;
 pub enum SkPathBuildMode {
     Open,
     Closed,
-    OpenAndClosed
+    OpenAndClosed,
 }
 
-fn add_contour_to_skpath(contour: &Contour<Option<PointData>>, path: &mut Path, mode: SkPathBuildMode, outline_type: OutlineType, idx: usize) {
+fn add_contour_to_skpath(
+    contour: &Contour<Option<PointData>>,
+    path: &mut Path,
+    mode: SkPathBuildMode,
+    outline_type: OutlineType,
+    idx: usize,
+) {
     if contour.len() == 0 {
         return;
     }
@@ -36,16 +42,20 @@ fn add_contour_to_skpath(contour: &Contour<Option<PointData>>, path: &mut Path, 
 
     match mode {
         SkPathBuildMode::Open => {
-            if firstpoint.ptype != PointType::Move { return; }
-        },
+            if firstpoint.ptype != PointType::Move {
+                return;
+            }
+        }
         SkPathBuildMode::Closed => {
-            if firstpoint.ptype == PointType::Move { return; }
-        },
-        SkPathBuildMode::OpenAndClosed => {},
+            if firstpoint.ptype == PointType::Move {
+                return;
+            }
+        }
+        SkPathBuildMode::OpenAndClosed => {}
     }
 
     path.move_to((calc_x(contour[0].x), calc_y(contour[0].y)));
-    
+
     for (_i, point) in pointiter {
         // the move_to handles the first point
         if _i == 0 {
@@ -77,16 +87,8 @@ fn add_contour_to_skpath(contour: &Contour<Option<PointData>>, path: &mut Path, 
                 let h1 = lastpoint.handle_or_colocated(WhichHandle::A, calc_x, calc_y);
                 match outline_type {
                     OutlineType::Cubic => {
-                        let h2 = firstpoint.handle_or_colocated(
-                            WhichHandle::B,
-                            calc_x,
-                            calc_y,
-                        );
-                        path.cubic_to(
-                            h1,
-                            h2,
-                            (calc_x(firstpoint.x), calc_y(firstpoint.y)),
-                        )
+                        let h2 = firstpoint.handle_or_colocated(WhichHandle::B, calc_x, calc_y);
+                        path.cubic_to(h1, h2, (calc_x(firstpoint.x), calc_y(firstpoint.y)))
                     }
                     OutlineType::Quadratic => {
                         match lastpoint.ptype {
@@ -94,17 +96,11 @@ fn add_contour_to_skpath(contour: &Contour<Option<PointData>>, path: &mut Path, 
                                 // This is safe as a lone QClose is illegal and should
                                 // cause a crash anyway if it's happening.
                                 let prevpoint = &contour[contour.len() - 2];
-                                let ph = prevpoint.handle_or_colocated(
-                                    WhichHandle::A,
-                                    calc_x,
-                                    calc_y,
-                                );
+                                let ph =
+                                    prevpoint.handle_or_colocated(WhichHandle::A, calc_x, calc_y);
                                 path.quad_to(ph, h1)
                             }
-                            _ => path.quad_to(
-                                h1,
-                                (calc_x(firstpoint.x), calc_y(firstpoint.y)),
-                            ),
+                            _ => path.quad_to(h1, (calc_x(firstpoint.x), calc_y(firstpoint.y))),
                         }
                     }
                     OutlineType::Spiro => panic!("Spiro as yet unimplemented."),
@@ -138,7 +134,13 @@ pub fn draw(canvas: &mut Canvas) -> Path {
 
         for outline in v.borrow().glyph.as_ref().unwrap().glif.outline.as_ref() {
             for (idx, contour) in outline.iter().enumerate() {
-                add_contour_to_skpath(&contour, &mut path, SkPathBuildMode::Closed, outline_type, idx);
+                add_contour_to_skpath(
+                    &contour,
+                    &mut path,
+                    SkPathBuildMode::Closed,
+                    outline_type,
+                    idx,
+                );
             }
 
             //Skia C++-compatible dump:
@@ -149,7 +151,13 @@ pub fn draw(canvas: &mut Canvas) -> Path {
             paint.set_style(PaintStyle::Stroke);
 
             for (idx, contour) in outline.iter().enumerate() {
-                add_contour_to_skpath(&contour, &mut path, SkPathBuildMode::Open, outline_type, idx);
+                add_contour_to_skpath(
+                    &contour,
+                    &mut path,
+                    SkPathBuildMode::Open,
+                    outline_type,
+                    idx,
+                );
             }
 
             canvas.draw_path(&path, &paint);
@@ -157,7 +165,13 @@ pub fn draw(canvas: &mut Canvas) -> Path {
             path = Path::new();
 
             for (idx, contour) in outline.iter().enumerate() {
-                add_contour_to_skpath(&contour, &mut path, SkPathBuildMode::OpenAndClosed, outline_type, idx);
+                add_contour_to_skpath(
+                    &contour,
+                    &mut path,
+                    SkPathBuildMode::OpenAndClosed,
+                    outline_type,
+                    idx,
+                );
             }
 
             if v.borrow().preview_mode != PreviewMode::Paper {
