@@ -12,9 +12,9 @@ pub mod zoom;
 
 pub use self::zoom::{zoom_in_factor, zoom_out_factor};
 use crate::command::CommandMod;
-use sdl2::{Sdl, mouse::MouseButton};
 use sdl2::keyboard::Mod;
 use sdl2::video::Window;
+use sdl2::{mouse::MouseButton, Sdl};
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MouseMeta {
     pub modifiers: CommandMod,
@@ -26,12 +26,11 @@ pub fn center_cursor(sdl_context: &Sdl, sdl_window: &Window) {
     let mut center = sdl_window.size();
     center.0 /= 2;
     center.1 /= 2;
-    STATE.with(|v| {
-        v.borrow_mut().absolute_mousepos = (center.0 as f64, center.1 as f64)
-    });
+    STATE.with(|v| v.borrow_mut().absolute_mousepos = (center.0 as f64, center.1 as f64));
 
-    
-    sdl_context.mouse().warp_mouse_in_window(&sdl_window, center.0 as i32, center.1 as i32);
+    sdl_context
+        .mouse()
+        .warp_mouse_in_window(&sdl_window, center.0 as i32, center.1 as i32);
 }
 
 pub fn update_viewport<T>(
@@ -61,7 +60,7 @@ pub fn update_mousepos<T>(
     let offset = (uoffset.0 as f64, uoffset.1 as f64);
 
     let absolute_mposition = ((position.0).floor(), (position.1).floor());
-    let mposition =(
+    let mposition = (
         ((position.0).floor() - offset.0) * factor,
         ((position.1).floor() - offset.1) * factor,
     );

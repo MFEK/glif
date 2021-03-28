@@ -12,14 +12,8 @@ use crate::glifparser;
 use crate::util::math::FlipIfRequired as _;
 
 pub fn draw_selbox<T>(canvas: &mut Canvas, v: &RefCell<State<T>>) -> Rect {
-    let c1 = v
-        .borrow()
-        .corner_one
-        .unwrap_or((0., 0.));
-    let c2 = v
-        .borrow()
-        .corner_two
-        .unwrap_or((0., 0.));
+    let c1 = v.borrow().corner_one.unwrap_or((0., 0.));
+    let c2 = v.borrow().corner_two.unwrap_or((0., 0.));
 
     let mut path = Path::new();
     let mut paint = Paint::default();

@@ -12,9 +12,7 @@ const TOOLBOX_OFFSET_Y: f32 = TOOLBOX_OFFSET_X;
 const TOOLBOX_WIDTH: f32 = 55.;
 const TOOLBOX_HEIGHT: f32 = 220.;
 
-
-pub fn setup_imgui() -> Context 
-{
+pub fn setup_imgui() -> Context {
     let mut imgui = Context::create();
     {
         // Fix incorrect colors with sRGB framebuffer
@@ -63,7 +61,6 @@ pub fn setup_imgui() -> Context
             }),
         },
     ]);
-
 
     imgui
 }

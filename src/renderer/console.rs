@@ -66,7 +66,7 @@ impl Console {
         canvas.save();
         let mut matrix = Matrix::new_identity();
         matrix.set_scale((1., 1.), None);
-        
+
         STATE.with(|v| {
             let font = Font::from_typeface_with_params(&*CONSOLE_TYPEFACE, 14., 1., 0.0);
             let winsize = v.borrow().winsize;

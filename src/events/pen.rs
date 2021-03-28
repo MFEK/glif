@@ -3,10 +3,7 @@ use super::prelude::*;
 
 use glifparser::{self, Contour, Handle, Outline, Point, PointType};
 
-pub fn mouse_moved(
-    position: (f64, f64),
-    v: &RefCell<state::State<Option<PointData>>>,
-) -> bool {
+pub fn mouse_moved(position: (f64, f64), v: &RefCell<state::State<Option<PointData>>>) -> bool {
     let mposition = update_mousepos(position, &v, false);
 
     TOOL_DATA.with(|vv| {

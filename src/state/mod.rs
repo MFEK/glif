@@ -6,7 +6,6 @@ use MFEKMath::VWSContour;
 pub use crate::renderer::console::Console as RendererConsole;
 use crate::renderer::Guideline;
 
-
 use std::cell::RefCell;
 use std::path::PathBuf;
 

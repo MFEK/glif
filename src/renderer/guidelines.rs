@@ -34,8 +34,7 @@ pub fn draw_guideline(color: Color, where_: f32, gtype: GuidelineType, canvas: &
             STATE.with(|v| {
                 path.move_to((-(offset.0 * (1. / factor)), where_));
                 path.line_to((
-                    (v.borrow().winsize.0 as f32 * (1. / factor))
-                        + (-(offset.0 * (1. / factor))),
+                    (v.borrow().winsize.0 as f32 * (1. / factor)) + (-(offset.0 * (1. / factor))),
                     where_,
                 ));
             });

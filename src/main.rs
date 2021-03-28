@@ -40,11 +40,15 @@ extern crate sdl2;
 use command::{Command, CommandInfo};
 
 //use renderer::render_frame;
-use sdl2::{Sdl, event::{Event, WindowEvent}, keyboard::Mod, video::Window};
 use sdl2::keyboard::Keycode;
-use skulpin::{LogicalSize, RendererBuilder, rafx::api::RafxExtents2D, rafx::api::{RafxError}};
+use sdl2::{
+    event::{Event, WindowEvent},
+    keyboard::Mod,
+    video::Window,
+    Sdl,
+};
 pub use skulpin::skia_safe;
-
+use skulpin::{rafx::api::RafxError, rafx::api::RafxExtents2D, LogicalSize, RendererBuilder};
 
 use imgui_skia_renderer::Renderer;
 
@@ -58,18 +62,17 @@ pub use crate::state::Glyph; // types
 pub use crate::state::{HandleStyle, PointLabels, PreviewMode}; // enums
 pub use crate::state::{CONSOLE, STATE, TOOL_DATA}; // globals
 
-
 mod filedialog;
 #[macro_use]
 pub mod util;
 #[macro_use]
 mod events;
-mod user_interface;
+mod command;
 mod io;
 mod ipc;
 mod renderer;
 mod system_fonts;
-mod command;
+mod user_interface;
 
 use crate::renderer::constants::*;
 
@@ -86,7 +89,7 @@ fn main() {
     }
 
     let (sdl_context, window) = initialize_sdl();
-    
+
     // Skulpin initialization TODO: proper error handling
     let mut renderer = initialize_skulpin_renderer(&window).unwrap();
 
@@ -112,18 +115,28 @@ fn main() {
         // sdl event handling
         for event in event_pump.poll_iter() {
             imgui_sdl2.handle_event(&mut imgui, &event);
-            if imgui_sdl2.ignore_event(&event) { continue; };
+            if imgui_sdl2.ignore_event(&event) {
+                continue;
+            };
 
             // we're gonna handle some of these events before handling commands so that we don't have the logic for this stuff
             // intertwined in command handling
             match &event {
                 Event::Quit { .. } => break 'main_loop,
-                Event::KeyDown { keycode: Some(Keycode::Q), keymod: km,  .. } => {
+                Event::KeyDown {
+                    keycode: Some(Keycode::Q),
+                    keymod: km,
+                    ..
+                } => {
                     if km.contains(Mod::LCTRLMOD) || km.contains(Mod::RCTRLMOD) {
                         break 'main_loop;
                     }
                 }
-                Event::KeyDown { keycode: Some(Keycode::S), keymod: km, .. } => {
+                Event::KeyDown {
+                    keycode: Some(Keycode::S),
+                    keymod: km,
+                    ..
+                } => {
                     if km.contains(Mod::LSHIFTMOD) || km.contains(Mod::RSHIFTMOD) {
                         STATE.with(|v| {
                             io::save_glif(v);
@@ -131,7 +144,11 @@ fn main() {
                         continue;
                     }
                 }
-                Event::KeyDown { keycode: Some(Keycode::E), keymod: km, .. } => {
+                Event::KeyDown {
+                    keycode: Some(Keycode::E),
+                    keymod: km,
+                    ..
+                } => {
                     if km.contains(Mod::LSHIFTMOD) || km.contains(Mod::RSHIFTMOD) {
                         STATE.with(|v| {
                             io::export_glif(v);
@@ -141,10 +158,10 @@ fn main() {
                 }
 
                 // we're gonna handle console text input here too as this should steal input from the command system
-                Event::TextInput { text, ..} => {
-                    if CONSOLE.with(|c| { return c.borrow_mut().active }) {
+                Event::TextInput { text, .. } => {
+                    if CONSOLE.with(|c| return c.borrow_mut().active) {
                         for ch in text.chars() {
-                            CONSOLE.with(|c| { c.borrow_mut().handle_ch(ch) });
+                            CONSOLE.with(|c| c.borrow_mut().handle_ch(ch));
                         }
                         continue;
                     }
@@ -153,13 +170,19 @@ fn main() {
             }
 
             match event {
-                Event::KeyDown { keycode, keymod,  ..} => {
+                Event::KeyDown {
+                    keycode, keymod, ..
+                } => {
                     // we don't care about keydown events that have no keycode
-                    if !keycode.is_some() { continue; }
+                    if !keycode.is_some() {
+                        continue;
+                    }
                     let keycode = keycode.unwrap();
 
                     events::console::set_state(keycode, keymod);
-                    if CONSOLE.with(|c| { c.borrow_mut().active } ) { continue; }
+                    if CONSOLE.with(|c| c.borrow_mut().active) {
+                        continue;
+                    }
 
                     STATE.with(|v| {
                         let mode = v.borrow().mode;
@@ -168,8 +191,11 @@ fn main() {
                         let mut offset = v.borrow().offset;
 
                         // check if we've got a command
-                        let command_info: Option<CommandInfo> = command::keycode_to_command(&keycode, &keys_down);
-                        if !command_info.is_some() { return; }
+                        let command_info: Option<CommandInfo> =
+                            command::keycode_to_command(&keycode, &keys_down);
+                        if !command_info.is_some() {
+                            return;
+                        }
                         let command_info = command_info.unwrap();
 
                         match command_info.command {
@@ -207,18 +233,30 @@ fn main() {
                                 newmode = state::Mode::VWS;
                             }
                             Command::TogglePointLabels => {
-                                trigger_toggle_on!(v, point_labels, PointLabels, command_info.command_mod.shift);
+                                trigger_toggle_on!(
+                                    v,
+                                    point_labels,
+                                    PointLabels,
+                                    command_info.command_mod.shift
+                                );
                             }
                             Command::TogglePreviewMode => {
-                                trigger_toggle_on!(v, preview_mode, PreviewMode, !command_info.command_mod.shift);
+                                trigger_toggle_on!(
+                                    v,
+                                    preview_mode,
+                                    PreviewMode,
+                                    !command_info.command_mod.shift
+                                );
                             }
                             Command::ToggleConsole => {
-                                CONSOLE.with(|c| { 
+                                CONSOLE.with(|c| {
                                     c.borrow_mut().active = true;
                                 });
                             }
 
-                            _ => { unreachable!("The remaining Command enums should never be returned.")}
+                            _ => unreachable!(
+                                "The remaining Command enums should never be returned."
+                            ),
                         }
 
                         if mode != newmode {
@@ -237,7 +275,7 @@ fn main() {
                         v.borrow_mut().offset = offset;
                         v.borrow_mut().factor = scale;
                     });
-                },
+                }
 
                 Event::MouseMotion { x, y, .. } => {
                     let position = (x as f64, y as f64);
@@ -248,62 +286,59 @@ fn main() {
                             #[rustfmt::skip]
                             state::Mode::Pan => events::pan::mouse_moved(position, &v),
                             state::Mode::Pen => events::pen::mouse_moved(position, &v),
-                            state::Mode::Select => {    events::select::mouse_moved(position, &v);
-                                                        events::vws::update_previews(position, &v)},
+                            state::Mode::Select => {
+                                events::select::mouse_moved(position, &v);
+                                events::vws::update_previews(position, &v)
+                            }
                             state::Mode::VWS => events::vws::mouse_moved(position, &v),
                             state::Mode::Zoom => events::zoom::mouse_moved(position, &v),
                         };
                     });
-                },
+                }
 
                 Event::MouseButtonDown { mouse_btn, .. } => {
                     STATE.with(|v| {
                         let keymod = command::key_down_to_mod(&keys_down);
-                        let meta = events::MouseMeta{ button: mouse_btn, modifiers: keymod };
-    
+                        let meta = events::MouseMeta {
+                            button: mouse_btn,
+                            modifiers: keymod,
+                        };
+
                         let mode = v.borrow().mode;
                         let position = v.borrow().mousepos;
                         v.borrow_mut().mousedown = true;
 
                         match mode {
-                            state::Mode::Select => {
-                                events::select::mouse_button(position, &v, meta)
-                            }
-                            state::Mode::VWS => {
-                                events::vws::mouse_button(position, &v, meta)
-                            }
+                            state::Mode::Select => events::select::mouse_button(position, &v, meta),
+                            state::Mode::VWS => events::vws::mouse_button(position, &v, meta),
                             _ => false,
                         };
 
                         match mode {
-                            state::Mode::Pen => {
-                                events::pen::mouse_pressed(position, &v, meta)
-                            }
+                            state::Mode::Pen => events::pen::mouse_pressed(position, &v, meta),
                             state::Mode::Select => {
                                 events::select::mouse_pressed(position, &v, meta)
                             }
-                            state::Mode::VWS => {
-                                events::vws::mouse_pressed(position, &v, meta)
-                            }
+                            state::Mode::VWS => events::vws::mouse_pressed(position, &v, meta),
                             _ => false,
                         };
                     });
-                },
+                }
 
-
-                Event::MouseButtonUp { mouse_btn , .. } => {
+                Event::MouseButtonUp { mouse_btn, .. } => {
                     STATE.with(|v| {
                         let keymod = command::key_down_to_mod(&keys_down);
-                        let meta = events::MouseMeta{ button: mouse_btn, modifiers: keymod };
-    
+                        let meta = events::MouseMeta {
+                            button: mouse_btn,
+                            modifiers: keymod,
+                        };
+
                         let mode = v.borrow().mode;
                         let position = v.borrow().mousepos;
                         v.borrow_mut().mousedown = false;
 
                         match mode {
-                            state::Mode::Pen => {
-                                events::pen::mouse_released(position, &v, meta)
-                            }
+                            state::Mode::Pen => events::pen::mouse_released(position, &v, meta),
                             state::Mode::Select => {
                                 events::select::mouse_released(position, &v, meta)
                             }
@@ -312,25 +347,21 @@ fn main() {
                                 events::center_cursor(&sdl_context, &window);
                                 true
                             }
-                            state::Mode::VWS => {
-                                events::vws::mouse_released(position, &v, meta)
-                            }
+                            state::Mode::VWS => events::vws::mouse_released(position, &v, meta),
                             _ => false,
                         };
                     });
-                },
-
-                Event::Window {win_event, .. } => {
-                    match win_event {
-                        WindowEvent::Resized(x, y) => {
-                            STATE.with(|v| {
-                                v.borrow_mut().winsize = (x as u32, y as u32);
-                            });
-                        }
-
-                        _ => {}
-                    }
                 }
+
+                Event::Window { win_event, .. } => match win_event {
+                    WindowEvent::Resized(x, y) => {
+                        STATE.with(|v| {
+                            v.borrow_mut().winsize = (x as u32, y as u32);
+                        });
+                    }
+
+                    _ => {}
+                },
                 _ => {}
             }
         }
@@ -340,9 +371,8 @@ fn main() {
         let mut ui = imgui.frame();
         user_interface::build_imgui_ui(&mut ui);
 
-        imgui_sdl2.prepare_render(&ui, &window);           
+        imgui_sdl2.prepare_render(&ui, &window);
         let dd = ui.render();
-
 
         // draw glyph preview and imgui with skia
         let (window_width, window_height) = window.vulkan_drawable_size();
@@ -351,20 +381,16 @@ fn main() {
             height: window_height,
         };
 
-
         renderer
             .draw(extents, 1.0, |canvas, _coordinate_system_helper| {
                 renderer::render_frame(canvas);
                 imgui_renderer.render_imgui(canvas, dd);
             })
             .unwrap();
-
     }
-
 }
 
-fn initialize_sdl() -> (Sdl, Window) 
-{
+fn initialize_sdl() -> (Sdl, Window) {
     // SDL initialization
     let sdl_context = sdl2::init().expect("Failed to initialize sdl2");
     let video_subsystem = sdl_context
@@ -372,7 +398,7 @@ fn initialize_sdl() -> (Sdl, Window)
         .expect("Failed to create sdl video subsystem");
 
     video_subsystem.text_input().start();
-    
+
     let logical_size = LogicalSize {
         width: WIDTH,
         height: HEIGHT,
@@ -394,8 +420,7 @@ fn initialize_sdl() -> (Sdl, Window)
     (sdl_context, window)
 }
 
-fn initialize_skulpin_renderer(sdl_window: &Window) -> Result<skulpin::Renderer, RafxError>
-{
+fn initialize_skulpin_renderer(sdl_window: &Window) -> Result<skulpin::Renderer, RafxError> {
     let (window_width, window_height) = sdl_window.vulkan_drawable_size();
 
     let extents = RafxExtents2D {
@@ -417,7 +442,6 @@ fn initialize_skulpin_renderer(sdl_window: &Window) -> Result<skulpin::Renderer,
             scale_to_fit,
         ))
         .build(sdl_window, extents);
-
 
     return renderer;
 }
