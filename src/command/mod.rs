@@ -27,6 +27,7 @@ pub enum Command {
     NudgeRight,
 
     // tools
+    ToolPan,
     ToolPen,
     ToolSelect,
     ToolZoom,

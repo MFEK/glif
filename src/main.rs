@@ -220,6 +220,9 @@ fn main() {
                             Command::NudgeRight => {
                                 offset.0 -= OFFSET_FACTOR;
                             }
+                            Command::ToolPan => {
+                                newmode = state::Mode::Pan;
+                            }
                             Command::ToolPen => {
                                 newmode = state::Mode::Pen;
                             }

@@ -43,7 +43,7 @@
     <binding command = "NudgeRight" key = "Right"/>
 
     <!-- tools -->
-    <binding command = "ToolPen" key = "A"/>
+    <binding command = "ToolPan" key = "A"/>
     <binding command = "ToolPen" key = "P"/>
     <binding command = "ToolSelect" key = "V"/>
     <binding command = "ToolZoom" key = "Z"/>
