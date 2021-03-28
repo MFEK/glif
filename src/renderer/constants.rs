@@ -1,5 +1,6 @@
 //! Constants. This file should eventually become a config dotfile loaded & reloaded dynamically.
 //! See issue #7 (GitHub).
+use lazy_static::lazy_static;
 
 /* Sizes */
 pub static OUTLINE_STROKE_THICKNESS: f32 = 1.5 * PEN_SIZE;

@@ -2,6 +2,7 @@
 use super::prelude::*;
 use crate::state::Follow;
 use glifparser::{Handle, WhichHandle};
+use log::debug;
 
 /// Get indexes stored by clicked_point_or_handle and move the points they refer to around.
 pub fn mouse_moved<T>(position: (f64, f64), v: &RefCell<state::State<T>>) -> bool {

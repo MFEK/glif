@@ -2,6 +2,8 @@
 use crate::CONSOLE;
 
 use clipboard::{ClipboardContext, ClipboardProvider};
+use lazy_static::lazy_static;
+use log::debug;
 
 mod commands;
 

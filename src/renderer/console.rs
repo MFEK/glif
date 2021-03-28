@@ -3,6 +3,9 @@
 //! output of a single Command.) That's because this is a *Renderer Console*, not supposed to
 //! represent the Console itself, but rather just what we show the user on the screen. We output to
 //! the normal stdout as well, that's the persistent stdout.
+
+use lazy_static::lazy_static;
+
 pub struct Console {
     pub stdin: String,
     pub stdout: String,
