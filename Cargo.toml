@@ -60,9 +60,9 @@ regex = "1"
 
 ## Our crates
 # parses .glif files and gives us a place to put arbitrary data
-glifparser = { git = "https://github.com/MatthewBlanchard/glifparser", branch = "variable-width-stroking"}
+glifparser = { git = "https://github.com/MFEK/glifparser.rlib" }
 
-MFEKMath = { git = "https://github.com/MFEK/math", branch = "vws-testing" }
+MFEKmath = { git = "https://github.com/MFEK/math.rlib", branch = "main" }
 
 #glifparser = { path = "../glifparser" } # for development
 mfek-ipc = { git = "https://github.com/mfek/ipc" }
