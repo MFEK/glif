@@ -168,7 +168,7 @@ fn clicked_point_or_handle(
 }
 
 pub fn mouse_pressed(
-    position: (f64, f64),
+    mut position: (f64, f64),
     v: &RefCell<state::State<Option<state::PointData>>>,
     meta: MouseMeta,
 ) -> bool {
@@ -197,8 +197,7 @@ pub fn mouse_pressed(
 
     if !single_point {
         v.borrow_mut().show_sel_box = true;
-        let position = v.borrow().mousepos;
-        v.borrow_mut().mousepos = position;
+        position = update_mousepos(position, &v, true);
         if v.borrow().show_sel_box {
             v.borrow_mut().corner_one = Some(position);
             v.borrow_mut().corner_two = Some(position);
