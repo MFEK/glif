@@ -2,7 +2,7 @@ use super::prelude::*;
 use crate::io::{load_glif, save_glif};
 use crate::state::Follow;
 use glifparser::{Handle, WhichHandle};
-use log::debug;
+use sdl2::keyboard::Mod;
 use skulpin::skia_safe::{Canvas, Paint, PaintStyle, Path as SkiaPath};
 use MFEKMath::variable_width_stroking::{generate_vws_lib, InterpolationType};
 use MFEKMath::{
@@ -15,7 +15,7 @@ use std::fs;
 use std::path::Path;
 use std::process;
 
-use skulpin_plugin_imgui::imgui;
+use imgui;
 
 //
 // IPC
@@ -610,7 +610,7 @@ fn get_vws_handle_pos(
 }
 
 fn vws_clicked_point_or_handle(
-    position: PhysicalPosition<f64>,
+    position: (f64, f64),
     v: &RefCell<state::State<Option<state::PointData>>>,
 ) -> Option<(usize, usize, WhichHandle)> {
     let factor = v.borrow().factor;
@@ -640,7 +640,7 @@ fn vws_clicked_point_or_handle(
             );
             let handle_right_rect = SkRect::from_point_and_size(handle_right_point, (size, size));
 
-            let sk_mpos = SkPoint::new(mposition.x as f32, mposition.y as f32);
+            let sk_mpos = SkPoint::new(mposition.0 as f32, mposition.1 as f32);
 
             if handle_left_rect.contains(sk_mpos) {
                 return Some((contour_idx, vws_handle_idx, WhichHandle::A));
@@ -669,7 +669,7 @@ fn vws_clicked_point_or_handle(
             );
             let handle_right_rect = SkRect::from_point_and_size(handle_right_point, (size, size));
 
-            let sk_mpos = SkPoint::new(mposition.x as f32, mposition.y as f32);
+            let sk_mpos = SkPoint::new(mposition.0 as f32, mposition.1 as f32);
 
             if handle_left_rect.contains(sk_mpos) {
                 return Some((contour_idx, vws_handle_idx, WhichHandle::A));
@@ -683,7 +683,7 @@ fn vws_clicked_point_or_handle(
 }
 
 pub fn mouse_pressed(
-    position: PhysicalPosition<f64>,
+    position: (f64, f64),
     v: &RefCell<state::State<Option<state::PointData>>>,
     meta: MouseMeta,
 ) -> bool {
@@ -700,8 +700,8 @@ pub fn mouse_pressed(
             p.borrow_mut().cur_point = Some(pi);
             p.borrow_mut().follow = follow;
             p.borrow_mut().handle = wh;
-            p.borrow_mut().shift = meta.modifiers.shift();
-            p.borrow_mut().ctrl = meta.modifiers.ctrl();
+            p.borrow_mut().shift = meta.modifiers.shift;
+            p.borrow_mut().ctrl = meta.modifiers.ctrl;
 
             true
         }),
@@ -713,7 +713,7 @@ pub fn mouse_pressed(
 
 // Placeholder
 pub fn mouse_button<T>(
-    _position: PhysicalPosition<f64>,
+    _position: (f64, f64),
     _v: &RefCell<state::State<T>>,
     _meta: MouseMeta,
 ) -> bool {
@@ -721,7 +721,7 @@ pub fn mouse_button<T>(
 }
 
 pub fn mouse_released(
-    _position: PhysicalPosition<f64>,
+    _position: (f64, f64),
     v: &RefCell<state::State<Option<state::PointData>>>,
     _meta: MouseMeta,
 ) -> bool {
@@ -733,7 +733,7 @@ pub fn mouse_released(
 
 /// Get indexes stored by clicked_point_or_handle and move the points they refer to around.
 pub fn mouse_moved(
-    position: PhysicalPosition<f64>,
+    position: (f64, f64),
     v: &RefCell<state::State<Option<state::PointData>>>,
 ) -> bool {
     let mposition = update_mousepos(position, &v, false);
@@ -741,8 +741,8 @@ pub fn mouse_moved(
         return false;
     }
 
-    let x = calc_x(mposition.x as f32);
-    let y = calc_y(mposition.y as f32);
+    let x = calc_x(mposition.0 as f32);
+    let y = calc_y(mposition.1 as f32);
     let contour = TOOL_DATA.with(|p| p.borrow().contour);
     let cur_point = TOOL_DATA.with(|p| p.borrow().cur_point);
     let which_handle = TOOL_DATA.with(|p| p.borrow().handle);
@@ -779,7 +779,7 @@ pub fn mouse_moved(
 }
 
 pub fn update_previews(
-    position: PhysicalPosition<f64>,
+    position: (f64, f64),
     v: &RefCell<state::State<Option<state::PointData>>>,
 ) -> bool {
     let mposition = update_mousepos(position, &v, false);

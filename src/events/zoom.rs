@@ -15,13 +15,14 @@ pub fn zoom_out_factor<T>(_factor: f32, v: &RefCell<state::State<T>>) -> f32 {
     scale
 }
 
-pub fn mouse_moved<T>(position: PhysicalPosition<f64>, v: &RefCell<state::State<T>>) -> bool {
+pub fn mouse_moved<T>(position: (f64, f64), v: &RefCell<state::State<T>>) -> bool {
     let _mposition = update_mousepos(position, &v, false);
     false
 }
 
+use sdl2::mouse::MouseButton;
 pub fn mouse_released<T>(
-    _position: PhysicalPosition<f64>,
+    _position: (f64, f64),
     v: &RefCell<state::State<T>>,
     meta: MouseMeta,
 ) -> bool {
@@ -39,15 +40,15 @@ pub fn mouse_released<T>(
     let winsize = v.borrow().winsize;
     let position = v.borrow().absolute_mousepos;
     let center = (
-        (winsize.width as f32 / 2.) + offset.0,
-        (winsize.height as f32 / 2.) + offset.1,
+        (winsize.0 as f32 / 2.) + offset.0,
+        (winsize.1 as f32 / 2.) + offset.1,
     );
-    offset.0 = -(position.x as f32 - center.0);
-    offset.1 = -(position.y as f32 - center.1);
+    offset.0 = -(position.0 as f32 - center.0);
+    offset.1 = -(position.1 as f32 - center.1);
     update_viewport(Some(offset), Some(scale), &v);
     debug!(
         "Zoom triggered @ {}x{}, offset {:?}",
-        position.x, position.y, offset
+        position.0, position.1, offset
     );
     true
 }
