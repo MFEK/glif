@@ -76,7 +76,13 @@ mod user_interface;
 
 use crate::renderer::constants::*;
 
+struct WindowSettings {
+    filename: String
+}
+
 fn main() {
+    env_logger::init();
+
     let args = util::argparser::parse_args();
     let filename = filedialog::filename_or_panic(&args.filename, Some("glif"), None);
     let _glif = io::load_glif(&filename);
@@ -88,7 +94,7 @@ fn main() {
         ipc::fetch_metrics();
     }
 
-    let (sdl_context, window) = initialize_sdl();
+    let (sdl_context, window) = initialize_sdl(&WindowSettings { filename: filename.to_str().unwrap().to_string() });
 
     // Skulpin initialization TODO: proper error handling
     let mut renderer = initialize_skulpin_renderer(&window).unwrap();
@@ -384,16 +390,19 @@ fn main() {
             height: window_height,
         };
 
-        renderer
+        let drew = renderer
             .draw(extents, 1.0, |canvas, _coordinate_system_helper| {
                 renderer::render_frame(canvas);
                 imgui_renderer.render_imgui(canvas, dd);
-            })
-            .unwrap();
+            });
+
+        if drew.is_err() {
+            warn!("Failed to draw frame. This can happen when resizing due to VkError(ERROR_DEVICE_LOST); if happens otherwise, file an issue.");
+        }
     }
 }
 
-fn initialize_sdl() -> (Sdl, Window) {
+fn initialize_sdl(ws: &WindowSettings) -> (Sdl, Window) {
     // SDL initialization
     let sdl_context = sdl2::init().expect("Failed to initialize sdl2");
     let video_subsystem = sdl_context
@@ -412,7 +421,7 @@ fn initialize_sdl() -> (Sdl, Window) {
     });
 
     let window = video_subsystem
-        .window("MFEKglif", logical_size.width, logical_size.height)
+        .window(&format!("MFEKglif — {}", ws.filename), logical_size.width, logical_size.height)
         .position_centered()
         .allow_highdpi()
         .vulkan()
