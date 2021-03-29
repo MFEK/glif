@@ -28,16 +28,16 @@ impl FlipIfRequired for sk::Rect {
 
 /// Trait necessary as f32 is primitive
 pub trait RoundFloat {
-    fn fround(self, digits: u8) -> Self;
+    fn fround(self) -> Self;
 }
 
 impl RoundFloat for f32 {
-    fn fround(self, digits: u8) -> Self {
+    fn fround(self) -> Self {
         (self * 100.).round() / 100.
     }
 }
 
-use glifparser::{Handle, Point, PointType};
+use glifparser::{Handle, Point};
 
 trait FromHandle<T> {
     fn from_handle(h: Handle) -> Point<T>;

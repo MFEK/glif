@@ -1,6 +1,6 @@
 //! Global thread local state.
 
-use glifparser::{Contour, Glif, Outline, Point};
+use glifparser::{Glif, Outline, Point};
 use MFEKmath::VWSContour;
 
 pub use crate::renderer::console::Console as RendererConsole;

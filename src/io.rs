@@ -4,7 +4,7 @@ use crate::events;
 use crate::state;
 use crate::STATE;
 use glifparser::Glif;
-use log::{debug, error};
+use log::debug;
 use std::cell::RefCell;
 use std::env;
 use std::fs;

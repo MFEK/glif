@@ -1,4 +1,3 @@
-#![feature(unboxed_closures)]
 use crate::events;
 use std::collections::HashMap;
 

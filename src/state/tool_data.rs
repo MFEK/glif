@@ -1,6 +1,5 @@
 use derive_more::Display;
 use glifparser::WhichHandle;
-use sdl2::keyboard::Mod;
 
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq)]
 /// Point following behavior when using the arrow tool

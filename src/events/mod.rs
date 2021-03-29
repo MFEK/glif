@@ -1,6 +1,6 @@
 pub mod prelude;
 use self::prelude::*;
-use glifparser::{Handle, WhichHandle};
+use glifparser::WhichHandle;
 
 pub mod console;
 
@@ -12,7 +12,6 @@ pub mod zoom;
 
 pub use self::zoom::{zoom_in_factor, zoom_out_factor};
 use crate::command::CommandMod;
-use sdl2::keyboard::Mod;
 use sdl2::video::Window;
 use sdl2::{mouse::MouseButton, Sdl};
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

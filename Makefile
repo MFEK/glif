@@ -1,4 +1,4 @@
-export RUSTFLAGS := -Awarnings
+export RUSTFLAGS :=
 export RUST_LOG := debug
 export RUST_BACKTRACE := 1
 

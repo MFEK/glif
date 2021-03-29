@@ -11,19 +11,17 @@
 )]
 
 // Cargo.toml comments say what crates are used for what.
-#[macro_use]
-extern crate lazy_static;
 extern crate backtrace;
 extern crate clap;
 extern crate colored;
 extern crate derive_more;
 extern crate enum_iterator;
+extern crate lazy_static;
 #[macro_use]
 extern crate log;
 extern crate env_logger;
-#[macro_use]
-extern crate git_version; // for util::parse_args
 extern crate font_kit;
+extern crate git_version; // for util::parse_args
 
 extern crate skulpin;
 
@@ -438,7 +436,7 @@ fn initialize_sdl(ws: &WindowSettings) -> (Sdl, Window) {
     let logo = include_bytes!("../doc/logo.png");
     let im = image::load_from_memory_with_format(logo, image::ImageFormat::Png)
         .unwrap()
-        .into_rgb();
+        .into_rgb8();
     let mut bytes = im.into_vec();
     let surface = Surface::from_data(
         &mut bytes,

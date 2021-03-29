@@ -1,8 +1,7 @@
 use super::prelude::*;
 use crate::io::{load_glif, save_glif};
 use crate::state::Follow;
-use glifparser::{Handle, WhichHandle};
-use sdl2::keyboard::Mod;
+use glifparser::WhichHandle;
 use skulpin::skia_safe::{Canvas, Paint, PaintStyle, Path as SkiaPath};
 use MFEKmath::variable_width_stroking::{generate_vws_lib, InterpolationType};
 use MFEKmath::{
@@ -722,7 +721,7 @@ pub fn mouse_button<T>(
 
 pub fn mouse_released(
     _position: (f64, f64),
-    v: &RefCell<state::State<Option<state::PointData>>>,
+    _v: &RefCell<state::State<Option<state::PointData>>>,
     _meta: MouseMeta,
 ) -> bool {
     TOOL_DATA.with(|p| {
@@ -782,7 +781,7 @@ pub fn update_previews(
     position: (f64, f64),
     v: &RefCell<state::State<Option<state::PointData>>>,
 ) -> bool {
-    let mposition = update_mousepos(position, &v, false);
+    update_mousepos(position, &v, false);
     if !v.borrow().mousedown {
         return false;
     }

@@ -3,7 +3,9 @@ use skulpin::skia_safe::{Canvas, Font, FontStyle, Paint, Path, Rect, TextBlob, T
 use std::cell::RefCell;
 use std::collections::HashMap;
 
-use crate::{STATE, TOOL_DATA}; // for State.factor
+use crate::STATE; // for State.factor
+
+static POINTFONTSIZE: f32 = 14.0;
 
 pub fn draw_point_number(at: (f32, f32), number: isize, canvas: &mut Canvas) {
     let converted = number.to_string();
@@ -18,7 +20,7 @@ pub fn draw_point_location(at: (f32, f32), original: (f32, f32), canvas: &mut Ca
 fn pointfont_from_size_and_factor(size: f32, factor: f32) -> Font {
     Font::from_typeface_with_params(
         Typeface::from_name("", FontStyle::bold()).expect("Failed to load bold font"),
-        14.0 * 1. / factor,
+        size * 1. / factor,
         1.0,
         0.0,
     )
@@ -45,15 +47,16 @@ fn draw_string_at_point(mut at: (f32, f32), s: &str, canvas: &mut Canvas) {
     let (blob, rect) = {
         POINTFONTS.with(|f| {
             let mut hm = f.borrow_mut();
-            let f = hm.get(&((14.0 * 1. / factor).round() as usize));
+            let f = hm.get(&((POINTFONTSIZE * 1. / factor).round() as usize));
             let font = match f {
                 Some(fon) => fon,
                 None => {
                     hm.insert(
-                        (14.0 * 1. / factor).round() as usize,
-                        pointfont_from_size_and_factor(14.0, factor),
+                        (POINTFONTSIZE * 1. / factor).round() as usize,
+                        pointfont_from_size_and_factor(POINTFONTSIZE, factor),
                     );
-                    hm.get(&((14.0 * 1. / factor).round() as usize)).unwrap()
+                    hm.get(&((POINTFONTSIZE * 1. / factor).round() as usize))
+                        .unwrap()
                 }
             };
 

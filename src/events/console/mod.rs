@@ -11,7 +11,7 @@ use sdl2::keyboard::Keycode;
 use sdl2::keyboard::Mod;
 
 // Only called if ElementState::Pressed
-pub fn set_state(vk: Keycode, m: Mod) {
+pub fn set_state(vk: Keycode, _m: Mod) {
     CONSOLE.with(|c| match vk {
         Keycode::Escape => {
             c.borrow_mut().active(false);

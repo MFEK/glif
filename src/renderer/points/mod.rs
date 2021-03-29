@@ -1,7 +1,6 @@
 use super::{Handle, UIPointType};
 use skulpin::skia_safe::{
-    Canvas, ContourMeasureIter, Font, FontStyle, Matrix, Paint, PaintStyle, Path, Point, Rect,
-    TextBlob, Typeface, Vector,
+    Canvas, ContourMeasureIter, Matrix, Paint, PaintStyle, Path, Point, Rect, Vector,
 };
 pub mod calc;
 use self::calc::*;
@@ -305,7 +304,6 @@ pub fn draw_all(canvas: &mut Canvas) {
             }
 
             for contour in outline {
-                let mut prevpoint = contour.first().unwrap();
                 for point in contour {
                     if point.b != Handle::Colocated {
                         i += 1;
@@ -315,7 +313,6 @@ pub fn draw_all(canvas: &mut Canvas) {
                         i += 1;
                     }
                     i += 1;
-                    prevpoint = &point;
                 }
             }
         }

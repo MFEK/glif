@@ -23,15 +23,13 @@ pub use crate::state::Glyph; // types
 pub use crate::state::TOOL_DATA; // globals
 pub use crate::state::{HandleStyle, Mode, PointLabels}; // enums
 
-use skulpin::skia_safe::{
-    gradient_shader, Canvas, Color, IRect, Matrix, Paint, PaintJoin, PaintStyle, Path, Point, Rect,
-    TileMode,
-};
+use skulpin::skia_safe::Canvas;
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum UIPointType {
     Point((Handle, Handle)),
     Handle,
+    #[allow(unused)]
     Anchor,
     Direction,
 }

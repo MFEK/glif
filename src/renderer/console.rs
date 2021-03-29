@@ -106,11 +106,13 @@ impl Console {
     }
 }
 
+#[allow(unused)]
 enum Return {
     OK,
     Failure(String),
 }
 
+#[allow(unused)]
 struct Command {
     name: String,
     args: Vec<String>,
