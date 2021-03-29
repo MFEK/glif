@@ -43,7 +43,7 @@ If you previously pulled the repository and get errors related to `glifparser`, 
 I typically build and run MFEKglif like this:
 
 ```
-RUSTFLAGS=-Awarnings RUST_LOG=debug RUST_BACKTRACE=1 cargo run -- Q_.glif
+RUST_LOG=debug RUST_BACKTRACE=1 cargo run -- examples/Q_.glif
 ```
 
 I welcome all contributions! Please open an issue first so we can discuss before you make big changes so no effort is wasted.
