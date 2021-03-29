@@ -84,6 +84,8 @@ fn main() {
 
     let args = util::argparser::parse_args();
     let filename = filedialog::filename_or_panic(&args.filename, Some("glif"), None);
+
+    // Makes glyph available to on_load_glif events
     let _glif = io::load_glif(&filename);
 
     // events for on_load_glif go here

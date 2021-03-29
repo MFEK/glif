@@ -11,8 +11,14 @@ use std::fs;
 use std::path::Path;
 
 pub fn load_glif<F: AsRef<Path> + Clone>(filename: F) {
-    let glif =
-        glifparser::read_ufo_glif(&fs::read_to_string(&filename).expect("Failed to read file"));
+    let glifxml = fs::read_to_string(&filename).expect("Failed to read file");
+    let mut glif = glifparser::read_ufo_glif(&glifxml);
+
+    // This is necessary because the glif format doesn't require that a glif have an outline. But
+    // we require a place to store contours if the user draws any.
+    if glif.outline.is_none() {
+        glif.outline = Some(glifparser::Outline::new());
+    }
 
     if env::var("DEBUG_DUMP_GLYPH").is_ok() {
         debug!("{:#?}", glif);
