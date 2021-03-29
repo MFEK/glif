@@ -28,6 +28,14 @@ Apple charges a fee to "notarize" applications and without this "notarization" M
 
 * Download and install the [Vulkan SDK](https://vulkan.lunarg.com/).
 
+### Linux users
+
+MFEKglif depends on GTK3 (for the open/save dialogs). If using X11 and not Wayland, it depends on the X11 C shape extension (`libxcb-shape.so.0`) and the xfixes extension (`libxcb-xfixes.so.0`). Their header files are also needed: `/usr/include/xcb/shape.h` and `/usr/include/xcb/xfixes.h`.
+
+On Arch Linux, these two packages provide all the dependencies: `gtk3` `libxcb`
+
+On Ubuntu, these three packages provide the dependencies: `libgtk-3-dev` `libxcb-shape0-dev` `libxcb-xfixes0-dev`
+
 ### For everyone
 
 * Download and install [`rustup`](https://rustup.rs/), selecting the `nightly` toolchain.
