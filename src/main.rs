@@ -44,6 +44,7 @@ use sdl2::keyboard::Keycode;
 use sdl2::{
     event::{Event, WindowEvent},
     keyboard::Mod,
+    surface::Surface,
     video::Window,
     Sdl,
 };
@@ -77,7 +78,7 @@ mod user_interface;
 use crate::renderer::constants::*;
 
 struct WindowSettings {
-    filename: String
+    filename: String,
 }
 
 fn main() {
@@ -94,7 +95,9 @@ fn main() {
         ipc::fetch_metrics();
     }
 
-    let (sdl_context, window) = initialize_sdl(&WindowSettings { filename: filename.to_str().unwrap().to_string() });
+    let (sdl_context, window) = initialize_sdl(&WindowSettings {
+        filename: filename.to_str().unwrap().to_string(),
+    });
 
     // Skulpin initialization TODO: proper error handling
     let mut renderer = initialize_skulpin_renderer(&window).unwrap();
@@ -390,11 +393,10 @@ fn main() {
             height: window_height,
         };
 
-        let drew = renderer
-            .draw(extents, 1.0, |canvas, _coordinate_system_helper| {
-                renderer::render_frame(canvas);
-                imgui_renderer.render_imgui(canvas, dd);
-            });
+        let drew = renderer.draw(extents, 1.0, |canvas, _coordinate_system_helper| {
+            renderer::render_frame(canvas);
+            imgui_renderer.render_imgui(canvas, dd);
+        });
 
         if drew.is_err() {
             warn!("Failed to draw frame. This can happen when resizing due to VkError(ERROR_DEVICE_LOST); if happens otherwise, file an issue.");
@@ -420,14 +422,33 @@ fn initialize_sdl(ws: &WindowSettings) -> (Sdl, Window) {
         v.borrow_mut().winsize = (WIDTH as u32, HEIGHT as u32);
     });
 
-    let window = video_subsystem
-        .window(&format!("MFEKglif — {}", ws.filename), logical_size.width, logical_size.height)
+    let mut window = video_subsystem
+        .window(
+            &format!("MFEKglif — {}", ws.filename),
+            logical_size.width,
+            logical_size.height,
+        )
         .position_centered()
         .allow_highdpi()
         .vulkan()
         .resizable()
         .build()
         .expect("Failed to create window");
+
+    let logo = include_bytes!("../doc/logo.png");
+    let im = image::load_from_memory_with_format(logo, image::ImageFormat::Png)
+        .unwrap()
+        .into_rgb();
+    let mut bytes = im.into_vec();
+    let surface = Surface::from_data(
+        &mut bytes,
+        701,
+        701,
+        701 * 3,
+        sdl2::pixels::PixelFormatEnum::RGB888,
+    )
+    .unwrap();
+    window.set_icon(surface);
 
     (sdl_context, window)
 }
