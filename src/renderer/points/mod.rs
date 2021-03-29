@@ -5,6 +5,7 @@ use skulpin::skia_safe::{
 };
 pub mod calc;
 use self::calc::*;
+pub mod names;
 
 use super::constants::*;
 use super::selbox;
@@ -155,51 +156,6 @@ fn draw_square_point(
     canvas.draw_path(&path, &paint);
 }
 
-fn draw_point_number(at: (f32, f32), number: isize, canvas: &mut Canvas) {
-    let converted = number.to_string();
-    draw_string_at_point(at, &converted, canvas);
-}
-
-fn draw_point_location(at: (f32, f32), original: (f32, f32), canvas: &mut Canvas) {
-    let converted = format!("{}, {}", original.0, original.1);
-    draw_string_at_point(at, &converted, canvas);
-}
-
-fn draw_string_at_point(mut at: (f32, f32), s: &str, canvas: &mut Canvas) {
-    let factor = STATE.with(|v| v.borrow().factor);
-    let mut paint = Paint::default();
-    paint.set_color(0xff_ff0000);
-    paint.set_anti_alias(true);
-
-    let font = Font::from_typeface_with_params(
-        Typeface::from_name("", FontStyle::bold()).expect("Failed to load bold font"),
-        14.0 * 1. / factor,
-        1.0,
-        0.0,
-    );
-
-    let blob = TextBlob::from_str(s, &font).expect(&format!("Failed to shape {}", s));
-
-    let (_scalar, rect) = font.measure_str(s, Some(&paint));
-
-    let mut paint2 = Paint::default();
-    paint2.set_color(0xaa_ffffff);
-    paint2.set_anti_alias(true);
-    let mut path = Path::new();
-    let padding = 5.;
-    at = (at.0, at.1 - (padding + 20. * (1. / factor)));
-    let at_rect = Rect::from_point_and_size(at, (rect.width() + 5., rect.height() + 5.));
-    path.add_rect(at_rect, None);
-    path.close();
-    canvas.draw_path(&path, &paint2);
-
-    at = (
-        at.0 + (padding / 2.),
-        at.1 + ((padding / 2.) + 10. * (1. / factor)),
-    );
-    canvas.draw_text_blob(&blob, at, &paint);
-}
-
 fn draw_point(
     at: (f32, f32),
     original: (f32, f32),
@@ -238,8 +194,8 @@ fn draw_point(
         None => {}
         Some(i) => match STATE.with(|v| v.borrow().point_labels) {
             PointLabels::None => {}
-            PointLabels::Numbered => draw_point_number(at, i, canvas),
-            PointLabels::Locations => draw_point_location(at, original, canvas),
+            PointLabels::Numbered => names::draw_point_number(at, i, canvas),
+            PointLabels::Locations => names::draw_point_location(at, original, canvas),
         },
     }
 

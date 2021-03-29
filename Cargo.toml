@@ -83,3 +83,8 @@ image = "0.23"
 # See src/util/mod.rs::set_codepage_utf8
 [target.'cfg(windows)'.dependencies]
 winapi = "0.3"
+
+[profile.release]
+opt-level = 'z'
+lto = true
+codegen-units = 1
