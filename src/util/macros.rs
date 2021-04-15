@@ -1,5 +1,6 @@
 // $v of type RefCell<State<T>> (the global state)
 // Returns type glifparser::Glif
+/*
 #[macro_export]
 macro_rules! get_outline_mut {
     ($v:ident) => {
@@ -25,5 +26,19 @@ macro_rules! get_outline {
             .outline
             .as_ref()
             .unwrap()
+    };
+}
+*/
+
+#[macro_export]
+macro_rules! get_outline {
+    ($v:ident) => {
+        $v.outline.as_ref().unwrap()
+    };
+}
+
+macro_rules! get_outline_mut {
+    ($v:ident) => {
+        $v.outline.as_mut().unwrap()
     };
 }

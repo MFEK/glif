@@ -3,11 +3,8 @@ use crate::io::{load_glif, save_glif};
 use crate::state::Follow;
 use glifparser::WhichHandle;
 use skulpin::skia_safe::{Canvas, Paint, PaintStyle, Path as SkiaPath};
-use MFEKmath::variable_width_stroking::{generate_vws_lib, InterpolationType};
-use MFEKmath::{
-    parse_vws_lib, variable_width_stroke, CapType, Evaluate, JoinType, Piecewise, VWSContour,
-    VWSHandle, VWSSettings, Vector,
-};
+use glifparser::{InterpolationType, CapType, JoinType, VWSContour, VWSHandle};
+use MFEKmath::{ variable_width_stroke, Evaluate, Piecewise, VWSSettings, Vector};
 
 use std::ffi::OsStr;
 use std::fs;
@@ -211,32 +208,10 @@ pub fn build_vws_settings_window(ui: &mut imgui::Ui) {
 }
 
 //
-// Loading
-//
-
-pub fn on_load_glif() {
-    STATE.with(|v| {
-        let mut _v = v.borrow_mut();
-
-        if let Some(vws_contours) = parse_vws_lib(&_v.glyph.as_ref().unwrap().glif) {
-            println!("herp");
-            _v.vws_contours = vws_contours.0;
-            _v.glyph.as_mut().unwrap().glif.lib = Some(vws_contours.1);
-        }
-    });
-
-    STATE.with(|v| generate_previews(v))
-}
-
-pub fn generate_lib(vwscontours: Vec<VWSContour>) -> Option<xmltree::Element> {
-    return generate_vws_lib(&vwscontours);
-}
-
-//
 // Manipulating
 //
-fn get_vws_contour(
-    v: &RefCell<state::State<Option<state::PointData>>>,
+fn get_vws_contour<P: glifparser::PointData>(
+    v: &RefCell<state::State<P>>,
     contour_idx: usize,
 ) -> Option<VWSContour> {
     for vwscontour in v.borrow().vws_contours.iter() {
@@ -248,8 +223,8 @@ fn get_vws_contour(
     None
 }
 
-fn set_vws_contour_by_value(
-    v: &RefCell<state::State<Option<state::PointData>>>,
+fn set_vws_contour_by_value<P: glifparser::PointData>(
+    v: &RefCell<state::State<P>>,
     contour_idx: usize,
     vws_contour: VWSContour,
 ) {
@@ -269,20 +244,7 @@ fn set_vws_contour_by_value(
     _v.vws_contours.push(vws_contour);
 }
 
-fn get_vws_contour_idx(
-    v: &RefCell<state::State<Option<state::PointData>>>,
-    contour_idx: usize,
-) -> Option<usize> {
-    for (idx, vwscontour) in v.borrow().vws_contours.iter().enumerate() {
-        if vwscontour.id == contour_idx {
-            return Some(idx);
-        }
-    }
-
-    None
-}
-
-fn fix_vws_contour(v: &RefCell<state::State<Option<state::PointData>>>, contour_idx: usize) {
+fn fix_vws_contour<P: glifparser::PointData>(v: &RefCell<state::State<P>>, contour_idx: usize) {
     let contour_size = get_outline!(v)[contour_idx].len();
     let vws_contour_size = v.borrow().vws_contours[contour_idx].handles.len();
 
@@ -301,10 +263,9 @@ fn fix_vws_contour(v: &RefCell<state::State<Option<state::PointData>>>, contour_
     }
 }
 
-fn generate_vws_contour(v: &RefCell<state::State<Option<state::PointData>>>, contour_idx: usize) {
+fn generate_vws_contour<P: glifparser::PointData>(v: &RefCell<state::State<P>>, contour_idx: usize) {
     let mut new_vws_contour = VWSContour {
         handles: Vec::new(),
-        id: contour_idx,
         cap_start_type: CapType::Round,
         cap_end_type: CapType::Round,
         join_type: JoinType::Round,
@@ -322,8 +283,8 @@ fn generate_vws_contour(v: &RefCell<state::State<Option<state::PointData>>>, con
     v.borrow_mut().vws_contours.push(new_vws_contour);
 }
 
-fn get_vws_handle(
-    v: &RefCell<state::State<Option<state::PointData>>>,
+fn get_vws_handle<P: glifparser::PointData>(
+    v: &RefCell<state::State<P>>,
     vcontour: Option<usize>,
     handle_idx: usize,
 ) -> VWSHandle {
@@ -345,8 +306,8 @@ fn get_vws_handle(
     };
 }
 
-fn set_vws_handle(
-    v: &RefCell<state::State<Option<state::PointData>>>,
+fn set_vws_handle<P: glifparser::PointData>(
+    v: &RefCell<state::State<P>>,
     contour_idx: usize,
     handle_idx: usize,
     side: WhichHandle,

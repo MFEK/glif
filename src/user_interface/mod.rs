@@ -1,8 +1,7 @@
+use events::ToolEnum;
 use imgui::{self, Context};
 
-use crate::events;
-use crate::state::Mode;
-use crate::STATE;
+use crate::{events, state::Editor};
 
 pub mod icons;
 
@@ -65,63 +64,49 @@ pub fn setup_imgui() -> Context {
     imgui
 }
 
-pub fn build_and_check_button(ui: &imgui::Ui, mode: Mode, icon: &[u8]) {
-    STATE.with(|v| {
-        let mut pop_me = None;
-        if v.borrow().mode == mode {
-            pop_me = Some(ui.push_style_color(imgui::StyleColor::Button, [0., 0., 0., 0.2]));
-        }
-        // Icons are always constant so this is not really unsafe.
-        ui.button(
-            unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icon) },
-            [0., 30.],
-        );
-        if ui.is_item_clicked(imgui::MouseButton::Left) {
-            v.borrow_mut().mode = mode;
-        }
-        if let Some(p) = pop_me {
-            p.pop(ui);
-        }
-    });
+pub fn build_and_check_button(v: &mut Editor, ui: &imgui::Ui, mode: ToolEnum, icon: &[u8]) {
+    let mut pop_me = None;
+    if v.get_tool() == mode {
+        pop_me = Some(ui.push_style_color(imgui::StyleColor::Button, [0., 0., 0., 0.2]));
+    }
+    // Icons are always constant so this is not really unsafe.
+    ui.button(
+        unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icon) },
+        [0., 30.],
+    );
+    if ui.is_item_clicked(imgui::MouseButton::Left) {
+        v.set_tool(mode);
+    }
+    if let Some(p) = pop_me {
+        p.pop(ui);
+    }
 }
 
-pub fn build_imgui_ui(ui: &mut imgui::Ui) {
-    STATE.with(|v| {
-        let mode = v.borrow().mode;
+pub fn build_imgui_ui(v: &mut Editor, ui: &mut imgui::Ui) {
+    let mode = v.get_tool();
 
-        imgui::Window::new(imgui::im_str!("Tools"))
-            .bg_alpha(1.) // See comment on fn redraw_skia
-            .flags(
-                #[rustfmt::skip]
-                      imgui::WindowFlags::NO_RESIZE
-                    | imgui::WindowFlags::NO_MOVE
-                    | imgui::WindowFlags::NO_COLLAPSE,
-            )
-            .position(
-                [TOOLBOX_OFFSET_X, TOOLBOX_OFFSET_Y],
-                imgui::Condition::Always,
-            )
-            .size([TOOLBOX_WIDTH, TOOLBOX_HEIGHT], imgui::Condition::Always)
-            .build(ui, || {
-                build_and_check_button(&ui, Mode::Pan, &icons::PAN);
-                build_and_check_button(&ui, Mode::Select, &icons::SELECT);
-                ui.separator();
-                build_and_check_button(&ui, Mode::Zoom, &icons::ZOOM);
-                ui.separator();
-                build_and_check_button(&ui, Mode::Pen, &icons::PEN);
-                build_and_check_button(&ui, Mode::VWS, &icons::VWS);
-            });
+    imgui::Window::new(imgui::im_str!("Tools"))
+        .bg_alpha(1.) // See comment on fn redraw_skia
+        .flags(
+            #[rustfmt::skip]
+                    imgui::WindowFlags::NO_RESIZE
+                | imgui::WindowFlags::NO_MOVE
+                | imgui::WindowFlags::NO_COLLAPSE,
+        )
+        .position(
+            [TOOLBOX_OFFSET_X, TOOLBOX_OFFSET_Y],
+            imgui::Condition::Always,
+        )
+        .size([TOOLBOX_WIDTH, TOOLBOX_HEIGHT], imgui::Condition::Always)
+        .build(ui, || {
+            build_and_check_button(v, &ui, ToolEnum::Pan, &icons::PAN);
+            build_and_check_button(v, &ui, ToolEnum::Select, &icons::SELECT);
+            ui.separator();
+            build_and_check_button(v, &ui, ToolEnum::Zoom, &icons::ZOOM);
+            ui.separator();
+            build_and_check_button(v, &ui, ToolEnum::Pen, &icons::PEN);
+            build_and_check_button(v, &ui, ToolEnum::VWS, &icons::VWS);
+        });
 
-        // here is where tools 'hook' into the menu building to create option menus of their own
-        match mode {
-            Mode::VWS => events::vws::build_vws_settings_window(ui),
-            _ => {}
-        }
-
-        let new_mode = v.borrow().mode;
-        if new_mode != mode {
-            // TODO: Use this event to handle the mode switching cleanup for VWS in a nicer way
-            events::mode_switched(mode, new_mode);
-        }
-    });
+    //TODO: Add UI event dispatch here.
 }

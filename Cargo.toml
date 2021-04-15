@@ -18,7 +18,7 @@ skulpin = { version = "0.13.0" }
 skulpin-renderer = "0.13.0"
 
 # For windowing, contexts, and events
-sdl2 = { version = ">=0.33", features = ["bundled", "static-link", "raw-window-handle"] }
+sdl2 = { version = ">=0.34", features = ["bundled", "static-link", "raw-window-handle"] }
 
 # For choosing font for toolbox
 font-kit = "0.10.0"
@@ -60,15 +60,18 @@ regex = "1"
 
 ## Our crates
 # parses .glif files and gives us a place to put arbitrary data
-glifparser = { git = "https://github.com/MFEK/glifparser.rlib" }
+glifparser = { path = "../glifparser.rlib" }
 
-MFEKmath = { git = "https://github.com/MFEK/math.rlib", branch = "main" }
+MFEKmath = { path = "../MFEKMath" }
 
 #glifparser = { path = "../glifparser" } # for development
 mfek-ipc = { git = "https://github.com/mfek/ipc" }
 
 #xml parsing
 xmltree = "0.10.1"
+
+# trait object-safe cloning
+dyn-clone = "1.0.4"
 
 #config file directory resolution
 app_dirs = "1.2.1"

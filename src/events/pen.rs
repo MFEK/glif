@@ -1,91 +1,93 @@
-// Pen
-use super::prelude::*;
-
+use crate::state::Editor;
+use super::{EditorEvent, Tool, prelude::*};
 use glifparser::{self, Contour, Handle, Point, PointType};
+#[derive(Clone)]
+pub struct Pen {}
 
-pub fn mouse_moved(position: (f64, f64), v: &RefCell<state::State<Option<PointData>>>) -> bool {
-    let mposition = update_mousepos(position, &v, false);
-
-    TOOL_DATA.with(|vv| {
-        let contour = vv.borrow().contour;
-        match contour {
-            Some(idx) => {
-                if v.borrow().mousedown {
-                    let last_point = get_outline!(v)[idx].last().unwrap().clone();
-
-                    let pos = (calc_x(mposition.0 as f32), calc_y(mposition.1 as f32));
-                    let offset = (last_point.x - pos.0, last_point.y - pos.1);
-                    let handle_b = (last_point.x + offset.0, last_point.y + offset.1);
-
-                    get_outline_mut!(v)[idx].last_mut().unwrap().a =
-                        Handle::At(calc_x(mposition.0 as f32), calc_y(mposition.1 as f32));
-                    get_outline_mut!(v)[idx].last_mut().unwrap().b =
-                        Handle::At(handle_b.0, handle_b.1);
-                } else {
-                    /*mem::replace(
-                        get_outline_mut!(v)[idx].last_mut().unwrap(),
-                        (Point::from_x_y_type((calc_x(mposition.x as f32), calc_y(mposition.y as f32)), PointType::Curve))
-                    );*/
+impl Tool for Pen {
+    fn handle_event(&mut self, v: &mut Editor, event: EditorEvent) {
+        match event {
+            EditorEvent::MouseEvent { event_type, position, meta } => {
+                match event_type {
+                    super::MouseEventType::Pressed => { self.mouse_pressed(v, position, meta) }
+                    super::MouseEventType::Released => { self.mouse_released(v, position, meta)}
+                    super::MouseEventType::Moved => { self.mouse_moved(v, position, meta) }
                 }
             }
-            None => {}
+            _ => {}
         }
-    });
-
-    true
+    }
 }
 
-pub fn mouse_pressed(
-    _position: (f64, f64),
-    v: &RefCell<state::State<Option<PointData>>>,
-    mmeta: MouseMeta,
-) -> bool {
-    let mposition = v.borrow().mousepos;
+impl Pen {
+    pub fn new() -> Self {
+        Self {}
+    }
 
-    TOOL_DATA.with(|vv| {
-        let contour = vv.borrow().contour;
-        match contour {
-            Some(idx) => {
-                get_outline_mut!(v)[idx].push(Point::from_x_y_type(
-                    (calc_x(mposition.0 as f32), calc_y(mposition.1 as f32)),
-                    PointType::Curve,
-                ));
-            }
-            None => {
-                let mut new_contour: Contour<Option<PointData>> = Vec::new();
-                new_contour.push(Point::from_x_y_type(
-                    (calc_x(mposition.0 as f32), calc_y(mposition.1 as f32)),
-                    if mmeta.modifiers.shift {
-                        PointType::Move
-                    } else {
-                        PointType::Curve
-                    },
-                ));
-                get_outline_mut!(v).push(new_contour);
-                vv.borrow_mut().contour = Some(get_outline!(v).len() - 1);
-            }
-        }
-    });
-    true
-}
+    fn mouse_moved(&self, v: &mut Editor, position: (f64, f64), _meta: MouseMeta) {
+        if !v.mousedown { return };
 
-pub fn mouse_released(
-    _position: (f64, f64),
-    v: &RefCell<state::State<Option<PointData>>>,
-    _meta: MouseMeta,
-) -> bool {
-    let _mposition = v.borrow().mousepos;
+        if let Some(idx) = v.contour_idx {
+            v.with_active_layer_mut(|layer| {
+                let outline = get_outline_mut!(layer);
+                let last_point = outline[idx].last().unwrap().clone();
 
-    TOOL_DATA.with(|vv| {
-        //vv.borrow_mut().contour = None;
-        if let Some(idx) = vv.borrow().contour {
-            get_outline_mut!(v)[idx].last_mut().map(|point| {
-                if point.a != Handle::Colocated && point.ptype != PointType::Move {
-                    point.ptype = PointType::Curve;
-                }
+                let pos = (calc_x(position.0 as f32), calc_y(position.1 as f32));
+                let offset = (last_point.x - pos.0, last_point.y - pos.1);
+                let handle_b = (last_point.x + offset.0, last_point.y + offset.1);
+
+                outline[idx].last_mut().unwrap().a = Handle::At(calc_x(position.0 as f32), calc_y(position.1 as f32));
+                outline[idx].last_mut().unwrap().b = Handle::At(handle_b.0, handle_b.1);
             });
         }
-    });
+    }
 
-    true
+    fn mouse_pressed(&self, v: &mut Editor, _position: (f64, f64), meta: MouseMeta) {
+        v.begin_layer_modification("Add point.");
+
+        match v.contour_idx {
+            Some(idx) => {
+                let mouse_pos = v.mousepos;
+                v.with_active_layer_mut(|layer| {
+                    let outline = get_outline_mut!(layer);
+                    outline[idx].push(Point::from_x_y_type(
+                    (calc_x(mouse_pos.0 as f32), calc_y(mouse_pos.1 as f32)),
+                    PointType::Curve,
+                    ));
+                });
+            }
+            None => {
+                let mouse_pos = v.mousepos;
+                v.contour_idx = v.with_active_layer_mut(|layer| {
+                    let outline = get_outline_mut!(layer);
+                    let mut new_contour: Contour<PointData> = Vec::new();
+                    new_contour.push(Point::from_x_y_type(
+                        (calc_x(mouse_pos.0 as f32), calc_y(mouse_pos.1 as f32)),
+                        if meta.modifiers.shift {
+                            PointType::Move
+                        } else {
+                            PointType::Curve
+                        },
+                    ));
+                    outline.push(new_contour);
+
+                    Some(outline.len() - 1)
+                })
+            }
+        }
+    }
+
+    fn mouse_released(&self, v: &mut Editor, _position: (f64, f64), _meta: MouseMeta) {
+        if let Some(idx) = v.contour_idx {
+            v.with_active_layer_mut(|layer| {
+                get_outline_mut!(layer)[idx].last_mut().map(|point| {
+                    if point.a != Handle::Colocated && point.ptype != PointType::Move {
+                        point.ptype = PointType::Curve;
+                    }
+                });
+            });
+        }
+
+        v.end_layer_modification();
+    }
 }

@@ -1,7 +1,7 @@
 //! Skia renderer.
 
-use crate::state::PreviewMode;
-use crate::{CONSOLE, STATE};
+use crate::{events::{EditorEvent}, state::{PreviewMode, Editor}};
+use crate::{CONSOLE};
 use glifparser::Handle;
 
 pub mod constants;
@@ -14,14 +14,12 @@ pub mod points; // point drawing functions
                 // This imports calc_x, etc. which transforms coordinates between .glif and Skia
 
 mod glyph;
-mod selbox;
 pub mod viewport;
 
 // Provides thread-local global variables.
-pub use crate::events::vws;
+// TODO: pub use crate::events::vws;
 pub use crate::state::Glyph; // types
-pub use crate::state::TOOL_DATA; // globals
-pub use crate::state::{HandleStyle, Mode, PointLabels}; // enums
+pub use crate::state::{HandleStyle, PointLabels}; // enums
 
 use skulpin::skia_safe::Canvas;
 
@@ -34,9 +32,9 @@ pub enum UIPointType {
     Direction,
 }
 
-pub fn render_frame(canvas: &mut Canvas) {
+pub fn render_frame(v: &mut Editor, canvas: &mut Canvas) {
     canvas.save();
-    let pm = STATE.with(|v| v.borrow().preview_mode);
+    let pm = v.preview_mode;
     canvas.clear(if pm == PreviewMode::Paper {
         PAPER_BGCOLOR
     } else {
@@ -44,38 +42,38 @@ pub fn render_frame(canvas: &mut Canvas) {
     });
     // This will change the SkCanvas transformation matrix, and everything from here to
     // canvas.restore() will need to take that matrix into consideration.
-    viewport::redraw_viewport(canvas);
+    viewport::redraw_viewport(v, canvas);
 
     if pm != PreviewMode::Paper || PAPER_DRAW_GUIDELINES {
-        guidelines::draw_all(canvas);
+        guidelines::draw_all(v, canvas);
     }
-    let path = glyph::draw(canvas);
-    let _path = glyph::draw_previews(canvas);
+
+    let path = glyph::draw(v, canvas);
+    // TODO: let _path = glyph::draw_previews(v, canvas);
 
     match pm {
         PreviewMode::None => {
-            let mode = STATE.with(|v| v.borrow().mode);
-            match mode {
-                Mode::VWS => vws::draw_handles(canvas),
-                _ => {}
-            };
-            points::draw_all(canvas);
-            points::draw_selected(canvas);
+            v.dispatch_editor_event(EditorEvent::Draw {
+                skia_canvas: canvas,
+            });
+
+            points::draw_all(v, canvas);
+            points::draw_selected(v, canvas);
         }
         PreviewMode::NoUnselectedPoints => {
-            points::draw_selected(canvas);
+            points::draw_selected(v, canvas);
         }
         PreviewMode::Paper => (),
     }
     match pm {
         PreviewMode::Paper => (),
         _ => {
-            points::draw_directions(path, canvas);
+            points::draw_directions(v, path, canvas);
         }
     }
     // Reset transformation matrix
     canvas.restore();
 
     // Draw console
-    CONSOLE.with(|c| c.borrow_mut().draw(canvas));
+    CONSOLE.with(|c| c.borrow_mut().draw(v, canvas));
 }

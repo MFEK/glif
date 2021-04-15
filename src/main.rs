@@ -37,6 +37,7 @@ extern crate sdl2;
 
 use command::{Command, CommandInfo};
 
+use events::{EditorEvent, MouseEventType, MouseMeta, ToolEnum, pan::Pan, pen::Pen, prelude::state::Editor, select::Select, update_mousepos, update_viewport, zoom::Zoom};
 //use renderer::render_frame;
 use sdl2::keyboard::Keycode;
 use sdl2::{
@@ -59,7 +60,7 @@ use std::collections::HashSet;
 pub mod state;
 pub use crate::state::Glyph; // types
 pub use crate::state::{HandleStyle, PointLabels, PreviewMode}; // enums
-pub use crate::state::{CONSOLE, STATE, TOOL_DATA}; // globals
+pub use crate::state::{CONSOLE}; // globals
 
 mod filedialog;
 #[macro_use]
@@ -85,17 +86,15 @@ fn main() {
     let args = util::argparser::parse_args();
     let filename = filedialog::filename_or_panic(&args.filename, Some("glif"), None);
 
+    let mut editor = Editor::new();
     // Makes glyph available to on_load_glif events
-    let _glif = io::load_glif(&filename);
-
-    // events for on_load_glif go here
-    events::vws::on_load_glif();
+    let _glif = io::load_glif(&mut editor, &filename);
 
     if mfek_ipc::module_available("MFEKmetadata".into()) == mfek_ipc::Available::Yes {
-        ipc::fetch_metrics();
+        ipc::fetch_metrics(&mut editor);
     }
 
-    let (sdl_context, window) = initialize_sdl(&WindowSettings {
+    let (sdl_context, window) = initialize_sdl(&mut editor, &WindowSettings {
         filename: filename.to_str().unwrap().to_string(),
     });
 
@@ -147,9 +146,7 @@ fn main() {
                     ..
                 } => {
                     if km.contains(Mod::LSHIFTMOD) || km.contains(Mod::RSHIFTMOD) {
-                        STATE.with(|v| {
-                            io::save_glif(v);
-                        });
+                        io::save_glif(&mut editor);
                         continue;
                     }
                 }
@@ -159,9 +156,7 @@ fn main() {
                     ..
                 } => {
                     if km.contains(Mod::LSHIFTMOD) || km.contains(Mod::RSHIFTMOD) {
-                        STATE.with(|v| {
-                            io::export_glif(v);
-                        });
+                        io::export_glif(&editor);
                         continue;
                     }
                 }
@@ -188,188 +183,137 @@ fn main() {
                     }
                     let keycode = keycode.unwrap();
 
-                    events::console::set_state(keycode, keymod);
+                    events::console::set_state(&mut editor, keycode, keymod);
                     if CONSOLE.with(|c| c.borrow_mut().active) {
                         continue;
                     }
 
-                    STATE.with(|v| {
-                        let mode = v.borrow().mode;
-                        let mut newmode = mode;
-                        let mut scale = v.borrow().factor;
-                        let mut offset = v.borrow().offset;
+                    // check if we've got a command
+                    let command_info: Option<CommandInfo> =
+                        command::keycode_to_command(&keycode, &keys_down);
+                    if !command_info.is_some() {
+                        continue;
+                    }
+                    let command_info = command_info.unwrap();
 
-                        // check if we've got a command
-                        let command_info: Option<CommandInfo> =
-                            command::keycode_to_command(&keycode, &keys_down);
-                        if !command_info.is_some() {
-                            return;
+                    match command_info.command {
+                        Command::ResetScale => {
+                            update_viewport(&mut editor, None, Some(1.));
                         }
-                        let command_info = command_info.unwrap();
-
-                        match command_info.command {
-                            Command::ResetScale => {
-                                scale = 1.;
-                            }
-                            Command::ZoomIn => {
-                                scale = events::zoom_in_factor(scale, &v);
-                            }
-                            Command::ZoomOut => {
-                                scale = events::zoom_out_factor(scale, &v);
-                            }
-                            Command::NudgeUp => {
-                                offset.1 += OFFSET_FACTOR;
-                            }
-                            Command::NudgeDown => {
-                                offset.1 -= OFFSET_FACTOR;
-                            }
-                            Command::NudgeLeft => {
-                                offset.0 += OFFSET_FACTOR;
-                            }
-                            Command::NudgeRight => {
-                                offset.0 -= OFFSET_FACTOR;
-                            }
-                            Command::ToolPan => {
-                                newmode = state::Mode::Pan;
-                            }
-                            Command::ToolPen => {
-                                newmode = state::Mode::Pen;
-                            }
-                            Command::ToolSelect => {
-                                newmode = state::Mode::Select;
-                            }
-                            Command::ToolZoom => {
-                                newmode = state::Mode::Zoom;
-                            }
-                            Command::ToolVWS => {
-                                newmode = state::Mode::VWS;
-                            }
-                            Command::TogglePointLabels => {
-                                trigger_toggle_on!(
-                                    v,
-                                    point_labels,
-                                    PointLabels,
-                                    command_info.command_mod.shift
-                                );
-                            }
-                            Command::TogglePreviewMode => {
-                                trigger_toggle_on!(
-                                    v,
-                                    preview_mode,
-                                    PreviewMode,
-                                    !command_info.command_mod.shift
-                                );
-                            }
-                            Command::ToggleConsole => {
-                                CONSOLE.with(|c| {
-                                    c.borrow_mut().active = true;
-                                });
-                            }
-
-                            _ => unreachable!(
-                                "The remaining Command enums should never be returned."
-                            ),
+                        Command::ZoomIn => {
+                            let scale = events::zoom_in_factor(editor.factor, &mut editor);
+                            update_viewport(&mut editor, None, Some(scale));
                         }
-
-                        if mode != newmode {
-                            v.borrow_mut().mode = newmode;
-                            events::mode_switched(mode, newmode);
-
-                            debug!(
-                                "Scale factor now {}; offset {:+}{:+}; mode {:?}",
-                                v.borrow().factor,
-                                v.borrow().offset.0,
-                                v.borrow().offset.1,
-                                v.borrow().mode
+                        Command::ZoomOut => {
+                            let scale = events::zoom_out_factor(editor.factor, &mut editor);
+                            update_viewport(&mut editor, None, Some(scale));
+                        }
+                        Command::NudgeUp => {
+                            update_viewport(&mut editor, Some((0., OFFSET_FACTOR)), None);
+                        }
+                        Command::NudgeDown => {
+                            update_viewport(&mut editor, Some((0., -OFFSET_FACTOR)), None);
+                        }
+                        Command::NudgeLeft => {
+                            update_viewport(&mut editor, Some((OFFSET_FACTOR, 0.)), None);
+                        }
+                        Command::NudgeRight => {
+                            update_viewport(&mut editor, Some((-OFFSET_FACTOR, 0.)), None);
+                        }
+                        Command::ToolPan => {
+                            editor.set_tool(ToolEnum::Pan);
+                        }
+                        Command::ToolPen => {
+                            editor.set_tool(ToolEnum::Pen);
+                        }
+                        Command::ToolSelect => {
+                            editor.set_tool(ToolEnum::Select);
+                        }
+                        Command::ToolZoom => {
+                            editor.set_tool(ToolEnum::Zoom);
+                        }
+                        Command::ToolVWS => {
+                            editor.undo();
+                        }
+                        Command::TogglePointLabels => {
+                            trigger_toggle_on!(
+                                editor,
+                                point_labels,
+                                PointLabels,
+                                command_info.command_mod.shift
                             );
                         }
+                        Command::TogglePreviewMode => {
+                            trigger_toggle_on!(
+                                editor,
+                                preview_mode,
+                                PreviewMode,
+                                !command_info.command_mod.shift
+                            );
+                        }
+                        Command::ToggleConsole => {
+                            CONSOLE.with(|c| {
+                                c.borrow_mut().active = true;
+                            });
+                        }
 
-                        v.borrow_mut().offset = offset;
-                        v.borrow_mut().factor = scale;
-                    });
+                        _ => unreachable!(
+                            "The remaining Command enums should never be returned."
+                        ),
+                    }
                 }
 
                 Event::MouseMotion { x, y, .. } => {
                     let position = (x as f64, y as f64);
-                    STATE.with(|v| {
-                        let mode = v.borrow().mode;
+                    update_mousepos(&mut editor, position, None);
 
-                        match mode {
-                            #[rustfmt::skip]
-                            state::Mode::Pan => events::pan::mouse_moved(position, &v),
-                            state::Mode::Pen => events::pen::mouse_moved(position, &v),
-                            state::Mode::Select => {
-                                events::select::mouse_moved(position, &v);
-                                events::vws::update_previews(position, &v)
-                            }
-                            state::Mode::VWS => events::vws::mouse_moved(position, &v),
-                            state::Mode::Zoom => events::zoom::mouse_moved(position, &v),
-                        };
+                    let keymod = command::key_down_to_mod(&keys_down);
+                    editor.dispatch_editor_event(EditorEvent::MouseEvent{
+                        event_type: MouseEventType::Moved,
+                        position: position,
+                        meta: MouseMeta {
+                            button: sdl2::mouse::MouseButton::Unknown,
+                            modifiers: keymod,
+                        },
                     });
                 }
 
-                Event::MouseButtonDown { mouse_btn, .. } => {
-                    STATE.with(|v| {
-                        let keymod = command::key_down_to_mod(&keys_down);
-                        let meta = events::MouseMeta {
+                Event::MouseButtonDown { mouse_btn, x, y, .. } => {
+                    let position = (x as f64, y as f64);
+                    update_mousepos(&mut editor, position, Some(true));
+                    
+                    let keymod = command::key_down_to_mod(&keys_down);
+                    editor.dispatch_editor_event(EditorEvent::MouseEvent{
+                        event_type: MouseEventType::Pressed,
+                        position: editor.mousepos,
+                        meta: MouseMeta {
                             button: mouse_btn,
                             modifiers: keymod,
-                        };
-
-                        let mode = v.borrow().mode;
-                        let position = v.borrow().mousepos;
-                        v.borrow_mut().mousedown = true;
-
-                        match mode {
-                            state::Mode::Select => events::select::mouse_button(position, &v, meta),
-                            state::Mode::VWS => events::vws::mouse_button(position, &v, meta),
-                            _ => false,
-                        };
-
-                        match mode {
-                            state::Mode::Pen => events::pen::mouse_pressed(position, &v, meta),
-                            state::Mode::Select => {
-                                events::select::mouse_pressed(position, &v, meta)
-                            }
-                            state::Mode::VWS => events::vws::mouse_pressed(position, &v, meta),
-                            _ => false,
-                        };
+                        },
                     });
                 }
 
-                Event::MouseButtonUp { mouse_btn, .. } => {
-                    STATE.with(|v| {
-                        let keymod = command::key_down_to_mod(&keys_down);
-                        let meta = events::MouseMeta {
+                Event::MouseButtonUp { mouse_btn, x, y, .. } => {
+                    let position = (x as f64, y as f64);
+                    update_mousepos(&mut editor, position, Some(false));
+
+                    let keymod = command::key_down_to_mod(&keys_down);
+                    editor.dispatch_editor_event(EditorEvent::MouseEvent{
+                        event_type: MouseEventType::Released,
+                        position: editor.mousepos,
+                        meta: MouseMeta {
                             button: mouse_btn,
                             modifiers: keymod,
-                        };
-
-                        let mode = v.borrow().mode;
-                        let position = v.borrow().mousepos;
-                        v.borrow_mut().mousedown = false;
-
-                        match mode {
-                            state::Mode::Pen => events::pen::mouse_released(position, &v, meta),
-                            state::Mode::Select => {
-                                events::select::mouse_released(position, &v, meta)
-                            }
-                            state::Mode::Zoom => {
-                                events::zoom::mouse_released(position, &v, meta);
-                                events::center_cursor(&sdl_context, &window);
-                                true
-                            }
-                            state::Mode::VWS => events::vws::mouse_released(position, &v, meta),
-                            _ => false,
-                        };
+                        },
                     });
                 }
 
                 Event::Window { win_event, .. } => match win_event {
+                    WindowEvent::SizeChanged(x, y) => {
+                        editor.winsize = (x as u32, y as u32);
+                    }
                     WindowEvent::Resized(x, y) => {
-                        STATE.with(|v| {
-                            v.borrow_mut().winsize = (x as u32, y as u32);
-                        });
+                        editor.winsize = (x as u32, y as u32);
                     }
 
                     _ => {}
@@ -381,7 +325,7 @@ fn main() {
         // build and render imgui
         imgui_sdl2.prepare_frame(imgui.io_mut(), &window, &event_pump.mouse_state());
         let mut ui = imgui.frame();
-        user_interface::build_imgui_ui(&mut ui);
+        user_interface::build_imgui_ui(&mut editor, &mut ui);
 
         imgui_sdl2.prepare_render(&ui, &window);
         let dd = ui.render();
@@ -394,7 +338,7 @@ fn main() {
         };
 
         let drew = renderer.draw(extents, 1.0, |canvas, _coordinate_system_helper| {
-            renderer::render_frame(canvas);
+            renderer::render_frame(&mut editor, canvas);
             imgui_renderer.render_imgui(canvas, dd);
         });
 
@@ -404,7 +348,7 @@ fn main() {
     }
 }
 
-fn initialize_sdl(ws: &WindowSettings) -> (Sdl, Window) {
+fn initialize_sdl(v: &mut Editor, ws: &WindowSettings) -> (Sdl, Window) {
     // SDL initialization
     let sdl_context = sdl2::init().expect("Failed to initialize sdl2");
     let video_subsystem = sdl_context
@@ -418,9 +362,7 @@ fn initialize_sdl(ws: &WindowSettings) -> (Sdl, Window) {
         height: HEIGHT,
     };
 
-    STATE.with(|v| {
-        v.borrow_mut().winsize = (WIDTH as u32, HEIGHT as u32);
-    });
+    v.winsize = (WIDTH as u32, HEIGHT as u32);
 
     let mut window = video_subsystem
         .window(
@@ -448,7 +390,7 @@ fn initialize_sdl(ws: &WindowSettings) -> (Sdl, Window) {
         sdl2::pixels::PixelFormatEnum::RGB888,
     )
     .unwrap();
-    window.set_icon(surface);
+    //window.set_icon(surface);
 
     (sdl_context, window)
 }

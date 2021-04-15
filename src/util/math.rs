@@ -37,15 +37,15 @@ impl RoundFloat for f32 {
     }
 }
 
-use glifparser::{Handle, Point};
+use glifparser::{Handle, Point, PointData};
 
-trait FromHandle<T> {
-    fn from_handle(h: Handle) -> Point<T>;
+trait FromHandle<P> {
+    fn from_handle(h: Handle) -> Point<P>;
 }
 
-impl<T> FromHandle<T> for Point<T> {
+impl<P: PointData> FromHandle<P> for Point<P> {
     /// Warning: Only call this on an At(x, y) variant!
-    fn from_handle(h: Handle) -> Point<T> {
+    fn from_handle(h: Handle) -> Point<P> {
         let mut ret = Point::new();
         match h {
             Handle::At(x, y) => {
@@ -60,20 +60,20 @@ impl<T> FromHandle<T> for Point<T> {
     }
 }
 
-pub trait DeCasteljau<T> {
-    fn midpoint(p1: &Point<T>, p2: &Point<T>, t: f32) -> Point<T>;
-    fn de_casteljau(inp: (Point<T>, Point<T>), t: Option<f32>) -> (Point<T>, Point<T>, Point<T>);
+pub trait DeCasteljau<P> {
+    fn midpoint(p1: &Point<P>, p2: &Point<P>, t: f32) -> Point<P>;
+    fn de_casteljau(inp: (Point<P>, Point<P>), t: Option<f32>) -> (Point<P>, Point<P>, Point<P>);
 }
 
-impl<T> DeCasteljau<T> for Point<T> {
-    fn midpoint(p1: &Point<T>, p2: &Point<T>, t: f32) -> Point<T> {
+impl<P: PointData>  DeCasteljau<P> for Point<P> {
+    fn midpoint(p1: &Point<P>, p2: &Point<P>, t: f32) -> Point<P> {
         let mut ret = Point::new();
         ret.x = (p1.x + p2.x) * t;
         ret.y = (p1.y + p2.y) * t;
         ret
     }
 
-    fn de_casteljau(inp: (Point<T>, Point<T>), t: Option<f32>) -> (Point<T>, Point<T>, Point<T>) {
+    fn de_casteljau(inp: (Point<P>, Point<P>), t: Option<f32>) -> (Point<P>, Point<P>, Point<P>) {
         let (mut p1, mut p2) = inp;
         let (h1, h2) = (Point::from_handle(p1.b), Point::from_handle(p2.a));
         let t = t.unwrap_or(0.5);

@@ -11,11 +11,12 @@ dependencies = [
  "clipboard",
  "colored",
  "derive_more",
+ "dyn-clone",
  "enum-iterator",
  "env_logger",
  "font-kit",
  "git-version",
- "glifparser",
+ "glifparser 0.0.0",
  "image",
  "imgui",
  "imgui-sdl2",
@@ -37,10 +38,9 @@ dependencies = [
 [[package]]
 name = "MFEKmath"
 version = "0.1.0"
-source = "git+https://github.com/MFEK/math.rlib?branch=main#d3b705e08756bccc74bdb179fb55bb9dec46b2f2"
 dependencies = [
  "flo_curves",
- "glifparser",
+ "glifparser 0.0.0 (git+https://github.com/MFEK/glifparser.rlib)",
  "skia-safe",
  "xmltree",
  "xmlwriter",
@@ -565,6 +565,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "dyn-clone"
+version = "1.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ee2626afccd7561a06cf1367e2950c4718ea04565e20fb5029b6c7d8ad09abcf"
+
+[[package]]
 name = "either"
 version = "1.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -801,6 +807,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b00572b5b10070ac495be20a25b4c8d379d20bcdec8ea0c870022b620ec79b20"
 dependencies = [
  "serde",
+]
+
+[[package]]
+name = "glifparser"
+version = "0.0.0"
+dependencies = [
+ "log",
+ "strum",
+ "strum_macros",
+ "xmltree",
 ]
 
 [[package]]

@@ -1,18 +1,42 @@
-use crate::events;
-use std::collections::HashMap;
+use crate::{events::update_viewport, state::Editor};
+use std::{borrow::BorrowMut, cell::RefCell, collections::HashMap};
 
-type Callback = Box<(dyn Fn(Vec<String>) -> () + 'static)>;
+type Callback = Box<(dyn Fn(&mut Editor, Vec<String>) -> () + 'static)>;
 
 fn callback<F>(f: F) -> Callback
 where
-    F: Fn(Vec<String>) -> () + 'static,
+    F: Fn(&mut Editor, Vec<String>) -> () + 'static,
 {
     Box::new(f) as Callback
 }
 
-use crate::STATE;
+fn initialize_console_commands() {
+    MAP.with(|h| {
+        h.borrow_mut().insert("vpoffset", ("Set viewport origin", callback(|v, s| {
+            if s.len() != 2 { return; } // FIXME: Tell user about errors!
+            if let (Ok(ox), Ok(oy)) = (s[0].parse(), s[1].parse()) {
+                v.offset = (ox, oy);
+                update_viewport(v, Some((ox, oy)), None);
+            }
+        })));
+    
+        h.borrow_mut().insert("vpfactor", ("Set viewport zoom factor", callback(|v, s| {
+            if s.len() != 1 { return; } // FIXME: Tell user about errors!
+            if let Ok(factor) = s[0].parse() {
+                v.factor = factor;
+                update_viewport(v, None, Some(factor));
+            }
+        })));
+    
+        h.borrow_mut().insert("q", ("Quit", callback(|v, s| {
+            v.quit_requested = true;
+        })));
+    
+    })
+}
+
 thread_local! {
-    pub static MAP: HashMap<&'static str, (&'static str, Callback)> = {
+    pub static MAP: RefCell<HashMap<&'static str, (&'static str, Callback)>> = RefCell::new(HashMap::new()) } /*{
         let mut h = HashMap::new();
 
         h.insert("vpoffset", ("Set viewport origin", callback(|s| {
@@ -20,7 +44,7 @@ thread_local! {
             if let (Ok(ox), Ok(oy)) = (s[0].parse(), s[1].parse()) {
                 STATE.with(|v| {
                     v.borrow_mut().offset = (ox, oy);
-                    events::update_viewport(Some((ox, oy)), None, &v);
+                    events::update_viewport(&mut v.borrow_mut(), Some((ox, oy)), None);
                 });
             }
         })));
@@ -30,7 +54,7 @@ thread_local! {
             if let Ok(factor) = s[0].parse() {
                 STATE.with(|v| {
                     v.borrow_mut().factor = factor;
-                    events::update_viewport(None, Some(factor), &v);
+                    events::update_viewport(&mut v.borrow_mut(), None, Some(factor));
                 });
             }
         })));
@@ -41,4 +65,4 @@ thread_local! {
 
         h
     };
-}
+}*/

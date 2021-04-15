@@ -1,6 +1,4 @@
 use derive_more::Display;
-use glifparser::WhichHandle;
-
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq)]
 /// Point following behavior when using the arrow tool
 pub enum Follow {
@@ -13,33 +11,6 @@ pub enum Follow {
     QuadOpposite,
     // Other point will remain in fixed position.
     No,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct ToolData {
-    pub contour: Option<usize>,   // index into Outline
-    pub cur_point: Option<usize>, // index into Contour
-    pub handle: WhichHandle,      // if handle of cur_point selected, not point
-    pub follow: Follow,           // determined currently by MouseButton
-    pub snap: f32,                // degrees to snap to. e.g. 45., 90.
-
-    // was shift or control held for the initial click?
-    pub shift: bool,
-    pub ctrl: bool,
-}
-
-impl ToolData {
-    fn new() -> Self {
-        ToolData {
-            contour: None,
-            cur_point: None,
-            handle: WhichHandle::Neither,
-            follow: Follow::Mirror,
-            snap: 0.,
-            shift: false,
-            ctrl: false,
-        }
-    }
 }
 
 use crate::events::MouseMeta;
@@ -65,6 +36,3 @@ impl From<MouseMeta> for Follow {
         }
     }
 }
-
-use std::cell::RefCell;
-thread_local!(pub static TOOL_DATA: RefCell<ToolData> = RefCell::new(ToolData::new()));

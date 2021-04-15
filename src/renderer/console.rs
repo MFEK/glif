@@ -31,7 +31,7 @@ impl Console {
 
 use skulpin::skia_safe::{Data, Font, FontStyle, Matrix, Typeface};
 
-use crate::system_fonts;
+use crate::{state::Editor, system_fonts};
 lazy_static! {
     static ref MONO_FONT_BYTES: Option<Vec<u8>> = {
         match system_fonts::SYSTEMMONO.path {
@@ -55,10 +55,9 @@ lazy_static! {
 }
 
 use super::constants::*;
-use crate::STATE;
 use skulpin::skia_safe::{Canvas, Paint, PaintStyle, Path, Rect, TextBlob};
 impl Console {
-    pub fn draw(&mut self, canvas: &mut Canvas) {
+    pub fn draw(&mut self, v: &Editor, canvas: &mut Canvas) {
         if !self.active {
             return;
         }
@@ -67,40 +66,38 @@ impl Console {
         let mut matrix = Matrix::new_identity();
         matrix.set_scale((1., 1.), None);
 
-        STATE.with(|v| {
-            let font = Font::from_typeface_with_params(&*CONSOLE_TYPEFACE, 14., 1., 0.0);
-            let winsize = v.borrow().winsize;
-            let mut topleft = (0., winsize.1 as f32);
-            let mut size = (winsize.0 as f32, 0.);
+        let font = Font::from_typeface_with_params(&*CONSOLE_TYPEFACE, 14., 1., 0.0);
+        let winsize = v.winsize;
+        let mut topleft = (0., winsize.1 as f32);
+        let mut size = (winsize.0 as f32, 0.);
 
-            let (_, trect) = font.measure_str("Q", None);
-            topleft.1 -= CONSOLE_PADDING_Y_TOP + CONSOLE_PADDING_Y_BOTTOM;
-            topleft.1 -= trect.height(); // premultiplied by font
-            size.1 += CONSOLE_PADDING_Y_TOP + CONSOLE_PADDING_Y_BOTTOM;
-            size.1 += trect.height(); // premultiplied by font
+        let (_, trect) = font.measure_str("Q", None);
+        topleft.1 -= CONSOLE_PADDING_Y_TOP + CONSOLE_PADDING_Y_BOTTOM;
+        topleft.1 -= trect.height(); // premultiplied by font
+        size.1 += CONSOLE_PADDING_Y_TOP + CONSOLE_PADDING_Y_BOTTOM;
+        size.1 += trect.height(); // premultiplied by font
 
-            // Draw background
-            let console_rect = Rect::from_point_and_size(topleft, size);
-            let mut paint = Paint::default();
-            let mut path = Path::new();
-            paint.set_style(PaintStyle::Fill);
-            paint.set_color(CONSOLE_FILL);
-            path.add_rect(console_rect, None);
-            path.close();
+        // Draw background
+        let console_rect = Rect::from_point_and_size(topleft, size);
+        let mut paint = Paint::default();
+        let mut path = Path::new();
+        paint.set_style(PaintStyle::Fill);
+        paint.set_color(CONSOLE_FILL);
+        path.add_rect(console_rect, None);
+        path.close();
 
-            canvas.draw_path(&path, &paint);
+        canvas.draw_path(&path, &paint);
 
-            // Draw text
-            let blob = TextBlob::from_str(&self.stdin, &font)
-                .expect(&format!("Failed to shape {}", &self.stdin));
+        // Draw text
+        let blob = TextBlob::from_str(&self.stdin, &font)
+            .expect(&format!("Failed to shape {}", &self.stdin));
 
-            paint.set_color(CONSOLE_TEXT_FILL);
-            topleft.0 += CONSOLE_PADDING_X;
-            topleft.1 += CONSOLE_PADDING_Y_BOTTOM;
-            topleft.1 += trect.height(); // premultiplied by font
+        paint.set_color(CONSOLE_TEXT_FILL);
+        topleft.0 += CONSOLE_PADDING_X;
+        topleft.1 += CONSOLE_PADDING_Y_BOTTOM;
+        topleft.1 += trect.height(); // premultiplied by font
 
-            canvas.draw_text_blob(&blob, topleft, &paint);
-        });
+        canvas.draw_text_blob(&blob, topleft, &paint);
 
         canvas.restore();
     }

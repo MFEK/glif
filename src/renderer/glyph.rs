@@ -1,17 +1,19 @@
+use std::borrow::Borrow;
+
 use super::constants::*;
 
 use super::points::calc::*;
-use crate::state::{PointData, PreviewMode};
-use crate::STATE;
+use crate::state::{PointData, PreviewMode, Editor};
 use glifparser::{self, Contour, OutlineType, PointType, WhichHandle};
 
-use skulpin::skia_safe::{Canvas, Paint, PaintStyle, Path};
+use skulpin::{skia_bindings::SkPath_AddPathMode, skia_safe::{Canvas, Paint, PaintStyle, Path}};
 
 pub use crate::state::Glyph; // types
 pub use crate::state::{HandleStyle, PointLabels}; // enums
-pub use crate::state::{Mode, CONSOLE, TOOL_DATA}; // globals
+pub use crate::state::{CONSOLE};
+pub use crate::events::ToolEnum; // globals
 
-pub use crate::events::vws;
+//TODO: pub use crate::events::vws;
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum SkPathBuildMode {
@@ -21,7 +23,7 @@ pub enum SkPathBuildMode {
 }
 
 fn add_contour_to_skpath(
-    contour: &Contour<Option<PointData>>,
+    contour: &Contour<PointData>,
     path: &mut Path,
     mode: SkPathBuildMode,
     outline_type: OutlineType,
@@ -30,14 +32,14 @@ fn add_contour_to_skpath(
     if contour.len() == 0 {
         return;
     }
-    let should_draw = STATE.with(|v| vws::should_draw_contour(&v, idx));
+    let should_draw = true; //TODO: STATE.with(|v| vws::should_draw_contour(&v, idx));
 
     if !should_draw {
         return;
     }
 
-    let firstpoint: &glifparser::Point<Option<PointData>> = contour.first().unwrap();
-    let mut prevpoint: &glifparser::Point<Option<PointData>> = contour.first().unwrap();
+    let firstpoint: &glifparser::Point<PointData> = contour.first().unwrap();
+    let mut prevpoint: &glifparser::Point<PointData> = contour.first().unwrap();
     let pointiter = contour.iter().enumerate();
 
     match mode {
@@ -112,188 +114,191 @@ fn add_contour_to_skpath(
     }
 }
 
-pub fn draw(canvas: &mut Canvas) -> Path {
-    STATE.with(|v| {
-        let mut paint = Paint::default();
-        paint.set_anti_alias(true);
+pub fn draw(v: &Editor, canvas: &mut Canvas) -> Path {
+    let mut paint = Paint::default();
+    paint.set_anti_alias(true);
 
-        if v.borrow().preview_mode == PreviewMode::Paper {
-            paint.set_style(PaintStyle::Fill);
-            paint.set_color(PAPER_FILL);
-        } else {
-            paint.set_style(PaintStyle::StrokeAndFill);
-            paint.set_stroke_width(
-                OUTLINE_STROKE_THICKNESS * (1. / STATE.with(|v| v.borrow().factor)),
-            );
-            paint.set_color(OUTLINE_FILL);
-        }
+    if v.preview_mode == PreviewMode::Paper {
+        paint.set_style(PaintStyle::Fill);
+        paint.set_color(PAPER_FILL);
+    } else {
+        paint.set_style(PaintStyle::StrokeAndFill);
+        paint.set_stroke_width(
+            OUTLINE_STROKE_THICKNESS * (1. / v.factor),
+        );
+        paint.set_color(OUTLINE_FILL);
+    }
 
-        let mut path = Path::new();
+    let mut total_path = Path::new();
+    v.with_glif(|glif| {
+        let outline_type = glif.order;
 
-        let outline_type = v.borrow().glyph.as_ref().unwrap().glif.order;
+        for layer in &glif.layers {
+            let mut path = Path::new();
 
-        for outline in v.borrow().glyph.as_ref().unwrap().glif.outline.as_ref() {
-            for (idx, contour) in outline.iter().enumerate() {
-                add_contour_to_skpath(
-                    &contour,
-                    &mut path,
-                    SkPathBuildMode::Closed,
-                    outline_type,
-                    idx,
-                );
-            }
-
-            //Skia C++-compatible dump:
-            //path.dump();
-
-            canvas.draw_path(&path, &paint);
-            path = Path::new();
-            paint.set_style(PaintStyle::Stroke);
-
-            for (idx, contour) in outline.iter().enumerate() {
-                add_contour_to_skpath(
-                    &contour,
-                    &mut path,
-                    SkPathBuildMode::Open,
-                    outline_type,
-                    idx,
-                );
-            }
-
-            canvas.draw_path(&path, &paint);
-
-            path = Path::new();
-
-            for (idx, contour) in outline.iter().enumerate() {
-                add_contour_to_skpath(
-                    &contour,
-                    &mut path,
-                    SkPathBuildMode::OpenAndClosed,
-                    outline_type,
-                    idx,
-                );
-            }
-
-            if v.borrow().preview_mode != PreviewMode::Paper {
-                paint.set_color(OUTLINE_STROKE);
-                paint.set_style(PaintStyle::Stroke);
+            for outline in &layer.outline {
+                for (idx, contour) in outline.iter().enumerate() {
+                    add_contour_to_skpath(
+                        &contour,
+                        &mut path,
+                        SkPathBuildMode::Closed,
+                        outline_type,
+                        idx,
+                    );
+                }
+    
                 canvas.draw_path(&path, &paint);
+                path = Path::new();
+                paint.set_style(PaintStyle::Stroke);
+    
+                for (idx, contour) in outline.iter().enumerate() {
+                    add_contour_to_skpath(
+                        &contour,
+                        &mut path,
+                        SkPathBuildMode::Open,
+                        outline_type,
+                        idx,
+                    );
+                }
+    
+                canvas.draw_path(&path, &paint);
+    
+                path = Path::new();
+    
+                for (idx, contour) in outline.iter().enumerate() {
+                    add_contour_to_skpath(
+                        &contour,
+                        &mut path,
+                        SkPathBuildMode::OpenAndClosed,
+                        outline_type,
+                        idx,
+                    );
+                }
+    
+                if v.borrow().preview_mode != PreviewMode::Paper {
+                    paint.set_color(OUTLINE_STROKE);
+                    paint.set_style(PaintStyle::Stroke);
+                    canvas.draw_path(&path, &paint);
+                }
             }
+            
+            total_path.add_path(&path, (0., 0.), SkPath_AddPathMode::Append);
         }
-        path
-    })
+    });
+
+    return total_path;
 }
 
 // TODO: Move the shared functionality between these two functions into it's own function.
-pub fn draw_previews(canvas: &mut Canvas) -> Path {
-    STATE.with(|v| {
-        let mut paint = Paint::default();
-        paint.set_anti_alias(true);
+/* 
+pub fn draw_previews(v: &State, canvas: &mut Canvas) -> Path {
+    let mut paint = Paint::default();
+    paint.set_anti_alias(true);
 
-        if v.borrow().preview_mode == PreviewMode::Paper {
-            paint.set_style(PaintStyle::Fill);
-            paint.set_color(PAPER_FILL);
-        } else {
-            paint.set_style(PaintStyle::StrokeAndFill);
-            paint.set_stroke_width(
-                OUTLINE_STROKE_THICKNESS * (1. / STATE.with(|v| v.borrow().factor)),
-            );
-            paint.set_color(OUTLINE_FILL);
-        }
+    if v.borrow().preview_mode == PreviewMode::Paper {
+        paint.set_style(PaintStyle::Fill);
+        paint.set_color(PAPER_FILL);
+    } else {
+        paint.set_style(PaintStyle::StrokeAndFill);
+        paint.set_stroke_width(
+            OUTLINE_STROKE_THICKNESS * (1. / v.factor),
+        );
+        paint.set_color(OUTLINE_FILL);
+    }
 
-        let mut path = Path::new();
+    let mut path = Path::new();
 
-        let outline_type = v.borrow().glyph.as_ref().unwrap().glif.order;
+    let outline_type = v.with_glif(&|glif| {glif.order});
 
-        for outline in &v.borrow().vws_previews {
-            for contour in outline {
-                if contour.len() == 0 {
+    for outline in &v.borrow().vws_previews {
+        for contour in outline {
+            if contour.len() == 0 {
+                continue;
+            }
+            path.move_to((calc_x(contour[0].x), calc_y(contour[0].y)));
+            let firstpoint: &glifparser::Point<Option<()>> =
+                contour.first().unwrap();
+            let mut prevpoint: &glifparser::Point<
+                Option<Option<()>>,
+            > = contour.first().unwrap();
+            let pointiter = contour.iter().enumerate();
+            for (_i, point) in pointiter {
+                if _i == 0 {
                     continue;
-                }
-                path.move_to((calc_x(contour[0].x), calc_y(contour[0].y)));
-                let firstpoint: &glifparser::Point<Option<MFEKmath::piecewise::glif::PointData>> =
-                    contour.first().unwrap();
-                let mut prevpoint: &glifparser::Point<
-                    Option<MFEKmath::piecewise::glif::PointData>,
-                > = contour.first().unwrap();
-                let pointiter = contour.iter().enumerate();
-                for (_i, point) in pointiter {
-                    if _i == 0 {
-                        continue;
-                    };
-                    match point.ptype {
-                        PointType::Line => {
-                            path.line_to((calc_x(point.x), calc_y(point.y)));
-                        }
-                        PointType::Curve => {
-                            assert_eq!(outline_type, OutlineType::Cubic);
-                            let h1 = prevpoint.handle_or_colocated(WhichHandle::A, calc_x, calc_y);
-                            let h2 = point.handle_or_colocated(WhichHandle::B, calc_x, calc_y);
-                            path.cubic_to(h1, h2, (calc_x(point.x), calc_y(point.y)));
-                        }
-                        PointType::QCurve => {
-                            assert_eq!(outline_type, OutlineType::Quadratic);
-                            let h1 = prevpoint.handle_or_colocated(WhichHandle::A, calc_x, calc_y);
-                            path.quad_to(h1, (calc_x(point.x), calc_y(point.y)));
-                        }
-                        _ => {}
+                };
+                match point.ptype {
+                    PointType::Line => {
+                        path.line_to((calc_x(point.x), calc_y(point.y)));
                     }
-                    prevpoint = &point;
-                }
-                if firstpoint.ptype != PointType::Move {
-                    match contour.last() {
-                        Some(lastpoint) => {
-                            let h1 = lastpoint.handle_or_colocated(WhichHandle::A, calc_x, calc_y);
-                            match outline_type {
-                                OutlineType::Cubic => {
-                                    let h2 = firstpoint.handle_or_colocated(
-                                        WhichHandle::B,
-                                        calc_x,
-                                        calc_y,
-                                    );
-                                    path.cubic_to(
-                                        h1,
-                                        h2,
-                                        (calc_x(firstpoint.x), calc_y(firstpoint.y)),
-                                    )
-                                }
-                                OutlineType::Quadratic => {
-                                    match lastpoint.ptype {
-                                        PointType::QClose => {
-                                            // This is safe as a lone QClose is illegal and should
-                                            // cause a crash anyway if it's happening.
-                                            let prevpoint = &contour[contour.len() - 2];
-                                            let ph = prevpoint.handle_or_colocated(
-                                                WhichHandle::A,
-                                                calc_x,
-                                                calc_y,
-                                            );
-                                            path.quad_to(ph, h1)
-                                        }
-                                        _ => path.quad_to(
-                                            h1,
-                                            (calc_x(firstpoint.x), calc_y(firstpoint.y)),
-                                        ),
-                                    }
-                                }
-                                OutlineType::Spiro => panic!("Spiro as yet unimplemented."),
-                            };
-                        }
-                        None => {}
+                    PointType::Curve => {
+                        assert_eq!(outline_type, OutlineType::Cubic);
+                        let h1 = prevpoint.handle_or_colocated(WhichHandle::A, calc_x, calc_y);
+                        let h2 = point.handle_or_colocated(WhichHandle::B, calc_x, calc_y);
+                        path.cubic_to(h1, h2, (calc_x(point.x), calc_y(point.y)));
                     }
-                    path.close();
+                    PointType::QCurve => {
+                        assert_eq!(outline_type, OutlineType::Quadratic);
+                        let h1 = prevpoint.handle_or_colocated(WhichHandle::A, calc_x, calc_y);
+                        path.quad_to(h1, (calc_x(point.x), calc_y(point.y)));
+                    }
+                    _ => {}
                 }
+                prevpoint = &point;
             }
-
-            //Skia C++-compatible dump:
-            //path.dump();
-            canvas.draw_path(&path, &paint);
-            if v.borrow().preview_mode != PreviewMode::Paper {
-                paint.set_color(OUTLINE_STROKE);
-                paint.set_style(PaintStyle::Stroke);
-                canvas.draw_path(&path, &paint);
+            if firstpoint.ptype != PointType::Move {
+                match contour.last() {
+                    Some(lastpoint) => {
+                        let h1 = lastpoint.handle_or_colocated(WhichHandle::A, calc_x, calc_y);
+                        match outline_type {
+                            OutlineType::Cubic => {
+                                let h2 = firstpoint.handle_or_colocated(
+                                    WhichHandle::B,
+                                    calc_x,
+                                    calc_y,
+                                );
+                                path.cubic_to(
+                                    h1,
+                                    h2,
+                                    (calc_x(firstpoint.x), calc_y(firstpoint.y)),
+                                )
+                            }
+                            OutlineType::Quadratic => {
+                                match lastpoint.ptype {
+                                    PointType::QClose => {
+                                        // This is safe as a lone QClose is illegal and should
+                                        // cause a crash anyway if it's happening.
+                                        let prevpoint = &contour[contour.len() - 2];
+                                        let ph = prevpoint.handle_or_colocated(
+                                            WhichHandle::A,
+                                            calc_x,
+                                            calc_y,
+                                        );
+                                        path.quad_to(ph, h1)
+                                    }
+                                    _ => path.quad_to(
+                                        h1,
+                                        (calc_x(firstpoint.x), calc_y(firstpoint.y)),
+                                    ),
+                                }
+                            }
+                            OutlineType::Spiro => panic!("Spiro as yet unimplemented."),
+                        };
+                    }
+                    None => {}
+                }
+                path.close();
             }
         }
-        path
-    })
+
+        //Skia C++-compatible dump:
+        //path.dump();
+        canvas.draw_path(&path, &paint);
+        if v.borrow().preview_mode != PreviewMode::Paper {
+            paint.set_color(OUTLINE_STROKE);
+            paint.set_style(PaintStyle::Stroke);
+            canvas.draw_path(&path, &paint);
+        }
+    }
+    path
 }
+*/

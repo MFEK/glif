@@ -3,18 +3,18 @@ use skulpin::skia_safe::{Canvas, Font, FontStyle, Paint, Path, Rect, TextBlob, T
 use std::cell::RefCell;
 use std::collections::HashMap;
 
-use crate::STATE; // for State.factor
+use crate::state::Editor;
 
 static POINTFONTSIZE: f32 = 14.0;
 
-pub fn draw_point_number(at: (f32, f32), number: isize, canvas: &mut Canvas) {
+pub fn draw_point_number(v: &Editor, at: (f32, f32), number: isize, canvas: &mut Canvas) {
     let converted = number.to_string();
-    draw_string_at_point(at, &converted, canvas);
+    draw_string_at_point(v, at, &converted, canvas);
 }
 
-pub fn draw_point_location(at: (f32, f32), original: (f32, f32), canvas: &mut Canvas) {
+pub fn draw_point_location(v: &Editor, at: (f32, f32), original: (f32, f32), canvas: &mut Canvas) {
     let converted = format!("{}, {}", original.0, original.1);
-    draw_string_at_point(at, &converted, canvas);
+    draw_string_at_point(v, at, &converted, canvas);
 }
 
 fn pointfont_from_size_and_factor(size: f32, factor: f32) -> Font {
@@ -30,7 +30,7 @@ fn pointfont_from_size_and_factor(size: f32, factor: f32) -> Font {
 // based on the current zoom.
 thread_local! {
     static POINTFONTS: RefCell<HashMap<usize, Font>> = {
-        let factor = STATE.with(|v| v.borrow().factor);
+        let factor = 1.;
         let mut h = HashMap::new();
         let font = pointfont_from_size_and_factor(14.0, factor);
         h.insert((14.0 * 1. / factor).round() as usize, font);
@@ -38,8 +38,8 @@ thread_local! {
     };
 }
 
-fn draw_string_at_point(mut at: (f32, f32), s: &str, canvas: &mut Canvas) {
-    let factor = STATE.with(|v| v.borrow().factor);
+fn draw_string_at_point(v: &Editor, mut at: (f32, f32), s: &str, canvas: &mut Canvas) {
+    let factor = v.factor;
     let mut paint = Paint::default();
     paint.set_color(0xff_ff0000);
     paint.set_anti_alias(true);

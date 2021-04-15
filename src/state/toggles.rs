@@ -8,15 +8,6 @@ pub enum HandleStyle {
     Floating,
 }
 
-#[derive(Display, Debug, Clone, Copy, PartialEq)]
-pub enum Mode {
-    Pan,
-    Pen,
-    Select,
-    Zoom,
-    VWS,
-}
-
 #[derive(IntoEnumIterator, Display, Debug, Clone, Copy, PartialEq)]
 pub enum PointLabels {
     None,
