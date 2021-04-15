@@ -68,7 +68,7 @@ MFEKmath = { git = "https://github.com/MFEK/math.rlib", branch = "main" }
 mfek-ipc = { git = "https://github.com/mfek/ipc" }
 
 #xml parsing
-xmltree = "0.10.1"
+xmltree = "0.10.3"
 
 #config file directory resolution
 app_dirs = "1.2.1"
