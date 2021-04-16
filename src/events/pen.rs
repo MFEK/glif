@@ -33,7 +33,7 @@ impl Pen {
         Self {}
     }
 
-    fn mouse_moved(&self, v: &mut Editor, position: (f64, f64), _meta: MouseMeta) {
+    fn mouse_moved(&self, v: &mut Editor, _position: (f64, f64), _meta: MouseMeta) {
         if !v.mousedown { return };
 
         if let Some(idx) = v.contour_idx {

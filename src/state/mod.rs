@@ -15,7 +15,7 @@ pub use skulpin::skia_safe::{Canvas, Matrix, Path as SkPath, Point as SkPoint, R
 pub use crate::renderer::points::calc::*;
 
 
-use std::{cell::RefCell, collections::HashMap};
+use std::{cell::RefCell, collections::{HashMap, HashSet}};
 use std::path::PathBuf;
 
 use crate::get_contour_mut;
@@ -51,7 +51,6 @@ pub struct Editor {
     active_tool: Box<dyn Tool>,
     active_tool_enum: ToolEnum,
     
-    pub selected: Vec<Point<PointData>>,
     pub mousedown: bool,
     pub mousepos: (f64, f64),
     pub absolute_mousepos: (f64, f64),
@@ -66,9 +65,13 @@ pub struct Editor {
     pub ipc_info: Option<mfek_ipc::IPCInfo>,
     pub quit_requested: bool, // allows for quits from outside event loop, e.g. from command closures
 
+    // this is your main selection or 'edit pointer'
     pub contour_idx: Option<usize>,   // index into Outline
     pub point_idx: Option<usize>, 
     pub layer_idx: Option<usize>, // active layer
+
+    // this is drag selection
+    pub selected: HashSet<(usize, usize)>,
 
     pub previews: HashMap<usize, HashMap<usize, Contour<PointData>>>,
 }
@@ -105,7 +108,8 @@ impl Editor {
             layer_idx: None,
             contour_idx: None,   // index into Outline
             point_idx: None, // index into Contour
-            selected: Vec::new(),
+            selected: HashSet::new(),
+
             modifying: false,
         }
     }
@@ -135,6 +139,9 @@ impl Editor {
 
     // TODO: split following 3 functions off into some tool utility file
 
+    pub fn delete_selection(&self) {
+        
+    }
     /// Checks if the active point is the active contour's start or end. Does not modify.
     pub fn get_contour_start_or_end(&self, contour_idx: usize, point_idx: usize) -> Option<SelectPointInfo>
     {

@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 // Select
 use super::{EditorEvent, Tool, prelude::*};
 use crate::{renderer::{UIPointType, points::draw_point}, state::{Follow, Editor}, util::math::FlipIfRequired};
@@ -194,7 +196,7 @@ impl Select {
             self.show_sel_box = true;
             self.corner_one = Some(v.mousepos);
             self.corner_two = Some(v.mousepos);
-            v.selected = Vec::new();
+            v.selected = HashSet::new();
         }
     }
 
@@ -306,15 +308,15 @@ fn get_contour_start_or_end(v: &Editor, contour_idx: usize, point_idx: usize) ->
 pub fn build_sel_vec_from_rect(
     mut rect: Rect,
     outline: Option<&Vec<glifparser::Contour<PointData>>>,
-) -> Vec<glifparser::Point<PointData>> {
+) -> HashSet<(usize, usize)> {
     rect.flip_if_required();
 
-    let mut selected = Vec::new();
+    let mut selected = HashSet::new();
     for o in outline {
-        for contour in o {
-            for point in contour {
+        for (cidx, contour) in o.iter().enumerate() {
+            for (pidx, point) in contour.iter().enumerate() {
                 if Rect::from(rect).contains(skulpin::skia_safe::Point::from((calc_x(point.x), calc_y(point.y)))) {
-                    selected.push(point.clone());
+                    selected.insert((cidx, pidx));
                 }
             }
         }

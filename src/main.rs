@@ -256,9 +256,12 @@ fn main() {
                                 c.borrow_mut().active = true;
                             });
                         }
+                        Command::DeleteSelection => {
+                            editor.delete_selection();
+                        }
 
                         _ => unreachable!(
-                            "The remaining Command enums should never be returned."
+                            "Command unimplemented!"
                         ),
                     }
                 }

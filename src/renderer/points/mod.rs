@@ -294,24 +294,37 @@ pub fn draw_all(v: &Editor, canvas: &mut Canvas) {
     let mut i: isize = -1;
     let handle_style = v.handle_style;
 
+    // FIXME: this is bad but I can't access v from inside with glif
+    let selected = v.selected.clone();
+    let active_layer = v.layer_idx.unwrap();
+    let (vcidx, vpidx) = (v.contour_idx, v.point_idx);
     v.with_glif(|glif| {
-        for layer in &glif.layers {
+        for (lidx, layer) in glif.layers.iter().enumerate() {
             if handle_style == HandleStyle::Handlebars {
-                for contour in layer.outline.as_ref().unwrap() {
+                for (cidx, contour) in layer.outline.as_ref().unwrap() .iter().enumerate(){
                     let mut prevpoint = contour.first().unwrap();
-                    for point in contour {
-                        draw_handlebars(v, Some(prevpoint), &point, false, canvas);
+                    for (pidx, point) in contour.iter().enumerate() {
+                        let selected = if  
+                            (lidx == active_layer && selected.contains(&(cidx, pidx))) ||
+                            (lidx == active_layer && vcidx == Some(cidx) && vpidx == Some(pidx))
+                        { true } else { false };
+                        draw_handlebars(v, Some(prevpoint), &point, selected, canvas);
                         prevpoint = &point;
                     }
                 }
             }
 
-            for contour in layer.outline.as_ref().unwrap(){
-                for point in contour {
+            for (cidx, contour) in layer.outline.as_ref().unwrap() .iter().enumerate(){
+                for (pidx, point) in contour.iter().enumerate() {
                     if point.b != Handle::Colocated {
                         i += 1;
                     }
-                    draw_complete_point(v, &point, Some(i), false, canvas);
+                    let selected = if  
+                        (lidx == active_layer && selected.contains(&(cidx, pidx))) ||
+                        (lidx == active_layer && vcidx == Some(cidx) && vpidx == Some(pidx))
+                    { true } else { false };
+                
+                    draw_complete_point(v, &point, Some(i), selected, canvas);
                     if point.a != Handle::Colocated {
                         i += 1;
                     }
@@ -320,25 +333,4 @@ pub fn draw_all(v: &Editor, canvas: &mut Canvas) {
             }
         }
     });
-}
-
-pub fn draw_selected(v: &Editor, canvas: &mut Canvas) {
-    let contour_idx = v.contour_idx;
-    let point_idx = v.point_idx;
-    if let (Some(ci), Some(pi)) = (contour_idx, point_idx) {
-        let point = v.with_active_layer(|layer| get_outline!(layer)[ci][pi].clone());
-        draw_complete_point(v, &point, None, true, canvas);
-    }
-
-    for point in &v.selected {
-        if point.ptype != PointType::QCurve {
-            if v.handle_style == HandleStyle::Handlebars {
-                draw_handlebars(v, None, point, true, canvas);
-            }
-        }
-    }
-
-    for point in &v.selected {
-        draw_complete_point(v, point, None, true, canvas);
-    }
 }
