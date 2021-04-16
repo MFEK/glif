@@ -1,25 +1,44 @@
 //! Global thread local state.
 
-use glifparser::{Contour, Glif, Layer, Point};
+use glifparser::{Contour, Glif, WhichHandle, MFEKGlif, Point, glif::{HistoryEntry, HistoryType, Layer}};
+pub use crate::state::Follow;
 
 pub use crate::renderer::console::Console as RendererConsole;
 use crate::{events::{EditorEvent, Tool, ToolEnum, pan::Pan, tool_enum_to_tool}, renderer::Guideline};
+use crate::get_outline;
 
-use std::{borrow::{Borrow, BorrowMut}, cell::RefCell, collections::HashMap};
+use crate::renderer::constants;
+use constants::{POINT_RADIUS, POINT_STROKE_THICKNESS};
+
+pub use skulpin::skia_safe::Contains as _;
+pub use skulpin::skia_safe::{Canvas, Matrix, Path as SkPath, Point as SkPoint, Rect as SkRect};
+pub use crate::renderer::points::calc::*;
+
+
+use std::{cell::RefCell, collections::HashMap};
 use std::path::PathBuf;
 
+use crate::get_contour_mut;
+use crate::get_outline_mut;
+use crate::get_contour_len;
+
+
 mod tool_data;
-use self::history::HistoryType;
 pub use self::tool_data::*;
 
 mod toggles;
 pub use self::toggles::*;
 
-mod history;
-pub use self::history::HistoryEntry;
+//TODO: Move to tool utility file
+#[derive(PartialEq, Clone, Copy)]
+pub enum SelectPointInfo {
+    Start,
+    End
+}
+
 
 pub struct Glyph<P: glifparser::PointData> {
-    pub glif: Glif<P>,
+    pub glif: MFEKGlif<P>,
     pub filename: PathBuf,
     pub guidelines: Vec<Guideline>,
 }
@@ -114,6 +133,110 @@ impl Editor {
         self.modifying = true;
     }
 
+    // TODO: split following 3 functions off into some tool utility file
+
+    /// Checks if the active point is the active contour's start or end. Does not modify.
+    pub fn get_contour_start_or_end(&self, contour_idx: usize, point_idx: usize) -> Option<SelectPointInfo>
+    {
+        let contour_len = self.with_active_layer(|layer| {get_contour_len!(layer, contour_idx)} ) - 1;
+        match point_idx {
+            0 => Some(SelectPointInfo::Start),
+            contour_len => Some(SelectPointInfo::End),
+            _ => None
+        }
+    }
+
+    /// Utility function to quickly check which point or mouse is hovering. Optional mask parameter specifies a point to ignore.
+    pub fn clicked_point_or_handle(&self, mask: Option<(usize, usize)>) -> Option<(usize, usize, WhichHandle)> {
+        let factor = self.factor;
+        let _contour_idx = 0;
+        let _point_idx = 0;
+
+        // How we do this is quite naïve. For each click, we just iterate all points and check the
+        // point and both handles. It's just a bunch of floating point comparisons in a compiled
+        // language, so I'm not too concerned about it, and even in the TT2020 case doesn't seem to
+        // slow anything down.
+        self.with_active_layer(|layer| {
+            for (contour_idx, contour) in get_outline!(layer).iter().enumerate() {
+                for (point_idx, point) in contour.iter().enumerate() {
+                    if let Some(mask) = mask { if contour_idx == mask.0 && point_idx == mask.1 { continue }};
+
+                    let size = ((POINT_RADIUS * 2.) + (POINT_STROKE_THICKNESS * 2.)) * (1. / factor);
+                    // Topleft corner of point
+                    let point_tl = SkPoint::new(
+                        calc_x(point.x as f32) - (size / 2.),
+                        calc_y(point.y as f32) - (size / 2.),
+                    );
+                    let point_rect = SkRect::from_point_and_size(point_tl, (size, size));
+                    // Topleft corner of handle a
+                    let a = point.handle_or_colocated(WhichHandle::A, |f| f, |f| f);
+                    let a_tl = SkPoint::new(calc_x(a.0) - (size / 2.), calc_y(a.1) - (size / 2.));
+                    let a_rect = SkRect::from_point_and_size(a_tl, (size, size));
+                    // Topleft corner of handle b
+                    let b = point.handle_or_colocated(WhichHandle::B, |f| f, |f| f);
+                    let b_tl = SkPoint::new(calc_x(b.0) - (size / 2.), calc_y(b.1) - (size / 2.));
+                    let b_rect = SkRect::from_point_and_size(b_tl, (size, size));
+        
+                    // winit::PhysicalPosition as an SkPoint
+                    let sk_mpos = SkPoint::new(self.mousepos.0 as f32, self.mousepos.1 as f32);
+        
+                    if point_rect.contains(sk_mpos) {
+                        return Some((contour_idx, point_idx, WhichHandle::Neither));
+                    } else if a_rect.contains(sk_mpos) {
+                        return Some((contour_idx, point_idx, WhichHandle::A));
+                    } else if b_rect.contains(sk_mpos) {
+                        return Some((contour_idx, point_idx, WhichHandle::B));
+                    }
+                }
+            }
+            None
+        })
+    }
+
+    /// This function merges contour gracefully. This should be used over merging them yourself as it will automatically
+    /// contour operations. This can only be called during a modification
+    pub fn merge_contours(&mut self, start: usize, end: usize)
+    {
+        // TODO: fix contour operations
+
+        // we're closing an open path
+        if start == end {
+            self.with_active_layer_mut(|layer| {
+                let contour = get_contour_mut!(layer, start);
+                let last_point = contour.pop().unwrap();
+
+                contour.first_mut().unwrap().b = last_point.b;
+                contour.first_mut().unwrap().ptype = glifparser::PointType::Curve;
+            });
+            self.point_idx = Some(0);
+        } else {
+            // we're merging two open paths
+            let (cidx, pidx) = self.with_active_layer_mut(|layer| {
+                let mut startc = get_contour_mut!(layer, start).clone();
+                let endc = get_contour_mut!(layer, end);
+
+                endc.last_mut().unwrap().b = startc[0].a;
+
+                let p_idx = endc.len() - 1;
+                startc.remove(0);
+                for point in startc {
+                    endc.push(point);
+                }
+
+                get_outline_mut!(layer).remove(start);
+                //TODO: we need some kind of handling for when contours get removed
+                if start < end {
+                    (end, p_idx)
+                } else {
+                    (end, p_idx)
+                }
+            });
+
+            self.contour_idx = Some(cidx);
+            self.point_idx = Some(pidx);
+        }
+    }
+    
     // This should ideally be the only way tools are modifying the glyph. You call this and then do your edits inside the closure.
     // This is to prevent history-less modifications from occuring.
     pub fn with_active_layer_mut<F, R>(&mut self, mut closure: F) -> R
@@ -130,7 +253,7 @@ impl Editor {
 
 
     pub fn with_glif<F, R>(&self, mut closure: F) -> R 
-        where F: FnMut(&Glif<PointData>) -> R {
+        where F: FnMut(&MFEKGlif<PointData>) -> R {
         closure(&self.glyph.as_ref().unwrap().glif)
     }
 
@@ -195,6 +318,5 @@ impl Editor {
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct PointData;
-impl glifparser::PointData for PointData {}
 
 thread_local!(pub static CONSOLE: RefCell<RendererConsole> = RefCell::new(RendererConsole::default()));

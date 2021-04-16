@@ -49,6 +49,10 @@
     <binding command = "ToolZoom" key = "Z"/>
     <binding command = "ToolVWS" key = "S"/>
 
+    <!-- actions -->
+    <binding command = "DeleteSelection" key = "Backspace"/>
+
+
     <!-- view modes -->
     <binding command = "TogglePointLabels" key = "3"/>
     <binding command = "TogglePreviewMode" key = "`"/>

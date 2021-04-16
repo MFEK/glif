@@ -2,7 +2,7 @@ use crate::{events::select::Select, state::{Glyph, Editor}};
 
 use crate::events;
 use crate::state;
-use glifparser::Glif;
+use glifparser::{Glif, MFEKGlif};
 use log::debug;
 use state::PointData;
 use std::cell::RefCell;
@@ -12,7 +12,9 @@ use std::path::Path;
 
 pub fn load_glif<F: AsRef<Path> + Clone>(v: &mut Editor, filename: F) {
     let glifxml = fs::read_to_string(&filename).expect("Failed to read file");
-    let mut glif = glifparser::read_ufo_glif(&glifxml);
+
+    // TODO: Actually handle errors now that we have them.
+    let mut glif: MFEKGlif<PointData> = glifparser::read(&glifxml).expect("Invalid glif!").into();
 
     // This is necessary because the glif format doesn't require that a glif have an outline. But
     // we require a place to store contours if the user draws any.
@@ -58,10 +60,10 @@ pub fn save_glif(v: &mut Editor) {
         let filename: std::path::PathBuf = glyph.filename.clone();
 
         let glif_string = {
-            glifparser::write_ufo_glif(&glyph.glif)
+            // TODO: glifparser::write(&glyph.glif)
         };
     
-        fs::write(filename, glif_string).expect("Unable to write file");
+        //TODO: fs::write(filename, glif_string).expect("Unable to write file");
     });
 }
 

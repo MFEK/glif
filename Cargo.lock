@@ -14,9 +14,10 @@ dependencies = [
  "dyn-clone",
  "enum-iterator",
  "env_logger",
+ "flo_curves",
  "font-kit",
  "git-version",
- "glifparser 0.0.0",
+ "glifparser",
  "image",
  "imgui",
  "imgui-sdl2",
@@ -40,7 +41,7 @@ name = "MFEKmath"
 version = "0.1.0"
 dependencies = [
  "flo_curves",
- "glifparser 0.0.0 (git+https://github.com/MFEK/glifparser.rlib)",
+ "glifparser",
  "skia-safe",
  "xmltree",
  "xmlwriter",
@@ -655,7 +656,6 @@ dependencies = [
 [[package]]
 name = "flo_curves"
 version = "0.4.2"
-source = "git+https://github.com/MFEK/flo_curves?branch=master#8e1886e286c00e01fb308fd75f51f8554d0d0d21"
 dependencies = [
  "itertools",
  "roots",
@@ -811,20 +811,12 @@ dependencies = [
 
 [[package]]
 name = "glifparser"
-version = "0.0.0"
+version = "1.0.0"
 dependencies = [
+ "integer_or_float",
+ "kurbo",
  "log",
- "strum",
- "strum_macros",
- "xmltree",
-]
-
-[[package]]
-name = "glifparser"
-version = "0.0.0"
-source = "git+https://github.com/MFEK/glifparser.rlib#1d90286349c00fbadd362f2eb03cb260fa1eb26b"
-dependencies = [
- "log",
+ "trees",
  "xmltree",
 ]
 
@@ -938,6 +930,11 @@ dependencies = [
 ]
 
 [[package]]
+name = "integer_or_float"
+version = "0.1.0"
+source = "git+https://github.com/MFEK/integer_or_float.rlib?branch=main#3b89a85176d400b8d75cdc4ffa34800668c906da"
+
+[[package]]
 name = "itertools"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -968,6 +965,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dc15e39392125075f60c95ba416f5381ff6c3a948ff02ab12464715adf56c821"
 dependencies = [
  "wasm-bindgen",
+]
+
+[[package]]
+name = "kurbo"
+version = "0.8.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e30b1df631d23875f230ed3ddd1a88c231f269a04b2044eb6ca87e763b5f4c42"
+dependencies = [
+ "arrayvec",
 ]
 
 [[package]]
@@ -1860,6 +1866,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "trees"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0de5f738ceab88e2491a94ddc33c3feeadfa95fedc60363ef110845df12f3878"
+
+[[package]]
 name = "unicode-bidi"
 version = "0.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2178,9 +2190,9 @@ checksum = "b07db065a5cf61a7e4ba64f29e67db906fb1787316516c4e6e5ff0fea1efcd8a"
 
 [[package]]
 name = "xmltree"
-version = "0.10.2"
+version = "0.10.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d046fd42d4137234742eae0d05b4fb6fbdda9aed7c78e523ae890fd87c7e11dd"
+checksum = "d7d8a75eaf6557bb84a65ace8609883db44a29951042ada9b393151532e41fcb"
 dependencies = [
  "xml-rs",
 ]

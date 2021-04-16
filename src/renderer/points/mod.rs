@@ -152,7 +152,7 @@ fn draw_square_point(
     canvas.draw_path(&path, &paint);
 }
 
-fn draw_point(
+pub fn draw_point(
     v: &Editor,
     at: (f32, f32),
     original: (f32, f32),

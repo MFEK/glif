@@ -83,6 +83,8 @@ strum_macros = "0.20"
 #for logo, could be used in future for background images
 image = "0.23"
 
+flo_curves = { path = "../flo_curves"}
+
 # See src/util/mod.rs::set_codepage_utf8
 [target.'cfg(windows)'.dependencies]
 winapi = "0.3"

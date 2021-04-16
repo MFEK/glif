@@ -33,6 +33,8 @@ pub enum Command {
     ToolZoom,
     ToolVWS,
 
+    DeleteSelection,
+
     // view modes
     TogglePointLabels,
     TogglePreviewMode,

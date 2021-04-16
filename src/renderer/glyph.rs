@@ -4,7 +4,7 @@ use super::constants::*;
 
 use super::points::calc::*;
 use crate::state::{PointData, PreviewMode, Editor};
-use glifparser::{self, Contour, OutlineType, PointType, WhichHandle};
+use glifparser::{self, Contour, PointType, WhichHandle, OutlineType};
 
 use skulpin::{skia_bindings::SkPath_AddPathMode, skia_safe::{Canvas, Paint, PaintStyle, Path}};
 
