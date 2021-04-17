@@ -36,6 +36,10 @@ pub enum SelectPointInfo {
     End
 }
 
+pub struct EditorMods {
+    pub shift: bool,
+    pub ctrl: bool,
+}
 
 pub struct Glyph<P: glifparser::PointData> {
     pub glif: MFEKGlif<P>,
@@ -51,6 +55,7 @@ pub struct Editor {
     active_tool: Box<dyn Tool>,
     active_tool_enum: ToolEnum,
     
+    pub modifiers: EditorMods,
     pub mousedown: bool,
     pub mousepos: (f64, f64),
     pub absolute_mousepos: (f64, f64),
@@ -88,6 +93,7 @@ impl Editor {
             history: Vec::new(),
             previews: HashMap::new(),
 
+            modifiers: EditorMods { shift: false, ctrl: false },
             // TODO: refactor these out of State
             mousedown: false,
             mousepos: (0., 0.),

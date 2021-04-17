@@ -1,6 +1,6 @@
 use app_dirs::*;
 use sdl2::keyboard::Keycode;
-use std::fs::read_to_string;
+use std::{borrow::Borrow, fs::read_to_string};
 use std::path::Path;
 use std::{
     cell::RefCell,
@@ -80,6 +80,24 @@ pub fn initialize_keybinds() {
         hm.insert(keycode_enum, command_enum);
     }
 
+    while let Some(keymod) = config.take_child("mod") {
+        let keycode = keymod
+            .attributes
+            .get("key")
+            .expect("Binding does not have a key associated!");
+        let command = keymod
+            .attributes
+            .get("name")
+            .expect("Binding does not have a command associated!");
+
+        println!("{0}", sdl2::keyboard::Keycode::to_string(&Keycode::LShift));
+        let command_enum = Command::from_str(command).expect("Invalid command string!");
+        let keycode_enum =
+            sdl2::keyboard::Keycode::from_name(keycode).expect("Invalid keycode string!");
+
+        hm.insert(keycode_enum, command_enum);
+    }
+
     KEYMAP.with(|v| {
         v.borrow_mut().keybindings = hm;
     })
@@ -88,13 +106,15 @@ pub fn initialize_keybinds() {
 pub fn keycode_to_command(keycode: &Keycode, keys_down: &HashSet<Keycode>) -> Option<CommandInfo> {
     let command_enum = KEYMAP.with(|v| {
         if let Some(key) = v.borrow().keybindings.get(keycode) {
+            if key == &Command::ShiftMod || key == &Command::CtrlMod {
+                return None;
+            }
             return Some(*key);
         }
 
         None
     });
 
-    println!("{:?} {:?}", command_enum, keycode);
     if let Some(command_enum) = command_enum {
         return Some(CommandInfo {
             command: command_enum,
@@ -113,15 +133,13 @@ pub fn key_down_to_mod(keys_down: &HashSet<Keycode>) -> CommandMod {
     };
 
     for key in keys_down.iter() {
-        match key {
-            Keycode::LShift | Keycode::RShift => {
-                keymod.shift = true;
+        KEYMAP.with(|v| {
+            if let Some(command) = v.borrow().keybindings.get(key) {
+                if command == &Command::ShiftMod { keymod.shift = true; ;
+            };
+                if command == &Command::CtrlMod { keymod.ctrl = true; };
             }
-            Keycode::LCtrl | Keycode::RCtrl => {
-                keymod.ctrl = true;
-            }
-            _ => {}
-        }
+        });
     }
 
     return keymod;

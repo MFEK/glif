@@ -120,6 +120,8 @@ fn main() {
             .filter_map(Keycode::from_scancode)
             .collect();
 
+        let keymod = command::key_down_to_mod(&keys_down);
+
         // sdl event handling
         for event in event_pump.poll_iter() {
             imgui_sdl2.handle_event(&mut imgui, &event);
@@ -270,10 +272,9 @@ fn main() {
                     let position = (x as f64, y as f64);
                     update_mousepos(&mut editor, position, None);
 
-                    let keymod = command::key_down_to_mod(&keys_down);
                     editor.dispatch_editor_event(EditorEvent::MouseEvent{
                         event_type: MouseEventType::Moved,
-                        position: position,
+                        position: editor.mousepos,
                         meta: MouseMeta {
                             button: sdl2::mouse::MouseButton::Unknown,
                             modifiers: keymod,
@@ -285,7 +286,6 @@ fn main() {
                     let position = (x as f64, y as f64);
                     update_mousepos(&mut editor, position, Some(true));
                     
-                    let keymod = command::key_down_to_mod(&keys_down);
                     editor.dispatch_editor_event(EditorEvent::MouseEvent{
                         event_type: MouseEventType::Pressed,
                         position: editor.mousepos,
@@ -300,7 +300,6 @@ fn main() {
                     let position = (x as f64, y as f64);
                     update_mousepos(&mut editor, position, Some(false));
 
-                    let keymod = command::key_down_to_mod(&keys_down);
                     editor.dispatch_editor_event(EditorEvent::MouseEvent{
                         event_type: MouseEventType::Released,
                         position: editor.mousepos,

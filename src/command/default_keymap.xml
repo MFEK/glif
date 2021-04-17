@@ -61,9 +61,9 @@
     <binding command = "ToggleConsole" key = ";"/>
 
     <!-- mod keys -->
-    <mod name = "ShiftMod" key = "LShift"/>
-    <mod name = "CtrlMod" key = "LCtrl"/>
+    <mod name = "ShiftMod" key = "Left Shift"/>
+    <mod name = "CtrlMod" key = "Left Ctrl"/>
 
-    <mod name = "ShiftMod" key = "RShift"/>
-    <mod name = "CtrlMod" key = "RCtrl"/>
+    <mod name = "ShiftMod" key = "Right Shift"/>
+    <mod name = "CtrlMod" key = "Right Ctrl"/>
 </keybindings>

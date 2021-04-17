@@ -3,7 +3,7 @@ use std::collections::HashSet;
 // Select
 use super::{EditorEvent, Tool, prelude::*};
 use crate::{renderer::{UIPointType, points::draw_point}, state::{Follow, Editor}, util::math::FlipIfRequired};
-use glifparser::{Handle, PointType, WhichHandle};
+use glifparser::{Handle, Outline, PointType, WhichHandle};
 use skulpin::skia_safe::dash_path_effect;
 use skulpin::skia_safe::{Canvas, Contains, Paint, PaintStyle, Path, Rect};
 
@@ -62,35 +62,23 @@ impl Select {
                     self.modifying = true;
                 }
 
+                let reference_point = v.with_active_layer(|layer| get_outline!(layer)[ci][pi].clone());
+                let selected = v.selected.clone();
+                let ctrl_mod = meta.modifiers.ctrl;
                 v.with_active_layer_mut(|layer| {
                     let outline = get_outline_mut!(layer);
-                    let (cx, cy) = (outline[ci][pi].x, outline[ci][pi].y);
-                    let (dx, dy) = (cx - x, cy - y);
-
-                    outline[ci][pi].x = x;
-                    outline[ci][pi].y = y;
-
-                    match self.follow {
-                        // ForceLine makes no sense in this context, but putting it here prevents us from
-                        // falling back to the No branch.
-                        Follow::Mirror | Follow::ForceLine => {
-                            let a = outline[ci][pi].a;
-                            let b = outline[ci][pi].b;
-                            match a {
-                                Handle::At(hx, hy) => {
-                                    outline[ci][pi].a = Handle::At(hx - dx, hy - dy)
-                                }
-                                Handle::Colocated => (),
-                            }
-                            match b {
-                                Handle::At(hx, hy) => {
-                                    outline[ci][pi].b = Handle::At(hx - dx, hy - dy)
-                                }
-                                Handle::Colocated => (),
-                            }
+                    if ctrl_mod {
+                        for (ci, pi) in &selected {
+                            let (ci, pi) = (*ci, *pi);
+                            let point = &outline[ci][pi];                          
+                            let offset_x = point.x - reference_point.x;
+                            let offset_y = point.y - reference_point.y;
+                            move_point(outline, ci, pi, x + offset_x, y + offset_y, self.follow);
                         }
-                        _ => (),
                     }
+
+                    move_point(outline, ci, pi, x, y, self.follow);
+
                 });
     
                 true
@@ -158,6 +146,7 @@ impl Select {
     
         if !single_point {
             self.corner_two = Some(v.mousepos);
+            let last_selected = v.selected.clone();
             let selected = v.with_active_layer(|layer| {
                 let c1 = self.corner_one.unwrap_or((0., 0.));
                 let c2 = self.corner_two.unwrap_or((0., 0.));
@@ -167,6 +156,7 @@ impl Select {
                 );
                 
                 build_sel_vec_from_rect(
+                    last_selected.clone(),
                     rect,
                     layer.outline.as_ref(),
                 )
@@ -176,8 +166,17 @@ impl Select {
     }
 
     fn mouse_pressed(&mut self, v: &mut Editor, position: (f64, f64), meta: MouseMeta) {
+
         let single_point = match v.clicked_point_or_handle(None) {
             Some((ci, pi, wh)) => {
+                if meta.modifiers.shift || meta.modifiers.ctrl {
+                    if let Some(point_idx) = v.point_idx {
+                        v.selected.insert((v.contour_idx.unwrap(), point_idx));
+                    }
+                } else {
+                    v.selected = HashSet::new();
+                }
+
                 v.contour_idx = Some(ci);
                 v.point_idx = Some(pi);
                 self.follow = meta.into();
@@ -193,10 +192,12 @@ impl Select {
         };
     
         if !single_point {
+            if !meta.modifiers.shift {
+                v.selected = HashSet::new();
+            }
             self.show_sel_box = true;
             self.corner_one = Some(v.mousepos);
             self.corner_two = Some(v.mousepos);
-            v.selected = HashSet::new();
         }
     }
 
@@ -306,12 +307,13 @@ fn get_contour_start_or_end(v: &Editor, contour_idx: usize, point_idx: usize) ->
 }
 
 pub fn build_sel_vec_from_rect(
+    selected: HashSet<(usize, usize)>,
     mut rect: Rect,
     outline: Option<&Vec<glifparser::Contour<PointData>>>,
 ) -> HashSet<(usize, usize)> {
     rect.flip_if_required();
 
-    let mut selected = HashSet::new();
+    let mut selected = selected.clone();
     for o in outline {
         for (cidx, contour) in o.iter().enumerate() {
             for (pidx, point) in contour.iter().enumerate() {
@@ -323,4 +325,28 @@ pub fn build_sel_vec_from_rect(
     }
 
     selected
+}
+
+pub fn move_point(outline: &mut Outline<PointData>, ci: usize, pi: usize, x: f32, y: f32, follow: Follow) {
+    let (cx, cy) = (outline[ci][pi].x, outline[ci][pi].y);
+    let (dx, dy) = (cx - x, cy - y);
+
+    outline[ci][pi].x = x;
+    outline[ci][pi].y = y;
+
+    let a = outline[ci][pi].a;
+    let b = outline[ci][pi].b;
+    match a {
+        Handle::At(hx, hy) => {
+            outline[ci][pi].a = Handle::At(hx - dx, hy - dy)
+        }
+        Handle::Colocated => (),
+    }
+    match b {
+        Handle::At(hx, hy) => {
+            outline[ci][pi].b = Handle::At(hx - dx, hy - dy)
+        }
+        Handle::Colocated => (),
+    }
+
 }
