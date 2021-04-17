@@ -1,6 +1,6 @@
 //! Global thread local state.
 
-use glifparser::{Contour, Glif, MFEKGlif, Point, PointType, WhichHandle, glif::{HistoryEntry, HistoryType, Layer}};
+use glifparser::{Contour, Glif, MFEKGlif, Outline, Point, PointType, WhichHandle, glif::{HistoryEntry, HistoryType, Layer}};
 pub use crate::state::Follow;
 
 pub use crate::renderer::console::Console as RendererConsole;
@@ -119,22 +119,9 @@ impl Editor {
         self.glyph = Some(glyph);
         self.layer_idx = Some(0);
     }
-    // this function MUST be called before calling with_active_layer_mut or that function will panic
-    // this pushes a clone of the current layer onto the history stack and invokes the appropriate contour op
-    // events like rebuilding previews
-    pub fn begin_layer_modification(&mut self, description: &str) {
-        if self.modifying == true { panic!("Began a new modification with one in progress!")}
 
-        self.history.push(HistoryEntry {
-            description: description.to_owned(),
-            layer_idx: self.layer_idx,
-            contour_idx: self.contour_idx,
-            point_idx: self.point_idx,
-            layer: self.glyph.as_ref().unwrap().glif.layers[self.layer_idx.unwrap()].clone(),
-            kind: HistoryType::LayerModified
-        });
-
-        self.modifying = true;
+    pub fn get_layer_count(&self) -> usize {
+        return self.glyph.as_ref().unwrap().glif.layers.len();
     }
 
     pub fn is_point_selected(&self, contour_idx: usize, point_idx: usize) -> bool
@@ -299,6 +286,49 @@ impl Editor {
         }
     }
     
+    pub fn new_layer(&mut self) {
+        let new_layer = Layer{
+            outline: Some(Outline::new()),
+            contour_ops: HashMap::new(),
+
+        };
+
+        self.history.push(HistoryEntry {
+            description: "Added layer.".to_owned(),
+            layer_idx: self.layer_idx,
+            contour_idx: self.contour_idx,
+            point_idx: self.point_idx,
+            layer: new_layer.clone(), // dummy
+            kind: HistoryType::LayerAdded
+        });
+
+        self.glyph.as_mut().unwrap().glif.layers.push(new_layer);
+        
+        self.end_layer_modification();
+
+        self.layer_idx = Some(self.glyph.as_mut().unwrap().glif.layers.len() - 1);
+        self.contour_idx = None;
+        self.point_idx = None;
+    }
+
+    // this function MUST be called before calling with_active_layer_mut or that function will panic
+    // this pushes a clone of the current layer onto the history stack and invokes the appropriate contour op
+    // events like rebuilding previews
+    pub fn begin_layer_modification(&mut self, description: &str) {
+        if self.modifying == true { panic!("Began a new modification with one in progress!")}
+
+        self.history.push(HistoryEntry {
+            description: description.to_owned(),
+            layer_idx: self.layer_idx,
+            contour_idx: self.contour_idx,
+            point_idx: self.point_idx,
+            layer: self.glyph.as_ref().unwrap().glif.layers[self.layer_idx.unwrap()].clone(),
+            kind: HistoryType::LayerModified
+        });
+
+        self.modifying = true;
+    }
+
     // This should ideally be the only way tools are modifying the glyph. You call this and then do your edits inside the closure.
     // This is to prevent history-less modifications from occuring.
     pub fn with_active_layer_mut<F, R>(&mut self, mut closure: F) -> R
@@ -366,10 +396,22 @@ impl Editor {
         let entry = self.history.pop();
         
         if let Some(undo_entry) = entry {
-            self.glyph.as_mut().unwrap().glif.layers[undo_entry.layer_idx.unwrap()] = undo_entry.layer;
-            self.layer_idx = undo_entry.layer_idx;
-            self.contour_idx = undo_entry.contour_idx;
-            self.point_idx = undo_entry.point_idx;
+            match undo_entry.kind {
+                HistoryType::LayerModified => {
+                    self.glyph.as_mut().unwrap().glif.layers[undo_entry.layer_idx.unwrap()] = undo_entry.layer;
+                    self.layer_idx = undo_entry.layer_idx;
+                    self.contour_idx = undo_entry.contour_idx;
+                    self.point_idx = undo_entry.point_idx;
+                }
+                HistoryType::LayerAdded => {
+                    self.glyph.as_mut().unwrap().glif.layers.pop();
+                    self.layer_idx = undo_entry.layer_idx;
+                    self.contour_idx = undo_entry.contour_idx;
+                    self.point_idx = undo_entry.point_idx;
+                }
+                HistoryType::LayerDeleted => {}
+            }
+
         }
     }
 

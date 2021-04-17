@@ -115,26 +115,26 @@ fn add_contour_to_skpath(
 }
 
 pub fn draw(v: &Editor, canvas: &mut Canvas) -> Path {
-    let mut paint = Paint::default();
-    paint.set_anti_alias(true);
-
-    if v.preview_mode == PreviewMode::Paper {
-        paint.set_style(PaintStyle::Fill);
-        paint.set_color(PAPER_FILL);
-    } else {
-        paint.set_style(PaintStyle::StrokeAndFill);
-        paint.set_stroke_width(
-            OUTLINE_STROKE_THICKNESS * (1. / v.factor),
-        );
-        paint.set_color(OUTLINE_FILL);
-    }
 
     let mut total_path = Path::new();
     v.with_glif(|glif| {
         let outline_type = glif.order;
 
-        for layer in &glif.layers {
+        for (layer_idx, layer) in glif.layers.iter().enumerate() {
             let mut path = Path::new();
+            let mut paint = Paint::default();
+            paint.set_anti_alias(true);
+        
+            if v.preview_mode == PreviewMode::Paper {
+                paint.set_style(PaintStyle::Fill);
+                paint.set_color(PAPER_FILL);
+            } else {
+                paint.set_style(PaintStyle::StrokeAndFill);
+                paint.set_stroke_width(
+                    OUTLINE_STROKE_THICKNESS * (1. / v.factor),
+                );
+                paint.set_color(OUTLINE_FILL);
+            }
 
             for outline in &layer.outline {
                 for (idx, contour) in outline.iter().enumerate() {
@@ -181,8 +181,38 @@ pub fn draw(v: &Editor, canvas: &mut Canvas) -> Path {
                     canvas.draw_path(&path, &paint);
                 }
             }
-            
-            total_path.add_path(&path, (0., 0.), SkPath_AddPathMode::Append);
+
+            if Some(layer_idx) == v.layer_idx { total_path = path; }
+        }
+
+        let mut paint = Paint::default();
+        paint.set_anti_alias(true);
+        paint.set_color(OUTLINE_STROKE);
+        paint.set_style(PaintStyle::Stroke);
+    
+        if v.preview_mode == PreviewMode::Paper { return };
+
+        for outline in glif.layers[v.layer_idx.unwrap()].outline.as_ref() {
+            let mut path = Path::new();            
+
+            for (idx, contour) in outline.iter().enumerate() {
+                add_contour_to_skpath(
+                    &contour,
+                    &mut path,
+                    SkPathBuildMode::OpenAndClosed,
+                    outline_type,
+                    idx,
+                );
+            }
+
+            canvas.draw_path(&path, &paint);
+
+
+            if v.borrow().preview_mode != PreviewMode::Paper {
+                paint.set_color(OUTLINE_STROKE);
+                paint.set_style(PaintStyle::Stroke);
+                canvas.draw_path(&path, &paint);
+            }
         }
     });
 

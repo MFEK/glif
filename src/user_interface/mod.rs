@@ -1,5 +1,5 @@
 use events::ToolEnum;
-use imgui::{self, Context};
+use imgui::{self, Context, ImStr, ImString, ItemFlag};
 
 use crate::{events, state::Editor};
 
@@ -82,9 +82,36 @@ pub fn build_and_check_button(v: &mut Editor, ui: &imgui::Ui, mode: ToolEnum, ic
     }
 }
 
-pub fn build_imgui_ui(v: &mut Editor, ui: &mut imgui::Ui) {
-    let mode = v.get_tool();
+pub fn build_and_check_layer_list(v: &mut Editor, ui: &imgui::Ui) {
 
+    let mut cur_layer = v.layer_idx.unwrap() as i32;
+    let layer_count = v.get_layer_count();
+
+    let mut list = Vec::new();
+    for layer in 0 .. layer_count {
+        let layer_temp_name = imgui::im_str!("Layer {0}", layer);
+        let im_str = imgui::ImString::from(layer_temp_name);
+        list.push(im_str);
+    }
+
+    ui.push_item_width(-1.);
+    ui.button(imgui::im_str!("New Layer"), [-1., 0.]);
+    if ui.is_item_clicked(imgui::MouseButton::Left) {
+        v.new_layer();
+    }
+
+    ui.separator();
+
+    ui.list_box(imgui::im_str!("##layers"), &mut cur_layer, &list.iter().collect::<Vec<&ImString>>(), layer_count as i32);
+
+    if cur_layer != v.layer_idx.unwrap() as i32 {
+        v.layer_idx = Some(cur_layer as usize);
+        v.contour_idx = None;
+        v.point_idx = None;
+    }
+}
+
+pub fn build_imgui_ui(v: &mut Editor, ui: &mut imgui::Ui) {
     imgui::Window::new(imgui::im_str!("Tools"))
         .bg_alpha(1.) // See comment on fn redraw_skia
         .flags(
@@ -106,6 +133,20 @@ pub fn build_imgui_ui(v: &mut Editor, ui: &mut imgui::Ui) {
             ui.separator();
             build_and_check_button(v, &ui, ToolEnum::Pen, &icons::PEN);
             build_and_check_button(v, &ui, ToolEnum::VWS, &icons::VWS);
+        });
+
+    imgui::Window::new( imgui::im_str!("Layers"))
+        .bg_alpha(1.)
+        .flags(
+            #[rustfmt::skip]
+                    imgui::WindowFlags::NO_RESIZE
+                | imgui::WindowFlags::NO_MOVE
+                | imgui::WindowFlags::NO_COLLAPSE
+        )
+        .position([v.winsize.0 as f32 - TOOLBOX_HEIGHT/2. - TOOLBOX_OFFSET_X , v.winsize.1 as f32 - TOOLBOX_OFFSET_Y - TOOLBOX_HEIGHT], imgui::Condition::Always)
+        .size([TOOLBOX_HEIGHT/2., TOOLBOX_HEIGHT], imgui::Condition::Always)
+        .build(ui, || {
+            build_and_check_layer_list(v, ui)
         });
 
     //TODO: Add UI event dispatch here.
