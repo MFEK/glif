@@ -94,14 +94,20 @@ pub fn build_and_check_layer_list(v: &mut Editor, ui: &imgui::Ui) {
         list.push(im_str);
     }
 
-    ui.push_item_width(-1.);
-    ui.button(imgui::im_str!("New Layer"), [-1., 0.]);
+    ui.button(imgui::im_str!("New"), [0., 0.]);
     if ui.is_item_clicked(imgui::MouseButton::Left) {
         v.new_layer();
     }
 
-    ui.separator();
+    ui.same_line(0.);
 
+    ui.button(imgui::im_str!("Delete"), [-0.5, 0.]);
+    if ui.is_item_clicked(imgui::MouseButton::Left) {
+        v.delete_layer(v.layer_idx.unwrap());
+    }
+
+    ui.separator();
+    ui.push_item_width(-1.);
     ui.list_box(imgui::im_str!("##layers"), &mut cur_layer, &list.iter().collect::<Vec<&ImString>>(), layer_count as i32);
 
     if cur_layer != v.layer_idx.unwrap() as i32 {

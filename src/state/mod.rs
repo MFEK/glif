@@ -293,10 +293,9 @@ impl Editor {
     }
     
     pub fn new_layer(&mut self) {
-        let new_layer = Layer{
+        let new_layer = Layer {
             outline: Some(Outline::new()),
             contour_ops: HashMap::new(),
-
         };
 
         self.history.push(HistoryEntry {
@@ -315,6 +314,31 @@ impl Editor {
         self.layer_idx = Some(self.glyph.as_mut().unwrap().glif.layers.len() - 1);
         self.contour_idx = None;
         self.point_idx = None;
+        self.selected.clear();
+    }
+
+    pub fn delete_layer(&mut self, idx: usize) {
+        if self.with_glif(|glif| {glif.layers.len()}) == 1 { return }
+
+        self.end_layer_modification();
+
+        let deleted = self.glyph.as_mut().unwrap().glif.layers.remove(idx);
+        self.history.push(HistoryEntry {
+            description: "Deleted layer.".to_owned(),
+            layer_idx: self.layer_idx,
+            contour_idx: self.contour_idx,
+            point_idx: self.point_idx,
+            layer: deleted.clone(), // dummy
+            kind: HistoryType::LayerDeleted
+        });
+
+
+        if self.layer_idx != Some(0) {
+            self.layer_idx = Some(self.layer_idx.unwrap() - 1);
+        }
+        self.contour_idx = None;
+        self.point_idx = None;
+        self.selected.clear();
     }
 
     // this function MUST be called before calling with_active_layer_mut or that function will panic
@@ -415,7 +439,12 @@ impl Editor {
                     self.contour_idx = undo_entry.contour_idx;
                     self.point_idx = undo_entry.point_idx;
                 }
-                HistoryType::LayerDeleted => {}
+                HistoryType::LayerDeleted => {
+                    self.glyph.as_mut().unwrap().glif.layers.insert(undo_entry.layer_idx.unwrap(), undo_entry.layer);
+                    self.layer_idx = undo_entry.layer_idx;
+                    self.contour_idx = undo_entry.contour_idx;
+                    self.point_idx = undo_entry.point_idx;
+                }
             }
 
         }
