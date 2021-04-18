@@ -188,7 +188,7 @@ impl Editor {
 
         self.contour_idx = None;
         self.point_idx = None;
-        self.selected = HashSet::new();
+        self.selected.clear();
     }
     /// Checks if the active point is the active contour's start or end. Does not modify.
     pub fn get_contour_start_or_end(&self, contour_idx: usize, point_idx: usize) -> Option<SelectPointInfo>
@@ -303,6 +303,7 @@ impl Editor {
             layer_idx: self.layer_idx,
             contour_idx: self.contour_idx,
             point_idx: self.point_idx,
+            selected: Some(self.selected.clone()),
             layer: new_layer.clone(), // dummy
             kind: HistoryType::LayerAdded
         });
@@ -328,14 +329,23 @@ impl Editor {
             layer_idx: self.layer_idx,
             contour_idx: self.contour_idx,
             point_idx: self.point_idx,
+            selected: Some(self.selected.clone()),
             layer: deleted.clone(), // dummy
-            kind: HistoryType::LayerDeleted
+            kind: HistoryType::LayerDeleted,
         });
 
 
         if self.layer_idx != Some(0) {
             self.layer_idx = Some(self.layer_idx.unwrap() - 1);
         }
+        self.contour_idx = None;
+        self.point_idx = None;
+        self.selected.clear();
+    }
+
+    pub fn switch_layer(&mut self, idx: usize) {
+        // TODO: save selection when leaving layer
+        self.layer_idx = Some(idx);
         self.contour_idx = None;
         self.point_idx = None;
         self.selected.clear();
@@ -352,6 +362,7 @@ impl Editor {
             layer_idx: self.layer_idx,
             contour_idx: self.contour_idx,
             point_idx: self.point_idx,
+            selected: Some(self.selected.clone()),
             layer: self.glyph.as_ref().unwrap().glif.layers[self.layer_idx.unwrap()].clone(),
             kind: HistoryType::LayerModified
         });
@@ -429,24 +440,23 @@ impl Editor {
             match undo_entry.kind {
                 HistoryType::LayerModified => {
                     self.glyph.as_mut().unwrap().glif.layers[undo_entry.layer_idx.unwrap()] = undo_entry.layer;
-                    self.layer_idx = undo_entry.layer_idx;
-                    self.contour_idx = undo_entry.contour_idx;
-                    self.point_idx = undo_entry.point_idx;
                 }
                 HistoryType::LayerAdded => {
                     self.glyph.as_mut().unwrap().glif.layers.pop();
-                    self.layer_idx = undo_entry.layer_idx;
-                    self.contour_idx = undo_entry.contour_idx;
-                    self.point_idx = undo_entry.point_idx;
+
                 }
                 HistoryType::LayerDeleted => {
                     self.glyph.as_mut().unwrap().glif.layers.insert(undo_entry.layer_idx.unwrap(), undo_entry.layer);
-                    self.layer_idx = undo_entry.layer_idx;
-                    self.contour_idx = undo_entry.contour_idx;
-                    self.point_idx = undo_entry.point_idx;
+
                 }
             }
 
+            self.layer_idx = undo_entry.layer_idx;
+            self.contour_idx = undo_entry.contour_idx;
+            self.point_idx = undo_entry.point_idx;
+            if let Some(selected) = undo_entry.selected {
+                self.selected = selected
+            }
         }
     }
 
