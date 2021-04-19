@@ -177,7 +177,7 @@ const APP_INFO: AppInfo = AppInfo {
     name: "MFEK",
     author: "MFEK team",
 };
-const DEFAULT_KEYBINDINGS: &str = include_str!("default_keymap.xml");
+const DEFAULT_KEYBINDINGS: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/resources/default_keymap.xml"));
 
 struct KeyData {
     keybindings: HashMap<Keycode, Command>,
