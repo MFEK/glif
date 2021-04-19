@@ -6,7 +6,7 @@ export RUST_BACKTRACE := 1
 all:
 	cargo build
 
-TESTFILE := $(if $(TESTFILE),$(TESTFILE),Q_.glif)
+TESTFILE := $(if $(TESTFILE),$(TESTFILE),examples/Q_.glif)
 
 .PHONY: testrun
 testrun:
