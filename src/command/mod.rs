@@ -32,6 +32,7 @@ pub enum Command {
     ToolSelect,
     ToolZoom,
     ToolVWS,
+    ToolMeasure,
 
     DeleteSelection,
 
@@ -135,8 +136,7 @@ pub fn key_down_to_mod(keys_down: &HashSet<Keycode>) -> CommandMod {
     for key in keys_down.iter() {
         KEYMAP.with(|v| {
             if let Some(command) = v.borrow().keybindings.get(key) {
-                if command == &Command::ShiftMod { keymod.shift = true; ;
-            };
+                if command == &Command::ShiftMod { keymod.shift = true; };
                 if command == &Command::CtrlMod { keymod.ctrl = true; };
             }
         });

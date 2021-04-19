@@ -5,7 +5,7 @@ use std::collections::HashMap;
 
 use crate::state::Editor;
 
-static POINTFONTSIZE: f32 = 14.0;
+pub static POINTFONTSIZE: f32 = 14.0;
 
 pub fn draw_point_number(v: &Editor, at: (f32, f32), number: isize, canvas: &mut Canvas) {
     let converted = number.to_string();
@@ -17,7 +17,7 @@ pub fn draw_point_location(v: &Editor, at: (f32, f32), original: (f32, f32), can
     draw_string_at_point(v, at, &converted, canvas);
 }
 
-fn pointfont_from_size_and_factor(size: f32, factor: f32) -> Font {
+pub fn pointfont_from_size_and_factor(size: f32, factor: f32) -> Font {
     Font::from_typeface_with_params(
         Typeface::from_name("", FontStyle::bold()).expect("Failed to load bold font"),
         size * 1. / factor,
@@ -29,7 +29,7 @@ fn pointfont_from_size_and_factor(size: f32, factor: f32) -> Font {
 // Creating the font is an expensive operation to do every frame. So, we keep a cache of fonts
 // based on the current zoom.
 thread_local! {
-    static POINTFONTS: RefCell<HashMap<usize, Font>> = {
+    pub static POINTFONTS: RefCell<HashMap<usize, Font>> = {
         let factor = 1.;
         let mut h = HashMap::new();
         let font = pointfont_from_size_and_factor(14.0, factor);
@@ -38,7 +38,7 @@ thread_local! {
     };
 }
 
-fn draw_string_at_point(v: &Editor, mut at: (f32, f32), s: &str, canvas: &mut Canvas) {
+pub fn draw_string_at_point(v: &Editor, mut at: (f32, f32), s: &str, canvas: &mut Canvas) {
     let factor = v.factor;
     let mut paint = Paint::default();
     paint.set_color(0xff_ff0000);

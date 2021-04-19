@@ -33,6 +33,8 @@ pub static RIB_STROKE: u32 = 0xaa_ff7e7e;
 pub static SELECTED_FILL: u32 = 0xff_ffed50;
 pub static SELECTED_STROKE: u32 = 0xff_ffa115;
 
+pub static MEASURE_STROKE: u32 = 0xff_ff5050;
+
 pub static LBEARING_STROKE: u32 = 0xff_7d7d7d;
 pub static RBEARING_STROKE: u32 = LBEARING_STROKE;
 

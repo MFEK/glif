@@ -237,6 +237,9 @@ fn main() {
                         Command::ToolVWS => {
                             editor.undo();
                         }
+                        Command::ToolMeasure => {
+                            editor.set_tool(ToolEnum::Measure);
+                        }
                         Command::TogglePointLabels => {
                             trigger_toggle_on!(
                                 editor,

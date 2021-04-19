@@ -48,6 +48,7 @@
     <binding command = "ToolSelect" key = "V"/>
     <binding command = "ToolZoom" key = "Z"/>
     <binding command = "ToolVWS" key = "S"/>
+    <binding command = "ToolMeasure" key = "M"/>
 
     <!-- actions -->
     <binding command = "DeleteSelection" key = "Backspace"/>

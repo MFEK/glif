@@ -1,5 +1,5 @@
 pub mod prelude;
-use self::{pan::Pan, pen::Pen, prelude::*, select::Select, zoom::Zoom};
+use self::{measure::Measure, pan::Pan, pen::Pen, prelude::*, select::Select, zoom::Zoom};
 use dyn_clone::DynClone;
 use imgui::Ui;
 
@@ -10,6 +10,7 @@ pub mod pen;
 pub mod select;
 //pub mod vws;
 pub mod zoom;
+pub mod measure;
 
 pub use self::zoom::{zoom_in_factor, zoom_out_factor};
 use crate::{command::CommandMod};
@@ -22,6 +23,7 @@ pub enum ToolEnum {
     Pen,
     Select,
     Zoom,
+    Measure,
     VWS,
 }
 
@@ -31,6 +33,7 @@ pub fn tool_enum_to_tool(tool: ToolEnum) -> Box<dyn Tool> {
         ToolEnum::Pen => {Box::new(Pen::new())}
         ToolEnum::Select => {Box::new(Select::new())}
         ToolEnum::Zoom => {Box::new(Zoom::new())}
+        ToolEnum::Measure => {Box::new(Measure::new())}
         ToolEnum::VWS => {Box::new(Pan::new())} //FIXME: enable vws
     }
 }
