@@ -147,7 +147,7 @@ fn main() {
                     keymod: km,
                     ..
                 } => {
-                    if km.contains(Mod::LSHIFTMOD) || km.contains(Mod::RSHIFTMOD) {
+                    if km.contains(Mod::LCTRLMOD) || km.contains(Mod::RCTRLMOD) {
                         io::save_glif(&mut editor);
                         continue;
                     }
@@ -157,8 +157,41 @@ fn main() {
                     keymod: km,
                     ..
                 } => {
-                    if km.contains(Mod::LSHIFTMOD) || km.contains(Mod::RSHIFTMOD) {
+                    if km.contains(Mod::LCTRLMOD) || km.contains(Mod::RCTRLMOD) {
                         io::export_glif(&editor);
+                        continue;
+                    }
+                }
+                Event::KeyDown {
+                    keycode: Some(Keycode::Z),
+                    keymod: km,
+                    ..
+                } => {
+                    if km.contains(Mod::LCTRLMOD) || km.contains(Mod::RCTRLMOD) {
+                        editor.undo();
+                        continue;
+                    }
+                }
+                Event::KeyDown {
+                    keycode: Some(Keycode::C),
+                    keymod: km,
+                    ..
+                } => {
+                    println!("HELLO!");
+
+                    if km.contains(Mod::LCTRLMOD) || km.contains(Mod::RCTRLMOD) {
+                        editor.copy_selection();
+                        continue;
+                    }
+                }
+                Event::KeyDown {
+                    keycode: Some(Keycode::V),
+                    keymod: km,
+                    ..
+                } => {
+                    if km.contains(Mod::LCTRLMOD) || km.contains(Mod::RCTRLMOD) {
+                        println!("VACATION");
+                        editor.paste_selection();
                         continue;
                     }
                 }
@@ -235,7 +268,6 @@ fn main() {
                             editor.set_tool(ToolEnum::Zoom);
                         }
                         Command::ToolVWS => {
-                            editor.undo();
                         }
                         Command::ToolMeasure => {
                             editor.set_tool(ToolEnum::Measure);
