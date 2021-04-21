@@ -1,6 +1,6 @@
 use app_dirs::*;
 use sdl2::keyboard::Keycode;
-use std::{borrow::Borrow, fs::read_to_string};
+use std::fs::read_to_string;
 use std::path::Path;
 use std::{
     cell::RefCell,

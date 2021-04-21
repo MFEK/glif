@@ -37,7 +37,8 @@ extern crate sdl2;
 
 use command::{Command, CommandInfo};
 
-use events::{EditorEvent, MouseEventType, MouseMeta, ToolEnum, pan::Pan, pen::Pen, prelude::state::Editor, select::Select, update_mousepos, update_viewport, zoom::Zoom};
+use tools::{EditorEvent, MouseEventType, MouseInfo, ToolEnum,  update_viewport};
+use editor::Editor;
 //use renderer::render_frame;
 use sdl2::keyboard::Keycode;
 use sdl2::{
@@ -57,16 +58,16 @@ use enum_iterator::IntoEnumIterator as _;
 use std::collections::HashSet;
 
 // Provides thread-local global variables.
-pub mod state;
-pub use crate::state::Glyph; // types
-pub use crate::state::{HandleStyle, PointLabels, PreviewMode}; // enums
-pub use crate::state::{CONSOLE}; // globals
+pub mod editor;
+pub use crate::editor::Glyph; // types
+pub use crate::editor::{HandleStyle, PointLabels, PreviewMode}; // enums
+pub use crate::editor::{CONSOLE}; // globals
 
 mod filedialog;
 #[macro_use]
 pub mod util;
 #[macro_use]
-mod events;
+mod tools;
 mod command;
 mod io;
 mod ipc;
@@ -177,8 +178,6 @@ fn main() {
                     keymod: km,
                     ..
                 } => {
-                    println!("HELLO!");
-
                     if km.contains(Mod::LCTRLMOD) || km.contains(Mod::RCTRLMOD) {
                         editor.copy_selection();
                         continue;
@@ -190,8 +189,7 @@ fn main() {
                     ..
                 } => {
                     if km.contains(Mod::LCTRLMOD) || km.contains(Mod::RCTRLMOD) {
-                        println!("VACATION");
-                        editor.paste_selection();
+                        editor.paste_selection(editor.mouse_info.position);
                         continue;
                     }
                 }
@@ -218,7 +216,7 @@ fn main() {
                     }
                     let keycode = keycode.unwrap();
 
-                    events::console::set_state(&mut editor, keycode, keymod);
+                    tools::console::set_state(&mut editor, keycode, keymod);
                     if CONSOLE.with(|c| c.borrow_mut().active) {
                         continue;
                     }
@@ -236,11 +234,11 @@ fn main() {
                             update_viewport(&mut editor, None, Some(1.));
                         }
                         Command::ZoomIn => {
-                            let scale = events::zoom_in_factor(editor.factor, &mut editor);
+                            let scale = tools::zoom_in_factor(editor.viewport.factor, &mut editor);
                             update_viewport(&mut editor, None, Some(scale));
                         }
                         Command::ZoomOut => {
-                            let scale = events::zoom_out_factor(editor.factor, &mut editor);
+                            let scale = tools::zoom_out_factor(editor.viewport.factor, &mut editor);
                             update_viewport(&mut editor, None, Some(scale));
                         }
                         Command::NudgeUp => {
@@ -268,6 +266,7 @@ fn main() {
                             editor.set_tool(ToolEnum::Zoom);
                         }
                         Command::ToolVWS => {
+                            // TODO: Reimplement
                         }
                         Command::ToolMeasure => {
                             editor.set_tool(ToolEnum::Measure);
@@ -304,53 +303,58 @@ fn main() {
                 }
 
                 Event::MouseMotion { x, y, .. } => {
-                    let position = (x as f64, y as f64);
-                    update_mousepos(&mut editor, position, None);
-
+                    let position = (x as f32, y as f32);
+                    let meta = MouseInfo::new(&editor, editor.mouse_info, None, position, None, keymod);
                     editor.dispatch_editor_event(EditorEvent::MouseEvent{
                         event_type: MouseEventType::Moved,
-                        position: editor.mousepos,
-                        meta: MouseMeta {
-                            button: sdl2::mouse::MouseButton::Unknown,
-                            modifiers: keymod,
-                        },
+                        meta: meta
+
                     });
+
+                    editor.mouse_info = meta;
+                }
+
+                Event::MouseButtonDown { mouse_btn, x, y, clicks:2, .. } => {
+                    
+                    let position = (x as f32, y as f32);
+                    let meta = MouseInfo::new(&editor, editor.mouse_info, Some(mouse_btn), position, Some(true), keymod);              
+                    editor.dispatch_editor_event(EditorEvent::MouseEvent{
+                        event_type: MouseEventType::Pressed,
+                        meta: meta
+                    });
+
+                    editor.mouse_info = meta;
                 }
 
                 Event::MouseButtonDown { mouse_btn, x, y, .. } => {
-                    let position = (x as f64, y as f64);
-                    update_mousepos(&mut editor, position, Some(true));
                     
+                    let position = (x as f32, y as f32);
+                    let meta = MouseInfo::new(&editor, editor.mouse_info, Some(mouse_btn), position, Some(true), keymod);              
                     editor.dispatch_editor_event(EditorEvent::MouseEvent{
                         event_type: MouseEventType::Pressed,
-                        position: editor.mousepos,
-                        meta: MouseMeta {
-                            button: mouse_btn,
-                            modifiers: keymod,
-                        },
+                        meta: meta
                     });
+
+                    editor.mouse_info = meta;
                 }
 
                 Event::MouseButtonUp { mouse_btn, x, y, .. } => {
-                    let position = (x as f64, y as f64);
-                    update_mousepos(&mut editor, position, Some(false));
-
+                    let position = (x as f32, y as f32);
+                    let meta = MouseInfo::new(&editor, editor.mouse_info, Some(mouse_btn), position, Some(false), keymod);
                     editor.dispatch_editor_event(EditorEvent::MouseEvent{
                         event_type: MouseEventType::Released,
-                        position: editor.mousepos,
-                        meta: MouseMeta {
-                            button: mouse_btn,
-                            modifiers: keymod,
-                        },
+                        meta: meta
                     });
+
+                    editor.mouse_info = meta;
                 }
 
                 Event::Window { win_event, .. } => match win_event {
                     WindowEvent::SizeChanged(x, y) => {
-                        editor.winsize = (x as u32, y as u32);
+                        editor.viewport.winsize = (x as u32, y as u32);
                     }
                     WindowEvent::Resized(x, y) => {
-                        editor.winsize = (x as u32, y as u32);
+                        editor.viewport.winsize = (x as u32, y as u32);
                     }
 
                     _ => {}
@@ -399,9 +403,9 @@ fn initialize_sdl(v: &mut Editor, ws: &WindowSettings) -> (Sdl, Window) {
         height: HEIGHT,
     };
 
-    v.winsize = (WIDTH as u32, HEIGHT as u32);
+    v.viewport.winsize = (WIDTH as u32, HEIGHT as u32);
 
-    let mut window = video_subsystem
+    let window = video_subsystem
         .window(
             &format!("MFEKglif — {}", ws.filename),
             logical_size.width,

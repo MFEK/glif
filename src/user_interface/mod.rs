@@ -1,7 +1,7 @@
-use events::ToolEnum;
-use imgui::{self, Context, ImStr, ImString, ItemFlag};
+use imgui::{self, Context};
 
-use crate::{events, state::Editor};
+use crate::tools::ToolEnum;
+use crate::editor::Editor;
 
 pub mod icons;
 
@@ -84,36 +84,59 @@ pub fn build_and_check_button(v: &mut Editor, ui: &imgui::Ui, mode: ToolEnum, ic
 
 pub fn build_and_check_layer_list(v: &mut Editor, ui: &imgui::Ui) {
 
-    let mut cur_layer = v.layer_idx.unwrap() as i32;
+    let active_layer = v.get_active_layer();
     let layer_count = v.get_layer_count();
 
-    let mut list = Vec::new();
-    for layer in 0 .. layer_count {
-        let layer_temp_name = imgui::im_str!("Layer {0}", layer);
-        let im_str = imgui::ImString::from(layer_temp_name);
-        list.push(im_str);
-    }
-
     ui.button(imgui::im_str!("New"), [0., 0.]);
+    ui.push_item_width(-0.5);
     if ui.is_item_clicked(imgui::MouseButton::Left) {
         v.new_layer();
     }
 
     ui.same_line(0.);
-
-    ui.button(imgui::im_str!("Delete"), [-0.5, 0.]);
+    ui.button(imgui::im_str!("Delete"), [0., 0.]);
+    ui.push_item_width(-0.5);
     if ui.is_item_clicked(imgui::MouseButton::Left) {
-        v.delete_layer(v.layer_idx.unwrap());
+        v.delete_layer(active_layer);
+    }
+
+    ui.same_line(0.);
+    ui.button(imgui::im_str!("Up"), [0., 0.]);
+    ui.push_item_width(-0.5);
+    if ui.is_item_clicked(imgui::MouseButton::Left) {
+        v.delete_layer(active_layer);
+    }
+
+    ui.same_line(0.);
+    ui.button(imgui::im_str!("Down"), [0., 0.]);
+    ui.push_item_width(-0.5);
+    if ui.is_item_clicked(imgui::MouseButton::Left) {
+        v.delete_layer(active_layer);
     }
 
     ui.separator();
-    ui.push_item_width(-1.);
-    ui.list_box(imgui::im_str!("##layers"), &mut cur_layer, &list.iter().collect::<Vec<&ImString>>(), layer_count as i32);
 
-    if cur_layer != v.layer_idx.unwrap() as i32 {
-        v.layer_idx = Some(cur_layer as usize);
-        v.contour_idx = None;
-        v.point_idx = None;
+    for layer in 0 .. layer_count {
+        let layer_temp_name = imgui::im_str!("Layer {0}", layer);
+        let im_str = imgui::ImString::from(layer_temp_name);
+        ui.button(imgui::im_str!("H"), [0., 0.]);
+        ui.same_line(0.);
+        ui.button(imgui::im_str!("E"), [0., 0.]);
+        ui.same_line(0.);
+        ui.button(imgui::im_str!("R"), [0., 0.]);
+        ui.same_line(0.);
+
+        let mut pop_me = None;
+        if active_layer == layer {
+            pop_me = Some(ui.push_style_color(imgui::StyleColor::Button, [0., 0., 0., 0.2]));
+        }
+        ui.button(&im_str, [-1., 0.]);
+        if ui.is_item_clicked(imgui::MouseButton::Left) {
+            v.set_active_layer(layer);
+        }
+        if let Some(p) = pop_me {
+            p.pop(ui);
+        }
     }
 }
 
@@ -149,8 +172,8 @@ pub fn build_imgui_ui(v: &mut Editor, ui: &mut imgui::Ui) {
                 | imgui::WindowFlags::NO_MOVE
                 | imgui::WindowFlags::NO_COLLAPSE
         )
-        .position([v.winsize.0 as f32 - TOOLBOX_HEIGHT/2. - TOOLBOX_OFFSET_X , v.winsize.1 as f32 - TOOLBOX_OFFSET_Y - TOOLBOX_HEIGHT], imgui::Condition::Always)
-        .size([TOOLBOX_HEIGHT/2., TOOLBOX_HEIGHT], imgui::Condition::Always)
+        .position([v.viewport.winsize.0 as f32 - TOOLBOX_HEIGHT - TOOLBOX_OFFSET_X , v.viewport.winsize.1 as f32 - TOOLBOX_OFFSET_Y - TOOLBOX_HEIGHT], imgui::Condition::Always)
+        .size([TOOLBOX_HEIGHT, TOOLBOX_HEIGHT], imgui::Condition::Always)
         .build(ui, || {
             build_and_check_layer_list(v, ui)
         });
