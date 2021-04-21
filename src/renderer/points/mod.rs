@@ -7,8 +7,8 @@ use self::calc::*;
 pub mod names;
 
 use super::constants::*;
-use crate::{glifparser, state::Editor};
-use crate::state::{HandleStyle, PointLabels};
+use crate::{glifparser, editor::Editor};
+use crate::editor::{HandleStyle, PointLabels};
 
 use glifparser::{Point as GlifPoint, PointType};
 
@@ -59,26 +59,27 @@ pub fn draw_directions(v: &Editor, path: Path, canvas: &mut Canvas) {
 // point (on the base), finish that segment, and close the path.
 fn draw_triangle_point(v: &Editor, at: Point, along: Vector, selected: bool, canvas: &mut Canvas) {
     let (fill, stroke) = get_fill_and_stroke(UIPointType::Direction, selected);
+    let factor = v.viewport.factor;
     let mut paint = Paint::default();
-    paint.set_stroke_width(DIRECTION_STROKE_THICKNESS * (1. / v.factor));
+    paint.set_stroke_width(DIRECTION_STROKE_THICKNESS * (1. / factor));
     paint.set_anti_alias(true);
 
     let mut path = Path::new();
     let mut path1 = Path::new();
 
     let mut vec = along.clone();
-    vec.set_length(TRIANGLE_POINT_AREA * (1. / v.factor));
+    vec.set_length(TRIANGLE_POINT_AREA * (1. / factor));
 
     let mut matrix = Matrix::new_identity();
     matrix.set_rotate(90., at + vec);
 
-    vec.set_length(TRIANGLE_POINT_AREA * 2.5 * (1. / v.factor));
+    vec.set_length(TRIANGLE_POINT_AREA * 2.5 * (1. / factor));
 
     path1.move_to(at + vec);
     path1.line_to(at);
     let mut path2 = Path::new();
     //vec.set_length(10.);
-    vec.set_length(TRIANGLE_POINT_AREA * 2. * (1. / v.factor));
+    vec.set_length(TRIANGLE_POINT_AREA * 2. * (1. / factor));
     path2.move_to(at + vec);
     path2.line_to(at);
     path2.transform(&matrix);
@@ -169,26 +170,26 @@ pub fn draw_point(
     } else {
         POINT_STROKE_THICKNESS
     };
-    paint.set_stroke_width(thiccness * (1. / v.factor));
+    paint.set_stroke_width(thiccness * (1. / v.viewport.factor));
     let _radius = if kind == UIPointType::Handle {
         HANDLE_RADIUS
     } else {
         POINT_RADIUS
-    } * (1. / v.factor);
+    } * (1. / v.viewport.factor);
 
     match kind {
         UIPointType::Handle | UIPointType::Point((Handle::At(_, _), Handle::At(_, _))) => {
-            draw_round_point(at, kind, selected, canvas, &mut paint, v.factor);
+            draw_round_point(at, kind, selected, canvas, &mut paint, v.viewport.factor);
         }
         UIPointType::Point(_) => {
-            draw_square_point(at, kind, selected, canvas, &mut paint, v.factor);
+            draw_square_point(at, kind, selected, canvas, &mut paint, v.viewport.factor);
         }
         _ => {}
     }
 
     match number {
         None => {}
-        Some(i) => match v.point_labels {
+        Some(i) => match v.viewport.point_labels {
             PointLabels::None => {}
             PointLabels::Numbered => names::draw_point_number(v, at, i, canvas),
             PointLabels::Locations => names::draw_point_location(v, at, original, canvas),
@@ -196,7 +197,7 @@ pub fn draw_point(
     }
 
     if let UIPointType::Point((a, b)) = kind {
-        if v.handle_style != HandleStyle::None {
+        if v.viewport.handle_style != HandleStyle::None {
             draw_handle(v, a, selected, canvas);
             draw_handle(v, b, selected, canvas);
         }
@@ -237,7 +238,7 @@ pub fn draw_handlebars<T>(
     } else {
         HANDLEBAR_STROKE
     });
-    paint.set_stroke_width(HANDLEBAR_THICKNESS * (1. / v.factor));
+    paint.set_stroke_width(HANDLEBAR_THICKNESS * (1. / v.viewport.factor));
     paint.set_style(PaintStyle::Stroke);
 
     match point.a {
@@ -292,11 +293,11 @@ pub fn draw_complete_point<T>(
 
 pub fn draw_all(v: &Editor, canvas: &mut Canvas) {
     let mut i: isize = -1;
-    let handle_style = v.handle_style;
+    let handle_style = v.viewport.handle_style;
 
     // FIXME: this is bad but I can't access v from inside with glif
     let selected = v.selected.clone();
-    let active_layer = v.layer_idx.unwrap();
+    let active_layer = v.get_active_layer();
     let (vcidx, vpidx) = (v.contour_idx, v.point_idx);
     v.with_glif(|glif| {
         for (lidx, layer) in glif.layers.iter().enumerate() {

@@ -1,5 +1,5 @@
 // Console
-use crate::{CONSOLE, state::Editor};
+use crate::{CONSOLE, editor::Editor};
 
 use clipboard::{ClipboardContext, ClipboardProvider};
 use lazy_static::lazy_static;
@@ -28,7 +28,7 @@ pub fn set_state(v: &mut Editor, vk: Keycode, _m: Mod) {
 
 const CHAR_BACKSPACE: char = '\x08';
 
-use crate::state::RendererConsole;
+use crate::editor::RendererConsole;
 impl RendererConsole {
     ///! Handle chars which will not trigger events (so, not :, Escape or Return)
     pub fn handle_ch(&mut self, ch: char) {

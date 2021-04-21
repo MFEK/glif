@@ -1,7 +1,16 @@
 pub mod prelude;
-use self::{measure::Measure, pan::Pan, pen::Pen, prelude::*, select::Select, zoom::Zoom};
+use self::prelude::*;
+use self::{measure::Measure, pan::Pan, pen::Pen, select::Select, zoom::Zoom};
 use dyn_clone::DynClone;
 use imgui::Ui;
+
+pub use self::zoom::{zoom_in_factor, zoom_out_factor};
+use crate::command::CommandMod;
+
+use crate::editor::Editor;
+
+use sdl2::video::Window;
+use sdl2::{mouse::MouseButton, Sdl};
 
 pub mod console;
 
@@ -12,10 +21,7 @@ pub mod select;
 pub mod zoom;
 pub mod measure;
 
-pub use self::zoom::{zoom_in_factor, zoom_out_factor};
-use crate::{command::CommandMod};
-use sdl2::video::Window;
-use sdl2::{mouse::MouseButton, Sdl};
+
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum ToolEnum {
@@ -40,6 +46,7 @@ pub fn tool_enum_to_tool(tool: ToolEnum) -> Box<dyn Tool> {
 
 pub enum MouseEventType {
     Pressed,
+    DoubleClick,
     Released,
     Moved
 }
@@ -47,8 +54,7 @@ pub enum MouseEventType {
 pub enum EditorEvent<'a> {
     MouseEvent {
         event_type: MouseEventType,
-        position: (f64, f64),
-        meta: MouseMeta
+        meta: MouseInfo
     },
 
     Draw {
@@ -61,21 +67,65 @@ pub enum EditorEvent<'a> {
 }
 
 pub trait Tool: DynClone{
-    fn handle_event(&mut self, v: &mut state::Editor, event: EditorEvent);
+    fn handle_event(&mut self, v: &mut Editor, event: EditorEvent);
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct MouseMeta {
-    pub modifiers: CommandMod,
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct MouseInfo {
     pub button: MouseButton,
+    pub position: (f32, f32),
+    pub absolute_position: (f32, f32),
+    pub is_down: bool,
+    pub modifiers: CommandMod,
+}
+
+impl Default for MouseInfo {
+    fn default() -> Self { 
+        MouseInfo {
+            button: sdl2::mouse::MouseButton::Unknown,
+            position: (0., 0.),
+            absolute_position: (0., 0.),
+            is_down: false,
+            modifiers: CommandMod{ shift: false, ctrl: false }
+        }
+    }
+}
+
+impl MouseInfo {
+    pub fn new(
+        v: &Editor,
+        last_meta: MouseInfo,
+        button: Option<MouseButton>,
+        position: (f32, f32),
+        mousedown: Option<bool>,
+        command_mod: CommandMod,
+    ) -> MouseInfo {
+        let factor = 1. / v.viewport.factor;
+        let uoffset = v.viewport.offset;
+        let offset = (uoffset.0, uoffset.1);
+    
+        let absolute_mposition = ((position.0).floor(), (position.1).floor());
+        let mposition = (
+            ((position.0).floor() - offset.0) * factor,
+            ((position.1).floor() - offset.1) * factor,
+        );
+
+        MouseInfo {
+            button: button.unwrap_or(last_meta.button),
+            is_down: mousedown.unwrap_or(last_meta.is_down),
+            modifiers: command_mod,
+            position: mposition,
+            absolute_position: absolute_mposition
+        }
+    }
 }
 
 // Generic events
-pub fn center_cursor(v: &mut state::Editor, sdl_context: &Sdl, sdl_window: &Window) {
+pub fn _center_cursor(v: &mut Editor, sdl_context: &Sdl, sdl_window: &Window) {
     let mut center = sdl_window.size();
     center.0 /= 2;
     center.1 /= 2;
-    v.absolute_mousepos = (center.0 as f64, center.1 as f64);
+    v.mouse_info.absolute_position = (center.0 as f32, center.1 as f32);
 
     sdl_context
         .mouse()
@@ -84,49 +134,21 @@ pub fn center_cursor(v: &mut state::Editor, sdl_context: &Sdl, sdl_window: &Wind
 
 // this gets called by tools so it accepts &mut State
 pub fn update_viewport(
-    v: &mut state::Editor,
+    v: &mut Editor,
     offset: Option<(f32, f32)>,
     scale: Option<f32>,
 ) {
     let offset = match offset {
-        None => v.offset,
+        None => v.viewport.offset,
         Some(offset) => offset,
     };
     let scale = match scale {
-        None => v.factor,
+        None => v.viewport.factor,
         Some(scale) => scale,
     };
-    v.factor = scale;
-    v.offset = offset;
-}
 
-// this only gets called prior to events in the main loop so it recieves an unborrowed state
-pub fn update_mousepos(
-    v: &mut state::Editor,
-    position: (f64, f64),
-    mousedown: Option<bool>
-) {
-    let factor = 1. / v.factor as f64;
-    let uoffset = v.offset;
-    let offset = (uoffset.0 as f64, uoffset.1 as f64);
-
-    let absolute_mposition = ((position.0).floor(), (position.1).floor());
-    let mposition = (
-        ((position.0).floor() - offset.0) * factor,
-        ((position.1).floor() - offset.1) * factor,
-    );
-
-    v.absolute_mousepos = absolute_mposition;
-    v.mousepos = mposition;
-    
-    if let Some(mousedown) = mousedown {
-        v.mousedown = mousedown;
-    }
-}
-
-pub fn mode_switched(v: &mut state::Editor, from: ToolEnum, to: ToolEnum) {
-    v.contour_idx = None;
-    v.point_idx = None;
+    v.viewport.factor = scale;
+    v.viewport.offset = offset;
 }
 
 #[macro_export]
@@ -135,13 +157,13 @@ pub fn mode_switched(v: &mut state::Editor, from: ToolEnum, to: ToolEnum) {
 ///! be an inner thread::LocalKey<State>.
 macro_rules! trigger_toggle_on {
     ($state:ident, $state_var:ident, $enum:ident, $cond:expr) => {
-        let $state_var = $state.$state_var;
+        let $state_var = $state.viewport.$state_var;
         if $cond {
             let mut e = $enum::into_enum_iter()
                 .cycle()
                 .skip(1 + $state_var as usize);
             let n = e.next().unwrap();
-            $state.$state_var = n;
+            $state.viewport.$state_var = n;
         }
     };
     ($state:ident, $state_var:ident, $enum:ident) => {

@@ -1,4 +1,4 @@
-use crate::state::Editor;
+use crate::editor::Editor;
 
 use super::constants::*;
 use super::points::calc::*;
@@ -20,20 +20,20 @@ pub struct Guideline {
 pub fn draw_guideline(v: &Editor, color: Color, where_: f32, gtype: GuidelineType, canvas: &mut Canvas) {
     let mut paint = Paint::default();
     let mut path = Path::new();
-    let factor = v.factor;
-    let offset = v.offset;
+    let factor = v.viewport.factor;
+    let offset = v.viewport.offset;
     match gtype {
         GuidelineType::Vertical => {
             path.move_to((where_, -(offset.1 * (1. / factor))));
             path.line_to((
                 where_,
-                v.winsize.1 as f32 * (1. / factor) + -(offset.1 * (1. / factor)),
+                v.viewport.winsize.1 as f32 * (1. / factor) + -(offset.1 * (1. / factor)),
             ));
         }
         GuidelineType::Horizontal => {
             path.move_to((-(offset.0 * (1. / factor)), where_));
             path.line_to((
-                (v.winsize.0 as f32 * (1. / factor)) + (-(offset.0 * (1. / factor))),
+                (v.viewport.winsize.0 as f32 * (1. / factor)) + (-(offset.0 * (1. / factor))),
                 where_,
             ));
         }

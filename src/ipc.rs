@@ -1,8 +1,8 @@
 use log::error;
 use mfek_ipc::{self, IPCInfo};
 
-use crate::{renderer::{Guideline, GuidelineType}, state::Editor};
-
+use crate::renderer::{Guideline, GuidelineType};
+use crate::editor::Editor;
 use std::{process, str};
 
 pub fn fetch_metrics(v: &mut Editor) {

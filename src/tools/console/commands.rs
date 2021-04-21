@@ -1,4 +1,4 @@
-use crate::{events::update_viewport, state::Editor};
+use crate::{tools::update_viewport, editor::Editor};
 use std::{borrow::BorrowMut, cell::RefCell, collections::HashMap};
 
 type Callback = Box<(dyn Fn(&mut Editor, Vec<String>) -> () + 'static)>;
@@ -15,7 +15,7 @@ fn initialize_console_commands() {
         h.borrow_mut().insert("vpoffset", ("Set viewport origin", callback(|v, s| {
             if s.len() != 2 { return; } // FIXME: Tell user about errors!
             if let (Ok(ox), Ok(oy)) = (s[0].parse(), s[1].parse()) {
-                v.offset = (ox, oy);
+                v.viewport.offset = (ox, oy);
                 update_viewport(v, Some((ox, oy)), None);
             }
         })));
@@ -23,7 +23,7 @@ fn initialize_console_commands() {
         h.borrow_mut().insert("vpfactor", ("Set viewport zoom factor", callback(|v, s| {
             if s.len() != 1 { return; } // FIXME: Tell user about errors!
             if let Ok(factor) = s[0].parse() {
-                v.factor = factor;
+                v.viewport.factor = factor;
                 update_viewport(v, None, Some(factor));
             }
         })));

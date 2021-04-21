@@ -31,7 +31,7 @@ impl Console {
 
 use skulpin::skia_safe::{Data, Font, FontStyle, Matrix, Typeface};
 
-use crate::{state::Editor, system_fonts};
+use crate::{editor::Editor, system_fonts};
 lazy_static! {
     static ref MONO_FONT_BYTES: Option<Vec<u8>> = {
         match system_fonts::SYSTEMMONO.path {
@@ -67,7 +67,7 @@ impl Console {
         matrix.set_scale((1., 1.), None);
 
         let font = Font::from_typeface_with_params(&*CONSOLE_TYPEFACE, 14., 1., 0.0);
-        let winsize = v.winsize;
+        let winsize = v.viewport.winsize;
         let mut topleft = (0., winsize.1 as f32);
         let mut size = (winsize.0 as f32, 0.);
 

@@ -1,6 +1,6 @@
 //! Skia renderer.
 
-use crate::{events::{EditorEvent}, state::{PreviewMode, Editor}};
+use crate::{tools::{EditorEvent}, editor::{PreviewMode, Editor}};
 use crate::{CONSOLE};
 use glifparser::Handle;
 
@@ -18,8 +18,8 @@ pub mod viewport;
 
 // Provides thread-local global variables.
 // TODO: pub use crate::events::vws;
-pub use crate::state::Glyph; // types
-pub use crate::state::{HandleStyle, PointLabels}; // enums
+pub use crate::editor::Glyph; // types
+pub use crate::editor::{HandleStyle, PointLabels}; // enums
 
 use skulpin::skia_safe::Canvas;
 
@@ -34,7 +34,7 @@ pub enum UIPointType {
 
 pub fn render_frame(v: &mut Editor, canvas: &mut Canvas) {
     canvas.save();
-    let pm = v.preview_mode;
+    let pm = v.viewport.preview_mode;
     canvas.clear(if pm == PreviewMode::Paper {
         PAPER_BGCOLOR
     } else {

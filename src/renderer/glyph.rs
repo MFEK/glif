@@ -1,17 +1,14 @@
 use std::borrow::Borrow;
 
 use super::constants::*;
-
 use super::points::calc::*;
-use crate::state::{PointData, PreviewMode, Editor};
-use glifparser::{self, Contour, PointType, WhichHandle, OutlineType, outline::skia::{ToSkiaPaths, SkiaPointTransforms}};
 
-use skulpin::{skia_bindings::SkPath_AddPathMode, skia_safe::{Canvas, Paint, PaintStyle, Path}};
+use glifparser::outline::skia::{ToSkiaPaths, SkiaPointTransforms};
+use skulpin::{skia_safe::{Canvas, Paint, PaintStyle, Path}};
 
-pub use crate::state::Glyph; // types
-pub use crate::state::{HandleStyle, PointLabels}; // enums
-pub use crate::state::{CONSOLE};
-pub use crate::events::ToolEnum; // globals
+use crate::editor::{PreviewMode, Editor};
+pub use crate::editor::{HandleStyle, PointLabels, Glyph, CONSOLE}; // enums
+pub use crate::tools::ToolEnum; // globals
 
 //TODO: pub use crate::events::vws;
 
@@ -25,19 +22,17 @@ pub enum SkPathBuildMode {
 pub fn draw(v: &Editor, canvas: &mut Canvas) -> Path {
     let mut total_path = Path::new();
     v.with_glif(|glif| {
-        let outline_type = glif.order;
-
         for (layer_idx, layer) in glif.layers.iter().enumerate() {
             let mut paint = Paint::default();
             paint.set_anti_alias(true);
         
-            if v.preview_mode == PreviewMode::Paper {
+            if v.viewport.preview_mode == PreviewMode::Paper {
                 paint.set_style(PaintStyle::Fill);
                 paint.set_color(PAPER_FILL);
             } else {
                 paint.set_style(PaintStyle::StrokeAndFill);
                 paint.set_stroke_width(
-                    OUTLINE_STROKE_THICKNESS * (1. / v.factor),
+                    OUTLINE_STROKE_THICKNESS * (1. / v.viewport.factor),
                 );
                 paint.set_color(OUTLINE_FILL);
             }
@@ -50,19 +45,19 @@ pub fn draw(v: &Editor, canvas: &mut Canvas) -> Path {
                 paint.set_style(PaintStyle::Stroke);
                 skpaths.open.as_ref().map(|p| canvas.draw_path(&p, &paint));
     
-                if v.borrow().preview_mode != PreviewMode::Paper {
+                if v.viewport.preview_mode != PreviewMode::Paper {
                     paint.set_color(OUTLINE_STROKE);
                     paint.set_style(PaintStyle::Stroke);
                     skpaths.closed.as_ref().map(|p| canvas.draw_path(&p, &paint));
                 }
 
-                if Some(layer_idx) == v.layer_idx {
+                if layer_idx == v.get_active_layer() {
                     total_path = skpaths.into();
                 }
             }
         }
 
-        if v.preview_mode == PreviewMode::Paper { return };
+        if v.viewport.preview_mode == PreviewMode::Paper { return };
     });
 
     return total_path;

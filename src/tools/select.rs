@@ -2,17 +2,63 @@ use std::collections::HashSet;
 
 // Select
 use super::{EditorEvent, Tool, prelude::*};
-use crate::{renderer::{UIPointType, points::draw_point}, state::{Follow, Editor}, util::math::FlipIfRequired};
+use crate::renderer::{UIPointType, points::draw_point};
+use crate::editor::{Editor, util::clicked_point_or_handle};
+use crate::util::math::FlipIfRequired;
 use glifparser::{Handle, Outline, PointType, WhichHandle};
 use skulpin::skia_safe::dash_path_effect;
 use skulpin::skia_safe::{Canvas, Contains, Paint, PaintStyle, Path, Rect};
+use derive_more::Display;
 
+#[derive(Debug, Display, Clone, Copy, PartialEq, Eq)]
+/// Point following behavior when using the select tool
+pub enum Follow {
+    // Other point will take mirror action of current point.
+    Mirror,
+    // Other point will be forced into a line with the current point as midpoint.
+    ForceLine,
+    // For a quadratic curve, the "other side" of the curve (in reality, the control point on an
+    // adjacent curve), should follow too.
+    QuadOpposite,
+    // Other point will remain in fixed position.
+    No,
+}
+
+use crate::tools::MouseInfo;
+use crate::sdl2::mouse::MouseButton;
+impl From<MouseInfo> for Follow {
+    fn from(m: MouseInfo) -> Follow {
+        match m {
+            MouseInfo {
+                button: MouseButton::Left,
+                modifiers,
+                ..
+            } => {
+                if modifiers.ctrl {
+                    Follow::ForceLine
+                } else {
+                    Follow::Mirror
+                }
+            }
+            MouseInfo {
+                button: MouseButton::Right,
+                ..
+            } => Follow::No,
+            _ => Follow::QuadOpposite,
+        }
+    }
+}
+
+
+// Select is a good example of a more complicated tool that keeps lots of state.
+// It has state for which handle it's selected, follow rules, selection box, and to track if it's currently
+// moving a point.
 #[derive(Clone)]
 pub struct Select {
     follow: Follow,
     handle: WhichHandle,
-    corner_one: Option<(f64, f64)>,
-    corner_two: Option<(f64, f64)>,
+    corner_one: Option<(f32, f32)>,
+    corner_two: Option<(f32, f32)>,
     show_sel_box: bool,
     modifying: bool,
 }
@@ -20,11 +66,12 @@ pub struct Select {
 impl Tool for Select {
     fn handle_event(&mut self, v: &mut Editor, event: EditorEvent) {
         match event {
-            EditorEvent::MouseEvent { event_type, position, meta } => {
+            EditorEvent::MouseEvent { event_type, meta } => {
                 match event_type {
-                    super::MouseEventType::Pressed => { self.mouse_pressed(v, position, meta) }
-                    super::MouseEventType::Released => {self.mouse_released(v, position, meta)}
-                    super::MouseEventType::Moved => { self.mouse_moved(v, position, meta) }
+                    super::MouseEventType::Pressed => { self.mouse_pressed(v, meta) }
+                    super::MouseEventType::Released => {self.mouse_released(v, meta)}
+                    super::MouseEventType::Moved => { self.mouse_moved(v, meta) }
+                    super::MouseEventType::DoubleClick => { self.mouse_moved(v, meta) }
                 }
             }
             EditorEvent::Draw { skia_canvas } => {
@@ -48,13 +95,13 @@ impl Select {
         }
     }
     
-    fn mouse_moved(&mut self, v: &mut Editor, position: (f64, f64), meta: MouseMeta) {
-        if !v.mousedown { return; }
+    fn mouse_moved(&mut self, v: &mut Editor, meta: MouseInfo) {
+        if !meta.is_down { return; }
     
-        let x = calc_x(v.mousepos.0 as f32);
-        let y = calc_y(v.mousepos.1 as f32);
-    
-        let single_point = match (v.contour_idx, v.point_idx, self.handle) {
+        let x = calc_x(meta.position.0 as f32);
+        let y = calc_y(meta.position.1 as f32);
+
+        match (v.contour_idx, v.point_idx, self.handle) {
             // Point itself is being moved.
             (Some(ci), Some(pi), WhichHandle::Neither) => {
                 if !self.modifying { 
@@ -81,7 +128,6 @@ impl Select {
 
                 });
     
-                true
             }
             // A control point (A or B) is being moved.
             (Some(ci), Some(pi), wh) => {
@@ -139,35 +185,33 @@ impl Select {
                         WhichHandle::Neither => unreachable!("Should've been matched by above?!"),
                     }
                 });
-                true
             }
-            _ => false,
+            _ => {
+                self.corner_two = Some(meta.position);
+                let last_selected = v.selected.clone();
+                let selected = v.with_active_layer(|layer| {
+                    let c1 = self.corner_one.unwrap_or((0., 0.));
+                    let c2 = self.corner_two.unwrap_or((0., 0.));
+                    let rect = Rect::from_point_and_size(
+                        (c1.0 as f32, c1.1 as f32),
+                        ((c2.0 - c1.0) as f32, (c2.1 - c1.1) as f32),
+                    );
+                    
+                    build_sel_vec_from_rect(
+                        last_selected.clone(),
+                        rect,
+                        layer.outline.as_ref(),
+                    )
+                });
+                v.selected = selected
+            },
         };
-    
-        if !single_point {
-            self.corner_two = Some(v.mousepos);
-            let last_selected = v.selected.clone();
-            let selected = v.with_active_layer(|layer| {
-                let c1 = self.corner_one.unwrap_or((0., 0.));
-                let c2 = self.corner_two.unwrap_or((0., 0.));
-                let rect = Rect::from_point_and_size(
-                    (c1.0 as f32, c1.1 as f32),
-                    ((c2.0 - c1.0) as f32, (c2.1 - c1.1) as f32),
-                );
-                
-                build_sel_vec_from_rect(
-                    last_selected.clone(),
-                    rect,
-                    layer.outline.as_ref(),
-                )
-            });
-            v.selected = selected
-        }
     }
 
-    fn mouse_pressed(&mut self, v: &mut Editor, position: (f64, f64), meta: MouseMeta) {
+    fn mouse_pressed(&mut self, v: &mut Editor, meta: MouseInfo) {
 
-        let single_point = match v.clicked_point_or_handle(None) {
+        // if we found a point or handle we're going to start a drag operation
+        match clicked_point_or_handle(v, meta.position, None) {
             Some((ci, pi, wh)) => {
                 if meta.modifiers.shift || meta.modifiers.ctrl {
                     if let Some(point_idx) = v.point_idx {
@@ -181,34 +225,29 @@ impl Select {
                 v.point_idx = Some(pi);
                 self.follow = meta.into();
                 self.handle = wh;
-                true
             },
             None => {
                 v.contour_idx = None;
                 v.point_idx = None;
                 self.handle = WhichHandle::Neither;
-                false
+                if !meta.modifiers.shift {
+                    v.selected = HashSet::new();
+                }
+                self.show_sel_box = true;
+                self.corner_one = Some(meta.position);
+                self.corner_two = Some(meta.position);
             },
         };
-    
-        if !single_point {
-            if !meta.modifiers.shift {
-                v.selected = HashSet::new();
-            }
-            self.show_sel_box = true;
-            self.corner_one = Some(v.mousepos);
-            self.corner_two = Some(v.mousepos);
-        }
     }
 
-    fn mouse_released(&mut self, v: &mut Editor, _position: (f64, f64), _meta: MouseMeta) {
+    fn mouse_released(&mut self, v: &mut Editor, meta: MouseInfo) {
         // we are going to check if we're dropping this point onto another and if this is the end, and that the 
         // start or vice versa if so we're going to merge but first we have to check we're dragging a point
         if self.handle == WhichHandle::Neither && self.modifying {
             let (vci, vpi) = (v.contour_idx.unwrap(), v.point_idx.unwrap());
 
             // are we overlapping a point?
-            if let Some((ci, pi, WhichHandle::Neither)) = v.clicked_point_or_handle(Some((vci, vpi))) {
+            if let Some((ci, pi, WhichHandle::Neither)) = clicked_point_or_handle(v, meta.position, Some((vci, vpi))) {
                 // if that point the start or end of it's contour?
                 if let Some(info) = get_contour_start_or_end(v, vci, vpi) {
                     // is our current point the start or end of it's contour?
@@ -235,12 +274,14 @@ impl Select {
         self.corner_two = None;
     }
 
+    // This draws a preview to show if we're overlapping a point we can merge with or not.
+    // Note that all tool draw events draw over the glyph view.
     fn draw_merge_preview(&self, v: &Editor, canvas: &mut Canvas) {
         if self.handle == WhichHandle::Neither && self.modifying {
             let (vci, vpi) = (v.contour_idx.unwrap(), v.point_idx.unwrap());
 
             // are we overlapping a point?
-            if let Some((ci, pi, WhichHandle::Neither)) = v.clicked_point_or_handle(Some((vci, vpi))) {
+            if let Some((ci, pi, WhichHandle::Neither)) = clicked_point_or_handle(v, v.mouse_info.position, Some((vci, vpi))) {
                 // if that point the start or end of it's contour?
                 if let Some(info) = get_contour_start_or_end(v, vci, vpi) {
                     // is our current point the start or end of it's contour?
@@ -269,6 +310,7 @@ impl Select {
         }
     }
 
+    // This renders the dashed path of the selection box. 
     fn draw_selbox(&self, v: &Editor, canvas: &mut Canvas) {
         let c1 = self.corner_one.unwrap_or((0., 0.));
         let c2 = self.corner_two.unwrap_or((0., 0.));
@@ -283,8 +325,8 @@ impl Select {
         path.close();
         paint.set_color(OUTLINE_STROKE);
         paint.set_style(PaintStyle::Stroke);
-        paint.set_stroke_width(OUTLINE_STROKE_THICKNESS * (1. / v.factor));
-        let dash_offset = (1. / v.factor) * 2.;
+        paint.set_stroke_width(OUTLINE_STROKE_THICKNESS * (1. / v.viewport.factor));
+        let dash_offset = (1. / v.viewport.factor) * 2.;
         paint.set_path_effect(dash_path_effect::new(&[dash_offset, dash_offset], 0.0));
         canvas.draw_path(&path, &paint);
     }
@@ -327,7 +369,7 @@ pub fn build_sel_vec_from_rect(
     selected
 }
 
-pub fn move_point(outline: &mut Outline<PointData>, ci: usize, pi: usize, x: f32, y: f32, follow: Follow) {
+pub fn move_point(outline: &mut Outline<PointData>, ci: usize, pi: usize, x: f32, y: f32, _follow: Follow) {
     let (cx, cy) = (outline[ci][pi].x, outline[ci][pi].y);
     let (dx, dy) = (cx - x, cy - y);
 

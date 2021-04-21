@@ -3,7 +3,7 @@ use skulpin::skia_safe::{Canvas, Font, FontStyle, Paint, Path, Rect, TextBlob, T
 use std::cell::RefCell;
 use std::collections::HashMap;
 
-use crate::state::Editor;
+use crate::editor::Editor;
 
 pub static POINTFONTSIZE: f32 = 14.0;
 
@@ -39,7 +39,7 @@ thread_local! {
 }
 
 pub fn draw_string_at_point(v: &Editor, mut at: (f32, f32), s: &str, canvas: &mut Canvas) {
-    let factor = v.factor;
+    let factor = v.viewport.factor;
     let mut paint = Paint::default();
     paint.set_color(0xff_ff0000);
     paint.set_anti_alias(true);

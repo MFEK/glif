@@ -1,6 +1,6 @@
 use sdl2::mouse::MouseButton;
 
-use crate::state::Editor;
+use crate::editor::Editor;
 
 // Pan
 use super::{EditorEvent, MouseEventType, Tool, prelude::*};
@@ -11,9 +11,9 @@ pub struct Zoom {}
 impl Tool for Zoom {
     fn handle_event(&mut self, v: &mut Editor, event: EditorEvent) {
         match event {
-            EditorEvent::MouseEvent { event_type, position, meta } => {
+            EditorEvent::MouseEvent { event_type, meta } => {
                 match event_type {
-                    MouseEventType::Released => { self.mouse_released(v, position, meta)}
+                    MouseEventType::Released => { self.mouse_released(v, meta)}
                     _ => {}
                 }
             }
@@ -27,9 +27,9 @@ impl Zoom {
         Self {}
     }
 
-    fn mouse_released(&self, v: &mut Editor, position: (f64, f64), meta: MouseMeta)
+    fn mouse_released(&self, v: &mut Editor, meta: MouseInfo)
     {
-        let mut scale = v.factor;
+        let mut scale = v.viewport.factor;
         match meta.button {
             MouseButton::Left => {
                 scale = zoom_in_factor(scale, v);
@@ -39,9 +39,9 @@ impl Zoom {
             }
             _ => {}
         }
-        let mut offset = v.offset;
-        let winsize = v.winsize;
-        let position = v.absolute_mousepos;
+        let mut offset = v.viewport.offset;
+        let winsize = v.viewport.winsize;
+        let position = meta.absolute_position;
         let center = (
             (winsize.0 as f32 / 2.) + offset.0,
             (winsize.1 as f32 / 2.) + offset.1,
@@ -54,11 +54,11 @@ impl Zoom {
 
 
 pub fn zoom_in_factor(_factor: f32, v: &mut Editor) -> f32 {
-    v.factor + SCALE_FACTOR
+    v.viewport.factor + SCALE_FACTOR
 }
 
 pub fn zoom_out_factor(_factor: f32, v: &mut Editor) -> f32 {
-    let mut scale = v.factor;
+    let mut scale = v.viewport.factor;
     if scale >= 0.10 {
         scale += -SCALE_FACTOR;
     }

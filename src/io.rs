@@ -1,11 +1,9 @@
-use crate::{events::select::Select, state::{Glyph, Editor}};
+use crate::{tools::select::Select, editor::{Glyph, Editor}};
 
-use crate::events;
-use crate::state;
-use glifparser::{Glif, MFEKGlif};
+use crate::editor;
+use glifparser::MFEKGlif;
 use log::debug;
-use state::PointData;
-use std::cell::RefCell;
+use editor::PointData;
 use std::env;
 use std::fs;
 use std::path::Path;

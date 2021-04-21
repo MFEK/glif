@@ -1,22 +1,23 @@
 
-use crate::{renderer::{self, UIPointType, points}, state::{Editor, SelectPointInfo}};
-use super::{EditorEvent, Tool, prelude::*};
-use MFEKmath::{Bezier, Evaluate, Piecewise, Vector, evaluate::Primitive};
-use flo_curves::bezier::solve_curve_for_t;
-use glifparser::{self, Contour, Handle, Point, PointType, WhichHandle};
-use renderer::points::draw_point;
-use skulpin::skia_safe::{Paint, Path, Rect};
+use super::prelude::*;
+use crate::renderer::UIPointType;
+use crate::renderer::points::draw_point;
+
+use MFEKmath::{Bezier, evaluate::Primitive};
+use glifparser::{self, Contour, Handle, Point, PointType};
+use editor::util::get_contour_start_or_end;
 #[derive(Clone)]
 pub struct Pen {}
 
 impl Tool for Pen {
     fn handle_event(&mut self, v: &mut Editor, event: EditorEvent) {
         match event {
-            EditorEvent::MouseEvent { event_type, position, meta } => {
+            EditorEvent::MouseEvent { event_type, meta } => {
                 match event_type {
-                    super::MouseEventType::Pressed => { self.mouse_pressed(v, position, meta) }
-                    super::MouseEventType::Released => { self.mouse_released(v, position, meta)}
-                    super::MouseEventType::Moved => { self.mouse_moved(v, position, meta) }
+                    super::MouseEventType::Pressed => { self.mouse_pressed(v, meta) }
+                    super::MouseEventType::Released => { self.mouse_released(v, meta)}
+                    super::MouseEventType::Moved => { self.mouse_moved(v, meta) }
+                    _ => {}
                 }
             }
             EditorEvent::Draw { skia_canvas } => { 
@@ -33,11 +34,11 @@ impl Pen {
         Self {}
     }
 
-    fn mouse_moved(&self, v: &mut Editor, _position: (f64, f64), _meta: MouseMeta) {
-        if !v.mousedown { return };
+    fn mouse_moved(&self, v: &mut Editor, meta: MouseInfo) {
+        if !meta.is_down { return };
 
         if let Some(idx) = v.contour_idx {
-            let mousepos = v.mousepos;
+            let mousepos = meta.position;
             v.with_active_layer_mut(|layer| {
                 let outline = get_outline_mut!(layer);
                 let last_point = outline[idx].last().unwrap().clone();
@@ -52,20 +53,18 @@ impl Pen {
         }
     }
 
-    fn mouse_pressed(&self, v: &mut Editor, _position: (f64, f64), meta: MouseMeta) {
+    fn mouse_pressed(&self, v: &mut Editor, meta: MouseInfo) {
         v.begin_layer_modification("Add point.");
 
 
-        // we've got a point selected?
-        if v.contour_idx.is_some() && v.point_idx.is_some() {
+        // We check if we have a point selected and are clicking on the beginning of another contour.
+        // If that is the case we merge them and then return.
+        if let (Some(c_idx), Some(p_idx)) = (v.contour_idx, v.point_idx) {
             // we've clicked a handle?
-            if let Some(info) = v.clicked_point_or_handle(None) {
-                let c_idx = v.contour_idx.unwrap();
-                let p_idx = v.contour_idx.unwrap();
-
+            if let Some(info) = clicked_point_or_handle(v, meta.position, None) {
                 // we have the end of one contour active and clicked the start of another?
-                let end_is_active = v.get_contour_start_or_end(c_idx, p_idx) == Some(SelectPointInfo::End);
-                let start_is_clicked = v.get_contour_start_or_end(info.0, info.1) == Some(SelectPointInfo::Start);
+                let end_is_active = get_contour_start_or_end(v, c_idx, p_idx) == Some(SelectPointInfo::End);
+                let start_is_clicked = get_contour_start_or_end(v, info.0, info.1) == Some(SelectPointInfo::Start);
 
                 // make sure these contours are open
                 let selected_open = v.with_active_layer(|layer| get_contour_type!(layer, c_idx)) == PointType::Move;
@@ -73,7 +72,7 @@ impl Pen {
                 if end_is_active && start_is_clicked && selected_open && target_open {
                     v.with_active_layer_mut(|layer| {
                         get_contour_mut!(layer, c_idx).push(Point::from_x_y_type(
-                        (calc_x(_position.0 as f32), calc_y(_position.1 as f32)),
+                        (calc_x(meta.position.0 as f32), calc_y(meta.position.1 as f32)),
                         PointType::Curve
                         ));
                     });
@@ -84,8 +83,8 @@ impl Pen {
     
         }
 
-        // if we clicked on an existing curve we add a point there and return
-        if let Some(info) = nearest_point_on_curve(v) {
+        // Next we check if our mouse is over an existing curve. If so we add a point to the curve and return.
+        if let Some(info) = nearest_point_on_curve(v, meta.position) {
             v.with_active_layer_mut(|layer| {
                 let mut second_idx_zero = false;
                 let contour = &mut layer.outline.as_mut().unwrap()[info.contour_idx];
@@ -129,9 +128,9 @@ impl Pen {
             return
         }
 
-        // if we click somewhere else and we have the last point of a contour selected continue that contour
+        // If we've got the end of a contour selected with continue drawing that contour and return.
         if let Some(contour_idx) = v.contour_idx {
-            let mouse_pos = v.mousepos;
+            let mouse_pos = meta.position;
             let contour_len = v.with_active_layer(|layer| {get_outline!(layer)[contour_idx].len()});
 
             if v.point_idx.unwrap() == contour_len - 1 {
@@ -148,8 +147,9 @@ impl Pen {
             }
         }
 
-        // if not let's create a new contour
-        let mouse_pos = v.mousepos;
+
+        // Lastly if we get here we create a new contour.
+        let mouse_pos = meta.position;
         v.contour_idx = v.with_active_layer_mut(|layer| {
             let outline = get_outline_mut!(layer);
             let mut new_contour: Contour<PointData> = Vec::new();
@@ -168,7 +168,8 @@ impl Pen {
         v.point_idx = Some(0);
     }
 
-    fn mouse_released(&self, v: &mut Editor, _position: (f64, f64), _meta: MouseMeta) {
+    fn mouse_released(&self, v: &mut Editor, _meta: MouseInfo) {
+        // No matter what a mouse press generates a layer modification so we have to finalize that here.
         if let Some(idx) = v.contour_idx {
             v.with_active_layer_mut(|layer| {
                 get_outline_mut!(layer)[idx].last_mut().map(|point| {
@@ -183,8 +184,8 @@ impl Pen {
     }
 
     fn draw_nearest_point(&self, v: &mut Editor, canvas: &mut Canvas) {
-        if v.mousedown { return };
-        let info = nearest_point_on_curve(v);
+        if v.mouse_info.is_down { return };
+        let info = nearest_point_on_curve(v, v.mouse_info.position);
 
         if let Some(info) = info {
             draw_point(
@@ -203,13 +204,13 @@ impl Pen {
         // we've got a point selected?
         if v.contour_idx.is_some() && v.point_idx.is_some() {
             // we've clicked a handle?
-            if let Some(info) = v.clicked_point_or_handle(None) {
+            if let Some(info) = clicked_point_or_handle(v, v.mouse_info.position, None) {
                 let c_idx = v.contour_idx.unwrap();
                 let p_idx = v.contour_idx.unwrap();
 
                 // we have the end of one contour active and clicked the start of another?
-                let end_is_active = v.get_contour_start_or_end(c_idx, p_idx) == Some(SelectPointInfo::End);
-                let start_is_clicked = v.get_contour_start_or_end(info.0, info.1) == Some(SelectPointInfo::Start);
+                let end_is_active = get_contour_start_or_end(v, c_idx, p_idx) == Some(SelectPointInfo::End);
+                let start_is_clicked = get_contour_start_or_end(v, info.0, info.1) == Some(SelectPointInfo::Start);
 
                 // make sure these contours are open
                 let selected_open = v.with_active_layer(|layer| get_contour_type!(layer, c_idx)) == PointType::Move;
@@ -230,69 +231,4 @@ impl Pen {
     
         }
     }
-}
-
-
-struct PenPointInfo {
-    t: f64,
-    contour_idx: usize,
-    seg_idx: usize,
-    point: (f32, f32),
-    a: (f32, f32),
-    b: (f32, f32),
-}
-fn nearest_point_on_curve(v: &Editor) -> Option<PenPointInfo>
-{
-    v.with_active_layer(|layer| {
-        let pw: Piecewise<Piecewise<Bezier>> = layer.outline.as_ref().unwrap().into();
-        
-        let mut distance = f64::INFINITY;
-        let mut current = None;
-        let mut h1 = None;
-        let mut h2 = None;
-
-        let mut t = None;
-        let mut contour_idx = None;
-        let mut seg_idx = None;
-
-        for (cx, contour) in pw.segs.iter().enumerate() {
-            for (bx, bezier) in contour.segs.iter().enumerate() {
-                let mouse_vec = Vector::from_components(calc_x(v.mousepos.0 as f32) as f64, calc_y(v.mousepos.1 as f32) as f64);
-                let ct = solve_curve_for_t(bezier, &mouse_vec, 3.5 / v.factor as f64);
-                
-                if let Some(ct) = ct {
-                    let new_distance = bezier.at(ct).distance(mouse_vec);
-                    if new_distance < distance {
-                        distance = new_distance;
-                        current = Some(bezier.at(ct));
-                        t = Some(ct);
-                        contour_idx = Some(cx);
-                        seg_idx = Some(bx);
-
-                        let subdivisions = bezier.subdivide(ct);
-                        if let Some(subdivisions) = subdivisions {
-                            h1 = Some(subdivisions.0.to_control_points()[2]);
-                            h2 = Some(subdivisions.1.to_control_points()[1]);
-                        }
-                        else
-                        {
-                            return None
-                        }
-                    }
-                }
-            }
-        }
-
-        if let Some(current) = current { 
-            let (h1, h2) = (h1.unwrap(), h2.unwrap());
-            Some(PenPointInfo {
-                t: t.unwrap(),
-                contour_idx: contour_idx.unwrap(),
-                seg_idx: seg_idx.unwrap(),
-                point: (current.x as f32, current.y as f32),
-                a: (h1.x as f32, h1.y as f32),
-                b: (h2.x as f32, h2.y as f32),
-            })
-        } else { None }
-    })
 }
