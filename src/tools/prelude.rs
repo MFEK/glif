@@ -1,17 +1,22 @@
 // Our stuff
 pub use super::{_center_cursor, update_viewport};
-pub use super::{EditorEvent, MouseEventType, MouseInfo, Tool};
+pub use super::{EditorEvent, MouseEventType, Tool};
 
 pub use crate::renderer::constants::*;
 pub use crate::renderer::points::calc::*;
 pub use crate::editor;
-pub use crate::editor::{Editor, PointData, clicked_point_or_handle, SelectPointInfo, nearest_point_on_curve};
+pub use crate::editor::util::*;
+pub use crate::editor::{Editor, MouseInfo, PointData};
 pub use crate::util::*;
-pub use crate::{CONSOLE};
+pub use crate::CONSOLE;
+
+pub use crate::{get_outline, get_outline_mut, get_contour, get_contour_mut, get_contour_type, get_contour_len};
 
 // Skia/Winit stuff
 pub use skulpin::skia_safe::Contains as _;
 pub use skulpin::skia_safe::{Canvas, Matrix, Path as SkPath, Point as SkPoint, Rect as SkRect};
+
+pub use glifparser::{Outline, Contour, Point, Handle, PointType, WhichHandle};
 
 // std
 pub use std::cell::RefCell;

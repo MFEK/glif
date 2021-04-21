@@ -37,14 +37,14 @@ extern crate sdl2;
 
 use command::{Command, CommandInfo};
 
-use tools::{EditorEvent, MouseEventType, MouseInfo, ToolEnum,  update_viewport};
+use tools::{EditorEvent, MouseEventType, ToolEnum,  update_viewport};
 use editor::Editor;
+use editor::MouseInfo;
 //use renderer::render_frame;
 use sdl2::keyboard::Keycode;
 use sdl2::{
     event::{Event, WindowEvent},
     keyboard::Mod,
-    surface::Surface,
     video::Window,
     Sdl,
 };
@@ -418,6 +418,7 @@ fn initialize_sdl(v: &mut Editor, ws: &WindowSettings) -> (Sdl, Window) {
         .build()
         .expect("Failed to create window");
 
+    /* TODO: Fix icon. 
     let logo = include_bytes!("../doc/logo.png");
     let im = image::load_from_memory_with_format(logo, image::ImageFormat::Png)
         .unwrap()
@@ -431,7 +432,8 @@ fn initialize_sdl(v: &mut Editor, ws: &WindowSettings) -> (Sdl, Window) {
         sdl2::pixels::PixelFormatEnum::RGB888,
     )
     .unwrap();
-    //window.set_icon(surface);
+    window.set_icon(surface);
+    */
 
     (sdl_context, window)
 }

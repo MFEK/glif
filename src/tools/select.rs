@@ -1,13 +1,13 @@
 use std::collections::HashSet;
 
 // Select
+use crate::get_outline;
 use super::{EditorEvent, Tool, prelude::*};
 use crate::renderer::{UIPointType, points::draw_point};
 use crate::editor::{Editor, util::clicked_point_or_handle};
-use crate::util::math::FlipIfRequired;
-use glifparser::{Handle, Outline, PointType, WhichHandle};
+
 use skulpin::skia_safe::dash_path_effect;
-use skulpin::skia_safe::{Canvas, Contains, Paint, PaintStyle, Path, Rect};
+use skulpin::skia_safe::{Canvas, Paint, PaintStyle, Path, Rect};
 use derive_more::Display;
 
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq)]
@@ -120,11 +120,11 @@ impl Select {
                             let point = &outline[ci][pi];                          
                             let offset_x = point.x - reference_point.x;
                             let offset_y = point.y - reference_point.y;
-                            move_point(outline, ci, pi, x + offset_x, y + offset_y, self.follow);
+                            move_point(outline, ci, pi, x + offset_x, y + offset_y);
                         }
                     }
 
-                    move_point(outline, ci, pi, x, y, self.follow);
+                    move_point(outline, ci, pi, x, y);
 
                 });
     
@@ -197,7 +197,7 @@ impl Select {
                         ((c2.0 - c1.0) as f32, (c2.1 - c1.1) as f32),
                     );
                     
-                    build_sel_vec_from_rect(
+                    build_box_selection(
                         last_selected.clone(),
                         rect,
                         layer.outline.as_ref(),
@@ -332,63 +332,3 @@ impl Select {
     }
 }
 
-#[derive(PartialEq, Clone, Copy)]
-enum SelectPointInfo {
-    Start,
-    End
-}
-
-fn get_contour_start_or_end(v: &Editor, contour_idx: usize, point_idx: usize) -> Option<SelectPointInfo>
-{
-    let contour_len = v.with_active_layer(|layer| {get_contour_len!(layer, contour_idx)} ) - 1;
-    match point_idx {
-        0 => Some(SelectPointInfo::Start),
-        contour_len => Some(SelectPointInfo::End),
-        _ => None
-    }
-}
-
-pub fn build_sel_vec_from_rect(
-    selected: HashSet<(usize, usize)>,
-    mut rect: Rect,
-    outline: Option<&Vec<glifparser::Contour<PointData>>>,
-) -> HashSet<(usize, usize)> {
-    rect.flip_if_required();
-
-    let mut selected = selected.clone();
-    for o in outline {
-        for (cidx, contour) in o.iter().enumerate() {
-            for (pidx, point) in contour.iter().enumerate() {
-                if Rect::from(rect).contains(skulpin::skia_safe::Point::from((calc_x(point.x), calc_y(point.y)))) {
-                    selected.insert((cidx, pidx));
-                }
-            }
-        }
-    }
-
-    selected
-}
-
-pub fn move_point(outline: &mut Outline<PointData>, ci: usize, pi: usize, x: f32, y: f32, _follow: Follow) {
-    let (cx, cy) = (outline[ci][pi].x, outline[ci][pi].y);
-    let (dx, dy) = (cx - x, cy - y);
-
-    outline[ci][pi].x = x;
-    outline[ci][pi].y = y;
-
-    let a = outline[ci][pi].a;
-    let b = outline[ci][pi].b;
-    match a {
-        Handle::At(hx, hy) => {
-            outline[ci][pi].a = Handle::At(hx - dx, hy - dy)
-        }
-        Handle::Colocated => (),
-    }
-    match b {
-        Handle::At(hx, hy) => {
-            outline[ci][pi].b = Handle::At(hx - dx, hy - dy)
-        }
-        Handle::Colocated => (),
-    }
-
-}

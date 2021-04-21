@@ -1,7 +1,9 @@
+use std::collections::HashSet;
+
 use MFEKmath::{Bezier, Evaluate, Piecewise, Vector, evaluate::Primitive};
 use flo_curves::bezier::solve_curve_for_t;
-use glifparser::WhichHandle;
-use crate::get_outline;
+use glifparser::{Handle, Outline, WhichHandle};
+use crate::{get_outline, tools::prelude::math::FlipIfRequired};
 use crate::get_contour_len;
 use crate::renderer::constants::*;
 use crate::renderer::points::calc::*;
@@ -9,7 +11,7 @@ use skulpin::skia_safe::Point as SkPoint;
 use skulpin::skia_safe::Rect as SkRect;
 use skulpin::skia_safe::Contains;
 
-use super::Editor;
+use super::{Editor, PointData};
 
 //TODO: Move to tool utility file
 #[derive(PartialEq, Clone, Copy)]
@@ -155,4 +157,49 @@ pub fn nearest_point_on_curve(v: &Editor, position: (f32, f32)) -> Option<PenPoi
             })
         } else { None }
     })
+}
+
+pub fn build_box_selection(
+    selected: HashSet<(usize, usize)>,
+    mut rect: SkRect,
+    outline: Option<&Vec<glifparser::Contour<PointData>>>,
+) -> HashSet<(usize, usize)> {
+    rect.flip_if_required();
+
+    let mut selected = selected.clone();
+    for o in outline {
+        for (cidx, contour) in o.iter().enumerate() {
+            for (pidx, point) in contour.iter().enumerate() {
+                if SkRect::from(rect).contains(SkPoint::from((calc_x(point.x), calc_y(point.y)))) {
+                    selected.insert((cidx, pidx));
+                }
+            }
+        }
+    }
+
+    selected
+}
+
+pub fn move_point(outline: &mut Outline<crate::editor::PointData>, ci: usize, pi: usize, x: f32, y: f32) {
+    let (cx, cy) = (outline[ci][pi].x, outline[ci][pi].y);
+    let (dx, dy) = (cx - x, cy - y);
+
+    outline[ci][pi].x = x;
+    outline[ci][pi].y = y;
+
+    let a = outline[ci][pi].a;
+    let b = outline[ci][pi].b;
+    match a {
+        Handle::At(hx, hy) => {
+            outline[ci][pi].a = Handle::At(hx - dx, hy - dy)
+        }
+        Handle::Colocated => (),
+    }
+    match b {
+        Handle::At(hx, hy) => {
+            outline[ci][pi].b = Handle::At(hx - dx, hy - dy)
+        }
+        Handle::Colocated => (),
+    }
+
 }

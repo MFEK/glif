@@ -72,7 +72,6 @@ impl Editor {
 
     
     pub fn swap_layers(&mut self, destination: usize) {
-
     }
 
     

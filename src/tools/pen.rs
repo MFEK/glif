@@ -4,7 +4,6 @@ use crate::renderer::UIPointType;
 use crate::renderer::points::draw_point;
 
 use MFEKmath::{Bezier, evaluate::Primitive};
-use glifparser::{self, Contour, Handle, Point, PointType};
 use editor::util::get_contour_start_or_end;
 #[derive(Clone)]
 pub struct Pen {}

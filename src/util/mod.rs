@@ -1,7 +1,5 @@
 // Utilities
 pub mod argparser;
-#[macro_use]
-pub mod macros;
 pub mod math;
 
 use std::env;
@@ -50,7 +48,6 @@ pub fn set_panic_hook() {
 // This prevents debug!() etc from producing mojibake. Yes, really, this is the best solution. :-|
 #[cfg(target_family = "windows")]
 pub fn set_codepage_utf8() {
-    use winapi;
     unsafe {
         debug_assert!(winapi::um::wincon::SetConsoleOutputCP(winapi::um::winnls::CP_UTF8) == 1);
     }

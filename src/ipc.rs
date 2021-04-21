@@ -35,7 +35,7 @@ pub fn fetch_metrics(v: &mut Editor) {
                         name: Some(names[i].to_string()),
                     };
 
-                    v.with_glyph_mut(|mut glyph| glyph.guidelines.push(guideline.clone()));
+                    v.with_glyph_mut(|glyph| glyph.guidelines.push(guideline.clone()));
                 }
             }
         }

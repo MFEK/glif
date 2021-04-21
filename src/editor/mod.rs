@@ -1,15 +1,15 @@
 use glifparser::{Contour, MFEKGlif, glif::{HistoryEntry, HistoryType, Layer}};
 
 pub use crate::renderer::console::Console as RendererConsole;
-use crate::tools::{EditorEvent, MouseInfo, Tool, ToolEnum, pan::Pan, tool_enum_to_tool};
+use crate::tools::{EditorEvent, Tool, ToolEnum, pan::Pan, tool_enum_to_tool};
 use crate::renderer::Guideline;
 
 pub use skulpin::skia_safe::Contains as _;
 pub use skulpin::skia_safe::{Canvas, Matrix, Path as SkPath, Point as SkPoint, Rect as SkRect};
 pub use crate::renderer::points::calc::*;
 
-
-use std::{cell::RefCell, collections::{HashMap, HashSet}};
+use std::cell::RefCell;
+use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 
 use crate::get_contour_mut;
@@ -19,15 +19,19 @@ mod toggles;
 pub use self::toggles::*;
 
 pub mod util;
-pub use self::util::*;
 
 pub mod viewport;
 pub use self::viewport::Viewport;
+
+pub mod input;
+pub use self::input::MouseInfo;
 
 pub mod selection;
 pub mod layers;
 pub mod history;
 
+#[macro_use]
+pub mod macros;
 pub struct Glyph<P: glifparser::PointData> {
     pub glif: MFEKGlif<P>,
     pub filename: PathBuf,
