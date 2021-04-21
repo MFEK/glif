@@ -57,3 +57,11 @@ impl MouseInfo {
         }
     }
 }
+
+impl Editor {
+        // Generic events
+    pub fn center_cursor(&mut self) {
+        self.mouse_info.center_cursor = true;
+    }
+
+}

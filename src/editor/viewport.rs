@@ -1,5 +1,7 @@
 use crate::{HandleStyle, PointLabels, PreviewMode};
 
+use super::Editor;
+
 pub struct Viewport {
     pub winsize: (u32, u32),
     pub factor: f32,
@@ -21,5 +23,22 @@ impl Default for Viewport {
             preview_mode: PreviewMode::None,
             handle_style: HandleStyle::Handlebars,
         }
+    }
+}
+
+impl Editor {  
+    // this gets called by tools so it accepts &mut State
+    pub fn update_viewport(&mut self, offset: Option<(f32, f32)>, scale: Option<f32>) {
+        let offset = match offset {
+            None => self.viewport.offset,
+            Some(offset) => offset,
+        };
+        let scale = match scale {
+            None => self.viewport.factor,
+            Some(scale) => scale,
+        };
+
+        self.viewport.factor = scale;
+        self.viewport.offset = offset;
     }
 }

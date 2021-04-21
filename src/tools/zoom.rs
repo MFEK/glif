@@ -48,7 +48,9 @@ impl Zoom {
         );
         offset.0 = -(position.0 as f32 - center.0);
         offset.1 = -(position.1 as f32 - center.1);
-        update_viewport(v, Some(offset), Some(scale));
+
+        v.center_cursor();
+        v.update_viewport( Some(offset), Some(scale));
     }
 }
 

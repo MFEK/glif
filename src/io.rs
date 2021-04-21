@@ -1,4 +1,4 @@
-use crate::{tools::select::Select, editor::{Glyph, Editor}};
+use crate::editor::{Glyph, Editor};
 
 use crate::editor;
 use glifparser::MFEKGlif;

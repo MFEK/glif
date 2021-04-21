@@ -1,5 +1,4 @@
 // Our stuff
-pub use super::{_center_cursor, update_viewport};
 pub use super::{EditorEvent, MouseEventType, Tool};
 
 pub use crate::renderer::constants::*;

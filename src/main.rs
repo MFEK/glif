@@ -37,7 +37,7 @@ extern crate sdl2;
 
 use command::{Command, CommandInfo};
 
-use tools::{EditorEvent, MouseEventType, ToolEnum,  update_viewport};
+use tools::{EditorEvent, MouseEventType, ToolEnum};
 use editor::Editor;
 use editor::MouseInfo;
 //use renderer::render_frame;
@@ -231,27 +231,27 @@ fn main() {
 
                     match command_info.command {
                         Command::ResetScale => {
-                            update_viewport(&mut editor, None, Some(1.));
+                            editor.update_viewport(None, Some(1.));
                         }
                         Command::ZoomIn => {
                             let scale = tools::zoom_in_factor(editor.viewport.factor, &mut editor);
-                            update_viewport(&mut editor, None, Some(scale));
+                            editor.update_viewport(None, Some(scale));
                         }
                         Command::ZoomOut => {
                             let scale = tools::zoom_out_factor(editor.viewport.factor, &mut editor);
-                            update_viewport(&mut editor, None, Some(scale));
+                            editor.update_viewport(None, Some(scale));
                         }
                         Command::NudgeUp => {
-                            update_viewport(&mut editor, Some((0., OFFSET_FACTOR)), None);
+                            editor.update_viewport(Some((0., OFFSET_FACTOR)), None);
                         }
                         Command::NudgeDown => {
-                            update_viewport(&mut editor, Some((0., -OFFSET_FACTOR)), None);
+                            editor.update_viewport(Some((0., -OFFSET_FACTOR)), None);
                         }
                         Command::NudgeLeft => {
-                            update_viewport(&mut editor, Some((OFFSET_FACTOR, 0.)), None);
+                            editor.update_viewport(Some((OFFSET_FACTOR, 0.)), None);
                         }
                         Command::NudgeRight => {
-                            update_viewport(&mut editor, Some((-OFFSET_FACTOR, 0.)), None);
+                            editor.update_viewport(Some((-OFFSET_FACTOR, 0.)), None);
                         }
                         Command::ToolPan => {
                             editor.set_tool(ToolEnum::Pan);
@@ -361,6 +361,17 @@ fn main() {
                 },
                 _ => {}
             }
+        }
+
+        if editor.mouse_info.center_cursor {
+            let mut center = window.size();
+            center.0 /= 2;
+            center.1 /= 2;
+            editor.mouse_info.absolute_position = (center.0 as f32, center.1 as f32);
+    
+            sdl_context
+                .mouse()
+                .warp_mouse_in_window(&window, center.0 as i32, center.1 as i32);
         }
 
         // build and render imgui
