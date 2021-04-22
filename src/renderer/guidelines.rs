@@ -3,43 +3,22 @@ use crate::state::Editor;
 use super::constants::*;
 use super::points::calc::*;
 use skulpin::skia_safe::{Canvas, Color, Paint, PaintStyle, Path};
-#[derive(Clone)]
-pub enum GuidelineType {
-    Horizontal,
-    Vertical,
-}
 
-#[derive(Clone)]
-pub struct Guideline {
-    pub gtype: GuidelineType,
-    pub where_: f32,
-    pub selected: bool,
-    pub name: Option<String>,
-}
+use glifparser::{Guideline, GuidelinePoint};
+use glifparser::IntegerOrFloat;
 
-pub fn draw_guideline(v: &Editor, color: Color, where_: f32, gtype: GuidelineType, canvas: &mut Canvas) {
-    let mut paint = Paint::default();
-    let mut path = Path::new();
+pub fn draw_guideline(v: &Editor, canvas: &mut Canvas, guideline: &Guideline) {
+    let angle = guideline.angle * DEGREES_IN_RADIANS;
+    let extra = (v.offset.0 * (1. / v.factor), v.offset.1 * (1. / v.factor));
+    let at2 = GuidelinePoint { x: guideline.at.x+((1000.*v.winsize.0 as f32)*f32::from(angle).cos()), y: guideline.at.y+((1000.*v.winsize.1 as f32)*f32::from(angle).sin()) };
+    let at3 = GuidelinePoint { x: guideline.at.x+((-(1000.*v.winsize.0 as f32))*f32::from(angle).cos()), y: guideline.at.y+((-(1000.*v.winsize.1 as f32))*f32::from(angle).sin()) };
     let factor = v.factor;
-    let offset = v.offset;
-    match gtype {
-        GuidelineType::Vertical => {
-            path.move_to((where_, -(offset.1 * (1. / factor))));
-            path.line_to((
-                where_,
-                v.winsize.1 as f32 * (1. / factor) + -(offset.1 * (1. / factor)),
-            ));
-        }
-        GuidelineType::Horizontal => {
-            path.move_to((-(offset.0 * (1. / factor)), where_));
-            path.line_to((
-                (v.winsize.0 as f32 * (1. / factor)) + (-(offset.0 * (1. / factor))),
-                where_,
-            ));
-        }
-    }
-    path.close();
+    let mut path = Path::new();
+    path.move_to((calc_x(at2.x), calc_y(at2.y)));
+    path.line_to((calc_x(at3.x), calc_y(at3.y)));
+    let mut paint = Paint::default();
     paint.set_anti_alias(true);
+    let color = Color::from(LBEARING_STROKE);
     paint.set_color(color);
     paint.set_stroke_width(GUIDELINE_THICKNESS * (1. / factor));
     paint.set_style(PaintStyle::Stroke);
@@ -49,30 +28,24 @@ pub fn draw_guideline(v: &Editor, color: Color, where_: f32, gtype: GuidelineTyp
 pub fn draw_lbearing(v: &Editor, canvas: &mut Canvas) {
     draw_guideline(
         v,
-        Color::from(LBEARING_STROKE),
-        0.,
-        GuidelineType::Vertical,
         canvas,
+        &Guideline::from_x_y_angle(0., 0., IntegerOrFloat::Float(90.)),
     );
 }
 
 pub fn draw_rbearing(v: &Editor, width: u64, canvas: &mut Canvas) {
     draw_guideline(
         v,
-        Color::from(RBEARING_STROKE),
-        width as f32,
-        GuidelineType::Vertical,
         canvas,
+        &Guideline::from_x_y_angle(width as f32, 0., IntegerOrFloat::Float(90.)),
     );
 }
 
 pub fn draw_baseline(v: &Editor, canvas: &mut Canvas) {
     draw_guideline(
         v,
-        Color::from(LBEARING_STROKE),
-        calc_y(0.),
-        GuidelineType::Horizontal,
         canvas,
+        &Guideline::from_x_y_angle(0., 0., IntegerOrFloat::Float(0.)),
     );
 }
 
@@ -88,12 +61,9 @@ pub fn draw_all(v: &Editor, canvas: &mut Canvas) {
         for guideline in &glyph.guidelines {
             draw_guideline(
                 v, 
-                Color::from(LBEARING_STROKE),
-                calc_y(guideline.where_),
-                GuidelineType::Horizontal,
                 canvas,
+                guideline,
             );
         }
     })
-
 }

@@ -8,17 +8,16 @@ pub mod constants;
 use self::constants::*;
 
 pub mod console;
-mod guidelines;
-pub use self::guidelines::{Guideline, GuidelineType};
+pub mod guidelines;
 pub mod points; // point drawing functions
                 // This imports calc_x, etc. which transforms coordinates between .glif and Skia
+pub mod string; // drawing strings on Skia
 
 mod glyph;
 pub mod viewport;
 
 // Provides thread-local global variables.
 // TODO: pub use crate::events::vws;
-pub use crate::state::Glyph; // types
 pub use crate::state::{HandleStyle, PointLabels}; // enums
 
 use skulpin::skia_safe::Canvas;
@@ -48,7 +47,9 @@ pub fn render_frame(v: &mut Editor, canvas: &mut Canvas) {
         guidelines::draw_all(v, canvas);
     }
 
-    let path = glyph::draw(v, canvas);
+    let path = v.with_glif(|glyph| glyph::draw(glyph, v, canvas));
+    v.set_flattened(false);
+    v.with_glif(|glyph| glyph::draw_components(glyph, v, canvas));
     // TODO: let _path = glyph::draw_previews(v, canvas);
 
     match pm {

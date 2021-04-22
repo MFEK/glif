@@ -41,7 +41,7 @@ dependencies = [
 [[package]]
 name = "MFEKmath"
 version = "0.1.0"
-source = "git+https://github.com/MFEK/math.rlib?branch=layers#5f8ba41df48966ec0a14bcf68368af7a974dc103"
+source = "git+https://github.com/MFEK/math.rlib?branch=layers#c5c59e0d99c1afa76aac8074fd069ac3ef618dfe"
 dependencies = [
  "flo_curves",
  "glifparser",
@@ -152,9 +152,9 @@ checksum = "cdb031dd78e28731d87d56cc8ffef4a8f36ca26c38fe2de700543e627f8a464a"
 
 [[package]]
 name = "backtrace"
-version = "0.3.56"
+version = "0.3.57"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9d117600f438b1707d4e4ae15d3595657288f8235a0eb593e80ecc98ab34e1bc"
+checksum = "78ed203b9ba68b242c62b3fb7480f589dd49829be1edb3fe8fc8b4ffda2dcb8d"
 dependencies = [
  "addr2line",
  "cfg-if 1.0.0",
@@ -815,7 +815,7 @@ dependencies = [
 [[package]]
 name = "glifparser"
 version = "1.0.0"
-source = "git+https://github.com/MFEK/glifparser.rlib?branch=mfek#2f6a6e8ad788ca56f892863db17624943f78df11"
+source = "git+https://github.com/MFEK/glifparser.rlib?branch=mfek#8bcd18c00616c85e6da9f9520117a0bce523f654"
 dependencies = [
  "integer_or_float",
  "kurbo",

@@ -58,7 +58,6 @@ use std::collections::HashSet;
 
 // Provides thread-local global variables.
 pub mod state;
-pub use crate::state::Glyph; // types
 pub use crate::state::{HandleStyle, PointLabels, PreviewMode}; // enums
 pub use crate::state::{CONSOLE}; // globals
 
@@ -88,7 +87,7 @@ fn main() {
 
     let mut editor = Editor::new();
     // Makes glyph available to on_load_glif events
-    let _glif = io::load_glif(&mut editor, &filename);
+    io::load_glif(&mut editor, &filename);
 
     if mfek_ipc::module_available("MFEKmetadata".into()) == mfek_ipc::Available::Yes {
         ipc::fetch_metrics(&mut editor);

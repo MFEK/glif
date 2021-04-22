@@ -1,14 +1,15 @@
 use log::error;
 use mfek_ipc::{self, IPCInfo};
+use glifparser::{Guideline, GuidelinePoint, IntegerOrFloat};
 
-use crate::{renderer::{Guideline, GuidelineType}, state::Editor};
+use crate::state::Editor;
 
 use std::{process, str};
 
 pub fn fetch_metrics(v: &mut Editor) {
     let qmdbin = mfek_ipc::module_name("MFEKmetadata".into());
     let filename = v.with_glyph(|glyph| {glyph.filename.clone()});
-    let ipc_info = IPCInfo::from_glif_path("MFEKglif".to_string(), &filename);
+    let ipc_info = IPCInfo::from_glif_path("MFEKglif".to_string(), &filename.unwrap());
 
     match &ipc_info.font.as_ref() {
         Some(ref font) => {
@@ -28,14 +29,13 @@ pub fn fetch_metrics(v: &mut Editor) {
             } else {
                 let names = &["ascender", "descender"];
                 for (i, line) in lines_iter.enumerate() {
-                    let guideline = Guideline {
-                        gtype: GuidelineType::Horizontal,
-                        where_: line.parse().expect("Font is corrupt, metrics not numeric!"),
-                        selected: false,
+                    v.with_glyph_mut(|glyph|glyph.guidelines.push(Guideline {
+                        at: GuidelinePoint {x: 0., y: line.parse().expect("Font is corrupt, metrics not numeric!")},
+                        angle: IntegerOrFloat::Float(0.),
                         name: Some(names[i].to_string()),
-                    };
-
-                    v.with_glyph_mut(|mut glyph| glyph.guidelines.push(guideline.clone()));
+                        color: None,
+                        identifier: None
+                    }));
                 }
             }
         }

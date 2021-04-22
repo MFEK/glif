@@ -1,4 +1,4 @@
-use crate::{events::select::Select, state::{Glyph, Editor}};
+use crate::{events::select::Select, state::Editor};
 
 use crate::events;
 use crate::state;
@@ -15,6 +15,8 @@ pub fn load_glif<F: AsRef<Path> + Clone>(v: &mut Editor, filename: F) {
 
     // TODO: Actually handle errors now that we have them.
     let mut glif: MFEKGlif<PointData> = glifparser::read(&glifxml).expect("Invalid glif!").into();
+    glif.filename = Some(filename.as_ref().to_path_buf());
+    glif.source_glif.filename = Some(filename.as_ref().to_path_buf());
 
     // This is necessary because the glif format doesn't require that a glif have an outline. But
     // we require a place to store contours if the user draws any.
@@ -28,11 +30,7 @@ pub fn load_glif<F: AsRef<Path> + Clone>(v: &mut Editor, filename: F) {
         debug!("{:#?}", &glif.clone());
     }
 
-    v.set_glyph(Glyph {
-        glif,
-        filename: filename.as_ref().to_path_buf(),
-        guidelines: Vec::new(),
-    });
+    v.set_glyph(glif);
 
     /* 
     v.borrow().glyph.as_ref().map(|glyph| {
@@ -57,7 +55,7 @@ pub fn load_glif<F: AsRef<Path> + Clone>(v: &mut Editor, filename: F) {
 
 pub fn save_glif(v: &mut Editor) {
     v.with_glyph(|glyph| {
-        let filename: std::path::PathBuf = glyph.filename.clone();
+        let filename: std::path::PathBuf = glyph.filename.clone().unwrap();
 
         let glif_string = {
             // TODO: glifparser::write(&glyph.glif)

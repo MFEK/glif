@@ -4,14 +4,15 @@ use super::constants::*;
 
 use super::points::calc::*;
 use crate::state::{PointData, PreviewMode, Editor};
-use glifparser::{self, Contour, PointType, WhichHandle, OutlineType, outline::skia::{ToSkiaPaths, SkiaPointTransforms}};
+use glifparser::{self, Contour, MFEKGlif, PointType, WhichHandle, OutlineType, outline::skia::{ToSkiaPaths, SkiaPointTransforms}};
+use glifparser::{Tree, Forest};
 
-use skulpin::{skia_bindings::SkPath_AddPathMode, skia_safe::{Canvas, Paint, PaintStyle, Path}};
+use skulpin::{skia_bindings::SkPath_AddPathMode, skia_safe::{Canvas, Paint, PaintStyle, Path, Rect}};
 
-pub use crate::state::Glyph; // types
 pub use crate::state::{HandleStyle, PointLabels}; // enums
 pub use crate::state::{CONSOLE};
 pub use crate::events::ToolEnum; // globals
+use crate::renderer::string::draw_string_at_point_with_color;
 
 //TODO: pub use crate::events::vws;
 
@@ -22,48 +23,64 @@ pub enum SkPathBuildMode {
     OpenAndClosed,
 }
 
-pub fn draw(v: &Editor, canvas: &mut Canvas) -> Path {
+pub fn draw_components<P: glifparser::PointData>(glif: &MFEKGlif<P>, v: &Editor, canvas: &mut Canvas) {
+    let mut paint = Paint::default();
+    paint.set_anti_alias(true);
+    paint.set_color(OUTLINE_STROKE);
+    paint.set_style(PaintStyle::Stroke);
+    let mut path = Path::new();
+    let (flattened, rects) = match v.get_flattened() {
+        Some((f,r)) => (f,r),
+        None => {return}
+    };
+    for rect in rects {
+        let mut skrect = Rect::new(calc_x(rect.minx), calc_y(rect.miny), calc_x(rect.maxx), calc_y(rect.maxy));
+        draw_string_at_point_with_color(v, (calc_x(rect.minx), calc_y(rect.maxy)), &rect.name, canvas, COMPONENT_NAME_COLOR, COMPONENT_NAME_BGCOLOR);
+        path.add_rect(skrect, None);
+    }
+    canvas.draw_path(&path, &paint);
+    draw(&flattened, v, canvas);
+}
+
+pub fn draw<P: glifparser::PointData>(glif: &MFEKGlif<P>, v: &Editor, canvas: &mut Canvas) -> Path {
     let mut total_path = Path::new();
-    v.with_glif(|glif| {
-        let outline_type = glif.order;
 
-        for (layer_idx, layer) in glif.layers.iter().enumerate() {
-            let mut paint = Paint::default();
-            paint.set_anti_alias(true);
-        
-            if v.preview_mode == PreviewMode::Paper {
-                paint.set_style(PaintStyle::Fill);
-                paint.set_color(PAPER_FILL);
-            } else {
-                paint.set_style(PaintStyle::StrokeAndFill);
-                paint.set_stroke_width(
-                    OUTLINE_STROKE_THICKNESS * (1. / v.factor),
-                );
-                paint.set_color(OUTLINE_FILL);
-            }
+    let outline_type = glif.order;
 
-            for outline in &layer.outline {
-                let skpaths = outline.to_skia_paths(Some(SkiaPointTransforms{calc_x: calc_x, calc_y: calc_y}));
-
-                skpaths.closed.as_ref().map(|p| canvas.draw_path(&p, &paint));
-
-                paint.set_style(PaintStyle::Stroke);
-                skpaths.open.as_ref().map(|p| canvas.draw_path(&p, &paint));
+    for (layer_idx, layer) in glif.layers.iter().enumerate() {
+        let mut paint = Paint::default();
+        paint.set_anti_alias(true);
     
-                if v.borrow().preview_mode != PreviewMode::Paper {
-                    paint.set_color(OUTLINE_STROKE);
-                    paint.set_style(PaintStyle::Stroke);
-                    skpaths.closed.as_ref().map(|p| canvas.draw_path(&p, &paint));
-                }
-
-                if Some(layer_idx) == v.layer_idx {
-                    total_path = skpaths.into();
-                }
-            }
+        if v.preview_mode == PreviewMode::Paper {
+            paint.set_style(PaintStyle::Fill);
+            paint.set_color(PAPER_FILL);
+        } else {
+            paint.set_style(PaintStyle::StrokeAndFill);
+            paint.set_stroke_width(
+                OUTLINE_STROKE_THICKNESS * (1. / v.factor),
+            );
+            paint.set_color(OUTLINE_FILL);
         }
 
-        if v.preview_mode == PreviewMode::Paper { return };
-    });
+        for outline in &layer.outline {
+            let skpaths = outline.to_skia_paths(Some(SkiaPointTransforms{calc_x: calc_x, calc_y: calc_y}));
+
+            skpaths.closed.as_ref().map(|p| canvas.draw_path(&p, &paint));
+
+            paint.set_style(PaintStyle::Stroke);
+            skpaths.open.as_ref().map(|p| canvas.draw_path(&p, &paint));
+
+            if v.borrow().preview_mode != PreviewMode::Paper {
+                paint.set_color(OUTLINE_STROKE);
+                paint.set_style(PaintStyle::Stroke);
+                skpaths.closed.as_ref().map(|p| canvas.draw_path(&p, &paint));
+            }
+
+            if Some(layer_idx) == v.layer_idx {
+                total_path = skpaths.into();
+            }
+        }
+    }
 
     return total_path;
 }

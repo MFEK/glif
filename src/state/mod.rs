@@ -1,10 +1,10 @@
 //! Global thread local state.
 
-use glifparser::{Contour, Glif, MFEKGlif, Outline, Point, PointType, WhichHandle, glif::{HistoryEntry, HistoryType, Layer}};
+use glifparser::{ComponentRect, Contour, Glif, Guideline, MFEKGlif, Outline, Point, PointType, WhichHandle, glif::{HistoryEntry, HistoryType, Layer}};
 pub use crate::state::Follow;
 
 pub use crate::renderer::console::Console as RendererConsole;
-use crate::{events::{EditorEvent, Tool, ToolEnum, pan::Pan, tool_enum_to_tool}, renderer::Guideline};
+use crate::{events::{EditorEvent, Tool, ToolEnum, pan::Pan, tool_enum_to_tool}};
 use crate::get_outline;
 
 use crate::renderer::constants;
@@ -41,15 +41,11 @@ pub struct EditorMods {
     pub ctrl: bool,
 }
 
-pub struct Glyph<P: glifparser::PointData> {
-    pub glif: MFEKGlif<P>,
-    pub filename: PathBuf,
-    pub guidelines: Vec<Guideline>,
-}
-
 // Thread local state.
 pub struct Editor {
-    glyph: Option<Glyph<PointData>>,
+    glyph: Option<MFEKGlif<PointData>>,
+    flattened: Option<MFEKGlif<PointData>>, // holds cached flattened glif (components to points)
+    component_rects: Option<Vec<ComponentRect>>, // holds cached flattened component rects
     modifying: bool, // is the active layer being modified?
     history: Vec<HistoryEntry<PointData>>,
     active_tool: Box<dyn Tool>,
@@ -93,6 +89,9 @@ impl Editor {
             history: Vec::new(),
             previews: HashMap::new(),
 
+            flattened: None,
+            component_rects: None,
+
             modifiers: EditorMods { shift: false, ctrl: false },
             // TODO: refactor these out of State
             mousedown: false,
@@ -120,14 +119,41 @@ impl Editor {
         }
     }
 
-    pub fn set_glyph(&mut self, glyph: Glyph<PointData>)
+    pub fn set_glyph(&mut self, glyph: MFEKGlif<PointData>)
     {
         self.glyph = Some(glyph);
         self.layer_idx = Some(0);
     }
 
+    // Get the flattened version of this glyph from cache. Must call set_flattened first to ever
+    // get Some<(_, _)>.
+    pub fn get_flattened(&self) -> Option<(&MFEKGlif<PointData>, &Vec<ComponentRect>)> {
+        match (&self.flattened, &self.component_rects) {
+            (Some(f), Some(crs)) => Some((&self.flattened.as_ref().unwrap(), &self.component_rects.as_ref().unwrap())),
+            _ => None
+        }
+    }
+
+    // Cache the flattened version of this glyph. Needs to be updated when components change.
+    pub fn set_flattened(&mut self, recache: bool) {
+        match (&self.flattened, &self.component_rects, recache) {
+            (Some(f), Some(crs), false) => {return},
+            _ => {
+                let mut rects = vec![];
+                let flattened = (&self.glyph.as_ref().unwrap().source_glif).to_flattened(Some(&mut rects));
+                self.component_rects = Some(rects);
+                match flattened {
+                    Ok(f) => {
+                        self.flattened = Some(f.into());
+                    }
+                    _ => {}
+                }
+            }
+        }
+    }
+
     pub fn get_layer_count(&self) -> usize {
-        return self.glyph.as_ref().unwrap().glif.layers.len();
+        return self.glyph.as_ref().unwrap().layers.len();
     }
 
     pub fn is_point_selected(&self, contour_idx: usize, point_idx: usize) -> bool
@@ -147,7 +173,7 @@ impl Editor {
     pub fn delete_selection(&mut self) {
         self.begin_layer_modification("Delete selection.");
         
-        let layer = &self.glyph.as_ref().unwrap().glif.layers[self.layer_idx.unwrap()];
+        let layer = &self.glyph.as_ref().unwrap().layers[self.layer_idx.unwrap()];
         let mut new_outline: Vec<Vec<Point<PointData>>> = Vec::new();
         for (contour_idx, contour) in layer.outline.as_ref().unwrap().iter().enumerate() {
             let mut results = Vec::new();
@@ -182,7 +208,7 @@ impl Editor {
             }
         }
 
-        self.glyph.as_mut().unwrap().glif.layers[self.layer_idx.unwrap()].outline = Some(new_outline);
+        self.glyph.as_mut().unwrap().layers[self.layer_idx.unwrap()].outline = Some(new_outline);
 
         self.end_layer_modification();
 
@@ -308,11 +334,11 @@ impl Editor {
             kind: HistoryType::LayerAdded
         });
 
-        self.glyph.as_mut().unwrap().glif.layers.push(new_layer);
+        self.glyph.as_mut().unwrap().layers.push(new_layer);
         
         self.end_layer_modification();
 
-        self.layer_idx = Some(self.glyph.as_mut().unwrap().glif.layers.len() - 1);
+        self.layer_idx = Some(self.glyph.as_mut().unwrap().layers.len() - 1);
         self.contour_idx = None;
         self.point_idx = None;
         self.selected.clear();
@@ -323,7 +349,7 @@ impl Editor {
 
         self.end_layer_modification();
 
-        let deleted = self.glyph.as_mut().unwrap().glif.layers.remove(idx);
+        let deleted = self.glyph.as_mut().unwrap().layers.remove(idx);
         self.history.push(HistoryEntry {
             description: "Deleted layer.".to_owned(),
             layer_idx: self.layer_idx,
@@ -363,7 +389,7 @@ impl Editor {
             contour_idx: self.contour_idx,
             point_idx: self.point_idx,
             selected: Some(self.selected.clone()),
-            layer: self.glyph.as_ref().unwrap().glif.layers[self.layer_idx.unwrap()].clone(),
+            layer: self.glyph.as_ref().unwrap().layers[self.layer_idx.unwrap()].clone(),
             kind: HistoryType::LayerModified
         });
 
@@ -376,29 +402,29 @@ impl Editor {
         where F: FnMut(&mut Layer<PointData>) -> R {
         if self.modifying == false { panic!("A modification is not in progress!")}
         let glyph = self.glyph.as_mut().unwrap();
-        closure(&mut glyph.glif.layers[self.layer_idx.unwrap()])
+        closure(&mut glyph.layers[self.layer_idx.unwrap()])
     }
 
     pub fn with_active_layer<F, R>(&self, mut closure: F) -> R
         where F: FnMut(&Layer<PointData>) -> R {
-        closure(&self.glyph.as_ref().unwrap().glif.layers[self.layer_idx.unwrap()])
+        closure(&self.glyph.as_ref().unwrap().layers[self.layer_idx.unwrap()])
     }
 
 
     pub fn with_glif<F, R>(&self, mut closure: F) -> R 
         where F: FnMut(&MFEKGlif<PointData>) -> R {
-        closure(&self.glyph.as_ref().unwrap().glif)
+        closure(&self.glyph.as_ref().unwrap())
     }
 
     pub fn with_glyph<F, R>(&self, mut closure: F) -> R
-        where F: FnMut(&Glyph<PointData>) -> R {
+        where F: FnMut(&MFEKGlif<PointData>) -> R {
         closure(&self.glyph.as_ref().unwrap())
     }
 
     // Please do not call this. It's currently used by externals that probably need to be
     // TODO: moved into this or a member struct of this
     pub fn with_glyph_mut<F, R>(&mut self, mut closure: F) -> R 
-        where F: FnMut(&mut Glyph<PointData>) -> R 
+        where F: FnMut(&mut MFEKGlif<PointData>) -> R 
     {
         closure(&mut self.glyph.as_mut().unwrap())
     }
@@ -439,14 +465,14 @@ impl Editor {
         if let Some(undo_entry) = entry {
             match undo_entry.kind {
                 HistoryType::LayerModified => {
-                    self.glyph.as_mut().unwrap().glif.layers[undo_entry.layer_idx.unwrap()] = undo_entry.layer;
+                    self.glyph.as_mut().unwrap().layers[undo_entry.layer_idx.unwrap()] = undo_entry.layer;
                 }
                 HistoryType::LayerAdded => {
-                    self.glyph.as_mut().unwrap().glif.layers.pop();
+                    self.glyph.as_mut().unwrap().layers.pop();
 
                 }
                 HistoryType::LayerDeleted => {
-                    self.glyph.as_mut().unwrap().glif.layers.insert(undo_entry.layer_idx.unwrap(), undo_entry.layer);
+                    self.glyph.as_mut().unwrap().layers.insert(undo_entry.layer_idx.unwrap(), undo_entry.layer);
 
                 }
             }

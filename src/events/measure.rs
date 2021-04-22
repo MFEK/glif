@@ -6,7 +6,7 @@ use crate::state::{Editor, calc_x, calc_y};
 
 use super::{EditorEvent, MouseEventType, MouseMeta, Tool, prelude::{OUTLINE_STROKE, OUTLINE_STROKE_THICKNESS}};
 
-use crate::renderer::points::names::{ POINTFONTS, POINTFONTSIZE, pointfont_from_size_and_factor};
+use crate::renderer::string::{POINTFONTS, POINTFONTSIZE, pointfont_from_size_and_factor};
 #[derive(Clone)]
 pub struct Measure {
     last_position: Option<(f64, f64)>
@@ -110,7 +110,7 @@ pub fn draw_measure_string(v: &Editor, mut at: (f32, f32), angle: f32, s: &str, 
         at.0 - rect.width() / 2.,
         at.1 - rect.height() / 2.,
     );
-    println!("{0}", angle);
+ 
     arc.rotate(angle.to_degrees(), Some(at.into()));
     arc.draw_text_blob(&blob, center_at, &paint);
 }

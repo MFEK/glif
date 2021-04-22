@@ -49,9 +49,15 @@ pub static PAPER_BGCOLOR: u32 = 0xff_ffffff;
 // be set here.
 pub static PAPER_FILL: u32 = 0xff_000000;
 
+// On-screen strings
+pub static COMPONENT_NAME_COLOR: u32 = 0xff_444444;
+pub static COMPONENT_NAME_BGCOLOR: u32 = 0x00_ffffff;
+pub static DEFAULT_STRING_COLOR: u32 = 0xff_ff0000;
+pub static DEFAULT_STRING_BGCOLOR: u32 = 0xaa_ffffff;
+
 /* Math */
-//pub const PI: f32 = std::f32::consts::PI;
-//pub const DEGREES_IN_RADIANS: f32 = PI / 180.0;
+pub const PI: f32 = std::f32::consts::PI;
+pub const DEGREES_IN_RADIANS: f32 = PI / 180.0;
 
 /* Factors */
 pub static SCALE_FACTOR: f32 = 0.05;
