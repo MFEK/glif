@@ -16,7 +16,7 @@ impl Editor {
             let mut cur_contour = Vec::new();
             let mut deleted = false;
             for (point_idx, point) in contour.iter().enumerate() {
-                let to_delete = is_point_selected(self, contour_idx, point_idx);
+                let to_delete = !is_point_selected(self, contour_idx, point_idx);
 
                 if to_delete {
                     results.push(cur_contour);
