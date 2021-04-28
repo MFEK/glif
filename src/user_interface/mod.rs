@@ -2,6 +2,7 @@ use imgui::{self, Context};
 
 use crate::tools::ToolEnum;
 use crate::editor::Editor;
+use glifparser::glif::LayerOperation;
 
 pub mod icons;
 
@@ -123,7 +124,15 @@ pub fn build_and_check_layer_list(v: &mut Editor, ui: &imgui::Ui) {
         ui.same_line(0.);
         ui.button(imgui::im_str!("E"), [0., 0.]);
         ui.same_line(0.);
-        ui.button(imgui::im_str!("R"), [0., 0.]);
+        ui.button(imgui::im_str!("OP"), [0., 0.]);
+        if ui.is_item_clicked(imgui::MouseButton::Left) {
+            v.begin_layer_modification("Changed layer operation.");
+            v.set_active_layer(layer);
+            v.with_active_layer_mut(|layer| {
+                layer.operation = Some(LayerOperation::Difference);
+            });
+            v.end_layer_modification();
+        }
         ui.same_line(0.);
 
         let mut pop_me = None;

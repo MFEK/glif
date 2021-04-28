@@ -48,7 +48,8 @@ pub fn render_frame(v: &mut Editor, canvas: &mut Canvas) {
         guidelines::draw_all(v, canvas);
     }
 
-    let path = glyph::draw(v, canvas);
+    let path = glyph::draw_mfek(canvas, &v.preview.as_ref().unwrap(), &v.viewport, v.get_active_layer());
+
     // TODO: let _path = glyph::draw_previews(v, canvas);
 
     match pm {

@@ -1,4 +1,4 @@
-use glifparser::{Contour, MFEKGlif, glif::{HistoryEntry, HistoryType, Layer}};
+use glifparser::{Contour, MFEKGlif, glif::{HistoryEntry, HistoryType, Layer, MFEKPointData}};
 
 pub use crate::renderer::console::Console as RendererConsole;
 use crate::tools::{EditorEvent, Tool, ToolEnum, pan::Pan, tool_enum_to_tool};
@@ -9,7 +9,7 @@ pub use skulpin::skia_safe::{Canvas, Matrix, Path as SkPath, Point as SkPoint, R
 pub use crate::renderer::points::calc::*;
 
 use std::cell::RefCell;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use std::path::PathBuf;
 
 use crate::get_contour_mut;
@@ -29,25 +29,27 @@ pub use self::input::MouseInfo;
 pub mod selection;
 pub mod layers;
 pub mod history;
+pub mod operations;
 
 #[macro_use]
 pub mod macros;
-pub struct Glyph<P: glifparser::PointData> {
-    pub glif: MFEKGlif<P>,
+pub struct Glyph {
+    pub glif: MFEKGlif<MFEKPointData>,
     pub filename: PathBuf,
     pub guidelines: Vec<Guideline>,
 }
 
 /// This is the main object that holds the state of the editor.
 pub struct Editor {
-    glyph: Option<Glyph<PointData>>,
+    glyph: Option<Glyph>,
     modifying: bool, // is the active layer being modified?
-    history: Vec<HistoryEntry<PointData>>,
+    history: Vec<HistoryEntry<MFEKPointData>>,
     active_tool: Box<dyn Tool>,
     active_tool_enum: ToolEnum,
-    clipboard: Option<Layer<PointData>>,
+    clipboard: Option<Layer<MFEKPointData>>,
 
     layer_idx: Option<usize>, // active layer
+    pub preview: Option<MFEKGlif<MFEKPointData>>,
     pub contour_idx: Option<usize>,   // index into Outline
     pub point_idx: Option<usize>, 
     pub selected: HashSet<(usize, usize)>,
@@ -57,8 +59,6 @@ pub struct Editor {
 
     pub ipc_info: Option<mfek_ipc::IPCInfo>,
     pub quit_requested: bool, // allows for quits from outside event loop, e.g. from command closures
-
-    pub previews: HashMap<usize, HashMap<usize, Contour<PointData>>>,
 }
 
 impl Editor {
@@ -66,12 +66,12 @@ impl Editor {
         // FIXME: Making a new one doesn't get current mouse position nor window size.
         Editor {
             glyph: None,
+            preview: None,
 
             active_tool: Box::new(Pan::new()),
             active_tool_enum: ToolEnum::Pan,
 
             history: Vec::new(),
-            previews: HashMap::new(),
             // TODO: refactor these out of State
 
             // TODO: Add a default for this.
@@ -93,10 +93,11 @@ impl Editor {
     }
     
     
-    pub fn set_glyph(&mut self, glyph: Glyph<PointData>)
+    pub fn set_glyph(&mut self, glyph: Glyph)
     {
         self.glyph = Some(glyph);
         self.layer_idx = Some(0);
+        self.rebuild_previews();
     }
 
     /// This is the function that powers the editor. Tools recieve events from the Editor and then use them to modify state.
@@ -130,10 +131,13 @@ impl Editor {
     /// This is the primary function you should use in tools and contour operations to make changes to the
     /// glyph's state. This function will panic if you have not called begin_layer_modification!
     pub fn with_active_layer_mut<F, R>(&mut self, mut closure: F) -> R
-        where F: FnMut(&mut Layer<PointData>) -> R {
+        where F: FnMut(&mut Layer<MFEKPointData>) -> R {
         if self.modifying == false { panic!("A modification is not in progress!")}
         let glyph = self.glyph.as_mut().unwrap();
-        closure(&mut glyph.glif.layers[self.layer_idx.unwrap()])
+        let ret =closure(&mut glyph.glif.layers[self.layer_idx.unwrap()]);
+
+        self.rebuild_previews();
+        ret
     }
 
     /// This ends an ongoing modification and calls the proper events.
@@ -142,29 +146,34 @@ impl Editor {
 
         // TODO: Events here.
         self.modifying = false;
+        self.rebuild_previews();
+    }
+
+    pub fn is_modifying(&self) -> bool {
+        self.modifying
     }
 
     /// Calls the supplied closure with an immutable reference to the active layer.
     pub fn with_active_layer<F, R>(&self, mut closure: F) -> R
-        where F: FnMut(&Layer<PointData>) -> R {
+        where F: FnMut(&Layer<MFEKPointData>) -> R {
         closure(&self.glyph.as_ref().unwrap().glif.layers[self.layer_idx.unwrap()])
     }
 
     /// Calls the supplied closure with a copy of the glif.
     pub fn with_glif<F, R>(&self, mut closure: F) -> R 
-        where F: FnMut(&MFEKGlif<PointData>) -> R {
+        where F: FnMut(&MFEKGlif<MFEKPointData>) -> R {
         closure(&self.glyph.as_ref().unwrap().glif)
     }
 
     /// Calls the supplied closure with a copy of the glyph.
     pub fn with_glyph<F, R>(&self, mut closure: F) -> R
-        where F: FnMut(&Glyph<PointData>) -> R {
+        where F: FnMut(&Glyph) -> R {
         closure(&self.glyph.as_ref().unwrap())
     }
 
     /// This function should not be called in tools or contour operations. TODO: Remove.
     pub fn with_glyph_mut<F, R>(&mut self, mut closure: F) -> R 
-        where F: FnMut(&mut Glyph<PointData>) -> R 
+        where F: FnMut(&mut Glyph) -> R 
     {
         closure(&mut self.glyph.as_mut().unwrap())
     }
@@ -233,8 +242,5 @@ impl Editor {
         }
     }
 }
-
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct PointData;
 
 thread_local!(pub static CONSOLE: RefCell<RendererConsole> = RefCell::new(RendererConsole::default()));

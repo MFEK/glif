@@ -1,6 +1,6 @@
 pub mod prelude;
 use self::prelude::*;
-use self::{measure::Measure, pan::Pan, pen::Pen, select::Select, zoom::Zoom};
+use self::{measure::Measure, pan::Pan, pen::Pen, select::Select, zoom::Zoom, vws::VWS};
 use dyn_clone::DynClone;
 use imgui::Ui;
 
@@ -16,6 +16,7 @@ pub mod select;
 //pub mod vws;
 pub mod zoom;
 pub mod measure;
+pub mod vws;
 
 pub trait Tool: DynClone{
     fn handle_event(&mut self, v: &mut Editor, event: EditorEvent);
@@ -38,7 +39,7 @@ pub fn tool_enum_to_tool(tool: ToolEnum) -> Box<dyn Tool> {
         ToolEnum::Select => {Box::new(Select::new())}
         ToolEnum::Zoom => {Box::new(Zoom::new())}
         ToolEnum::Measure => {Box::new(Measure::new())}
-        ToolEnum::VWS => {Box::new(Pan::new())} //FIXME: enable vws
+        ToolEnum::VWS => {Box::new(VWS::new())} //FIXME: enable vws
     }
 }
 

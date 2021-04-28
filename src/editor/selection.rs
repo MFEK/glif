@@ -1,9 +1,8 @@
 use std::collections::HashMap;
 use MFEKmath::{Bezier, Evaluate, Piecewise};
-use glifparser::{Handle, Outline, Point, PointType,  glif::Layer};
+use glifparser::{Handle, Outline, Point, PointType, glif::{Layer, MFEKPointData}};
 
 use crate::renderer::points::calc::*;
-use super::PointData;
 use super::Editor;
 use super::util::is_point_selected;
 
@@ -11,7 +10,7 @@ impl Editor {
     /// Copy the current selection and put it in our clipboard. 
     pub fn copy_selection(&mut self) {        
         let layer = &self.glyph.as_ref().unwrap().glif.layers[self.layer_idx.unwrap()];
-        let mut new_outline: Vec<Vec<Point<PointData>>> = Vec::new();
+        let mut new_outline: Vec<Vec<Point<MFEKPointData>>> = Vec::new();
         for (contour_idx, contour) in layer.outline.as_ref().unwrap().iter().enumerate() {
             let mut results = Vec::new();
             let mut cur_contour = Vec::new();
@@ -48,6 +47,7 @@ impl Editor {
         self.clipboard = Some(Layer{
             outline: Some(new_outline),
             contour_ops: HashMap::new(),
+            operation: None,
         })
     }
 
@@ -62,7 +62,7 @@ impl Editor {
             let size = pw.bounds();
 
             let outline = clipboard.outline.as_ref().unwrap();
-            let translated_outline: Outline<PointData> = outline.iter().map(|contour| {
+            let translated_outline: Outline<MFEKPointData> = outline.iter().map(|contour| {
                 contour.iter().map(|point| {
                     let mut translated_point = point.clone();
                     let offset_x = calc_x(position.0 as f32) - size.width() as f32 / 2.;
@@ -109,7 +109,7 @@ impl Editor {
         self.begin_layer_modification("Delete selection.");
         
         let layer = &self.glyph.as_ref().unwrap().glif.layers[self.layer_idx.unwrap()];
-        let mut new_outline: Vec<Vec<Point<PointData>>> = Vec::new();
+        let mut new_outline: Vec<Vec<Point<MFEKPointData>>> = Vec::new();
         for (contour_idx, contour) in layer.outline.as_ref().unwrap().iter().enumerate() {
             let mut results = Vec::new();
             let mut cur_contour = Vec::new();

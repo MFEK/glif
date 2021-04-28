@@ -151,7 +151,7 @@ impl Pen {
         let mouse_pos = meta.position;
         v.contour_idx = v.with_active_layer_mut(|layer| {
             let outline = get_outline_mut!(layer);
-            let mut new_contour: Contour<PointData> = Vec::new();
+            let mut new_contour: Contour<MFEKPointData> = Vec::new();
             new_contour.push(Point::from_x_y_type(
                 (calc_x(mouse_pos.0 as f32), calc_y(mouse_pos.1 as f32)),
                 if meta.modifiers.shift {

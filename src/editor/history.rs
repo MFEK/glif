@@ -28,6 +28,8 @@ impl Editor {
                 self.selected = selected
             }
         }
+
+        self.rebuild_previews();
     }
 
     pub fn redo() {

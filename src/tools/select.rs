@@ -60,7 +60,6 @@ pub struct Select {
     corner_one: Option<(f32, f32)>,
     corner_two: Option<(f32, f32)>,
     show_sel_box: bool,
-    modifying: bool,
 }
 
 impl Tool for Select {
@@ -91,7 +90,6 @@ impl Select {
             corner_one: None,
             corner_two: None,
             show_sel_box: false,
-            modifying: false,
         }
     }
     
@@ -104,9 +102,8 @@ impl Select {
         match (v.contour_idx, v.point_idx, self.handle) {
             // Point itself is being moved.
             (Some(ci), Some(pi), WhichHandle::Neither) => {
-                if !self.modifying { 
+                if !v.is_modifying() { 
                     v.begin_layer_modification("Move point.");
-                    self.modifying = true;
                 }
 
                 let reference_point = v.with_active_layer(|layer| get_outline!(layer)[ci][pi].clone());
@@ -131,9 +128,8 @@ impl Select {
             }
             // A control point (A or B) is being moved.
             (Some(ci), Some(pi), wh) => {
-                if !self.modifying { 
+                if !v.is_modifying() { 
                     v.begin_layer_modification("Move handle.");
-                    self.modifying = true;
                 }
                 
                 v.with_active_layer_mut(|layer| {
@@ -243,7 +239,7 @@ impl Select {
     fn mouse_released(&mut self, v: &mut Editor, meta: MouseInfo) {
         // we are going to check if we're dropping this point onto another and if this is the end, and that the 
         // start or vice versa if so we're going to merge but first we have to check we're dragging a point
-        if self.handle == WhichHandle::Neither && self.modifying {
+        if self.handle == WhichHandle::Neither && v.is_modifying() {
             let (vci, vpi) = (v.contour_idx.unwrap(), v.point_idx.unwrap());
 
             // are we overlapping a point?
@@ -268,7 +264,6 @@ impl Select {
 
 
         v.end_layer_modification();
-        self.modifying = false;
         self.show_sel_box = false;
         self.corner_one = None;
         self.corner_two = None;
@@ -277,7 +272,7 @@ impl Select {
     // This draws a preview to show if we're overlapping a point we can merge with or not.
     // Note that all tool draw events draw over the glyph view.
     fn draw_merge_preview(&self, v: &Editor, canvas: &mut Canvas) {
-        if self.handle == WhichHandle::Neither && self.modifying {
+        if self.handle == WhichHandle::Neither && v.is_modifying() {
             let (vci, vpi) = (v.contour_idx.unwrap(), v.point_idx.unwrap());
 
             // are we overlapping a point?

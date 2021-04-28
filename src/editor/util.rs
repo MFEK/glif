@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use MFEKmath::{Bezier, Evaluate, Piecewise, Vector, evaluate::Primitive};
 use flo_curves::bezier::solve_curve_for_t;
-use glifparser::{Handle, Outline, WhichHandle};
+use glifparser::{Handle, Outline, WhichHandle, glif::MFEKPointData};
 use crate::{get_outline, tools::prelude::math::FlipIfRequired};
 use crate::get_contour_len;
 use crate::renderer::constants::*;
@@ -11,7 +11,7 @@ use skulpin::skia_safe::Point as SkPoint;
 use skulpin::skia_safe::Rect as SkRect;
 use skulpin::skia_safe::Contains;
 
-use super::{Editor, PointData};
+use super::{Editor};
 
 //TODO: Move to tool utility file
 #[derive(PartialEq, Clone, Copy)]
@@ -162,7 +162,7 @@ pub fn nearest_point_on_curve(v: &Editor, position: (f32, f32)) -> Option<PenPoi
 pub fn build_box_selection(
     selected: HashSet<(usize, usize)>,
     mut rect: SkRect,
-    outline: Option<&Vec<glifparser::Contour<PointData>>>,
+    outline: Option<&Vec<glifparser::Contour<MFEKPointData>>>,
 ) -> HashSet<(usize, usize)> {
     rect.flip_if_required();
 
@@ -180,7 +180,7 @@ pub fn build_box_selection(
     selected
 }
 
-pub fn move_point(outline: &mut Outline<crate::editor::PointData>, ci: usize, pi: usize, x: f32, y: f32) {
+pub fn move_point(outline: &mut Outline<MFEKPointData>, ci: usize, pi: usize, x: f32, y: f32) {
     let (cx, cy) = (outline[ci][pi].x, outline[ci][pi].y);
     let (dx, dy) = (cx - x, cy - y);
 

@@ -266,7 +266,7 @@ fn main() {
                             editor.set_tool(ToolEnum::Zoom);
                         }
                         Command::ToolVWS => {
-                            // TODO: Reimplement
+                            editor.set_tool(ToolEnum::VWS);
                         }
                         Command::ToolMeasure => {
                             editor.set_tool(ToolEnum::Measure);

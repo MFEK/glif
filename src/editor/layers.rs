@@ -10,6 +10,7 @@ impl Editor {
         let new_layer = Layer {
             outline: Some(Outline::new()),
             contour_ops: HashMap::new(),
+            operation: None,
         };
 
         self.history.push(HistoryEntry {
@@ -30,6 +31,7 @@ impl Editor {
         self.contour_idx = None;
         self.point_idx = None;
         self.selected.clear();
+        self.rebuild_previews();
     }
 
     /// Deletes a layer. Generates a history entry and sets the user's selection to the layer above.
@@ -56,6 +58,7 @@ impl Editor {
         self.contour_idx = None;
         self.point_idx = None;
         self.selected.clear();
+        self.rebuild_previews();
     }
 
     pub fn set_active_layer(&mut self, idx: usize) {
@@ -73,7 +76,6 @@ impl Editor {
     
     pub fn swap_layers(&mut self, destination: usize) {
     }
-
     
     pub fn get_layer_count(&self) -> usize {
         return self.glyph.as_ref().unwrap().glif.layers.len();
