@@ -9,7 +9,6 @@ use self::constants::*;
 
 pub mod console;
 mod guidelines;
-pub use self::guidelines::{Guideline, GuidelineType};
 pub mod points; // point drawing functions
                 // This imports calc_x, etc. which transforms coordinates between .glif and Skia
 

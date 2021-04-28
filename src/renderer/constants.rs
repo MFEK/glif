@@ -50,8 +50,8 @@ pub static PAPER_BGCOLOR: u32 = 0xff_ffffff;
 pub static PAPER_FILL: u32 = 0xff_000000;
 
 /* Math */
-//pub const PI: f32 = std::f32::consts::PI;
-//pub const DEGREES_IN_RADIANS: f32 = PI / 180.0;
+pub const PI: f32 = std::f32::consts::PI;
+pub const DEGREES_IN_RADIANS: f32 = PI / 180.0;
 
 /* Factors */
 pub static SCALE_FACTOR: f32 = 0.05;

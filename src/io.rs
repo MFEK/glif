@@ -1,8 +1,8 @@
 use crate::editor::{Glyph, Editor};
 
-use crate::editor;
-use glifparser::{MFEKGlif, glif::MFEKPointData};
+use glifparser::{Glif, MFEKGlif, glif::MFEKPointData};
 use log::debug;
+use std::cell::RefCell;
 use std::env;
 use std::fs;
 use std::path::Path;
@@ -12,6 +12,8 @@ pub fn load_glif<F: AsRef<Path> + Clone>(v: &mut Editor, filename: F) {
 
     // TODO: Actually handle errors now that we have them.
     let mut glif: MFEKGlif<MFEKPointData> = glifparser::read(&glifxml).expect("Invalid glif!").into();
+    glif.filename = Some(filename.as_ref().to_path_buf());
+    glif.source_glif.filename = Some(filename.as_ref().to_path_buf());
 
     // This is necessary because the glif format doesn't require that a glif have an outline. But
     // we require a place to store contours if the user draws any.

@@ -1,8 +1,7 @@
-use glifparser::{Contour, MFEKGlif, glif::{HistoryEntry, HistoryType, Layer, MFEKPointData}};
+use glifparser::{Contour, Guideline, MFEKGlif, glif::{HistoryEntry, HistoryType, Layer, MFEKPointData}};
 
 pub use crate::renderer::console::Console as RendererConsole;
 use crate::tools::{EditorEvent, Tool, ToolEnum, pan::Pan, tool_enum_to_tool};
-use crate::renderer::Guideline;
 
 pub use skulpin::skia_safe::Contains as _;
 pub use skulpin::skia_safe::{Canvas, Matrix, Path as SkPath, Point as SkPoint, Rect as SkRect};
