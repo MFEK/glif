@@ -62,7 +62,7 @@ regex = "1"
 # parses .glif files and gives us a place to put arbitrary data
 glifparser = { git = "https://github.com/MFEK/glifparser.rlib", branch = "mfek", features=["skia"] }
 
-MFEKmath = { git = "https://github.com/MFEK/math.rlib", branch = "layers" }
+MFEKmath = { git = "https://github.com/MFEK/math.rlib", branch = "mfek" }
 
 #glifparser = { path = "../glifparser" } # for development
 mfek-ipc = { git = "https://github.com/mfek/ipc" }
