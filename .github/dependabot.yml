@@ -1,0 +1,40 @@
+version: 2
+updates:
+- package-ecosystem: cargo
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: backtrace
+    versions:
+    - 0.3.56
+    - 0.3.57
+  - dependency-name: sdl2
+    versions:
+    - 0.34.4
+  - dependency-name: derive_more
+    versions:
+    - 0.99.13
+  - dependency-name: imgui-winit-support
+    versions:
+    - 0.6.1
+    - 0.7.0
+  - dependency-name: regex
+    versions:
+    - 1.4.3
+    - 1.4.4
+    - 1.4.5
+  - dependency-name: skulpin
+    versions:
+    - 0.11.2
+    - 0.11.3
+  - dependency-name: log
+    versions:
+    - 0.4.14
+  - dependency-name: skulpin-plugin-imgui
+    versions:
+    - 0.7.1
+  - dependency-name: env_logger
+    versions:
+    - 0.8.2
