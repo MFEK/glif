@@ -815,7 +815,7 @@ dependencies = [
 [[package]]
 name = "glifparser"
 version = "1.0.0"
-source = "git+https://github.com/MFEK/glifparser.rlib?branch=mfek#1c78501e638517ba47e738338d97a2af56d20c2b"
+source = "git+https://github.com/MFEK/glifparser.rlib?branch=mfek#db565014a4919a718d06983ce7c10fdb18089f27"
 dependencies = [
  "integer_or_float",
  "kurbo",
