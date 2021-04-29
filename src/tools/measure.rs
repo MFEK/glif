@@ -6,7 +6,7 @@ use crate::editor::Editor;
 
 use super::prelude::*;
 
-use crate::renderer::points::names::{ POINTFONTS, POINTFONTSIZE, pointfont_from_size_and_factor};
+use crate::renderer::string::{ POINTFONTS, POINTFONTSIZE, pointfont_from_size_and_factor};
 #[derive(Clone)]
 pub struct Measure {
     measure_from: Option<(f32, f32)>
