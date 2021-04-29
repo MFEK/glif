@@ -1043,7 +1043,7 @@ dependencies = [
 [[package]]
 name = "mfek-ipc"
 version = "0.0.0"
-source = "git+https://github.com/mfek/ipc#c0b924d5181792340d929fa02ee0dfbca2390d6e"
+source = "git+https://github.com/mfek/ipc#f7e2fa1254794fcd5dd274fecd5bf5c4f1394f30"
 dependencies = [
  "log",
 ]
