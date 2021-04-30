@@ -105,14 +105,20 @@ pub fn build_and_check_layer_list(v: &mut Editor, ui: &imgui::Ui) {
     ui.button(imgui::im_str!("Up"), [0., 0.]);
     ui.push_item_width(-0.5);
     if ui.is_item_clicked(imgui::MouseButton::Left) {
-        v.delete_layer(active_layer);
+        if active_layer != 0 {
+            v.swap_active_layer(active_layer-1);
+            v.swap_layers(active_layer, active_layer-1);
+        }
     }
 
     ui.same_line(0.);
     ui.button(imgui::im_str!("Down"), [0., 0.]);
     ui.push_item_width(-0.5);
     if ui.is_item_clicked(imgui::MouseButton::Left) {
-        v.delete_layer(active_layer);
+        if active_layer != layer_count-1 {
+            v.swap_active_layer(active_layer+1);
+            v.swap_layers(active_layer, active_layer+1);
+        }
     }
 
     ui.separator();

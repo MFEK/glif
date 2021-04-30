@@ -69,16 +69,26 @@ impl Editor {
         self.selected.clear();
     }
 
+    pub fn swap_active_layer(&mut self, idx: usize) {
+        self.layer_idx = Some(idx);
+    }
+
     pub fn get_active_layer(&self) -> usize {
         return self.layer_idx.unwrap();
     }
-
     
-    pub fn swap_layers(&mut self, destination: usize) {
+    pub fn swap_layers(&mut self, src: usize, dest: usize) {
+        let src_copy = self.glyph.as_mut().unwrap().layers[src].clone();
+        let dest_copy = self.glyph.as_mut().unwrap().layers[dest].clone();
+
+        if self.layer_idx.unwrap() == src { self.layer_idx = Some(dest) };
+        if self.layer_idx.unwrap() == dest { self.layer_idx = Some(src) };
+
+        self.glyph.as_mut().unwrap().layers[dest] = src_copy;
+        self.glyph.as_mut().unwrap().layers[src] = dest_copy;
     }
     
     pub fn get_layer_count(&self) -> usize {
         return self.glyph.as_ref().unwrap().layers.len();
     }
-    
 }
