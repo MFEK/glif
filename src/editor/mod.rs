@@ -27,7 +27,10 @@ pub use self::input::MouseInfo;
 
 pub mod selection;
 pub mod layers;
+
 pub mod history;
+use crate::editor::history::History;
+
 pub mod operations;
 
 #[macro_use]
@@ -42,7 +45,7 @@ pub struct Glyph {
 pub struct Editor {
     glyph: Option<Glyph>,
     modifying: bool, // is the active layer being modified?
-    history: Vec<HistoryEntry<MFEKPointData>>,
+    history: History,
     active_tool: Box<dyn Tool>,
     active_tool_enum: ToolEnum,
     clipboard: Option<Layer<MFEKPointData>>,
@@ -70,7 +73,7 @@ impl Editor {
             active_tool: Box::new(Pan::new()),
             active_tool_enum: ToolEnum::Pan,
 
-            history: Vec::new(),
+            history: History::new(),
             // TODO: refactor these out of State
 
             // TODO: Add a default for this.
@@ -101,19 +104,20 @@ impl Editor {
 
     /// This is the function that powers the editor. Tools recieve events from the Editor and then use them to modify state.
     /// Adding new events is as simple as creating a new anonymous struct to EditorEvent and a call to this function in the appropriate
-    /// place. Tools can then handle the function in their handle_event implementation.
+    /// place.Tools can then implement behavior for that event in their handle_event implementation.
     pub fn dispatch_editor_event(&mut self, event: EditorEvent) {
         let mut active_tool = dyn_clone::clone_box(&*self.active_tool);
         active_tool.handle_event(self, event);
         self.active_tool = active_tool;
     }
 
-        /// This function MUST be called before calling with_active_<layer/glif>_mut or it will panic.
+    /// This function MUST be called before calling with_active_<layer/glif>_mut or it will panic.
     /// Pushes a clone of the current layer onto the history stack and puts the editor in a modifying state.
     pub fn begin_layer_modification(&mut self, description: &str) {
+        self.history.redo_stack = vec!();
         if self.modifying == true { panic!("Began a new modification with one in progress!")}
 
-        self.history.push(HistoryEntry {
+        self.history.undo_stack.push(HistoryEntry {
             description: description.to_owned(),
             layer_idx: self.layer_idx,
             contour_idx: self.contour_idx,

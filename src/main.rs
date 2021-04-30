@@ -174,6 +174,16 @@ fn main() {
                     }
                 }
                 Event::KeyDown {
+                    keycode: Some(Keycode::Y),
+                    keymod: km,
+                    ..
+                } => {
+                    if km.contains(Mod::LCTRLMOD) || km.contains(Mod::RCTRLMOD) {
+                        editor.redo();
+                        continue;
+                    }
+                }
+                Event::KeyDown {
                     keycode: Some(Keycode::C),
                     keymod: km,
                     ..

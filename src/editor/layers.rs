@@ -13,7 +13,7 @@ impl Editor {
             operation: None,
         };
 
-        self.history.push(HistoryEntry {
+        self.history.undo_stack.push(HistoryEntry {
             description: "Added layer.".to_owned(),
             layer_idx: self.layer_idx,
             contour_idx: self.contour_idx,
@@ -41,7 +41,7 @@ impl Editor {
         self.end_layer_modification();
 
         let deleted = self.glyph.as_mut().unwrap().glif.layers.remove(idx);
-        self.history.push(HistoryEntry {
+        self.history.undo_stack.push(HistoryEntry {
             description: "Deleted layer.".to_owned(),
             layer_idx: self.layer_idx,
             contour_idx: self.contour_idx,
