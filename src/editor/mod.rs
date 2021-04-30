@@ -35,15 +35,10 @@ pub mod operations;
 
 #[macro_use]
 pub mod macros;
-pub struct Glyph {
-    pub glif: MFEKGlif<MFEKPointData>,
-    pub filename: PathBuf,
-    pub guidelines: Vec<Guideline>,
-}
 
 /// This is the main object that holds the state of the editor.
 pub struct Editor {
-    glyph: Option<Glyph>,
+    glyph: Option<MFEKGlif<MFEKPointData>>,
     modifying: bool, // is the active layer being modified?
     history: History,
     active_tool: Box<dyn Tool>,
@@ -95,7 +90,7 @@ impl Editor {
     }
     
     
-    pub fn set_glyph(&mut self, glyph: Glyph)
+    pub fn set_glyph(&mut self, glyph: MFEKGlif<MFEKPointData>)
     {
         self.glyph = Some(glyph);
         self.layer_idx = Some(0);
@@ -123,7 +118,7 @@ impl Editor {
             contour_idx: self.contour_idx,
             point_idx: self.point_idx,
             selected: Some(self.selected.clone()),
-            layer: self.glyph.as_ref().unwrap().glif.layers[self.layer_idx.unwrap()].clone(),
+            layer: self.glyph.as_ref().unwrap().layers[self.layer_idx.unwrap()].clone(),
             kind: HistoryType::LayerModified
         });
 
@@ -137,7 +132,7 @@ impl Editor {
         where F: FnMut(&mut Layer<MFEKPointData>) -> R {
         if self.modifying == false { panic!("A modification is not in progress!")}
         let glyph = self.glyph.as_mut().unwrap();
-        let ret =closure(&mut glyph.glif.layers[self.layer_idx.unwrap()]);
+        let ret =closure(&mut glyph.layers[self.layer_idx.unwrap()]);
 
         self.rebuild_previews();
         ret
@@ -159,24 +154,18 @@ impl Editor {
     /// Calls the supplied closure with an immutable reference to the active layer.
     pub fn with_active_layer<F, R>(&self, mut closure: F) -> R
         where F: FnMut(&Layer<MFEKPointData>) -> R {
-        closure(&self.glyph.as_ref().unwrap().glif.layers[self.layer_idx.unwrap()])
+        closure(&self.glyph.as_ref().unwrap().layers[self.layer_idx.unwrap()])
     }
 
     /// Calls the supplied closure with a copy of the glif.
-    pub fn with_glif<F, R>(&self, mut closure: F) -> R 
+    pub fn with_glyph<F, R>(&self, mut closure: F) -> R 
         where F: FnMut(&MFEKGlif<MFEKPointData>) -> R {
-        closure(&self.glyph.as_ref().unwrap().glif)
-    }
-
-    /// Calls the supplied closure with a copy of the glyph.
-    pub fn with_glyph<F, R>(&self, mut closure: F) -> R
-        where F: FnMut(&Glyph) -> R {
         closure(&self.glyph.as_ref().unwrap())
     }
 
     /// This function should not be called in tools or contour operations. TODO: Remove.
     pub fn with_glyph_mut<F, R>(&mut self, mut closure: F) -> R 
-        where F: FnMut(&mut Glyph) -> R 
+        where F: FnMut(&mut MFEKGlif<MFEKPointData>) -> R 
     {
         closure(&mut self.glyph.as_mut().unwrap())
     }

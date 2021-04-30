@@ -54,7 +54,7 @@ pub fn draw_baseline(v: &Editor, canvas: &mut Canvas) {
 
 pub fn draw_all(v: &Editor, canvas: &mut Canvas) {
     draw_lbearing(v, canvas);
-    match v.with_glif(|glif| glif.width) {
+    match v.with_glyph(|glif| glif.width) {
         Some(w) => draw_rbearing(v, w, canvas),
         None => {}
     }

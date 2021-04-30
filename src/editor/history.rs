@@ -28,20 +28,20 @@ impl Editor {
                 contour_idx: self.contour_idx,
                 point_idx: self.point_idx,
                 selected: Some(self.selected.clone()),
-                layer: self.glyph.as_ref().unwrap().glif.layers[self.layer_idx.unwrap()].clone(),
+                layer: self.glyph.as_ref().unwrap().layers[self.layer_idx.unwrap()].clone(),
                 kind: HistoryType::LayerModified
             });
     
             match undo_entry.kind {
                 HistoryType::LayerModified => {
-                    self.glyph.as_mut().unwrap().glif.layers[undo_entry.layer_idx.unwrap()] = undo_entry.layer;
+                    self.glyph.as_mut().unwrap().layers[undo_entry.layer_idx.unwrap()] = undo_entry.layer;
                 }
                 HistoryType::LayerAdded => {
-                    self.glyph.as_mut().unwrap().glif.layers.pop();
+                    self.glyph.as_mut().unwrap().layers.pop();
 
                 }
                 HistoryType::LayerDeleted => {
-                    self.glyph.as_mut().unwrap().glif.layers.insert(undo_entry.layer_idx.unwrap(), undo_entry.layer);
+                    self.glyph.as_mut().unwrap().layers.insert(undo_entry.layer_idx.unwrap(), undo_entry.layer);
                 }
             }
 
@@ -66,21 +66,21 @@ impl Editor {
                 contour_idx: self.contour_idx,
                 point_idx: self.point_idx,
                 selected: Some(self.selected.clone()),
-                layer: self.glyph.as_ref().unwrap().glif.layers[self.layer_idx.unwrap()].clone(),
+                layer: self.glyph.as_ref().unwrap().layers[self.layer_idx.unwrap()].clone(),
                 kind: HistoryType::LayerModified
             });
     
 
             match redo_entry.kind {
                 HistoryType::LayerModified => {
-                    self.glyph.as_mut().unwrap().glif.layers[redo_entry.layer_idx.unwrap()] = redo_entry.layer;
+                    self.glyph.as_mut().unwrap().layers[redo_entry.layer_idx.unwrap()] = redo_entry.layer;
                 }
                 HistoryType::LayerAdded => {
-                    self.glyph.as_mut().unwrap().glif.layers.pop();
+                    self.glyph.as_mut().unwrap().layers.pop();
 
                 }
                 HistoryType::LayerDeleted => {
-                    self.glyph.as_mut().unwrap().glif.layers.insert(redo_entry.layer_idx.unwrap(), redo_entry.layer);
+                    self.glyph.as_mut().unwrap().layers.insert(redo_entry.layer_idx.unwrap(), redo_entry.layer);
                 }
             }
 

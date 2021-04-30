@@ -1,4 +1,4 @@
-use crate::editor::{Glyph, Editor};
+use crate::editor::Editor;
 
 use glifparser::{Glif, MFEKGlif, glif::MFEKPointData};
 use log::debug;
@@ -21,11 +21,7 @@ pub fn load_glif<F: AsRef<Path> + Clone>(v: &mut Editor, filename: F) {
         debug!("{:#?}", &glif.clone());
     }
 
-    v.set_glyph(Glyph {
-        glif,
-        filename: filename.as_ref().to_path_buf(),
-        guidelines: Vec::new(),
-    });
+    v.set_glyph(glif);
 
     /* 
     v.borrow().glyph.as_ref().map(|glyph| {
@@ -50,7 +46,7 @@ pub fn load_glif<F: AsRef<Path> + Clone>(v: &mut Editor, filename: F) {
 
 pub fn save_glif(v: &mut Editor) {
     v.with_glyph(|glyph| {
-        let filename: std::path::PathBuf = glyph.filename.clone();
+        let filename: std::path::PathBuf = glyph.filename.clone().unwrap();
 
         let glif_string = {
             // TODO: glifparser::write(&glyph.glif)

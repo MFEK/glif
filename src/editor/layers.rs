@@ -23,11 +23,11 @@ impl Editor {
             kind: HistoryType::LayerAdded
         });
 
-        self.glyph.as_mut().unwrap().glif.layers.push(new_layer);
+        self.glyph.as_mut().unwrap().layers.push(new_layer);
         
         self.end_layer_modification();
 
-        self.layer_idx = Some(self.glyph.as_mut().unwrap().glif.layers.len() - 1);
+        self.layer_idx = Some(self.glyph.as_mut().unwrap().layers.len() - 1);
         self.contour_idx = None;
         self.point_idx = None;
         self.selected.clear();
@@ -36,11 +36,11 @@ impl Editor {
 
     /// Deletes a layer. Generates a history entry and sets the user's selection to the layer above.
     pub fn delete_layer(&mut self, idx: usize) {
-        if self.with_glif(|glif| {glif.layers.len()}) == 1 { return }
+        if self.with_glyph(|glif| {glif.layers.len()}) == 1 { return }
 
         self.end_layer_modification();
 
-        let deleted = self.glyph.as_mut().unwrap().glif.layers.remove(idx);
+        let deleted = self.glyph.as_mut().unwrap().layers.remove(idx);
         self.history.undo_stack.push(HistoryEntry {
             description: "Deleted layer.".to_owned(),
             layer_idx: self.layer_idx,
@@ -78,7 +78,7 @@ impl Editor {
     }
     
     pub fn get_layer_count(&self) -> usize {
-        return self.glyph.as_ref().unwrap().glif.layers.len();
+        return self.glyph.as_ref().unwrap().layers.len();
     }
     
 }

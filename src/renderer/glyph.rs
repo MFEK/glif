@@ -6,7 +6,7 @@ use glifparser::FlattenedGlif;
 use skulpin::skia_safe::{Canvas, Paint, PaintStyle, Path, PathOp, Rect};
 
 use crate::editor::{Editor, PreviewMode, Viewport};
-pub use crate::editor::{HandleStyle, PointLabels, Glyph, CONSOLE}; // enums
+pub use crate::editor::{HandleStyle, PointLabels, CONSOLE}; // enums
 pub use crate::tools::ToolEnum; // globals
 use crate::renderer::string::draw_string_at_point_with_color;
 

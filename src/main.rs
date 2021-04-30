@@ -59,7 +59,6 @@ use std::collections::HashSet;
 
 // Provides thread-local global variables.
 pub mod editor;
-pub use crate::editor::Glyph; // types
 pub use crate::editor::{HandleStyle, PointLabels, PreviewMode}; // enums
 pub use crate::editor::{CONSOLE}; // globals
 

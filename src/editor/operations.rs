@@ -8,7 +8,7 @@ impl Editor {
     {
         self.fix_contour_ops();
         let mut preview_layers = Vec::new();
-        for layer in &self.glyph.as_ref().unwrap().glif.layers {
+        for layer in &self.glyph.as_ref().unwrap().layers {
             let mut preview_outline = Vec::new();
 
             for (idx, glif_contour) in layer.outline.as_ref().unwrap().iter().enumerate() {
@@ -44,7 +44,7 @@ impl Editor {
             preview_layers.push(new_layer);
         }
 
-        self.preview = Some(self.glyph.as_ref().unwrap().glif.clone());
+        self.preview = Some(self.glyph.as_ref().unwrap().clone());
         self.preview.as_mut().unwrap().layers = preview_layers;
     }
 
@@ -52,7 +52,7 @@ impl Editor {
     // before we build the previews
     pub fn fix_contour_ops(&mut self)
     {
-        for layer in &mut self.glyph.as_mut().unwrap().glif.layers {
+        for layer in &mut self.glyph.as_mut().unwrap().layers {
             for (idx, glif_contour) in &mut layer.outline.as_mut().unwrap().iter().enumerate() {
                 match layer.contour_ops.get(&idx) {
                     Some(contour_op) => {

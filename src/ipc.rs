@@ -9,7 +9,7 @@ use std::{process, str};
 pub fn fetch_metrics(v: &mut Editor) {
     let qmdbin = mfek_ipc::module_name("MFEKmetadata".into());
     let filename = v.with_glyph(|glyph| {glyph.filename.clone()});
-    let ipc_info = IPCInfo::from_glif_path("MFEKglif".to_string(), &filename);
+    let ipc_info = IPCInfo::from_glif_path("MFEKglif".to_string(), &filename.unwrap());
 
     match &ipc_info.font.as_ref() {
         Some(ref font) => {

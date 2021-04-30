@@ -299,7 +299,7 @@ pub fn draw_all(v: &Editor, canvas: &mut Canvas) {
     let selected = v.selected.clone();
     let active_layer = v.get_active_layer();
     let (vcidx, vpidx) = (v.contour_idx, v.point_idx);
-    v.with_glif(|glif| {
+    v.with_glyph(|glif| {
         for (lidx, layer) in glif.layers.iter().enumerate() {
             if lidx != active_layer { continue };
             if handle_style == HandleStyle::Handlebars {

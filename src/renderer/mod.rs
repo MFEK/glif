@@ -18,7 +18,6 @@ pub mod viewport;
 
 // Provides thread-local global variables.
 // TODO: pub use crate::events::vws;
-pub use crate::editor::Glyph; // types
 pub use crate::editor::{HandleStyle, PointLabels}; // enums
 
 use skulpin::skia_safe::Canvas;
