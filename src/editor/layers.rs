@@ -13,7 +13,7 @@ impl Editor {
             operation: None,
         };
 
-        self.history.undo_stack.push(HistoryEntry {
+        self.history.add_undo_entry(HistoryEntry {
             description: "Added layer.".to_owned(),
             layer_idx: self.layer_idx,
             contour_idx: self.contour_idx,
@@ -35,22 +35,24 @@ impl Editor {
     }
 
     /// Deletes a layer. Generates a history entry and sets the user's selection to the layer above.
-    pub fn delete_layer(&mut self, idx: usize) {
+    pub fn delete_layer(&mut self, idx: usize, add_history: bool) {
         if self.with_glyph(|glif| {glif.layers.len()}) == 1 { return }
 
         self.end_layer_modification();
 
         let deleted = self.glyph.as_mut().unwrap().layers.remove(idx);
-        self.history.undo_stack.push(HistoryEntry {
-            description: "Deleted layer.".to_owned(),
-            layer_idx: self.layer_idx,
-            contour_idx: self.contour_idx,
-            point_idx: self.point_idx,
-            selected: Some(self.selected.clone()),
-            layer: deleted.clone(), // dummy
-            kind: HistoryType::LayerDeleted,
-        });
 
+        if add_history {
+            self.history.add_undo_entry(HistoryEntry {
+                description: "Deleted layer.".to_owned(),
+                layer_idx: self.layer_idx,
+                contour_idx: self.contour_idx,
+                point_idx: self.point_idx,
+                selected: Some(self.selected.clone()),
+                layer: deleted.clone(), // dummy
+                kind: HistoryType::LayerDeleted,
+            });
+        }
 
         if self.layer_idx != Some(0) {
             self.layer_idx = Some(self.layer_idx.unwrap() - 1);
@@ -77,15 +79,30 @@ impl Editor {
         return self.layer_idx.unwrap();
     }
     
-    pub fn swap_layers(&mut self, src: usize, dest: usize) {
+    pub fn swap_layers(&mut self, src: usize, dest: usize, add_history: bool) {
+        if add_history {
+            self.history.add_undo_entry(HistoryEntry {
+                description: "Layer moved.".to_owned(),
+                layer_idx: self.layer_idx,
+                contour_idx: self.contour_idx,
+                point_idx: self.point_idx,
+                selected: Some(self.selected.clone()),
+                layer: self.glyph.as_ref().unwrap().layers[self.layer_idx.unwrap()].clone(),
+                kind: HistoryType::LayerMoved { to: dest, from: src }
+            });
+    
+        }
+
         let src_copy = self.glyph.as_mut().unwrap().layers[src].clone();
         let dest_copy = self.glyph.as_mut().unwrap().layers[dest].clone();
 
-        if self.layer_idx.unwrap() == src { self.layer_idx = Some(dest) };
-        if self.layer_idx.unwrap() == dest { self.layer_idx = Some(src) };
+        if self.layer_idx == Some(dest) { println!("src {0}", src); self.layer_idx = Some(src) };
+        if self.layer_idx == Some(src) { println!("dest {0}", dest); self.layer_idx = Some(dest) };
 
         self.glyph.as_mut().unwrap().layers[dest] = src_copy;
         self.glyph.as_mut().unwrap().layers[src] = dest_copy;
+
+        self.rebuild_previews();
     }
     
     pub fn get_layer_count(&self) -> usize {

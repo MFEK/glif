@@ -223,12 +223,16 @@ impl Select {
                 self.handle = wh;
             },
             None => {
+                if !meta.modifiers.ctrl {
+                    v.selected = HashSet::new();
+                } else {
+                    if let Some(point_idx) = v.point_idx {
+                        v.selected.insert((v.contour_idx.unwrap(), point_idx));
+                    }
+                }
                 v.contour_idx = None;
                 v.point_idx = None;
                 self.handle = WhichHandle::Neither;
-                if !meta.modifiers.shift {
-                    v.selected = HashSet::new();
-                }
                 self.show_sel_box = true;
                 self.corner_one = Some(meta.position);
                 self.corner_two = Some(meta.position);

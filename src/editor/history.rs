@@ -3,7 +3,7 @@ use glifparser::glif::{HistoryType, HistoryEntry, MFEKPointData};
 use super::Editor;
 
 pub struct History {
-    pub undo_stack: Vec<HistoryEntry<MFEKPointData>>,
+    undo_stack: Vec<HistoryEntry<MFEKPointData>>,
     pub redo_stack: Vec<HistoryEntry<MFEKPointData>>,
 }
 
@@ -13,6 +13,13 @@ impl History {
             undo_stack: vec!(),
             redo_stack: vec!()
         }
+    }
+}
+
+impl History {
+    pub fn add_undo_entry(&mut self, entry: HistoryEntry<MFEKPointData> ) {
+        self.undo_stack.push(entry);
+        self.redo_stack.clear();
     }
 }
 
@@ -29,7 +36,7 @@ impl Editor {
                 point_idx: self.point_idx,
                 selected: Some(self.selected.clone()),
                 layer: self.glyph.as_ref().unwrap().layers[self.layer_idx.unwrap()].clone(),
-                kind: HistoryType::LayerModified
+                kind: undo_entry.kind.clone()
             });
     
             match undo_entry.kind {
@@ -38,10 +45,12 @@ impl Editor {
                 }
                 HistoryType::LayerAdded => {
                     self.glyph.as_mut().unwrap().layers.pop();
-
                 }
                 HistoryType::LayerDeleted => {
                     self.glyph.as_mut().unwrap().layers.insert(undo_entry.layer_idx.unwrap(), undo_entry.layer);
+                }
+                HistoryType::LayerMoved { to, from } => {
+                    self.swap_layers(to, from, false)
                 }
             }
 
@@ -67,7 +76,7 @@ impl Editor {
                 point_idx: self.point_idx,
                 selected: Some(self.selected.clone()),
                 layer: self.glyph.as_ref().unwrap().layers[self.layer_idx.unwrap()].clone(),
-                kind: HistoryType::LayerModified
+                kind: redo_entry.kind.clone()
             });
     
 
@@ -76,11 +85,13 @@ impl Editor {
                     self.glyph.as_mut().unwrap().layers[redo_entry.layer_idx.unwrap()] = redo_entry.layer;
                 }
                 HistoryType::LayerAdded => {
-                    self.glyph.as_mut().unwrap().layers.pop();
-
+                    self.glyph.as_mut().unwrap().layers.push(redo_entry.layer);
                 }
                 HistoryType::LayerDeleted => {
                     self.glyph.as_mut().unwrap().layers.insert(redo_entry.layer_idx.unwrap(), redo_entry.layer);
+                }
+                HistoryType::LayerMoved { to, from } => {
+                    self.swap_layers(from, to, false)
                 }
             }
 

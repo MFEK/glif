@@ -108,10 +108,9 @@ impl Editor {
     /// This function MUST be called before calling with_active_<layer/glif>_mut or it will panic.
     /// Pushes a clone of the current layer onto the history stack and puts the editor in a modifying state.
     pub fn begin_layer_modification(&mut self, description: &str) {
-        self.history.redo_stack = vec!();
         if self.modifying == true { panic!("Began a new modification with one in progress!")}
 
-        self.history.undo_stack.push(HistoryEntry {
+        self.history.add_undo_entry(HistoryEntry {
             description: description.to_owned(),
             layer_idx: self.layer_idx,
             contour_idx: self.contour_idx,
