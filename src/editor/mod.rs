@@ -1,4 +1,4 @@
-use glifparser::{Contour, Guideline, MFEKGlif, glif::{HistoryEntry, HistoryType, Layer, MFEKPointData}};
+use glifparser::{MFEKGlif, glif::{HistoryEntry, HistoryType, Layer, MFEKPointData}};
 
 pub use crate::renderer::console::Console as RendererConsole;
 use crate::tools::{EditorEvent, Tool, ToolEnum, pan::Pan, tool_enum_to_tool};
@@ -9,7 +9,6 @@ pub use crate::renderer::points::calc::*;
 
 use std::cell::RefCell;
 use std::collections::HashSet;
-use std::path::PathBuf;
 
 use crate::get_contour_mut;
 use crate::get_outline_mut;

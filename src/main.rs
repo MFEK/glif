@@ -3,11 +3,9 @@
 //! (c) 2020. Apache 2.0 licensed.
 #![allow(non_snake_case)] // for our name MFEKglif
 #![feature(
-    assoc_char_funcs,
     panic_info_message,
     stmt_expr_attributes,
     cell_leak,
-    or_patterns
 )]
 
 // Cargo.toml comments say what crates are used for what.

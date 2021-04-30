@@ -11,7 +11,7 @@ use skulpin::skia_safe::Point as SkPoint;
 use skulpin::skia_safe::Rect as SkRect;
 use skulpin::skia_safe::Contains;
 
-use super::{Editor};
+use super::Editor;
 
 //TODO: Move to tool utility file
 #[derive(PartialEq, Clone, Copy)]

@@ -1,11 +1,11 @@
 use super::constants::*;
 use super::points::calc::*;
 
-use glifparser::{MFEKGlif, glif::{LayerOperation, MFEKPointData}, outline::skia::{ToSkiaPaths, SkiaPointTransforms}, Outline};
+use glifparser::{glif::{LayerOperation}, outline::skia::{ToSkiaPaths, SkiaPointTransforms}};
 use glifparser::FlattenedGlif;
 use skulpin::skia_safe::{Canvas, Paint, PaintStyle, Path, PathOp, Rect};
 
-use crate::editor::{Editor, PreviewMode, Viewport};
+use crate::editor::{Editor, PreviewMode};
 pub use crate::editor::{HandleStyle, PointLabels, CONSOLE}; // enums
 pub use crate::tools::ToolEnum; // globals
 use crate::renderer::string::draw_string_at_point_with_color;
@@ -18,7 +18,7 @@ pub fn draw_components(v: &Editor, canvas: &mut Canvas) {
     paint.set_style(PaintStyle::Stroke);
     let mut path = Path::new();
     for rect in glif.component_rects.as_ref().unwrap() {
-        let mut skrect = Rect::new(calc_x(rect.minx), calc_y(rect.miny), calc_x(rect.maxx), calc_y(rect.maxy));
+        let skrect = Rect::new(calc_x(rect.minx), calc_y(rect.miny), calc_x(rect.maxx), calc_y(rect.maxy));
         draw_string_at_point_with_color(v, (calc_x(rect.minx), calc_y(rect.maxy)), &rect.name, canvas, COMPONENT_NAME_COLOR, COMPONENT_NAME_BGCOLOR);
         path.add_rect(skrect, None);
     }
