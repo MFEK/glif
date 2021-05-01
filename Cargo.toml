@@ -66,6 +66,8 @@ glifparser = { git = "https://github.com/MFEK/glifparser.rlib", branch = "mfek",
 MFEKmath = { git = "https://github.com/MFEK/math.rlib", branch = "mfek" }
 #MFEKmath = { path = "../math" } # for development
 
+pub-mod = { git = "https://github.com/MFEK/pub_mod.rlib" }
+
 mfek-ipc = { git = "https://github.com/mfek/ipc" }
 
 #xml parsing

@@ -28,6 +28,7 @@ dependencies = [
  "log",
  "mfek-ipc",
  "nfd",
+ "pub-mod",
  "regex",
  "sdl2",
  "skulpin",
@@ -1319,6 +1320,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d3995ce7da4b4c820aa5fc5fa43bc41bab0d642c8939d872c87c9f092540716b"
 dependencies = [
  "quote",
+ "syn",
+]
+
+[[package]]
+name = "pub-mod"
+version = "0.1.0"
+source = "git+https://github.com/MFEK/pub_mod.rlib#a3c4c51f0f488748a92721fe835e7d63eaf9cfe5"
+dependencies = [
  "syn",
 ]
 

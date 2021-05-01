@@ -1,4 +1,7 @@
-pub mod prelude;
+use pub_mod::pub_mod;
+// Include all tools via procedural macro. Expands to `pub mod pen; pub mod select; ...`
+pub_mod!("src/tools");
+
 use self::prelude::*;
 use self::{measure::Measure, pan::Pan, pen::Pen, select::Select, zoom::Zoom, vws::VWS};
 use dyn_clone::DynClone;
@@ -7,16 +10,6 @@ use imgui::Ui;
 pub use self::zoom::{zoom_in_factor, zoom_out_factor};
 
 use crate::editor::Editor;
-
-pub mod console;
-
-pub mod pan;
-pub mod pen;
-pub mod select;
-//pub mod vws;
-pub mod zoom;
-pub mod measure;
-pub mod vws;
 
 pub trait Tool: DynClone{
     fn handle_event(&mut self, v: &mut Editor, event: EditorEvent);
