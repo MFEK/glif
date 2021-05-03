@@ -43,7 +43,7 @@ pub enum MouseEventType {
     Moved
 }
 
-pub enum EditorEvent<'a> {
+pub enum EditorEvent<'a, 'b> {
     MouseEvent {
         event_type: MouseEventType,
         meta: MouseInfo
@@ -54,6 +54,6 @@ pub enum EditorEvent<'a> {
     },
 
     Ui {
-        ui: &'a mut Ui<'a>
+        ui: &'b mut Ui<'a>
     }
 }

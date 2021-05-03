@@ -29,7 +29,10 @@ impl Zoom {
 
     fn mouse_released(&self, v: &mut Editor, meta: MouseInfo)
     {
+        let current_scale = v.viewport.factor;
         let mut scale = v.viewport.factor;
+        let mut offset = v.viewport.offset;
+
         match meta.button {
             MouseButton::Left => {
                 scale = zoom_in_factor(scale, v);
@@ -39,18 +42,16 @@ impl Zoom {
             }
             _ => {}
         }
-        let mut offset = v.viewport.offset;
-        let winsize = v.viewport.winsize;
-        let position = meta.absolute_position;
-        let center = (
-            (winsize.0 as f32 / 2.) + offset.0,
-            (winsize.1 as f32 / 2.) + offset.1,
-        );
-        offset.0 = -(position.0 as f32 - center.0);
-        offset.1 = -(position.1 as f32 - center.1);
 
+        let center = (v.viewport.winsize.0 as f32 / 2., v.viewport.winsize.1 as f32 / 2.);
+        let diff = (meta.absolute_position.0 - center.0, meta.absolute_position.1 - center.1);
+        offset.0 -= diff.0;
+        offset.1 -= diff.1;
+        offset.0 /= (current_scale / scale);
+        offset.1 /= (current_scale / scale);
+
+        v.update_viewport(Some(offset), Some(scale));
         v.center_cursor();
-        v.update_viewport( Some(offset), Some(scale));
     }
 }
 

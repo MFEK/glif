@@ -31,7 +31,6 @@ impl Default for MouseInfo {
 impl MouseInfo {
     pub fn new(
         v: &Editor,
-        last_meta: MouseInfo,
         button: Option<MouseButton>,
         position: (f32, f32),
         mousedown: Option<bool>,
@@ -48,12 +47,12 @@ impl MouseInfo {
         );
 
         MouseInfo {
-            button: button.unwrap_or(last_meta.button),
-            is_down: mousedown.unwrap_or(last_meta.is_down),
+            button: button.unwrap_or(v.mouse_info.button),
+            is_down: mousedown.unwrap_or(v.mouse_info.is_down),
             modifiers: command_mod,
             position: mposition,
             absolute_position: absolute_mposition,
-            center_cursor: false
+            center_cursor: v.mouse_info.center_cursor
         }
     }
 }
@@ -61,7 +60,16 @@ impl MouseInfo {
 impl Editor {
         // Generic events
     pub fn center_cursor(&mut self) {
-        self.mouse_info.center_cursor = true;
+        let mut center = self.sdl_window.as_ref().unwrap().drawable_size();
+        center.0 /= 2;
+        center.1 /= 2;
+        self.mouse_info.absolute_position = (center.0 as f32, center.1 as f32);
+
+        self.sdl_context
+            .as_ref()
+            .unwrap()
+            .mouse()
+            .warp_mouse_in_window(&self.sdl_window.as_ref().unwrap(), center.0 as i32, center.1 as i32);
     }
 
 }

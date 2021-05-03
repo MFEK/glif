@@ -5,6 +5,8 @@ use crate::tools::{EditorEvent, Tool, ToolEnum, pan::Pan, tool_enum_to_tool};
 
 pub use skulpin::skia_safe::Contains as _;
 pub use skulpin::skia_safe::{Canvas, Matrix, Path as SkPath, Point as SkPoint, Rect as SkRect};
+use sdl2::{Sdl, video::Window};
+
 pub use crate::renderer::points::calc::*;
 
 use std::cell::RefCell;
@@ -53,6 +55,8 @@ pub struct Editor {
     pub mouse_info: MouseInfo,
     pub viewport: Viewport,
 
+    pub sdl_context: Option<Sdl>,
+    pub sdl_window: Option<Window>,
     pub ipc_info: Option<mfek_ipc::IPCInfo>,
     pub quit_requested: bool, // allows for quits from outside event loop, e.g. from command closures
 }
@@ -73,6 +77,9 @@ impl Editor {
             // TODO: Add a default for this.
             mouse_info: MouseInfo::default(),
             viewport: Viewport::default(),
+
+            sdl_context: None,
+            sdl_window: None,
 
             ipc_info: None,
             quit_requested: false,

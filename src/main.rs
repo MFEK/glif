@@ -92,19 +92,23 @@ fn main() {
         ipc::fetch_metrics(&mut editor);
     }
 
-    let (sdl_context, window) = initialize_sdl(&mut editor, &WindowSettings {
+    let (sdl_context, sdl_window): (Sdl, Window) = initialize_sdl(&mut editor, &WindowSettings {
         filename: filename.to_str().unwrap().to_string(),
     });
+    editor.sdl_context = Some(sdl_context);
+    editor.sdl_window = Some(sdl_window);
 
     // Skulpin initialization TODO: proper error handling
-    let mut renderer = initialize_skulpin_renderer(&window).unwrap();
+    let mut renderer = initialize_skulpin_renderer(&editor.sdl_window.as_ref().unwrap()).unwrap();
 
     // set up imgui
     let mut imgui = user_interface::setup_imgui();
-    let mut imgui_sdl2 = imgui_sdl2::ImguiSdl2::new(&mut imgui, &window);
+    let mut imgui_sdl2 = imgui_sdl2::ImguiSdl2::new(&mut imgui, &editor.sdl_window.as_ref().unwrap());
     let imgui_renderer = Renderer::new(&mut imgui);
 
-    let mut event_pump = sdl_context
+    let mut event_pump = editor.sdl_context
+        .as_ref()
+        .unwrap()
         .event_pump()
         .expect("Could not create sdl event pump");
 
@@ -311,7 +315,7 @@ fn main() {
 
                 Event::MouseMotion { x, y, .. } => {
                     let position = (x as f32, y as f32);
-                    let meta = MouseInfo::new(&editor, editor.mouse_info, None, position, None, keymod);
+                    let meta = MouseInfo::new(&editor, None, position, None, keymod);
                     editor.dispatch_editor_event(EditorEvent::MouseEvent{
                         event_type: MouseEventType::Moved,
                         meta: meta
@@ -324,7 +328,7 @@ fn main() {
                 Event::MouseButtonDown { mouse_btn, x, y, clicks:2, .. } => {
                     
                     let position = (x as f32, y as f32);
-                    let meta = MouseInfo::new(&editor, editor.mouse_info, Some(mouse_btn), position, Some(true), keymod);              
+                    let meta = MouseInfo::new(&editor, Some(mouse_btn), position, Some(true), keymod);              
                     editor.dispatch_editor_event(EditorEvent::MouseEvent{
                         event_type: MouseEventType::Pressed,
                         meta: meta
@@ -336,7 +340,7 @@ fn main() {
                 Event::MouseButtonDown { mouse_btn, x, y, .. } => {
                     
                     let position = (x as f32, y as f32);
-                    let meta = MouseInfo::new(&editor, editor.mouse_info, Some(mouse_btn), position, Some(true), keymod);              
+                    let meta = MouseInfo::new(&editor, Some(mouse_btn), position, Some(true), keymod);              
                     editor.dispatch_editor_event(EditorEvent::MouseEvent{
                         event_type: MouseEventType::Pressed,
                         meta: meta
@@ -347,7 +351,7 @@ fn main() {
 
                 Event::MouseButtonUp { mouse_btn, x, y, .. } => {
                     let position = (x as f32, y as f32);
-                    let meta = MouseInfo::new(&editor, editor.mouse_info, Some(mouse_btn), position, Some(false), keymod);
+                    let meta = MouseInfo::new(&editor, Some(mouse_btn), position, Some(false), keymod);
                     editor.dispatch_editor_event(EditorEvent::MouseEvent{
                         event_type: MouseEventType::Released,
                         meta: meta
@@ -370,27 +374,16 @@ fn main() {
             }
         }
 
-        if editor.mouse_info.center_cursor {
-            let mut center = window.size();
-            center.0 /= 2;
-            center.1 /= 2;
-            editor.mouse_info.absolute_position = (center.0 as f32, center.1 as f32);
-    
-            sdl_context
-                .mouse()
-                .warp_mouse_in_window(&window, center.0 as i32, center.1 as i32);
-        }
-
         // build and render imgui
-        imgui_sdl2.prepare_frame(imgui.io_mut(), &window, &event_pump.mouse_state());
+        imgui_sdl2.prepare_frame(imgui.io_mut(), &editor.sdl_window.as_ref().unwrap(), &event_pump.mouse_state());
         let mut ui = imgui.frame();
         user_interface::build_imgui_ui(&mut editor, &mut ui);
 
-        imgui_sdl2.prepare_render(&ui, &window);
+        imgui_sdl2.prepare_render(&ui, &editor.sdl_window.as_ref().unwrap());
         let dd = ui.render();
 
         // draw glyph preview and imgui with skia
-        let (window_width, window_height) = window.vulkan_drawable_size();
+        let (window_width, window_height) = editor.sdl_window.as_ref().unwrap().vulkan_drawable_size();
         let extents = RafxExtents2D {
             width: window_width,
             height: window_height,
@@ -421,8 +414,6 @@ fn initialize_sdl(v: &mut Editor, ws: &WindowSettings) -> (Sdl, Window) {
         height: HEIGHT,
     };
 
-    v.viewport.winsize = (WIDTH as u32, HEIGHT as u32);
-
     let window = video_subsystem
         .window(
             &format!("MFEKglif — {}", ws.filename),
@@ -434,7 +425,7 @@ fn initialize_sdl(v: &mut Editor, ws: &WindowSettings) -> (Sdl, Window) {
         .vulkan()
         .resizable()
         .build()
-        .expect("Failed to create window");
+        .expect("Failed to create editor.sdl_window.as_ref().unwrap()");
 
     /* TODO: Fix icon. 
     let logo = include_bytes!("../doc/logo.png");
@@ -450,8 +441,10 @@ fn initialize_sdl(v: &mut Editor, ws: &WindowSettings) -> (Sdl, Window) {
         sdl2::pixels::PixelFormatEnum::RGB888,
     )
     .unwrap();
-    window.set_icon(surface);
+    editor.sdl_window.as_ref().unwrap().set_icon(surface);
     */
+
+    v.viewport.winsize = (WIDTH as u32, HEIGHT as u32);
 
     (sdl_context, window)
 }
