@@ -88,21 +88,23 @@ pub fn build_and_check_layer_list(v: &mut Editor, ui: &imgui::Ui) {
     let active_layer = v.get_active_layer();
     let layer_count = v.get_layer_count();
 
-    ui.button(imgui::im_str!("New"), [0., 0.]);
+    let pop_me = ui.push_style_color(imgui::StyleColor::Button, [0., 0., 0., 0.2]);
+
+    ui.button(unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icons::_PLUS) }, [0., 0.]);
     ui.push_item_width(-0.5);
     if ui.is_item_clicked(imgui::MouseButton::Left) {
         v.new_layer();
     }
 
     ui.same_line(0.);
-    ui.button(imgui::im_str!("Delete"), [0., 0.]);
+    ui.button(unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icons::_MINUS) }, [0., 0.]);
     ui.push_item_width(-0.5);
     if ui.is_item_clicked(imgui::MouseButton::Left) {
         v.delete_layer(active_layer, true);
     }
 
     ui.same_line(0.);
-    ui.button(imgui::im_str!("Up"), [0., 0.]);
+    ui.button(unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icons::_ARROWUP) }, [0., 0.]);
     ui.push_item_width(-0.5);
     if ui.is_item_clicked(imgui::MouseButton::Left) {
         if active_layer != 0 {
@@ -111,7 +113,7 @@ pub fn build_and_check_layer_list(v: &mut Editor, ui: &imgui::Ui) {
     }
 
     ui.same_line(0.);
-    ui.button(imgui::im_str!("Down"), [0., 0.]);
+    ui.button(unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icons::_ARROWDOWN) }, [0., 0.]);
     ui.push_item_width(-0.5);
     if ui.is_item_clicked(imgui::MouseButton::Left) {
         if active_layer != layer_count-1 {
@@ -119,16 +121,18 @@ pub fn build_and_check_layer_list(v: &mut Editor, ui: &imgui::Ui) {
         }
     }
 
+    pop_me.pop(ui);
+    
     ui.separator();
 
     for layer in 0 .. layer_count {
         let layer_temp_name = imgui::im_str!("Layer {0}", layer);
         let im_str = imgui::ImString::from(layer_temp_name);
-        ui.button(imgui::im_str!("H"), [0., 0.]);
+        ui.button(unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icons::_OPENEYE) }, [0., 0.]);
         ui.same_line(0.);
-        ui.button(imgui::im_str!("E"), [0., 0.]);
+        ui.button(unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icons::_RENAME) }, [0., 0.]);
         ui.same_line(0.);
-        ui.button(imgui::im_str!("OP"), [0., 0.]);
+        ui.button(unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icons::_LAYERCOMBINE) }, [0., 0.]);
         if ui.is_item_clicked(imgui::MouseButton::Left) {
             v.begin_layer_modification("Changed layer operation.");
             v.set_active_layer(layer);
