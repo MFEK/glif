@@ -9,7 +9,7 @@ use sdl2::{Sdl, video::Window};
 
 pub use crate::renderer::points::calc::*;
 
-use std::cell::RefCell;
+use std::{cell::RefCell, rc::Rc, sync::Arc};
 use std::collections::HashSet;
 
 use crate::get_contour_mut;
@@ -37,28 +37,30 @@ pub mod operations;
 #[macro_use]
 pub mod macros;
 
-/// This is the main object that holds the state of the editor.
+/// This is the main object that holds the state of the editor. It is responsible for mutating the glyph.
+/// The only state that should change not through the editor is the generation of previews for the purposes of drawing.
 pub struct Editor {
     glyph: Option<MFEKGlif<MFEKPointData>>,
-    modifying: bool, // is the active layer being modified?
-    history: History,
+    modifying: bool, // a flag that is set when the active layer is currently being modified
+    history: History, // holds a history of previous states the glyph has been in
     active_tool: Box<dyn Tool>,
     active_tool_enum: ToolEnum,
     clipboard: Option<Layer<MFEKPointData>>,
-
     layer_idx: Option<usize>, // active layer
+
     pub preview: Option<MFEKGlif<MFEKPointData>>,
     pub contour_idx: Option<usize>,   // index into Outline
     pub point_idx: Option<usize>, 
     pub selected: HashSet<(usize, usize)>,
  
+    pub prompts: Vec<(String, Rc<dyn Fn(&mut Editor, String)>)>,
     pub mouse_info: MouseInfo,
     pub viewport: Viewport,
-
     pub sdl_context: Option<Sdl>,
     pub sdl_window: Option<Window>,
-    pub ipc_info: Option<mfek_ipc::IPCInfo>,
     pub quit_requested: bool, // allows for quits from outside event loop, e.g. from command closures
+
+    pub ipc_info: Option<mfek_ipc::IPCInfo>,
 }
 
 impl Editor {
@@ -67,15 +69,12 @@ impl Editor {
         Editor {
             glyph: None,
             preview: None,
+            history: History::new(),            
 
+            mouse_info: MouseInfo::default(),
             active_tool: Box::new(Pan::new()),
             active_tool_enum: ToolEnum::Pan,
-
-            history: History::new(),
-            // TODO: refactor these out of State
-
-            // TODO: Add a default for this.
-            mouse_info: MouseInfo::default(),
+            prompts: Vec::new(),
             viewport: Viewport::default(),
 
             sdl_context: None,
@@ -196,7 +195,7 @@ impl Editor {
     }
 
     /// This function merges contour gracefully. This should be used over merging them yourself as it will automatically
-    /// contour operations. This can only be called during a modification
+    /// deal with contour operations. This can only be called during a modification
     pub fn merge_contours(&mut self, start: usize, end: usize)
     {
         // TODO: fix contour operations

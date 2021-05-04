@@ -1,11 +1,13 @@
-use imgui::{self, Context};
+use std::{cell::RefCell, rc::Rc};
 
-use crate::tools::ToolEnum;
+use imgui::{self, Context, Key};
+
+use crate::{editor, tools::ToolEnum};
 use crate::editor::Editor;
-use glifparser::glif::LayerOperation;
+use glifparser::glif::{LayerOperation};
 
 pub mod icons;
-
+ 
 // These are before transformation by STATE.dpi (glutin scale_factor)
 const TOOLBOX_OFFSET_X: f32 = 10.;
 const TOOLBOX_OFFSET_Y: f32 = TOOLBOX_OFFSET_X;
@@ -62,6 +64,9 @@ pub fn setup_imgui() -> Context {
         },
     ]);
 
+    PROMPT_STR.with(|prompt_str| {
+        prompt_str.borrow_mut().reserve(256)
+    });
     imgui
 }
 
@@ -91,7 +96,7 @@ pub fn build_and_check_layer_list(v: &mut Editor, ui: &imgui::Ui) {
     let pop_me = ui.push_style_color(imgui::StyleColor::Button, [0., 0., 0., 0.2]);
 
     ui.button(unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icons::_PLUS) }, [0., 0.]);
-    ui.push_item_width(-0.5);
+    //ui.push_item_width(-0.5);
     if ui.is_item_clicked(imgui::MouseButton::Left) {
         v.new_layer();
     }
@@ -105,7 +110,6 @@ pub fn build_and_check_layer_list(v: &mut Editor, ui: &imgui::Ui) {
 
     ui.same_line(0.);
     ui.button(unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icons::_ARROWUP) }, [0., 0.]);
-    ui.push_item_width(-0.5);
     if ui.is_item_clicked(imgui::MouseButton::Left) {
         if active_layer != 0 {
             v.swap_layers(active_layer, active_layer-1, true);
@@ -114,7 +118,6 @@ pub fn build_and_check_layer_list(v: &mut Editor, ui: &imgui::Ui) {
 
     ui.same_line(0.);
     ui.button(unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icons::_ARROWDOWN) }, [0., 0.]);
-    ui.push_item_width(-0.5);
     if ui.is_item_clicked(imgui::MouseButton::Left) {
         if active_layer != layer_count-1 {
             v.swap_layers(active_layer, active_layer+1, true);
@@ -131,6 +134,11 @@ pub fn build_and_check_layer_list(v: &mut Editor, ui: &imgui::Ui) {
         ui.button(unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icons::_OPENEYE) }, [0., 0.]);
         ui.same_line(0.);
         ui.button(unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icons::_RENAME) }, [0., 0.]);
+        if ui.is_item_clicked(imgui::MouseButton::Left) {
+            v.prompts.push(("Layer name:!".to_string(), Rc::new(|editor, string| {
+                println!("{0}", string);
+            })));
+        }
         ui.same_line(0.);
         ui.button(unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icons::_LAYERCOMBINE) }, [0., 0.]);
         if ui.is_item_clicked(imgui::MouseButton::Left) {
@@ -195,5 +203,59 @@ pub fn build_imgui_ui(v: &mut Editor, ui: &mut imgui::Ui) {
             build_and_check_layer_list(v, ui)
         });
 
+            if v.prompts.last().is_some() {
+        let prompt = { v.prompts.last().unwrap().to_owned() } ;
+
+    imgui::Window::new(&imgui::im_str!("##"))
+        .flags(
+            #[rustfmt::skip]
+                    imgui::WindowFlags::NO_RESIZE
+                | imgui::WindowFlags::NO_MOVE
+                | imgui::WindowFlags::NO_COLLAPSE
+                | imgui::WindowFlags::NO_DECORATION
+                | imgui::WindowFlags::NO_BACKGROUND
+        )
+        .position([0., 0.], imgui::Condition::Always)
+        .size([v.viewport.winsize.0 as f32, v.viewport.winsize.1 as f32], imgui::Condition::Always)
+        .build(ui, || {
+            ui.invisible_button(&imgui::im_str!("##"), [-1., -1.]);
+        });
+
+    imgui::Window::new(&imgui::im_str!("{}", prompt.0))
+        .bg_alpha(1.) // See comment on fn redraw_skia
+        .flags(
+            #[rustfmt::skip]
+                    imgui::WindowFlags::NO_RESIZE
+                | imgui::WindowFlags::NO_COLLAPSE,
+        )
+        .position_pivot([0.5, 0.5])
+        .position(
+            [(v.viewport.winsize.0/2) as f32, (v.viewport.winsize.1/2) as f32],
+            imgui::Condition::Always,
+        )
+        .size([TOOLBOX_HEIGHT, TOOLBOX_WIDTH+10.], imgui::Condition::Always)
+        .focused(true)
+        .build(ui, || {
+            PROMPT_STR.with(|prompt_str| {
+                ui.push_item_width(-1.);
+                ui.input_text(imgui::im_str!(""), &mut prompt_str.borrow_mut())
+                .build();
+
+
+                let final_string = prompt_str.borrow().to_string();
+                if ui.is_key_down(Key::Enter) {
+                    prompt.1(v, final_string);
+                    v.prompts.pop();
+                }
+            })
+        });
+
+        // We do this for now I think in the future I wanna experiment with placing a big invisible button below this window
+        // so as to capture all mouse input. The problem at the moment is that you could potentially panic the program if you modify a layers name
+        // while simultaneously modifying the layer with the pen tool or select tool. Very rare edge case but I'd like to do this one in the "right" way in the future.
+    }
+
     //TODO: Add UI event dispatch here.
 }
+
+thread_local! { pub static PROMPT_STR: RefCell<imgui::ImString> = RefCell::new(imgui::ImString::new("")); }

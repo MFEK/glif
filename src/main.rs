@@ -53,7 +53,7 @@ use imgui_skia_renderer::Renderer;
 
 use enum_iterator::IntoEnumIterator as _;
 
-use std::collections::HashSet;
+use std::{collections::HashSet, rc::Rc};
 
 // Provides thread-local global variables.
 pub mod editor;
@@ -131,10 +131,15 @@ fn main() {
                 continue;
             };
 
+            match &event {
+                Event::Quit { .. } => break 'main_loop,
+                _ => {}
+            }
+
+            if !editor.prompts.is_empty() { continue; }
             // we're gonna handle some of these events before handling commands so that we don't have the logic for this stuff
             // intertwined in command handling
             match &event {
-                Event::Quit { .. } => break 'main_loop,
                 Event::KeyDown {
                     keycode: Some(Keycode::Q),
                     keymod: km,
