@@ -8,7 +8,7 @@ use skulpin::skia_safe::{Canvas, Paint, PaintStyle, Path, PathOp, Rect};
 use crate::editor::{Editor, PreviewMode};
 pub use crate::editor::{HandleStyle, PointLabels, CONSOLE}; // enums
 pub use crate::tools::ToolEnum; // globals
-use crate::renderer::string::draw_string_at_point_with_color;
+use crate::renderer::string::UiString;
 
 pub fn draw_components(v: &Editor, canvas: &mut Canvas) {
     let glif = v.preview.as_ref().unwrap();
@@ -19,7 +19,8 @@ pub fn draw_components(v: &Editor, canvas: &mut Canvas) {
     let mut path = Path::new();
     for rect in glif.component_rects.as_ref().unwrap() {
         let skrect = Rect::new(calc_x(rect.minx), calc_y(rect.miny), calc_x(rect.maxx), calc_y(rect.maxy));
-        draw_string_at_point_with_color(v, (calc_x(rect.minx), calc_y(rect.maxy)), &rect.name, canvas, COMPONENT_NAME_COLOR, COMPONENT_NAME_BGCOLOR);
+        let uis = UiString::with_colors(&rect.name, COMPONENT_NAME_COLOR, None);
+        uis.draw(v, (calc_x(rect.minx), calc_y(rect.maxy)), canvas);
         path.add_rect(skrect, None);
     }
     let skpaths = glif.flattened.as_ref().map(|f|f.to_skia_paths(Some(SkiaPointTransforms{calc_x: calc_x, calc_y: calc_y})));

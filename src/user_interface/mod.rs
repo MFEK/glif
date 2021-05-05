@@ -12,7 +12,7 @@ pub mod icons;
 const TOOLBOX_OFFSET_X: f32 = 10.;
 const TOOLBOX_OFFSET_Y: f32 = TOOLBOX_OFFSET_X;
 const TOOLBOX_WIDTH: f32 = 55.;
-const TOOLBOX_HEIGHT: f32 = 220.;
+const TOOLBOX_HEIGHT: f32 = 250.;
 
 pub fn setup_imgui() -> Context {
     let mut imgui = Context::create();
@@ -193,6 +193,7 @@ pub fn build_imgui_ui(v: &mut Editor, ui: &mut imgui::Ui) {
             ui.separator();
             build_and_check_button(v, &ui, ToolEnum::Zoom, &icons::ZOOM);
             ui.separator();
+            build_and_check_button(v, &ui, ToolEnum::Anchors, &icons::ANCHOR);
             build_and_check_button(v, &ui, ToolEnum::Pen, &icons::PEN);
             build_and_check_button(v, &ui, ToolEnum::VWS, &icons::VWS);
         });

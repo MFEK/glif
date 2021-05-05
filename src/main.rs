@@ -80,6 +80,7 @@ struct WindowSettings {
 
 fn main() {
     env_logger::init();
+    util::set_panic_hook();
 
     let args = util::argparser::parse_args();
     let filename = filedialog::filename_or_panic(&args.filename, Some("glif"), None);
@@ -286,6 +287,9 @@ fn main() {
                         }
                         Command::ToolMeasure => {
                             editor.set_tool(ToolEnum::Measure);
+                        }
+                        Command::ToolAnchors => {
+                            editor.set_tool(ToolEnum::Anchors);
                         }
                         Command::TogglePointLabels => {
                             trigger_toggle_on!(
