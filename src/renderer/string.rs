@@ -15,6 +15,7 @@ pub struct UiString<'a> {
     pub bgcolor: Option<u32>,
     pub centered: bool,
     pub size: f32,
+    pub padding: Option<f32>,
 }
 
 impl<'a> UiString<'a> {
@@ -25,6 +26,7 @@ impl<'a> UiString<'a> {
             bgcolor: Some(DEFAULT_STRING_BGCOLOR),
             color: DEFAULT_STRING_COLOR,
             centered: false,
+            padding: None,
         }
     }
 
@@ -45,6 +47,11 @@ impl<'a> UiString<'a> {
         let mut ret = Self::with_colors(s, color, bgcolor);
         ret.centered = true;
         ret
+    }
+
+    pub fn padding(mut self, padding: f32) -> Self {
+        self.padding = Some(padding);
+        self
     }
 }
 
@@ -79,38 +86,25 @@ impl UiString<'_> {
         let (blob, rect) = {
             POINTFONTS.with(|f| {
                 let mut hm = f.borrow_mut();
-                let f = hm.get(&((POINTFONTSIZE * 1. / factor).round() as usize));
+                let f = hm.get(&((self.size * 1. / factor).round() as usize));
                 let font = match f {
                     Some(fon) => fon,
                     None => {
                         hm.insert(
-                            (POINTFONTSIZE * 1. / factor).round() as usize,
-                            pointfont_from_size_and_factor(POINTFONTSIZE, factor),
+                            (self.size * 1. / factor).round() as usize,
+                            pointfont_from_size_and_factor(self.size, factor),
                         );
-                        hm.get(&((POINTFONTSIZE * 1. / factor).round() as usize))
+                        hm.get(&((self.size * 1. / factor).round() as usize))
                             .unwrap()
                     }
                 };
 
-                let blob = TextBlob::from_str(self.string, font).expect(&format!("Failed to shape {}", self.string));
+                let blob = TextBlob::from_str(self.string, font)
+                    .expect(&format!("Failed to shape {}", self.string));
                 let (_, rect) = font.measure_str(self.string, Some(&paint));
                 (blob, rect)
             })
         };
-
-        let padding = 5.;
-
-        if let Some(bgcolor) = self.bgcolor {
-            let mut paint2 = Paint::default();
-            paint2.set_color(bgcolor);
-            paint2.set_anti_alias(true);
-            let mut path = Path::new();
-            at = (at.0, at.1 - (padding + 20. * (1. / factor)));
-            let at_rect = Rect::from_point_and_size(at, (rect.width() + 5., rect.height() + 5.));
-            path.add_rect(at_rect, None);
-            path.close();
-            canvas.draw_path(&path, &paint2);
-        }
 
         let center = if self.centered {
             -(rect.width() / 2.)
@@ -118,10 +112,27 @@ impl UiString<'_> {
             0.
         };
 
-        at = (
-            at.0 + (padding / 2.) + center,
-            at.1 + ((padding / 2.) + 10. * (1. / factor)),
-        );
+        let mut padding = 0.;
+        if self.padding.is_some() {
+            padding = self.padding.unwrap() * (1. / factor);
+            at = (at.0 - padding, at.1 - padding);
+        }
+
+        if let Some(bgcolor) = self.bgcolor {
+            let mut paint2 = Paint::default();
+            paint2.set_color(bgcolor);
+            paint2.set_anti_alias(true);
+            let mut path = Path::new();
+            let at_rect = Rect::from_point_and_size(
+                (at.0 - (padding / 2.), at.1 - self.size),
+                (rect.width() + 5. + (padding / 2.), rect.height() + 5.),
+            );
+            path.add_rect(at_rect, None);
+            path.close();
+            canvas.draw_path(&path, &paint2);
+        }
+
+        at = (at.0 + center, at.1);
         canvas.draw_text_blob(&blob, at, &paint);
     }
 }
