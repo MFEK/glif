@@ -14,6 +14,8 @@ pub static POINT_RADIUS: f32 = 5. * PEN_SIZE;
 pub static TRIANGLE_POINT_AREA: f32 = (POINT_RADIUS + 1.) * PEN_SIZE;
 pub static HANDLE_RADIUS: f32 = 2.5 * PEN_SIZE;
 pub static HANDLEBAR_THICKNESS: f32 = 3. * PEN_SIZE;
+pub static ANCHOR_RADIUS: f32 = 15.;
+pub static ANCHOR_STROKE_THICKNESS: f32 = 3. * PEN_SIZE;
 
 /* Colors */
 pub static OUTLINE_FILL: u32 = 0xff_666666;
@@ -49,11 +51,16 @@ pub static PAPER_BGCOLOR: u32 = 0xff_ffffff;
 // be set here.
 pub static PAPER_FILL: u32 = 0xff_000000;
 
+pub static ANCHOR_FILL: u32 = 0xff_0000ff;
+pub static ANCHOR_STROKE: u32 = 0xff_000099;
+
 // On-screen strings
 pub static COMPONENT_NAME_COLOR: u32 = 0xff_444444;
 pub static COMPONENT_NAME_BGCOLOR: u32 = 0x00_ffffff;
 pub static DEFAULT_STRING_COLOR: u32 = 0xff_ff0000;
 pub static DEFAULT_STRING_BGCOLOR: u32 = 0xaa_ffffff;
+pub static ANCHOR_NAME_COLOR: u32 = 0xff_000099;
+pub static ANCHOR_NAME_BGCOLOR: u32 = 0x00_ffffff;
 
 /* Math */
 pub const PI: f32 = std::f32::consts::PI;

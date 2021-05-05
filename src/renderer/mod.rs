@@ -13,6 +13,7 @@ pub mod points; // point drawing functions
                 // This imports calc_x, etc. which transforms coordinates between .glif and Skia
 pub mod string;
 
+mod anchors;
 mod glyph;
 pub mod viewport;
 
@@ -55,6 +56,7 @@ pub fn render_frame(v: &mut Editor, canvas: &mut Canvas) {
     match pm {
         PreviewMode::None => {
             points::draw_all(v, canvas);
+            anchors::draw_anchors(v, canvas);
             //points::draw_selected(v, canvas);
             v.dispatch_editor_event(EditorEvent::Draw {
                 skia_canvas: canvas,

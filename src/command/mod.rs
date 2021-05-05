@@ -33,6 +33,7 @@ pub enum Command {
     ToolZoom,
     ToolVWS,
     ToolMeasure,
+    ToolAnchors,
 
     DeleteSelection,
 

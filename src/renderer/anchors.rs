@@ -1,0 +1,38 @@
+use super::constants::*;
+use super::points::calc::{calc_x, calc_y};
+use super::string::UiString;
+
+use crate::editor::Editor;
+
+use glifparser::Anchor;
+use skulpin::skia_safe::{Canvas, Matrix, Path as SkPath, Point as SkPoint, Rect as SkRect, Paint, PaintStyle};
+
+pub fn draw_anchors(v: &mut Editor, canvas: &mut Canvas) {
+    let anchors = v.with_glyph(|glif| glif.anchors.clone());
+    for anchor in anchors {
+        draw_anchor(&anchor, v, canvas);
+    }
+}
+
+fn draw_anchor(anchor: &Anchor, v: &mut Editor, canvas: &mut Canvas) {
+    let mut path = SkPath::new();
+    let (x, y) = (calc_x(anchor.x), calc_y(anchor.y));
+    let radius = ANCHOR_RADIUS * (1. / v.viewport.factor);
+    path.move_to((x - radius, y));
+    path.quad_to((x, y), (x, y + radius));
+    path.quad_to((x, y), (x + radius, y));
+    path.quad_to((x, y), (x, y - radius));
+    path.quad_to((x, y), (x - radius, y));
+    path.close();
+    let mut paint = Paint::default();
+    paint.set_anti_alias(true);
+    paint.set_style(PaintStyle::Fill);
+    paint.set_color(ANCHOR_FILL);
+    canvas.draw_path(&path, &paint);
+    paint.set_style(PaintStyle::Stroke);
+    paint.set_color(ANCHOR_STROKE);
+    paint.set_stroke_width(ANCHOR_STROKE_THICKNESS * (1. / v.viewport.factor));
+    canvas.draw_path(&path, &paint);
+    let uis = UiString::centered_with_colors(&anchor.class, ANCHOR_NAME_COLOR, None);
+    uis.draw(v, (x, y - (radius * 2.)), canvas);
+}
