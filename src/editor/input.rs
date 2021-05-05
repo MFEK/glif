@@ -12,7 +12,6 @@ pub struct MouseInfo {
     pub absolute_position: (f32, f32),
     pub is_down: bool,
     pub modifiers: CommandMod,
-    pub center_cursor: bool,
 }
 
 impl Default for MouseInfo {
@@ -23,7 +22,6 @@ impl Default for MouseInfo {
             absolute_position: (0., 0.),
             is_down: false,
             modifiers: CommandMod{ shift: false, ctrl: false },
-            center_cursor: false,
         }
     }
 }
@@ -52,7 +50,6 @@ impl MouseInfo {
             modifiers: command_mod,
             position: mposition,
             absolute_position: absolute_mposition,
-            center_cursor: v.mouse_info.center_cursor
         }
     }
 }
