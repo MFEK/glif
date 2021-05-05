@@ -8,6 +8,7 @@ impl Editor {
     /// layer.
     pub fn new_layer(&mut self) {
         let new_layer = Layer {
+            name: format!("{}", self.glyph.as_ref().unwrap().layers.len()),
             outline: Some(Outline::new()),
             contour_ops: HashMap::new(),
             operation: None,

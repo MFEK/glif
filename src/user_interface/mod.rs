@@ -129,14 +129,22 @@ pub fn build_and_check_layer_list(v: &mut Editor, ui: &imgui::Ui) {
     ui.separator();
 
     for layer in 0 .. layer_count {
-        let layer_temp_name = imgui::im_str!("Layer {0}", layer);
+        let layer_temp_name = imgui::im_str!("{0}", v.with_glyph(|glif| { glif.layers[layer].name.clone() }));
         let im_str = imgui::ImString::from(layer_temp_name);
         ui.button(unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icons::_OPENEYE) }, [0., 0.]);
         ui.same_line(0.);
         ui.button(unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icons::_RENAME) }, [0., 0.]);
+        let layer_idx = layer;
         if ui.is_item_clicked(imgui::MouseButton::Left) {
-            v.prompts.push(("Layer name:!".to_string(), Rc::new(|editor, string| {
-                println!("{0}", string);
+            v.prompts.push(("Layer name:!".to_string(), Rc::new(move |editor, string| {
+                let active_layer = editor.get_active_layer();
+                editor.set_active_layer(layer_idx);
+
+                editor.begin_layer_modification("Renamed layer.");
+                editor.with_active_layer_mut(|layer| layer.name = string.clone());
+                editor.end_layer_modification();
+
+                editor.set_active_layer(active_layer);
             })));
         }
         ui.same_line(0.);
