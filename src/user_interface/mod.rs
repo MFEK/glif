@@ -173,12 +173,17 @@ pub fn build_and_check_layer_list(v: &mut Editor, ui: &imgui::Ui) {
     }
 }
 
+pub const LAYERBOX_WIDTH: f32 = 250.;
+pub const LAYERBOX_HEIGHT: f32 = 250.;
+pub const PROMPTBOX_WIDTH: f32 = 250.;
+pub const PROMPTBOX_HEIGHT: f32 = 65.;
+
 pub fn get_tools_dialog_rect(v: &Editor) -> (f32, f32, f32, f32) {
     (
-        v.viewport.winsize.0 as f32 - (TOOLBOX_HEIGHT) - (TOOLBOX_OFFSET_X),
-        v.viewport.winsize.1 as f32 - (TOOLBOX_HEIGHT * 2.) - (TOOLBOX_OFFSET_Y * 2.),
-        TOOLBOX_HEIGHT,
-        TOOLBOX_HEIGHT,
+        v.viewport.winsize.0 as f32 - (LAYERBOX_WIDTH) - (TOOLBOX_OFFSET_X),
+        v.viewport.winsize.1 as f32 - (LAYERBOX_HEIGHT * 2.) - (TOOLBOX_OFFSET_Y * 2.),
+        LAYERBOX_WIDTH,
+        LAYERBOX_HEIGHT,
     )
 }
 
@@ -215,8 +220,8 @@ pub fn build_imgui_ui(v: &mut Editor, ui: &mut imgui::Ui) {
                 | imgui::WindowFlags::NO_MOVE
                 | imgui::WindowFlags::NO_COLLAPSE
         )
-        .position([v.viewport.winsize.0 as f32 - TOOLBOX_HEIGHT - TOOLBOX_OFFSET_X , v.viewport.winsize.1 as f32 - TOOLBOX_OFFSET_Y - TOOLBOX_HEIGHT], imgui::Condition::Always)
-        .size([TOOLBOX_HEIGHT, TOOLBOX_HEIGHT], imgui::Condition::Always)
+        .position([v.viewport.winsize.0 as f32 - LAYERBOX_WIDTH - TOOLBOX_OFFSET_X , v.viewport.winsize.1 as f32 - TOOLBOX_OFFSET_Y - LAYERBOX_HEIGHT], imgui::Condition::Always)
+        .size([LAYERBOX_WIDTH, LAYERBOX_HEIGHT], imgui::Condition::Always)
         .build(ui, || {
             build_and_check_layer_list(v, ui)
         });
@@ -251,7 +256,7 @@ pub fn build_imgui_ui(v: &mut Editor, ui: &mut imgui::Ui) {
             [(v.viewport.winsize.0/2) as f32, (v.viewport.winsize.1/2) as f32],
             imgui::Condition::Always,
         )
-        .size([TOOLBOX_HEIGHT, TOOLBOX_WIDTH+10.], imgui::Condition::Always)
+        .size([PROMPTBOX_WIDTH, PROMPTBOX_HEIGHT], imgui::Condition::Always)
         .focused(true)
         .build(ui, || {
             PROMPT_STR.with(|prompt_str| {
