@@ -61,6 +61,7 @@ pub static DEFAULT_STRING_COLOR: u32 = 0xff_ff0000;
 pub static DEFAULT_STRING_BGCOLOR: u32 = 0xaa_ffffff;
 pub static ANCHOR_NAME_COLOR: u32 = 0xff_000099;
 pub static ANCHOR_NAME_BGCOLOR: u32 = 0x00_ffffff;
+pub static SELECTED_ANCHOR_COLOR: u32 = 0xff_00ffff;
 
 /* Math */
 pub const PI: f32 = std::f32::consts::PI;

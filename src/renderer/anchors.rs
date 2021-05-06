@@ -8,13 +8,14 @@ use glifparser::Anchor;
 use skulpin::skia_safe::{Canvas, Matrix, Path as SkPath, Point as SkPoint, Rect as SkRect, Paint, PaintStyle};
 
 pub fn draw_anchors(v: &mut Editor, canvas: &mut Canvas) {
-    let anchors = v.with_glyph(|glif| glif.anchors.clone());
-    for anchor in anchors {
-        draw_anchor(&anchor, v, canvas);
-    }
+    v.with_glyph(|glif| {
+        for anchor in &glif.anchors {
+            draw_anchor(&anchor, v, canvas);
+        }
+    });
 }
 
-fn draw_anchor(anchor: &Anchor, v: &mut Editor, canvas: &mut Canvas) {
+fn draw_anchor(anchor: &Anchor, v: &Editor, canvas: &mut Canvas) {
     let mut path = SkPath::new();
     let (x, y) = (calc_x(anchor.x), calc_y(anchor.y));
     let radius = ANCHOR_RADIUS * (1. / v.viewport.factor);
@@ -34,5 +35,5 @@ fn draw_anchor(anchor: &Anchor, v: &mut Editor, canvas: &mut Canvas) {
     paint.set_stroke_width(ANCHOR_STROKE_THICKNESS * (1. / v.viewport.factor));
     canvas.draw_path(&path, &paint);
     let uis = UiString::centered_with_colors(&anchor.class, ANCHOR_NAME_COLOR, None);
-    uis.draw(v, (x, y - (radius * 2.)), canvas);
+    uis.draw(v, (x, y - (radius * 1.3)), canvas);
 }

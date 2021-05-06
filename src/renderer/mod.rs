@@ -56,6 +56,7 @@ pub fn render_frame(v: &mut Editor, canvas: &mut Canvas) {
     match pm {
         PreviewMode::None => {
             points::draw_all(v, canvas);
+            points::draw_directions(v, path, canvas);
             anchors::draw_anchors(v, canvas);
             //points::draw_selected(v, canvas);
             v.dispatch_editor_event(EditorEvent::Draw {
@@ -66,12 +67,6 @@ pub fn render_frame(v: &mut Editor, canvas: &mut Canvas) {
             //points::draw_selected(v, canvas);
         }
         PreviewMode::Paper => (),
-    }
-    match pm {
-        PreviewMode::Paper => (),
-        _ => {
-            points::draw_directions(v, path, canvas);
-        }
     }
     // Reset transformation matrix
     canvas.restore();

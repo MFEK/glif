@@ -9,6 +9,7 @@ use imgui::Ui;
 
 pub use self::zoom::{zoom_in_factor, zoom_out_factor};
 
+use crate::command::{Command, CommandMod};
 use crate::editor::Editor;
 
 pub trait Tool: DynClone{
@@ -45,17 +46,23 @@ pub enum MouseEventType {
     Moved
 }
 
-pub enum EditorEvent<'a, 'b> {
+pub enum EditorEvent<'a, 'b, 'c, 'd> {
     MouseEvent {
         event_type: MouseEventType,
         meta: MouseInfo
     },
 
+    ToolCommand {
+        command: Command,
+        command_mod: CommandMod,
+        stop_after: &'a mut bool,
+    },
+
     Draw {
-        skia_canvas:  &'a mut Canvas
+        skia_canvas:  &'b mut Canvas
     },
 
     Ui {
-        ui: &'b mut Ui<'a>
+        ui: &'c mut Ui<'d>
     }
 }

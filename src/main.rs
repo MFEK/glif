@@ -239,12 +239,17 @@ fn main() {
                     }
 
                     // check if we've got a command
-                    let command_info: Option<CommandInfo> =
-                        command::keycode_to_command(&keycode, &keys_down);
-                    if !command_info.is_some() {
-                        continue;
-                    }
-                    let command_info = command_info.unwrap();
+                    let command_info: CommandInfo = match command::keycode_to_command(&keycode, &keys_down) {
+                        Some(command) => command,
+                        None => continue
+                    };
+
+                    let mut delete_after = false;
+                    editor.dispatch_editor_event(EditorEvent::ToolCommand {
+                        command: command_info.command,
+                        command_mod: command_info.command_mod,
+                        stop_after: &mut delete_after,
+                    });
 
                     match command_info.command {
                         Command::ResetScale => {

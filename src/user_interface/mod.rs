@@ -2,17 +2,17 @@ use std::{cell::RefCell, rc::Rc};
 
 use imgui::{self, Context, Key};
 
-use crate::{editor, tools::ToolEnum};
+use crate::{editor, tools::ToolEnum, tools::EditorEvent};
 use crate::editor::Editor;
 use glifparser::glif::{LayerOperation};
 
 pub mod icons;
  
 // These are before transformation by STATE.dpi (glutin scale_factor)
-const TOOLBOX_OFFSET_X: f32 = 10.;
-const TOOLBOX_OFFSET_Y: f32 = TOOLBOX_OFFSET_X;
-const TOOLBOX_WIDTH: f32 = 55.;
-const TOOLBOX_HEIGHT: f32 = 250.;
+pub const TOOLBOX_OFFSET_X: f32 = 10.;
+pub const TOOLBOX_OFFSET_Y: f32 = TOOLBOX_OFFSET_X;
+pub const TOOLBOX_WIDTH: f32 = 55.;
+pub const TOOLBOX_HEIGHT: f32 = 250.;
 
 pub fn setup_imgui() -> Context {
     let mut imgui = Context::create();
@@ -173,6 +173,15 @@ pub fn build_and_check_layer_list(v: &mut Editor, ui: &imgui::Ui) {
     }
 }
 
+pub fn get_tools_dialog_rect(v: &Editor) -> (f32, f32, f32, f32) {
+    (
+        v.viewport.winsize.0 as f32 - (TOOLBOX_HEIGHT) - (TOOLBOX_OFFSET_X),
+        v.viewport.winsize.1 as f32 - (TOOLBOX_HEIGHT * 2.) - (TOOLBOX_OFFSET_Y * 2.),
+        TOOLBOX_HEIGHT,
+        TOOLBOX_HEIGHT,
+    )
+}
+
 pub fn build_imgui_ui(v: &mut Editor, ui: &mut imgui::Ui) {
     imgui::Window::new(imgui::im_str!("Tools"))
         .bg_alpha(1.) // See comment on fn redraw_skia
@@ -264,7 +273,9 @@ pub fn build_imgui_ui(v: &mut Editor, ui: &mut imgui::Ui) {
         // while simultaneously modifying the layer with the pen tool or select tool. Very rare edge case but I'd like to do this one in the "right" way in the future.
     }
 
-    //TODO: Add UI event dispatch here.
+    v.dispatch_editor_event(EditorEvent::Ui {
+        ui: ui
+    });
 }
 
 thread_local! { pub static PROMPT_STR: RefCell<imgui::ImString> = RefCell::new(imgui::ImString::new("")); }
