@@ -296,6 +296,9 @@ fn main() {
                         Command::ToolAnchors => {
                             editor.set_tool(ToolEnum::Anchors);
                         }
+                        Command::ToolShapes => {
+                            editor.set_tool(ToolEnum::Shapes);
+                        }
                         Command::TogglePointLabels => {
                             trigger_toggle_on!(
                                 editor,

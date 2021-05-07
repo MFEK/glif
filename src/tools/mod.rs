@@ -3,7 +3,7 @@ use pub_mod::pub_mod;
 pub_mod!("src/tools");
 
 use self::prelude::*;
-use self::{measure::Measure, pan::Pan, pen::Pen, select::Select, zoom::Zoom, vws::VWS, anchors::Anchors};
+use self::{measure::Measure, pan::Pan, pen::Pen, select::Select, zoom::Zoom, vws::VWS, anchors::Anchors, shapes::Shapes};
 use dyn_clone::DynClone;
 use imgui::Ui;
 
@@ -25,6 +25,7 @@ pub enum ToolEnum {
     Measure,
     VWS,
     Anchors,
+    Shapes,
 }
 
 pub fn tool_enum_to_tool(tool: ToolEnum) -> Box<dyn Tool> {
@@ -35,6 +36,7 @@ pub fn tool_enum_to_tool(tool: ToolEnum) -> Box<dyn Tool> {
         ToolEnum::Zoom => {Box::new(Zoom::new())}
         ToolEnum::Measure => {Box::new(Measure::new())}
         ToolEnum::Anchors => {Box::new(Anchors::new())}
+        ToolEnum::Shapes => {Box::new(Shapes::new())} //FIXME: enable vws
         ToolEnum::VWS => {Box::new(VWS::new())} //FIXME: enable vws
     }
 }

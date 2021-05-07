@@ -50,6 +50,7 @@
     <binding command = "ToolVWS" key = "S"/>
     <binding command = "ToolMeasure" key = "M"/>
     <binding command = "ToolAnchors" key = "N"/>
+    <binding command = "ToolShapes" key = "H"/>
 
     <!-- actions -->
     <binding command = "DeleteSelection" key = "Backspace"/>

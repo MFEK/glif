@@ -6,7 +6,7 @@ use crate::command::Command;
 
 use imgui;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Anchors {
     /// Selected anchor
     anchor_idx: Option<usize>,
