@@ -213,7 +213,7 @@ impl Select {
                     if let Some(point_idx) = v.point_idx {
                         v.selected.insert((v.contour_idx.unwrap(), point_idx));
                     }
-                } else {
+                } else if !v.selected.contains(&(ci, pi)) {
                     v.selected = HashSet::new();
                 }
 
