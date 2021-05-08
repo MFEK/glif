@@ -70,7 +70,7 @@ impl Tool for Select {
                     super::MouseEventType::Pressed => { self.mouse_pressed(v, meta) }
                     super::MouseEventType::Released => {self.mouse_released(v, meta)}
                     super::MouseEventType::Moved => { self.mouse_moved(v, meta) }
-                    super::MouseEventType::DoubleClick => { self.mouse_moved(v, meta) }
+                    super::MouseEventType::DoubleClick => { self.mouse_double_pressed(v, meta) }
                 }
             }
             EditorEvent::Draw { skia_canvas } => {
@@ -238,6 +238,24 @@ impl Select {
                 self.corner_two = Some(meta.position);
             },
         };
+    }
+
+    fn mouse_double_pressed(&mut self, v: &mut Editor, meta: MouseInfo) {
+        let ci = if let Some((ci, _pi, _wh)) = clicked_point_or_handle(v, meta.position, None) {
+            ci
+        } else {
+            return
+        };
+
+        let contour_len = v.with_active_layer(|layer| get_outline!(layer)[ci].len());
+
+        if !meta.modifiers.shift {
+            v.selected = HashSet::new();
+        }
+
+        for pi in 0..contour_len {
+            v.selected.insert((ci, pi));
+        }
     }
 
     fn mouse_released(&mut self, v: &mut Editor, meta: MouseInfo) {

@@ -342,12 +342,12 @@ fn main() {
                     editor.mouse_info = meta;
                 }
 
-                Event::MouseButtonDown { mouse_btn, x, y, clicks:2, .. } => {
+                Event::MouseButtonDown { mouse_btn, x, y, clicks: 2, .. } => {
                     
                     let position = (x as f32, y as f32);
                     let meta = MouseInfo::new(&editor, Some(mouse_btn), position, Some(true), keymod);              
                     editor.dispatch_editor_event(EditorEvent::MouseEvent{
-                        event_type: MouseEventType::Pressed,
+                        event_type: MouseEventType::DoubleClick,
                         meta: meta
                     });
 
