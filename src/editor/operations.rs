@@ -6,7 +6,10 @@ use super::Editor;
 impl Editor {
     pub fn rebuild(&mut self)
     {
-        
+        if self.glyph.as_ref().unwrap().layers[0].operation.is_some() {
+            self.glyph.as_mut().unwrap().layers[0].operation = None;
+        }
+
         self.fix_contour_ops();
         let mut preview_layers = Vec::new();
         for layer in &self.glyph.as_ref().unwrap().layers {

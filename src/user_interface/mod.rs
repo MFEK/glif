@@ -220,13 +220,47 @@ pub fn build_and_check_layer_list(v: &mut Editor, ui: &imgui::Ui) {
         }
         ui.same_line(0.);
         
-        ui.button(unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icons::LAYERCOMBINE) }, [0., 0.]);
-        if ui.is_item_clicked(imgui::MouseButton::Left) {
+        let current_operation = v.with_glyph(|glif| glif.layers[layer].operation.clone() );
+        let icon =  match current_operation.as_ref() {
+            Some(op) => {
+                match op {
+                    LayerOperation::Difference => {icons::_LAYERDIFFERENCE}
+                    LayerOperation::Union => {icons::_LAYERUNION}
+                    LayerOperation::XOR => {icons::_LAYERXOR}
+                    LayerOperation::Intersect => {icons::_LAYERINTERSECTION}
+                }
+            }
+            None => {icons::LAYERCOMBINE}
+        };
+        ui.button(unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icon) }, [0., 0.]);
+        if ui.is_item_clicked(imgui::MouseButton::Right) {
             let active_layer = v.get_active_layer();
             v.set_active_layer(layer);
             v.begin_layer_modification("Changed layer operation.");
             v.with_active_layer_mut(|layer| {
-                layer.operation = Some(LayerOperation::Difference);
+                layer.operation = None;
+            });
+            v.end_layer_modification();
+            v.set_active_layer(active_layer);
+        }
+        if ui.is_item_clicked(imgui::MouseButton::Left) {
+            let new_operation = match current_operation {
+                Some(op) => {
+                    match op {
+                        LayerOperation::Difference => { Some(LayerOperation::Union) }
+                        LayerOperation::Union => { Some(LayerOperation::XOR) }
+                        LayerOperation::XOR => { Some(LayerOperation::Intersect)}
+                        LayerOperation::Intersect => { None }
+                    }
+                }
+                None => { Some(LayerOperation::Difference) }
+            };
+
+            let active_layer = v.get_active_layer();
+            v.set_active_layer(layer);
+            v.begin_layer_modification("Changed layer operation.");
+            v.with_active_layer_mut(|layer| {
+                layer.operation = new_operation.clone();
             });
             v.end_layer_modification();
             v.set_active_layer(active_layer);
