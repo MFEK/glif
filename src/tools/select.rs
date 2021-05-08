@@ -111,7 +111,7 @@ impl Select {
                 let ctrl_mod = meta.modifiers.ctrl;
                 v.with_active_layer_mut(|layer| {
                     let outline = get_outline_mut!(layer);
-                    if ctrl_mod {
+                    if !ctrl_mod {
                         for (ci, pi) in &selected {
                             let (ci, pi) = (*ci, *pi);
                             let point = &outline[ci][pi];                          
