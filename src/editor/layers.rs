@@ -10,7 +10,7 @@ impl Editor {
         let new_layer = Layer {
             name: format!("{}", self.glyph.as_ref().unwrap().layers.len()),
             visible: true,
-            color: [0., 0., 0., 1.],
+            color: None,
             outline: Some(Outline::new()),
             contour_ops: HashMap::new(),
             operation: None,

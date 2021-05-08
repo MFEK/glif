@@ -1,6 +1,6 @@
 use std::{borrow::BorrowMut, cell::RefCell, rc::Rc};
 
-use imgui::{self, Context, FontId, Key, StyleColor, StyleVar};
+use imgui::{self, ColorStackToken, Context, FontId, Key, StyleColor, StyleVar};
 use regex::bytes::Replacer;
 
 use crate::{editor, tools::ToolEnum, tools::EditorEvent};
@@ -268,26 +268,32 @@ pub fn build_and_check_layer_list(v: &mut Editor, ui: &imgui::Ui) {
 
         if layer_op.is_none() {
             ui.same_line(0.);
-            let layer_color = v.with_glyph(|glif| glif.layers[layer].color);
-            let color_token = ui.push_style_color(imgui::StyleColor::Button, layer_color);
+            let mut color_token: Option<ColorStackToken> = None;
+            let mut default_color: Option<[f32; 4]> = None;
+            if let Some(color) = v.with_glyph(|glif| glif.layers[layer].color) {
+                color_token = Some(ui.push_style_color(imgui::StyleColor::Button, color));
+            }
             ui.button(imgui::im_str!("##"), [0., 0.]);
             if ui.is_item_clicked(imgui::MouseButton::Left) {
                 v.prompts.push(InputPrompt::Color {
                     label: "Layer color:".to_string(),
-                    default: v.with_glyph(|glif| glif.layers[layer].color.clone()),
+                    default: v.with_glyph(|glif| glif.layers[layer].color.unwrap_or([0., 0., 0., 1.])),
                     func: Rc::new(move |editor, color| {
                         let active_layer = editor.get_active_layer();
                         editor.set_active_layer(layer);
         
                         editor.begin_layer_modification("Changed layer color.");
-                        editor.with_active_layer_mut(|layer| layer.color = color.clone());
+                        editor.with_active_layer_mut(|layer| layer.color = Some(color));
                         editor.end_layer_modification();
         
                         editor.set_active_layer(active_layer);
                     }),
                 });
             }
-            color_token.pop(ui);
+
+            if let Some(token) = color_token {
+                token.pop(ui);
+            }
         }
 
         font_token.pop(ui);
@@ -388,8 +394,13 @@ fn build_and_check_prompts(v: &mut Editor, ui: &mut imgui::Ui)
     .size([v.viewport.winsize.0 as f32, v.viewport.winsize.1 as f32], imgui::Condition::Always)
     .build(ui, || {
         ui.invisible_button(&imgui::im_str!("##"), [-1., -1.]);
+        if ui.is_item_clicked(imgui::MouseButton::Right) {
+            v.prompts.pop();
+        }
     });
 
+    if v.prompts.is_empty() { return };
+    
     match v.prompts[0].clone() {
         InputPrompt::Text{ label, default, func} => {
             imgui::Window::new(&imgui::im_str!("{}", label))

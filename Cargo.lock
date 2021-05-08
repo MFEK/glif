@@ -42,7 +42,6 @@ dependencies = [
 [[package]]
 name = "MFEKmath"
 version = "0.1.0"
-source = "git+https://github.com/MFEK/math.rlib?branch=mfek#63d0e48111859d5dd86544307b99920b29eb7107"
 dependencies = [
  "flo_curves",
  "glifparser",
@@ -794,7 +793,6 @@ dependencies = [
 [[package]]
 name = "glifparser"
 version = "1.0.0"
-source = "git+https://github.com/MFEK/glifparser.rlib?branch=mfek#c7f03def53d5447f67262a8af867af2581d3d580"
 dependencies = [
  "integer_or_float",
  "kurbo",

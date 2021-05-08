@@ -37,12 +37,11 @@ pub fn draw(canvas: &mut Canvas, v: &mut Editor, active_layer: usize)  -> Path {
     let mut total_open_path = Path::new();
     let mut total_closed_path = Path::new();
     let mut total_outline_path = Path::new();
-    let mut root_color = Color4f::new(
-        glif.layers[0].color[0],
-        glif.layers[0].color[1],
-        glif.layers[0].color[2],
-        glif.layers[0].color[3]
-    );
+    let mut root_color = if let Some(color) = glif.layers[0].color {
+        Some(Color4f::new(color[0],color[1],color[2],color[3]))
+    } else {
+        None
+    };
 
 
     for (layer_idx, layer) in glif.layers.iter().enumerate() {
@@ -51,15 +50,19 @@ pub fn draw(canvas: &mut Canvas, v: &mut Editor, active_layer: usize)  -> Path {
         if layer.operation.is_none() && layer_idx != 0 {
             let mut paint = Paint::default();
             paint.set_anti_alias(true);
-            paint.set_color4f(root_color, None);
             
             if v.viewport.preview_mode == PreviewMode::Paper {
                 paint.set_style(PaintStyle::Fill);
             } else {
                 paint.set_style(PaintStyle::StrokeAndFill);
+                paint.set_color(OUTLINE_FILL);
                 paint.set_stroke_width(
                     OUTLINE_STROKE_THICKNESS * (1. / v.viewport.factor),
                 );
+            }
+
+            if let Some(color) = root_color {
+                paint.set_color4f(color, None);
             }
 
             canvas.draw_path(&total_closed_path, &paint);
@@ -68,6 +71,10 @@ pub fn draw(canvas: &mut Canvas, v: &mut Editor, active_layer: usize)  -> Path {
             canvas.draw_path(&total_open_path, &paint);
 
             if v.viewport.preview_mode != PreviewMode::Paper {
+                paint.set_color(OUTLINE_STROKE);
+                if let Some(color) = root_color {
+                    paint.set_color4f(color, None);
+                }
                 paint.set_style(PaintStyle::Stroke);
                 canvas.draw_path(&total_closed_path, &paint);
                 canvas.draw_path(&total_outline_path, &paint);
@@ -77,12 +84,11 @@ pub fn draw(canvas: &mut Canvas, v: &mut Editor, active_layer: usize)  -> Path {
             total_closed_path = Path::new();
             total_outline_path = Path::new();
 
-            root_color = Color4f::new(
-                glif.layers[layer_idx].color[0],
-                glif.layers[layer_idx].color[1],
-                glif.layers[layer_idx].color[2],
-                glif.layers[layer_idx].color[3]
-            );        
+            root_color = if let Some(color) = layer.color {
+                Some(Color4f::new(color[0],color[1],color[2],color[3]))
+            } else {
+                None
+            };
         }
 
         if let Some(outline) = layer.outline.as_ref() {
@@ -133,15 +139,20 @@ pub fn draw(canvas: &mut Canvas, v: &mut Editor, active_layer: usize)  -> Path {
 
     let mut paint = Paint::default();
     paint.set_anti_alias(true);
-    paint.set_color4f(root_color, None);
-
+    
     if v.viewport.preview_mode == PreviewMode::Paper {
         paint.set_style(PaintStyle::Fill);
     } else {
         paint.set_style(PaintStyle::StrokeAndFill);
+        paint.set_color(OUTLINE_FILL);
         paint.set_stroke_width(
             OUTLINE_STROKE_THICKNESS * (1. / v.viewport.factor),
         );
+    }
+
+    if let Some(color) = root_color {
+        println!("YEET");
+        paint.set_color4f(color, None);
     }
 
     canvas.draw_path(&total_closed_path, &paint);

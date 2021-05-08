@@ -47,7 +47,7 @@ impl Editor {
         self.clipboard = Some(Layer{
             name: "".to_string(),
             visible: true,
-            color: [0., 0., 0., 1.],
+            color: None,
             outline: Some(new_outline),
             contour_ops: HashMap::new(),
             operation: None,
