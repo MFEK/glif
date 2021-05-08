@@ -37,13 +37,13 @@ impl From<MouseInfo> for Follow {
                 if modifiers.ctrl {
                     Follow::ForceLine
                 } else {
-                    Follow::Mirror
+                    Follow::No
                 }
             }
             MouseInfo {
                 button: MouseButton::Right,
                 ..
-            } => Follow::No,
+            } => Follow::Mirror,
             _ => Follow::QuadOpposite,
         }
     }
