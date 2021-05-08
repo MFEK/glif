@@ -3,7 +3,7 @@ use super::points::calc::*;
 
 use glifparser::{glif::{LayerOperation}, outline::skia::{ToSkiaPaths, SkiaPointTransforms}};
 use glifparser::FlattenedGlif;
-use skulpin::skia_safe::{Canvas, Paint, PaintStyle, Path, PathOp, Rect};
+use skulpin::skia_safe::{Canvas, Color4f, Paint, PaintStyle, Path, PathOp, Rect};
 
 use crate::editor::{Editor, PreviewMode};
 pub use crate::editor::{HandleStyle, PointLabels, CONSOLE}; // enums
@@ -32,14 +32,59 @@ pub fn draw_components(v: &Editor, canvas: &mut Canvas) {
 // Before we draw we've got to build a flattened path out of the glyph by resolving
 // each layer operation in turn.
 pub fn draw(canvas: &mut Canvas, v: &mut Editor, active_layer: usize)  -> Path {
+    let glif = v.preview.as_mut().unwrap();
     let mut active_path = Path::new();
     let mut total_open_path = Path::new();
     let mut total_closed_path = Path::new();
     let mut total_outline_path = Path::new();
+    let mut root_color = Color4f::new(
+        glif.layers[0].color[0],
+        glif.layers[0].color[1],
+        glif.layers[0].color[2],
+        glif.layers[0].color[3]
+    );
 
-    let glif = v.preview.as_mut().unwrap();
 
     for (layer_idx, layer) in glif.layers.iter().enumerate() {
+        if !layer.visible { continue; }
+
+        if layer.operation.is_none() && layer_idx != 0 {
+            let mut paint = Paint::default();
+            paint.set_anti_alias(true);
+            paint.set_color4f(root_color, None);
+            
+            if v.viewport.preview_mode == PreviewMode::Paper {
+                paint.set_style(PaintStyle::Fill);
+            } else {
+                paint.set_style(PaintStyle::StrokeAndFill);
+                paint.set_stroke_width(
+                    OUTLINE_STROKE_THICKNESS * (1. / v.viewport.factor),
+                );
+            }
+
+            canvas.draw_path(&total_closed_path, &paint);
+
+            paint.set_style(PaintStyle::Stroke);
+            canvas.draw_path(&total_open_path, &paint);
+
+            if v.viewport.preview_mode != PreviewMode::Paper {
+                paint.set_style(PaintStyle::Stroke);
+                canvas.draw_path(&total_closed_path, &paint);
+                canvas.draw_path(&total_outline_path, &paint);
+            }
+            
+            total_open_path = Path::new();
+            total_closed_path = Path::new();
+            total_outline_path = Path::new();
+
+            root_color = Color4f::new(
+                glif.layers[layer_idx].color[0],
+                glif.layers[layer_idx].color[1],
+                glif.layers[layer_idx].color[2],
+                glif.layers[layer_idx].color[3]
+            );        
+        }
+
         if let Some(outline) = layer.outline.as_ref() {
             let skpaths = outline.to_skia_paths(Some(SkiaPointTransforms{calc_x: calc_x, calc_y: calc_y}));
 
@@ -88,16 +133,15 @@ pub fn draw(canvas: &mut Canvas, v: &mut Editor, active_layer: usize)  -> Path {
 
     let mut paint = Paint::default();
     paint.set_anti_alias(true);
+    paint.set_color4f(root_color, None);
 
     if v.viewport.preview_mode == PreviewMode::Paper {
         paint.set_style(PaintStyle::Fill);
-        paint.set_color(PAPER_FILL);
     } else {
         paint.set_style(PaintStyle::StrokeAndFill);
         paint.set_stroke_width(
             OUTLINE_STROKE_THICKNESS * (1. / v.viewport.factor),
         );
-        paint.set_color(OUTLINE_FILL);
     }
 
     canvas.draw_path(&total_closed_path, &paint);
@@ -106,7 +150,6 @@ pub fn draw(canvas: &mut Canvas, v: &mut Editor, active_layer: usize)  -> Path {
     canvas.draw_path(&total_open_path, &paint);
 
     if v.viewport.preview_mode != PreviewMode::Paper {
-        paint.set_color(OUTLINE_STROKE);
         paint.set_style(PaintStyle::Stroke);
         canvas.draw_path(&total_closed_path, &paint);
         canvas.draw_path(&total_outline_path, &paint);

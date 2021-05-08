@@ -4,8 +4,9 @@ use super::Editor;
 
 
 impl Editor {
-    pub fn rebuild_previews(&mut self)
+    pub fn rebuild(&mut self)
     {
+        
         self.fix_contour_ops();
         let mut preview_layers = Vec::new();
         for layer in &self.glyph.as_ref().unwrap().layers {

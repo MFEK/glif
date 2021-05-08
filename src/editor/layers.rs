@@ -9,6 +9,8 @@ impl Editor {
     pub fn new_layer(&mut self) {
         let new_layer = Layer {
             name: format!("{}", self.glyph.as_ref().unwrap().layers.len()),
+            visible: true,
+            color: [0., 0., 0., 1.],
             outline: Some(Outline::new()),
             contour_ops: HashMap::new(),
             operation: None,
@@ -32,7 +34,7 @@ impl Editor {
         self.contour_idx = None;
         self.point_idx = None;
         self.selected.clear();
-        self.rebuild_previews();
+        self.rebuild();
     }
 
     /// Deletes a layer. Generates a history entry and sets the user's selection to the layer above.
@@ -61,7 +63,7 @@ impl Editor {
         self.contour_idx = None;
         self.point_idx = None;
         self.selected.clear();
-        self.rebuild_previews();
+        self.rebuild();
     }
 
     pub fn set_active_layer(&mut self, idx: usize) {
@@ -103,7 +105,11 @@ impl Editor {
         self.glyph.as_mut().unwrap().layers[dest] = src_copy;
         self.glyph.as_mut().unwrap().layers[src] = dest_copy;
 
-        self.rebuild_previews();
+        if dest == 0 && self.glyph.as_ref().unwrap().layers[src].operation.is_none() {
+            self.glyph.as_mut().unwrap().layers[dest].operation = None;
+        }
+
+        self.rebuild();
     }
     
     pub fn get_layer_count(&self) -> usize {

@@ -1,7 +1,7 @@
 use glifparser::{MFEKGlif, glif::{HistoryEntry, HistoryType, Layer, MFEKPointData}};
 
 pub use crate::renderer::console::Console as RendererConsole;
-use crate::tools::{EditorEvent, Tool, ToolEnum, pan::Pan, tool_enum_to_tool};
+use crate::{tools::{EditorEvent, Tool, ToolEnum, pan::Pan, tool_enum_to_tool}, user_interface::InputPrompt};
 
 pub use skulpin::skia_safe::Contains as _;
 pub use skulpin::skia_safe::{Canvas, Matrix, Path as SkPath, Point as SkPoint, Rect as SkRect};
@@ -53,7 +53,7 @@ pub struct Editor {
     pub point_idx: Option<usize>, 
     pub selected: HashSet<(usize, usize)>,
  
-    pub prompts: Vec<(String, Rc<dyn Fn(&mut Editor, String)>)>,
+    pub prompts: Vec<InputPrompt>,
     pub mouse_info: MouseInfo,
     pub viewport: Viewport,
     pub sdl_context: Option<Sdl>,
@@ -99,7 +99,7 @@ impl Editor {
     {
         self.glyph = Some(glyph);
         self.layer_idx = Some(0);
-        self.rebuild_previews();
+        self.rebuild();
     }
 
     /// This is the function that powers the editor. Tools recieve events from the Editor and then use them to modify state.
@@ -138,7 +138,7 @@ impl Editor {
         let glyph = self.glyph.as_mut().unwrap();
         let ret =closure(&mut glyph.layers[self.layer_idx.unwrap()]);
 
-        self.rebuild_previews();
+        self.rebuild();
         ret
     }
 
@@ -148,7 +148,7 @@ impl Editor {
 
         // TODO: Events here.
         self.modifying = false;
-        self.rebuild_previews();
+        self.rebuild();
     }
 
     pub fn is_modifying(&self) -> bool {

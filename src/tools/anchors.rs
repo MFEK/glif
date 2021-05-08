@@ -1,6 +1,6 @@
 use super::prelude::*;
 
-use crate::user_interface::{icons, self, TOOLBOX_HEIGHT};
+use crate::user_interface::{self, InputPrompt, TOOLBOX_HEIGHT, icons};
 
 use crate::command::Command;
 
@@ -168,17 +168,20 @@ impl Anchors {
         // If we have, return, and wait for motion
         if let Some(idx) = self.anchor_idx { return }
 
-        // If not, prompt to create a new anchor
-        v.prompts.push(("Anchor name:".to_string(), Rc::new(|v, string| {
-            let position = v.mouse_info.position;
-            v.with_glyph_mut(|glif| {
-                let mut anchor = GlifAnchor::new();
-                anchor.x = f32::floor(calc_x(position.0));
-                anchor.y = f32::floor(calc_y(position.1));
-                anchor.class = string.clone();
-                glif.anchors.push(anchor);
-            });
-        })));
+        v.prompts.push(InputPrompt::Text {
+            label: "Anchor name:".to_string(),
+            default: "".to_string(),
+            func: Rc::new(move |v, string| {
+                let position = v.mouse_info.position;
+                v.with_glyph_mut(|glif| {
+                    let mut anchor = GlifAnchor::new();
+                    anchor.x = f32::floor(calc_x(position.0));
+                    anchor.y = f32::floor(calc_y(position.1));
+                    anchor.class = string.clone();
+                    glif.anchors.push(anchor);
+                });
+            }),
+        });
     }
 
     fn mouse_moved(&mut self, v: &mut Editor, meta: MouseInfo) {

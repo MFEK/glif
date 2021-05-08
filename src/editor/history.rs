@@ -61,7 +61,7 @@ impl Editor {
                 self.selected = selected
             }
 
-            self.rebuild_previews();
+            self.rebuild();
         }
     }
 
@@ -102,7 +102,7 @@ impl Editor {
                 self.selected = selected
             }
 
-            self.rebuild_previews();
+            self.rebuild();
         }    
     }
 }
