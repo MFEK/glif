@@ -1,11 +1,12 @@
 use super::Select;
 
 use crate::editor::Editor;
-use crate::get_outline_mut;
+use crate::{get_outline, get_outline_mut};
 use crate::user_interface;
 use crate::renderer::constants::PI;
 
 use glifparser::{Handle, Point, PointData, PointType, WhichHandle};
+use glifparser::glif::MFEKPointData;
 use MFEKmath::glif::PolarCoordinates;
 
 use imgui;
@@ -87,8 +88,11 @@ impl Select {
         let multiple_points_selected = v.selected.len() > 1;
 
         let (tx, ty, tw, th) = user_interface::get_tools_dialog_rect(v);
-        v.with_active_layer_mut(|layer| {
-            let mut point = &mut get_outline_mut!(layer)[ci][pi];
+        let mut orig_point: Point<_> = Point::new();
+        let mut point: Point<MFEKPointData> = Point::new();
+        v.with_active_layer(|layer| {
+            point = get_outline!(layer)[ci][pi].clone();
+            orig_point = point.clone();
 
             imgui::Window::new(
                     &if multiple_points_selected {
@@ -170,5 +174,13 @@ impl Select {
                     imgui_radius_theta("B", ui, br, btheta, &mut point);
                 });
         });
+
+        if orig_point.x != point.x || orig_point.y != point.y || orig_point.a != point.a || orig_point.b != point.b || orig_point.ptype != point.ptype {
+            v.begin_layer_modification("Point properties changed (dialog)");
+            v.with_active_layer_mut(|layer| {
+                get_outline_mut!(layer)[ci][pi] = point.clone();
+            });
+            v.end_layer_modification();
+        }
     }
 }
