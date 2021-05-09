@@ -69,6 +69,7 @@ mod command;
 mod io;
 mod ipc;
 mod renderer;
+pub mod settings;
 mod system_fonts;
 mod user_interface;
 
