@@ -10,6 +10,8 @@ use skulpin::skia_safe::dash_path_effect;
 use skulpin::skia_safe::{Canvas, Paint, PaintStyle, Path, Rect};
 use derive_more::Display;
 
+mod dialog;
+
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq)]
 /// Point following behavior when using the select tool
 pub enum Follow {
@@ -74,8 +76,11 @@ impl Tool for Select {
                 }
             }
             EditorEvent::Draw { skia_canvas } => {
-                 self.draw_selbox(v, skia_canvas);
-                 self.draw_merge_preview(v, skia_canvas);
+                self.draw_selbox(v, skia_canvas);
+                self.draw_merge_preview(v, skia_canvas);
+            }
+            EditorEvent::Ui { ui } => {
+                self.select_settings(v, ui);
             }
             _ => {}
         }
@@ -183,6 +188,9 @@ impl Select {
                 });
             }
             _ => {
+                if !meta.modifiers.shift {
+                    v.selected = HashSet::new();
+                }
                 self.corner_two = Some(meta.position);
                 let last_selected = v.selected.clone();
                 let selected = v.with_active_layer(|layer| {

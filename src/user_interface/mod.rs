@@ -61,6 +61,13 @@ pub fn setup_imgui() -> Context {
             config: Some(imgui::FontConfig {
                 oversample_h: 3,
                 oversample_v: 3,
+                glyph_ranges: imgui::FontGlyphRanges::from_slice(&[
+                    0x0020 as u16,
+                    0x00FF as u16,
+                    0x03B8 as u16, // for Greek theta
+                    0x03B8 as u16, // for Greek theta
+                    0,
+                ]),
                 ..Default::default()
             }),
         },
