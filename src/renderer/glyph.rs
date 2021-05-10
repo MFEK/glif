@@ -161,6 +161,10 @@ pub fn draw(canvas: &mut Canvas, v: &mut Editor, active_layer: usize)  -> Path {
 
     if v.viewport.preview_mode != PreviewMode::Paper {
         paint.set_style(PaintStyle::Stroke);
+
+        if root_color.is_none() {
+            paint.set_color(OUTLINE_STROKE);
+        }
         canvas.draw_path(&total_closed_path, &paint);
         canvas.draw_path(&total_outline_path, &paint);
     }
