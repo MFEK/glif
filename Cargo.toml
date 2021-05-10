@@ -39,7 +39,7 @@ git-version = "0.3.4"
 enum-iterator = "=0.6.0"
 
 # Display backtraces
-backtrace = "0.3.53"
+backtrace = "0.3.59"
 colored = "2.0.0"
 
 # Right now only for pasting into console
