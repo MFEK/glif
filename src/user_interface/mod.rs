@@ -25,7 +25,7 @@ pub enum InputPrompt {
     Color {
         label: String,
         default: [f32; 4],
-        func: Rc<dyn Fn(&mut Editor, [f32; 4])>
+        func: Rc<dyn Fn(&mut Editor, Option<[f32; 4]>)>
     }
 }
 pub fn setup_imgui() -> Context {
@@ -292,7 +292,7 @@ pub fn build_and_check_layer_list(v: &mut Editor, ui: &imgui::Ui) {
                         editor.set_active_layer(layer);
         
                         editor.begin_layer_modification("Changed layer color.");
-                        editor.with_active_layer_mut(|layer| layer.color = Some(color));
+                        editor.with_active_layer_mut(|layer| layer.color = color);
                         editor.end_layer_modification();
         
                         editor.set_active_layer(active_layer);
@@ -469,7 +469,13 @@ fn build_and_check_prompts(v: &mut Editor, ui: &mut imgui::Ui)
     
                     if ui.is_key_down(Key::Enter) {
                         ui_color.replace([0., 0., 0., 1.]);
-                        func(v, color);
+                        func(v, Some(color));
+                        v.prompts.pop();
+                    }
+
+                    ui.button(imgui::im_str!("Automatic"), [0., 0.]);
+                    if ui.is_item_clicked(imgui::MouseButton::Left) {
+                        func(v, None);
                         v.prompts.pop();
                     }
                 })

@@ -151,7 +151,6 @@ pub fn draw(canvas: &mut Canvas, v: &mut Editor, active_layer: usize)  -> Path {
     }
 
     if let Some(color) = root_color {
-        println!("YEET");
         paint.set_color4f(color, None);
     }
 
