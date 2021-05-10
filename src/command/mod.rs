@@ -1,4 +1,3 @@
-use app_dirs::*;
 use sdl2::keyboard::Keycode;
 use std::fs::read_to_string;
 use std::path::Path;
@@ -9,6 +8,8 @@ use std::{
 };
 use strum_macros::{Display, EnumString};
 use xmltree;
+
+use crate::settings::APP_INFO;
 
 // a command file is put into the user's config directory upon first run
 // <command name="ToolPen" key = "A">
@@ -93,7 +94,6 @@ pub fn initialize_keybinds() {
             .get("name")
             .expect("Binding does not have a command associated!");
 
-        println!("{0}", sdl2::keyboard::Keycode::to_string(&Keycode::LShift));
         let command_enum = Command::from_str(command).expect("Invalid command string!");
         let keycode_enum =
             sdl2::keyboard::Keycode::from_name(keycode).expect("Invalid keycode string!");
@@ -149,36 +149,29 @@ pub fn key_down_to_mod(keys_down: &HashSet<Keycode>) -> CommandMod {
 
 fn load_keybinding_xml() -> String {
     // check for a keybinding file in our local directory first
-    let config_path = Path::new("./keybindings.xml");
-    let config_string = read_to_string(&config_path);
+    let CONFIG_PATH = Path::new("./keybindings.xml");
+    let config_string = read_to_string(&CONFIG_PATH);
 
     if let Ok(config_string) = config_string {
         return config_string;
     }
 
-    // Next we check in an OS appropriate app directory
-    let config_path = app_dir(AppDataType::UserConfig, &APP_INFO, "glif");
+    let mut pb = CONFIG_PATH.clone().to_path_buf();
 
-    if let Ok(mut pb) = config_path {
-        pb.push("keybindings");
-        pb.set_extension("xml");
+    pb.push("keybindings");
+    pb.set_extension("xml");
 
-        let path = pb.as_path();
-        let config_string = read_to_string(path);
+    let path = pb.as_path();
+    let config_string = read_to_string(path);
 
-        if let Ok(config_string) = config_string {
-            return config_string;
-        }
+    if let Ok(config_string) = config_string {
+        return config_string;
     }
 
     // We didn't find either so we're gonna return our default
     DEFAULT_KEYBINDINGS.to_owned()
 }
 
-const APP_INFO: AppInfo = AppInfo {
-    name: "MFEK",
-    author: "MFEK team",
-};
 const DEFAULT_KEYBINDINGS: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/resources/default_keymap.xml"));
 
 struct KeyData {

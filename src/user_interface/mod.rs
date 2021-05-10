@@ -54,6 +54,8 @@ pub fn setup_imgui() -> Context {
     let font_size = (16.0 * scale_factor) as f32;
     let icon_font_size = (36.0 * scale_factor) as f32;
 
+    static ICON_FONT_TTF_DATA: &[u8] = include_bytes!("../../resources/fonts/icons.ttf");
+
     let id = imgui.fonts().add_font(&[
         imgui::FontSource::TtfData {
             data: &crate::system_fonts::SYSTEMSANS.data,
@@ -61,11 +63,18 @@ pub fn setup_imgui() -> Context {
             config: Some(imgui::FontConfig {
                 oversample_h: 3,
                 oversample_v: 3,
+                glyph_ranges: imgui::FontGlyphRanges::from_slice(&[
+                    0x0020 as u16,
+                    0x00FF as u16,
+                    0x03B8 as u16, // for Greek theta
+                    0x03B8 as u16, // for Greek theta
+                    0,
+                ]),
                 ..Default::default()
             }),
         },
         imgui::FontSource::TtfData {
-            data: include_bytes!("../../resources/fonts/icons.ttf"),
+            data: ICON_FONT_TTF_DATA,
             size_pixels: icon_font_size,
             config: Some(imgui::FontConfig {
                 glyph_ranges: imgui::FontGlyphRanges::from_slice(&[
@@ -89,7 +98,7 @@ pub fn setup_imgui() -> Context {
             }),
         },
         imgui::FontSource::TtfData {
-            data: include_bytes!("../../resources/fonts/icons.ttf"),
+            data: ICON_FONT_TTF_DATA,
             size_pixels: 28.,
             config: Some(imgui::FontConfig {
                 glyph_ranges: imgui::FontGlyphRanges::from_slice(&[

@@ -10,6 +10,8 @@ use skulpin::skia_safe::dash_path_effect;
 use skulpin::skia_safe::{Canvas, Paint, PaintStyle, Path, Rect};
 use derive_more::Display;
 
+mod dialog;
+
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq)]
 /// Point following behavior when using the select tool
 pub enum Follow {
@@ -37,13 +39,13 @@ impl From<MouseInfo> for Follow {
                 if modifiers.ctrl {
                     Follow::ForceLine
                 } else {
-                    Follow::Mirror
+                    Follow::No
                 }
             }
             MouseInfo {
                 button: MouseButton::Right,
                 ..
-            } => Follow::No,
+            } => Follow::Mirror,
             _ => Follow::QuadOpposite,
         }
     }
@@ -70,12 +72,15 @@ impl Tool for Select {
                     super::MouseEventType::Pressed => { self.mouse_pressed(v, meta) }
                     super::MouseEventType::Released => {self.mouse_released(v, meta)}
                     super::MouseEventType::Moved => { self.mouse_moved(v, meta) }
-                    super::MouseEventType::DoubleClick => { self.mouse_moved(v, meta) }
+                    super::MouseEventType::DoubleClick => { self.mouse_double_pressed(v, meta) }
                 }
             }
             EditorEvent::Draw { skia_canvas } => {
-                 self.draw_selbox(v, skia_canvas);
-                 self.draw_merge_preview(v, skia_canvas);
+                self.draw_selbox(v, skia_canvas);
+                self.draw_merge_preview(v, skia_canvas);
+            }
+            EditorEvent::Ui { ui } => {
+                self.select_settings(v, ui);
             }
             _ => {}
         }
@@ -111,7 +116,7 @@ impl Select {
                 let ctrl_mod = meta.modifiers.ctrl;
                 v.with_active_layer_mut(|layer| {
                     let outline = get_outline_mut!(layer);
-                    if ctrl_mod {
+                    if !ctrl_mod {
                         for (ci, pi) in &selected {
                             let (ci, pi) = (*ci, *pi);
                             let point = &outline[ci][pi];                          
@@ -183,6 +188,9 @@ impl Select {
                 });
             }
             _ => {
+                if !meta.modifiers.shift {
+                    v.selected = HashSet::new();
+                }
                 self.corner_two = Some(meta.position);
                 let last_selected = v.selected.clone();
                 let selected = v.with_active_layer(|layer| {
@@ -213,7 +221,7 @@ impl Select {
                     if let Some(point_idx) = v.point_idx {
                         v.selected.insert((v.contour_idx.unwrap(), point_idx));
                     }
-                } else {
+                } else if !v.selected.contains(&(ci, pi)) {
                     v.selected = HashSet::new();
                 }
 
@@ -238,6 +246,24 @@ impl Select {
                 self.corner_two = Some(meta.position);
             },
         };
+    }
+
+    fn mouse_double_pressed(&mut self, v: &mut Editor, meta: MouseInfo) {
+        let ci = if let Some((ci, _pi, _wh)) = clicked_point_or_handle(v, meta.position, None) {
+            ci
+        } else {
+            return
+        };
+
+        let contour_len = v.with_active_layer(|layer| get_outline!(layer)[ci].len());
+
+        if !meta.modifiers.shift {
+            v.selected = HashSet::new();
+        }
+
+        for pi in 0..contour_len {
+            v.selected.insert((ci, pi));
+        }
     }
 
     fn mouse_released(&mut self, v: &mut Editor, meta: MouseInfo) {
