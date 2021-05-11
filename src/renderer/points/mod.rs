@@ -303,9 +303,9 @@ pub fn draw_all(v: &Editor, canvas: &mut Canvas) {
         for (lidx, layer) in glif.layers.iter().enumerate() {
             if lidx != active_layer { continue };
             if handle_style == HandleStyle::Handlebars {
-                for (cidx, contour) in layer.outline.as_ref().unwrap() .iter().enumerate(){
-                    let mut prevpoint = contour.first().unwrap();
-                    for (pidx, point) in contour.iter().enumerate() {
+                for (cidx, contour) in layer.outline.iter().enumerate(){
+                    let mut prevpoint = contour.inner.first().unwrap();
+                    for (pidx, point) in contour.inner.iter().enumerate() {
                         let selected = if  
                             (lidx == active_layer && selected.contains(&(cidx, pidx))) ||
                             (lidx == active_layer && vcidx == Some(cidx) && vpidx == Some(pidx))
@@ -316,8 +316,8 @@ pub fn draw_all(v: &Editor, canvas: &mut Canvas) {
                 }
             }
 
-            for (cidx, contour) in layer.outline.as_ref().unwrap() .iter().enumerate(){
-                for (pidx, point) in contour.iter().enumerate() {
+            for (cidx, contour) in layer.outline.iter().enumerate(){
+                for (pidx, point) in contour.inner.iter().enumerate() {
                     if point.b != Handle::Colocated {
                         i += 1;
                     }

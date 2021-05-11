@@ -120,7 +120,7 @@ impl VWS {
         };
     
         v.with_active_layer(|layer| {
-            for _i in 0..get_outline!(layer)[contour_idx].len() + 1 {
+            for _i in 0..get_contour_len!(layer, contour_idx) + 1 {
                 new_vws_contour.handles.push(VWSHandle {
                     left_offset: 10.,
                     right_offset: 10.,
@@ -156,7 +156,7 @@ impl VWS {
         };
 
         v.with_active_layer_mut(|layer| {        
-            let contour_pw = Piecewise::from(&get_outline!(layer)[contour_idx]);
+            let contour_pw = Piecewise::from(&get_contour!(layer, contour_idx));
         
             let side_multiplier = match self.handle.unwrap() {
                 WhichHandle::A => 1.,
@@ -245,7 +245,7 @@ impl VWS {
         let mouse_pos = meta.position;
 
         v.with_active_layer(|layer| {
-            for (contour_idx, contour) in get_outline!(layer).iter().enumerate() {
+            for (contour_idx, contour) in layer.outline.iter().enumerate() {
                 let contour_pw = Piecewise::from(contour);
         
                 let size = ((POINT_RADIUS * 2.) + (POINT_STROKE_THICKNESS * 2.)) * (1. / factor);
@@ -276,7 +276,7 @@ impl VWS {
                     }
                 }
         
-                if contour.first().unwrap().ptype == glifparser::PointType::Move {
+                if contour.inner.first().unwrap().ptype == glifparser::PointType::Move {
                     let vws_handle_idx = contour_pw.segs.len();
         
                     let handle_pos_left =
@@ -342,7 +342,7 @@ impl VWS {
     fn get_vws_handle_pos(&self, v: &Editor, contour_idx: usize, handle_idx: usize, side: WhichHandle) -> (Vector, Vector, Vector) {
         v.with_active_layer(|layer| {
             let vws_contour = self.get_vws_contour(v, contour_idx).unwrap_or(self.generate_vws_contour(v, contour_idx));
-            let contour_pw = Piecewise::from(&get_outline!(layer)[contour_idx]);
+            let contour_pw = Piecewise::from(&get_contour!(layer, contour_idx));
     
             let vws_handle = vws_contour.handles[handle_idx];
             
@@ -401,7 +401,7 @@ impl VWS {
         v.with_active_layer( |layer | {
             let factor = v.viewport.factor;
 
-            for (contour_idx, contour) in get_outline!(layer).iter().enumerate() {
+            for (contour_idx, contour) in layer.outline.iter().enumerate() {
                 let contour_pw = Piecewise::from(contour);
 
                 for (vws_handle_idx, bezier) in contour_pw.segs.iter().enumerate() {
@@ -432,7 +432,7 @@ impl VWS {
                     canvas.draw_path(&path, &paint);
                 }
 
-                if contour.first().unwrap().ptype == glifparser::PointType::Move {
+                if contour.inner.first().unwrap().ptype == glifparser::PointType::Move {
                     if contour_pw.segs.len() < 2 { continue };
                     let vws_handle_idx = contour_pw.segs.len();
                     let bezier = contour_pw.segs.last().unwrap();

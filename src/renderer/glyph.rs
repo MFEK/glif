@@ -91,50 +91,48 @@ pub fn draw(canvas: &mut Canvas, v: &mut Editor, active_layer: usize)  -> Path {
             };
         }
 
-        if let Some(outline) = layer.outline.as_ref() {
-            let skpaths = outline.to_skia_paths(Some(SkiaPointTransforms{calc_x: calc_x, calc_y: calc_y}));
+        let skpaths = layer.outline.to_skia_paths(Some(SkiaPointTransforms{calc_x: calc_x, calc_y: calc_y}));
 
-            if layer_idx == active_layer {
-                active_path = skpaths.clone().into();
+        if layer_idx == active_layer {
+            active_path = skpaths.clone().into();
+        }
+
+        if let Some(op) = &layer.operation {
+            let pathop = match op {
+                LayerOperation::Difference  => PathOp::Difference,
+                LayerOperation::Union  => PathOp::Union,
+                LayerOperation::Intersect => PathOp::Intersect,
+                LayerOperation::XOR => PathOp::XOR
+            };
+
+            if let Some(open) = skpaths.open {
+                total_open_path.add_path(&open, (0., 0.), skulpin::skia_safe::path::AddPathMode::Append);
             }
 
-            if let Some(op) = &layer.operation {
-                let pathop = match op {
-                    LayerOperation::Difference  => PathOp::Difference,
-                    LayerOperation::Union  => PathOp::Union,
-                    LayerOperation::Intersect => PathOp::Intersect,
-                    LayerOperation::XOR => PathOp::XOR
-                };
-
-                if let Some(open) = skpaths.open {
-                    total_open_path.add_path(&open, (0., 0.), skulpin::skia_safe::path::AddPathMode::Append);
+            if let Some(closed) = skpaths.closed {
+                total_outline_path.add_path(&closed, (0., 0.), skulpin::skia_safe::path::AddPathMode::Append);
+                if let Some(result) = total_closed_path.op(&closed, pathop) {
+                    total_closed_path = Path::new();
+                    total_closed_path.add_path(&result, (0., 0.), skulpin::skia_safe::path::AddPathMode::Append);
                 }
-
-                if let Some(closed) = skpaths.closed {
-                    total_outline_path.add_path(&closed, (0., 0.), skulpin::skia_safe::path::AddPathMode::Append);
-                    if let Some(result) = total_closed_path.op(&closed, pathop) {
-                        total_closed_path = Path::new();
-                        total_closed_path.reverse_add_path(&result.as_winding().unwrap());
-                    }
-                    else 
-                    {
-                        total_closed_path.add_path(&closed, (0., 0.), skulpin::skia_safe::path::AddPathMode::Append);
-                    }
-                }
-            }
-            else
-            {
-                if let Some(open) = skpaths.open {
-                    total_open_path.add_path(&open, (0., 0.), skulpin::skia_safe::path::AddPathMode::Append);
-                }
-
-                if let Some(closed) = skpaths.closed {
-                    total_outline_path.add_path(&closed, (0., 0.), skulpin::skia_safe::path::AddPathMode::Append);
+                else 
+                {
                     total_closed_path.add_path(&closed, (0., 0.), skulpin::skia_safe::path::AddPathMode::Append);
                 }
             }
-
         }
+        else
+        {
+            if let Some(open) = skpaths.open {
+                total_open_path.add_path(&open, (0., 0.), skulpin::skia_safe::path::AddPathMode::Append);
+            }
+
+            if let Some(closed) = skpaths.closed {
+                total_outline_path.add_path(&closed, (0., 0.), skulpin::skia_safe::path::AddPathMode::Append);
+                total_closed_path.add_path(&closed, (0., 0.), skulpin::skia_safe::path::AddPathMode::Append);
+            }
+        }
+
     }
 
     let mut paint = Paint::default();

@@ -13,7 +13,6 @@ use std::{cell::RefCell, rc::Rc, sync::Arc};
 use std::collections::HashSet;
 
 use crate::get_contour_mut;
-use crate::get_outline_mut;
 
 mod toggles;
 pub use self::toggles::*;
@@ -224,7 +223,7 @@ impl Editor {
                     endc.push(point);
                 }
 
-                get_outline_mut!(layer).remove(start);
+                layer.outline.remove(start);
                 //TODO: we need some kind of handling for when contours get removed
                 if start < end {
                     (end, p_idx)

@@ -39,15 +39,14 @@ impl Pen {
         if let Some(idx) = v.contour_idx {
             let mousepos = meta.position;
             v.with_active_layer_mut(|layer| {
-                let outline = get_outline_mut!(layer);
-                let last_point = outline[idx].last().unwrap().clone();
+                let last_point = get_contour!(layer, idx).last().unwrap().clone();
 
                 let pos = (calc_x(mousepos.0 as f32), calc_y(mousepos.1 as f32));
                 let offset = (last_point.x - pos.0, last_point.y - pos.1);
                 let handle_b = (last_point.x + offset.0, last_point.y + offset.1);
 
-                outline[idx].last_mut().unwrap().a = Handle::At(calc_x(mousepos.0 as f32), calc_y(mousepos.1 as f32));
-                outline[idx].last_mut().unwrap().b = Handle::At(handle_b.0, handle_b.1);
+                get_contour!(layer, idx).last_mut().unwrap().a = Handle::At(calc_x(mousepos.0 as f32), calc_y(mousepos.1 as f32));
+                get_contour!(layer, idx).last_mut().unwrap().b = Handle::At(handle_b.0, handle_b.1);
             });
         }
     }
@@ -86,7 +85,7 @@ impl Pen {
         if let Some(info) = nearest_point_on_curve(v, meta.position) {
             v.with_active_layer_mut(|layer| {
                 let mut second_idx_zero = false;
-                let contour = &mut layer.outline.as_mut().unwrap()[info.contour_idx];
+                let contour = get_contour_mut!(layer, info.contour_idx);
                 let mut point = contour.remove(info.seg_idx);
                 let mut next_point = if info.seg_idx == contour.len() {
                     second_idx_zero = true;
@@ -130,17 +129,16 @@ impl Pen {
         // If we've got the end of a contour selected with continue drawing that contour and return.
         if let Some(contour_idx) = v.contour_idx {
             let mouse_pos = meta.position;
-            let contour_len = v.with_active_layer(|layer| {get_outline!(layer)[contour_idx].len()});
+            let contour_len = v.with_active_layer(|layer| {get_contour_len!(layer, contour_idx)});
 
             if v.point_idx.unwrap() == contour_len - 1 {
                 v.point_idx = v.with_active_layer_mut(|layer| {
-                    let outline = get_outline_mut!(layer);
-                    outline[contour_idx].push(Point::from_x_y_type(
+                    get_contour!(layer, contour_idx).push(Point::from_x_y_type(
                     (calc_x(mouse_pos.0 as f32), calc_y(mouse_pos.1 as f32)),
                     PointType::Curve,
                     ));
     
-                    Some(outline[contour_idx].len() - 1)
+                    Some(get_contour_len!(layer, contour_idx) - 1)
                 });
                 return
             }
@@ -150,7 +148,6 @@ impl Pen {
         // Lastly if we get here we create a new contour.
         let mouse_pos = meta.position;
         v.contour_idx = v.with_active_layer_mut(|layer| {
-            let outline = get_outline_mut!(layer);
             let mut new_contour: Contour<MFEKPointData> = Vec::new();
             new_contour.push(Point::from_x_y_type(
                 (calc_x(mouse_pos.0 as f32), calc_y(mouse_pos.1 as f32)),
@@ -160,9 +157,9 @@ impl Pen {
                     PointType::Curve
                 },
             ));
-            outline.push(new_contour);
 
-            Some(outline.len() - 1)
+            layer.outline.push(new_contour.into());
+            Some(layer.outline.len() - 1)
         });
         v.point_idx = Some(0);
     }
@@ -171,7 +168,7 @@ impl Pen {
         // No matter what a mouse press generates a layer modification so we have to finalize that here.
         if let Some(idx) = v.contour_idx {
             v.with_active_layer_mut(|layer| {
-                get_outline_mut!(layer)[idx].last_mut().map(|point| {
+                get_contour!(layer, idx).last_mut().map(|point| {
                     if point.a != Handle::Colocated && point.ptype != PointType::Move {
                         point.ptype = PointType::Curve;
                     }

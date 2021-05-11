@@ -1,7 +1,6 @@
 use super::Select;
 
 use crate::editor::Editor;
-use crate::{get_outline, get_outline_mut};
 use crate::user_interface;
 use crate::renderer::constants::PI;
 
@@ -91,7 +90,7 @@ impl Select {
         let mut orig_point: Point<_> = Point::new();
         let mut point: Point<MFEKPointData> = Point::new();
         v.with_active_layer(|layer| {
-            point = get_outline!(layer)[ci][pi].clone();
+            point = layer.outline[ci].inner[pi].clone();
             orig_point = point.clone();
 
             imgui::Window::new(
@@ -178,7 +177,7 @@ impl Select {
         if orig_point.x != point.x || orig_point.y != point.y || orig_point.a != point.a || orig_point.b != point.b || orig_point.ptype != point.ptype {
             v.begin_layer_modification("Point properties changed (dialog)");
             v.with_active_layer_mut(|layer| {
-                get_outline_mut!(layer)[ci][pi] = point.clone();
+                layer.outline[ci].inner[pi] = point.clone();
             });
             v.end_layer_modification();
         }

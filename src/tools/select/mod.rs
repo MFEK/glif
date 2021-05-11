@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 // Select
-use crate::get_outline;
+use crate::{get_point};
 use super::{EditorEvent, Tool, prelude::*};
 use crate::renderer::{UIPointType, points::draw_point};
 use crate::editor::{Editor, util::clicked_point_or_handle};
@@ -111,22 +111,21 @@ impl Select {
                     v.begin_layer_modification("Move point.");
                 }
 
-                let reference_point = v.with_active_layer(|layer| get_outline!(layer)[ci][pi].clone());
+                let reference_point = v.with_active_layer(|layer| get_point!(layer, ci, pi).clone());
                 let selected = v.selected.clone();
                 let ctrl_mod = meta.modifiers.ctrl;
                 v.with_active_layer_mut(|layer| {
-                    let outline = get_outline_mut!(layer);
                     if !ctrl_mod {
                         for (ci, pi) in &selected {
                             let (ci, pi) = (*ci, *pi);
-                            let point = &outline[ci][pi];                          
+                            let point = &get_point!(layer, ci, pi);                          
                             let offset_x = point.x - reference_point.x;
                             let offset_y = point.y - reference_point.y;
-                            move_point(outline, ci, pi, x + offset_x, y + offset_y);
+                            move_point(&mut layer.outline, ci, pi, x + offset_x, y + offset_y);
                         }
                     }
 
-                    move_point(outline, ci, pi, x, y);
+                    move_point(&mut layer.outline, ci, pi, x, y);
 
                 });
     
@@ -138,11 +137,9 @@ impl Select {
                 }
                 
                 v.with_active_layer_mut(|layer| {
-                    let outline = get_outline_mut!(layer);
-
                     let handle = match wh {
-                        WhichHandle::A => outline[ci][pi].a,
-                        WhichHandle::B => outline[ci][pi].b,
+                        WhichHandle::A => get_point!(layer, ci, pi).a,
+                        WhichHandle::B => get_point!(layer, ci, pi).b,
                         WhichHandle::Neither => unreachable!("Should've been matched by above?!"),
                     };
         
@@ -160,18 +157,18 @@ impl Select {
                     // point is better?
                     macro_rules! move_mirror {
                         ($cur:ident, $mirror:ident) => {
-                            outline[ci][pi].$cur = Handle::At(x, y);
-                            let h = outline[ci][pi].$mirror;
+                            get_point!(layer, ci, pi).$cur = Handle::At(x, y);
+                            let h = get_point!(layer, ci, pi).$mirror;
                             match h {
                                 Handle::At(hx, hy) => {
                                     if self.follow == Follow::Mirror {
-                                        outline[ci][pi].$mirror = Handle::At(hx + dx, hy + dy);
+                                        get_point!(layer, ci, pi).$mirror = Handle::At(hx + dx, hy + dy);
                                     } else if self.follow == Follow::ForceLine {
                                         let (px, py) =
-                                            (outline[ci][pi].x, outline[ci][pi].y);
+                                            (get_point!(layer, ci, pi).x, get_point!(layer, ci, pi).y);
                                         let (dx, dy) = (px - x, py - y);
         
-                                        outline[ci][pi].$mirror = Handle::At(px + dx, py + dy);
+                                        get_point!(layer, ci, pi).$mirror = Handle::At(px + dx, py + dy);
                                     }
                                 }
                                 Handle::Colocated => (),
@@ -204,7 +201,7 @@ impl Select {
                     build_box_selection(
                         last_selected.clone(),
                         rect,
-                        layer.outline.as_ref(),
+                        &layer.outline,
                     )
                 });
                 v.selected = selected
@@ -255,7 +252,7 @@ impl Select {
             return
         };
 
-        let contour_len = v.with_active_layer(|layer| get_outline!(layer)[ci].len());
+        let contour_len = v.with_active_layer(|layer| get_contour_len!(layer, ci));
 
         if !meta.modifiers.shift {
             v.selected = HashSet::new();

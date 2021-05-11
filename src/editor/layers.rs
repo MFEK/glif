@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use glifparser::{Outline, glif::{HistoryEntry, HistoryType, Layer}};
+use glifparser::{Outline, glif::{MFEKOutline, HistoryEntry, HistoryType, Layer}};
 use super::Editor;
 
 impl Editor {
@@ -11,7 +11,7 @@ impl Editor {
             name: format!("{}", self.glyph.as_ref().unwrap().layers.len()),
             visible: true,
             color: None,
-            outline: Some(Outline::new()),
+            outline: MFEKOutline::new(),
             contour_ops: HashMap::new(),
             operation: None,
         };

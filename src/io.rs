@@ -9,14 +9,6 @@ pub fn load_glif<F: AsRef<Path> + Clone>(v: &mut Editor, filename: F) {
     // TODO: Actually handle errors now that we have them.
     let mut glif: MFEKGlif<MFEKPointData> = glifparser::read_from_filename(&filename).expect("Invalid glif!").into();
 
-    // This is necessary because the glif format doesn't require that a glif have an outline. But
-    // we require a place to store contours if the user draws any.
-    for layer in &mut glif.layers {
-        if layer.outline.is_none() {
-            layer.outline = Some(glifparser::Outline::new());
-        }
-    }
-
     if env::var("DEBUG_DUMP_GLYPH").is_ok() {
         debug!("{:#?}", &glif.clone());
     }

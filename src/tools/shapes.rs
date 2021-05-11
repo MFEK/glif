@@ -4,7 +4,7 @@ use crate::user_interface;
 
 use imgui;
 use skulpin::skia_safe::{Matrix, Path, PathDirection, PathEffect, Rect, RRect, Point as SkPoint, StrokeRec};
-use glifparser::{outline::skia::FromSkiaPath, Outline};
+use glifparser::{Outline, glif::MFEKContour, outline::skia::FromSkiaPath};
 
 
 impl Tool for Shapes {
@@ -234,13 +234,11 @@ impl Shapes {
         if let Some(pos) = self.pressed_pos {
             if self.dropped_shape {
                 v.with_active_layer_mut(|layer| {
-                    let outline = get_outline_mut!(layer);
-                    outline.remove(outline.len()-1);
+                    layer.outline.remove(layer.outline.len()-1);
                 });
             }
             
             v.with_active_layer_mut(|layer| {
-                let outline = get_outline_mut!(layer);
                 let sd = ShapeDrawer { meta, from: pos, sdata: self.sdata };
                 let o = match self.stype {
                     ShapeType::Circle => sd.draw_circle(),
@@ -248,7 +246,9 @@ impl Shapes {
                     ShapeType::Polygon => sd.draw_polygon(self.stype),
                     _ => {unimplemented!("Attempt to draw unimplemented shape")}
                 };
-                outline.extend(o);
+
+                let mfek_o: Vec<MFEKContour<MFEKPointData>> = o.iter().map(|e| e.into()).collect();
+                layer.outline.extend(mfek_o);
                 self.dropped_shape = true;
             });
         }

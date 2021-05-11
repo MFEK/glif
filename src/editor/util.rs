@@ -2,8 +2,8 @@ use std::collections::HashSet;
 
 use MFEKmath::{Bezier, Evaluate, Piecewise, Vector, evaluate::Primitive};
 use flo_curves::bezier::solve_curve_for_t;
-use glifparser::{Handle, Outline, WhichHandle, glif::MFEKPointData};
-use crate::{get_outline, tools::prelude::math::FlipIfRequired};
+use glifparser::{Handle, Outline, WhichHandle, glif::{MFEKOutline, MFEKPointData}};
+use crate::{tools::prelude::math::FlipIfRequired};
 use crate::get_contour_len;
 use crate::renderer::constants::*;
 use crate::renderer::points::calc::*;
@@ -33,8 +33,8 @@ pub fn clicked_point_or_handle(v: &Editor, position: (f32, f32), mask: Option<(u
     // language, so I'm not too concerned about it, and even in the TT2020 case doesn't seem to
     // slow anything down.
     v.with_active_layer(|layer| {
-        for (contour_idx, contour) in get_outline!(layer).iter().enumerate() {
-            for (point_idx, point) in contour.iter().enumerate() {
+        for (contour_idx, contour) in layer.outline.iter().enumerate() {
+            for (point_idx, point) in contour.inner.iter().enumerate() {
                 if let Some(mask) = mask { if contour_idx == mask.0 && point_idx == mask.1 { continue }};
 
                 let size = ((POINT_RADIUS * 2.) + (POINT_STROKE_THICKNESS * 2.)) * (1. / factor);
@@ -106,7 +106,7 @@ pub struct PenPointInfo {
 pub fn nearest_point_on_curve(v: &Editor, position: (f32, f32)) -> Option<PenPointInfo>
 {
     v.with_active_layer(|layer| {
-        let pw: Piecewise<Piecewise<Bezier>> = layer.outline.as_ref().unwrap().into();
+        let pw: Piecewise<Piecewise<Bezier>> = (&layer.outline).into();
         
         let mut distance = f64::INFINITY;
         let mut current = None;
@@ -162,17 +162,15 @@ pub fn nearest_point_on_curve(v: &Editor, position: (f32, f32)) -> Option<PenPoi
 pub fn build_box_selection(
     selected: HashSet<(usize, usize)>,
     mut rect: SkRect,
-    outline: Option<&Vec<glifparser::Contour<MFEKPointData>>>,
+    outline: &MFEKOutline<MFEKPointData>,
 ) -> HashSet<(usize, usize)> {
     rect.flip_if_required();
 
     let mut selected = selected.clone();
-    for o in outline {
-        for (cidx, contour) in o.iter().enumerate() {
-            for (pidx, point) in contour.iter().enumerate() {
-                if SkRect::from(rect).contains(SkPoint::from((calc_x(point.x), calc_y(point.y)))) {
-                    selected.insert((cidx, pidx));
-                }
+    for (cidx, contour) in outline.iter().enumerate() {
+        for (pidx, point) in contour.inner.iter().enumerate() {
+            if SkRect::from(rect).contains(SkPoint::from((calc_x(point.x), calc_y(point.y)))) {
+                selected.insert((cidx, pidx));
             }
         }
     }
@@ -180,24 +178,24 @@ pub fn build_box_selection(
     selected
 }
 
-pub fn move_point(outline: &mut Outline<MFEKPointData>, ci: usize, pi: usize, x: f32, y: f32) {
-    let (cx, cy) = (outline[ci][pi].x, outline[ci][pi].y);
+pub fn move_point(outline: &mut MFEKOutline<MFEKPointData>, ci: usize, pi: usize, x: f32, y: f32) {
+    let (cx, cy) = (outline[ci].inner[pi].x, outline[ci].inner[pi].y);
     let (dx, dy) = (cx - x, cy - y);
 
-    outline[ci][pi].x = x;
-    outline[ci][pi].y = y;
+    outline[ci].inner[pi].x = x;
+    outline[ci].inner[pi].y = y;
 
-    let a = outline[ci][pi].a;
-    let b = outline[ci][pi].b;
+    let a = outline[ci].inner[pi].a;
+    let b = outline[ci].inner[pi].b;
     match a {
         Handle::At(hx, hy) => {
-            outline[ci][pi].a = Handle::At(hx - dx, hy - dy)
+            outline[ci].inner[pi].a = Handle::At(hx - dx, hy - dy)
         }
         Handle::Colocated => (),
     }
     match b {
         Handle::At(hx, hy) => {
-            outline[ci][pi].b = Handle::At(hx - dx, hy - dy)
+            outline[ci].inner[pi].b = Handle::At(hx - dx, hy - dy)
         }
         Handle::Colocated => (),
     }
