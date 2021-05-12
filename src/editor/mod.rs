@@ -1,4 +1,5 @@
-use glifparser::{MFEKGlif, glif::{HistoryEntry, HistoryType, Layer, MFEKPointData}};
+use glifparser::{MFEKGlif, Image, glif::{HistoryEntry, HistoryType, Layer, MFEKPointData}};
+use glifparser::{Color as GlifColor};
 
 pub use crate::renderer::console::Console as RendererConsole;
 use crate::{tools::{EditorEvent, Tool, ToolEnum, pan::Pan, tool_enum_to_tool}, user_interface::InputPrompt};
@@ -21,6 +22,8 @@ pub mod util;
 
 pub mod viewport;
 pub use self::viewport::Viewport;
+
+pub mod images;
 
 pub mod input;
 pub use self::input::MouseInfo;
@@ -51,6 +54,8 @@ pub struct Editor {
     pub contour_idx: Option<usize>,   // index into Outline
     pub point_idx: Option<usize>, 
     pub selected: HashSet<(usize, usize)>,
+
+    pub images: images::EditorImages,
  
     pub prompts: Vec<InputPrompt>,
     pub mouse_info: MouseInfo,
@@ -82,6 +87,8 @@ impl Editor {
             ipc_info: None,
             quit_requested: false,
 
+            images: images::EditorImages::new(),
+
             // selection state
             layer_idx: None,
             contour_idx: None,   // index into Outline
@@ -99,6 +106,8 @@ impl Editor {
         self.glyph = Some(glyph);
         self.layer_idx = Some(0);
         self.rebuild();
+        self.recache_images();
+        debug!("Images: {:?}", &self.images);
     }
 
     /// This is the function that powers the editor. Tools recieve events from the Editor and then use them to modify state.

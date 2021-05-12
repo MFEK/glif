@@ -14,6 +14,7 @@ impl Editor {
             outline: MFEKOutline::new(),
             contour_ops: HashMap::new(),
             operation: None,
+            images: vec![],
         };
 
         self.history.add_undo_entry(HistoryEntry {

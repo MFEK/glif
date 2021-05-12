@@ -51,6 +51,7 @@ impl Editor {
             outline: new_outline,
             contour_ops: HashMap::new(),
             operation: None,
+            images: layer.images.clone(),
         })
     }
 

@@ -3,6 +3,7 @@
 use crate::{tools::{EditorEvent}, editor::{PreviewMode, Editor}};
 use crate::{CONSOLE};
 use glifparser::Handle;
+use glifparser::matrix::{Affine, ToSkiaMatrix};
 
 pub mod constants;
 use self::constants::*;
@@ -21,7 +22,9 @@ pub mod viewport;
 // TODO: pub use crate::events::vws;
 pub use crate::editor::{HandleStyle, PointLabels}; // enums
 
-use skulpin::skia_safe::Canvas;
+use skulpin::skia_safe::{Canvas, Matrix, EncodedOrigin};
+
+pub use points::calc::{calc_x, calc_y};
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum UIPointType {
@@ -43,6 +46,26 @@ pub fn render_frame(v: &mut Editor, canvas: &mut Canvas) {
     // This will change the SkCanvas transformation matrix, and everything from here to
     // canvas.restore() will need to take that matrix into consideration.
     viewport::redraw_viewport(v, canvas);
+
+    v.with_glyph(|glif| {
+        for layer in &glif.layers {
+            for (l_image, i_matrix) in &layer.images {
+                let image = &v.images[&l_image.filename];
+                let matrix2 = Matrix::translate((calc_x(0.), calc_y(0.)));
+                let mut tm = canvas.local_to_device_as_3x3();
+                canvas.save();
+                //let matrix2 = EncodedOrigin::to_matrix(EncodedOrigin::BottomLeft, (image.img.width(), image.img.height()));
+                let mut matrix = tm * *i_matrix * matrix2;
+                canvas.set_matrix(&((matrix).into()));
+                //eprintln!("{:?}", Matrix::new_identity().set_rotate(45., None).to_affine());
+                // We shouldn't use (0., 0.) because this is a glifparser image, relative to the glif's points.
+                // So, we need points::calc::calc_(x|y). Remember also, the glif y is positive, while Skia's
+                // negative.
+                canvas.draw_image(&image.img, (0., 0.), None);
+                canvas.restore();
+            }
+        }
+    });
 
     if pm != PreviewMode::Paper || PAPER_DRAW_GUIDELINES {
         guidelines::draw_all(v, canvas);
