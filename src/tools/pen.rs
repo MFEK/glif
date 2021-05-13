@@ -156,9 +156,9 @@ impl Pen {
             new_contour.push(Point::from_x_y_type(
                 (calc_x(mouse_pos.0 as f32), calc_y(mouse_pos.1 as f32)),
                 if meta.modifiers.shift {
-                    PointType::Move
-                } else {
                     PointType::Curve
+                } else {
+                    PointType::Move
                 },
             ));
 
