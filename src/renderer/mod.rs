@@ -51,11 +51,12 @@ pub fn render_frame(v: &mut Editor, canvas: &mut Canvas) {
         for layer in &glif.layers {
             for (l_image, i_matrix) in &layer.images {
                 let image = &v.images[&l_image.filename];
-                let matrix2 = Matrix::translate((calc_x(0.), calc_y(0.)));
+                let origin_transform = Matrix::translate((0., 0. - image.img.height() as f32));
+                let matrix3 = Matrix::translate((calc_x(0.), calc_y(0.)));
                 let mut tm = canvas.local_to_device_as_3x3();
                 canvas.save();
                 //let matrix2 = EncodedOrigin::to_matrix(EncodedOrigin::BottomLeft, (image.img.width(), image.img.height()));
-                let mut matrix = tm * *i_matrix * matrix2;
+                let mut matrix = tm * matrix3 * *i_matrix * origin_transform ;
                 canvas.set_matrix(&((matrix).into()));
                 //eprintln!("{:?}", Matrix::new_identity().set_rotate(45., None).to_affine());
                 // We shouldn't use (0., 0.) because this is a glifparser image, relative to the glif's points.
