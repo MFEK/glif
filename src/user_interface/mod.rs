@@ -5,7 +5,7 @@ use regex::bytes::Replacer;
 
 use crate::{editor, tools::ToolEnum, tools::EditorEvent};
 use crate::editor::Editor;
-use glifparser::glif::{LayerOperation};
+use glifparser::glif::{Layer, LayerOperation, MFEKPointData};
 
 pub mod icons;
  
@@ -26,6 +26,10 @@ pub enum InputPrompt {
         label: String,
         default: [f32; 4],
         func: Rc<dyn Fn(&mut Editor, Option<[f32; 4]>)>
+    },
+    Layer {
+        label: String,
+        func: Rc<dyn Fn(&mut Editor, Layer<MFEKPointData>)>
     }
 }
 pub fn setup_imgui() -> Context {
@@ -351,7 +355,7 @@ pub fn build_imgui_ui(v: &mut Editor, ui: &mut imgui::Ui) {
             [TOOLBOX_OFFSET_X, TOOLBOX_OFFSET_Y],
             imgui::Condition::Always,
         )
-        .size([TOOLBOX_WIDTH, TOOLBOX_HEIGHT], imgui::Condition::Always)
+        .size([TOOLBOX_WIDTH, TOOLBOX_HEIGHT+50.], imgui::Condition::Always)
         .build(ui, || {
             build_and_check_button(v, &ui, ToolEnum::Pan, &icons::PAN);
             build_and_check_button(v, &ui, ToolEnum::Select, &icons::SELECT);
@@ -362,6 +366,7 @@ pub fn build_imgui_ui(v: &mut Editor, ui: &mut imgui::Ui) {
             ui.separator();
             build_and_check_button(v, &ui, ToolEnum::Pen, &icons::PEN);
             build_and_check_button(v, &ui, ToolEnum::VWS, &icons::VWS);
+            build_and_check_button(v, &ui, ToolEnum::PAP, &icons::_PAP);
             build_and_check_button(v, &ui, ToolEnum::Shapes, &icons::SHAPES);
         });
 
@@ -482,6 +487,52 @@ fn build_and_check_prompts(v: &mut Editor, ui: &mut imgui::Ui)
             });
 
             PROMPT_CLR.with(|clr| clr.replace(color));
+        }
+
+        InputPrompt::Layer{ label, func} => {
+            imgui::Window::new(&imgui::im_str!("{}", label))
+            .bg_alpha(1.) // See comment on fn redraw_skia
+            .flags(
+                #[rustfmt::skip]
+                    imgui::WindowFlags::NO_RESIZE
+                    | imgui::WindowFlags::NO_COLLAPSE,
+            )
+            .position_pivot([0.5, 0.5])
+            .position(
+                [(v.viewport.winsize.0/2) as f32, (v.viewport.winsize.1/2) as f32],
+                imgui::Condition::Always,
+            )
+            .size([TOOLBOX_HEIGHT, TOOLBOX_HEIGHT + 10.], imgui::Condition::Always)
+            .focused(true)
+            .build(ui, || {
+                let layer_count = v.with_glyph(|glif| glif.layers.len());
+                for layer in 0 .. layer_count {
+                    let layer_op = v.with_glyph(|glif| glif.layers[layer].operation.clone());
+                    let layer_temp_name = imgui::im_str!("{0}", v.with_glyph(|glif| { glif.layers[layer].name.clone() }));
+                    let im_str = imgui::ImString::from(layer_temp_name);
+            
+                    let no_padding = ui.push_style_var(StyleVar::ItemSpacing([0., 0.]));
+            
+                    if layer_op.is_some() {
+                        ui.dummy([28., 0.]);
+                        ui.same_line(0.);
+                    }
+            
+                    let mut pop_me = None;
+                    if v.get_active_layer() != layer {
+                        pop_me = Some(ui.push_style_color(imgui::StyleColor::Button, [0., 0., 0., 0.2]));
+                    }
+                    ui.button(&im_str, [-1., 0.]);
+                    if ui.is_item_clicked(imgui::MouseButton::Left) {
+                        func(v, v.with_glyph(|glif| glif.layers[layer].clone() ));
+                        v.prompts.pop();
+                    }
+                    if let Some(p) = pop_me {
+                        p.pop(ui);
+                    }
+                    no_padding.pop(ui);
+                }
+            });
         }
     }
 

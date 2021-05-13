@@ -72,6 +72,7 @@ mod renderer;
 pub mod settings;
 mod system_fonts;
 mod user_interface;
+mod contour_operations;
 
 use crate::renderer::constants::*;
 
@@ -391,6 +392,8 @@ fn main() {
                 _ => {}
             }
         }
+
+        editor.rebuild();
 
         // build and render imgui
         imgui_sdl2.prepare_frame(imgui.io_mut(), &editor.sdl_window.as_ref().unwrap(), &event_pump.mouse_state());

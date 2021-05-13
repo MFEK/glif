@@ -12,7 +12,6 @@ impl Editor {
             visible: true,
             color: None,
             outline: MFEKOutline::new(),
-            contour_ops: HashMap::new(),
             operation: None,
         };
 
@@ -34,7 +33,7 @@ impl Editor {
         self.contour_idx = None;
         self.point_idx = None;
         self.selected.clear();
-        self.rebuild();
+        self.mark_preview_dirty();
     }
 
     /// Deletes a layer. Generates a history entry and sets the user's selection to the layer above.
@@ -63,7 +62,7 @@ impl Editor {
         self.contour_idx = None;
         self.point_idx = None;
         self.selected.clear();
-        self.rebuild();
+        self.mark_preview_dirty();
     }
 
     pub fn set_active_layer(&mut self, idx: usize) {
@@ -109,7 +108,7 @@ impl Editor {
             self.glyph.as_mut().unwrap().layers[dest].operation = None;
         }
 
-        self.rebuild();
+        self.mark_preview_dirty();
     }
     
     pub fn get_layer_count(&self) -> usize {

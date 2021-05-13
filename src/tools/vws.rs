@@ -1,5 +1,5 @@
 use MFEKmath::{Vector, Piecewise, Evaluate};
-use glifparser::glif::{JoinType, CapType, InterpolationType, VWSContour, VWSHandle, ContourOp};
+use glifparser::glif::{CapType, ContourOperations, InterpolationType, JoinType, VWSContour, VWSHandle};
 use sdl2::mouse::MouseButton;
 use skulpin::skia_safe::{Canvas, Paint, PaintStyle, Path as SkiaPath};
 
@@ -95,10 +95,10 @@ impl VWS {
     fn get_vws_contour(&self, v: &Editor, contour_idx: usize) -> Option<VWSContour>
     {
         v.with_active_layer(|layer| {
-            if let Some(contour_op) = layer.contour_ops.get(&contour_idx) {
+            if let Some(contour_op) = layer.outline[contour_idx].operation.clone() {
                 return match contour_op {
-                    ContourOp::VariableWidthStroke { contour} => {
-                        Some(contour.clone())
+                    ContourOperations::VariableWidthStroke{ data} => {
+                        Some(data.clone())
                     }
                     _ => None
                 }
@@ -114,7 +114,6 @@ impl VWS {
             cap_start_type: CapType::Round,
             cap_end_type: CapType::Round,
             join_type: JoinType::Round,
-            id: contour_idx,
             remove_internal: false,
             remove_external: false,
         };
@@ -135,7 +134,7 @@ impl VWS {
 
     fn set_vws_contour(&self, v: &mut Editor, contour_idx: usize, contour: VWSContour) {
         v.with_active_layer_mut(|layer| {
-            layer.contour_ops.insert(contour_idx, ContourOp::VariableWidthStroke{ contour: contour.clone() })
+            layer.outline[contour_idx].operation = Some(ContourOperations::VariableWidthStroke{ data: contour.clone() });
         });
     }
     

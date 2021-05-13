@@ -1,16 +1,26 @@
 use MFEKmath::{Piecewise, VWSSettings, variable_width_stroke};
-use glifparser::glif::{ContourOp, InterpolationType, MFEKContour, VWSHandle};
+use glifparser::glif::{ContourOperations, InterpolationType, MFEKContour, VWSHandle};
+
+use crate::contour_operations;
+
 use super::Editor;
 
 
 impl Editor {
-    pub fn rebuild(&mut self)
+    pub fn mark_preview_dirty(&mut self)
     {
+        self.preview_dirty = true;
+
+    }
+
+    pub fn rebuild(&mut self) {
+        if !self.preview_dirty {return};
+
         if self.glyph.as_ref().unwrap().layers[0].operation.is_some() {
             self.glyph.as_mut().unwrap().layers[0].operation = None;
         }
 
-        self.fix_contour_ops();
+        //self.fix_contour_ops();
         let mut preview_layers = Vec::new();
         for layer in &self.glyph.as_ref().unwrap().layers {
             let mut preview_outline = Vec::new();
@@ -18,28 +28,10 @@ impl Editor {
             for (idx, glif_contour) in layer.outline.iter().enumerate() {
                 if glif_contour.inner.len() < 2 { preview_outline.push(glif_contour.clone()); continue; }
 
-                match layer.contour_ops.get(&idx) {
-                    Some(contour_op) => {
-                        match contour_op {
-                            ContourOp::VariableWidthStroke { contour } => {
-                                let contour_pw = Piecewise::from(&glif_contour.inner);
-                        
-                                let settings = VWSSettings {
-                                    cap_custom_start: None,
-                                    cap_custom_end: None,
-                                };
-                        
-                                let vws_output = variable_width_stroke(&contour_pw, contour, &settings);
-                        
-                                for contour in vws_output.segs {
-                                    preview_outline.push(contour.to_contour().into());
-                                }
-                            }
-                        }
-                    }
-                    None => {
-                        preview_outline.push(glif_contour.clone());
-                    }
+                let build_result = contour_operations::build(glif_contour);
+
+                for new_contour in build_result {
+                    preview_outline.push(new_contour);
                 }
             }
 
@@ -50,8 +42,10 @@ impl Editor {
 
         self.preview = Some(self.glyph.as_ref().unwrap().clone());
         self.preview.as_mut().unwrap().layers = preview_layers;
+        self.preview_dirty = false;
     }
 
+    /* 
     // this call checks if the contour ops are in tact and have information for all of it's points
     // before we build the previews
     pub fn fix_contour_ops(&mut self)
@@ -85,5 +79,5 @@ impl Editor {
                 }
             }
         }
-    }
+    } */
 }

@@ -46,6 +46,7 @@ pub struct Editor {
     active_tool_enum: ToolEnum,
     clipboard: Option<Layer<MFEKPointData>>,
     layer_idx: Option<usize>, // active layer
+    preview_dirty: bool,
 
     pub preview: Option<MFEKGlif<MFEKPointData>>,
     pub contour_idx: Option<usize>,   // index into Outline
@@ -67,29 +68,30 @@ impl Editor {
         // FIXME: Making a new one doesn't get current mouse position nor window size.
         Editor {
             glyph: None,
-            preview: None,
+            modifying: false,
             history: History::new(),            
 
-            mouse_info: MouseInfo::default(),
             active_tool: Box::new(Pan::new()),
             active_tool_enum: ToolEnum::Pan,
+            clipboard: None,
+            layer_idx: None,
+            preview: None,
+
+            contour_idx: None,
+            point_idx: None,
+
+            selected: HashSet::new(),
             prompts: Vec::new(),
-            viewport: Viewport::default(),
-
-            sdl_context: None,
-            sdl_window: None,
-
-            ipc_info: None,
-            quit_requested: false,
 
             // selection state
-            layer_idx: None,
-            contour_idx: None,   // index into Outline
-            point_idx: None, // index into Contour
-            selected: HashSet::new(),
-            clipboard: None,
+            mouse_info: MouseInfo::default(),
+            viewport: Viewport::default(),   // index into Outline
+            sdl_context: None, // index into Contour
+            sdl_window: None,
+            quit_requested: false,
 
-            modifying: false,
+            ipc_info: None,
+            preview_dirty: true,
         }
     }
     
@@ -98,7 +100,7 @@ impl Editor {
     {
         self.glyph = Some(glyph);
         self.layer_idx = Some(0);
-        self.rebuild();
+        self.mark_preview_dirty();
     }
 
     /// This is the function that powers the editor. Tools recieve events from the Editor and then use them to modify state.
@@ -137,7 +139,7 @@ impl Editor {
         let glyph = self.glyph.as_mut().unwrap();
         let ret =closure(&mut glyph.layers[self.layer_idx.unwrap()]);
 
-        self.rebuild();
+        self.mark_preview_dirty();
         ret
     }
 
@@ -147,7 +149,7 @@ impl Editor {
 
         // TODO: Events here.
         self.modifying = false;
-        self.rebuild();
+        self.mark_preview_dirty();
     }
 
     pub fn is_modifying(&self) -> bool {

@@ -1,10 +1,11 @@
 
 use super::prelude::*;
-use crate::renderer::UIPointType;
+use crate::{contour_operations, renderer::UIPointType};
 use crate::renderer::points::draw_point;
 
 use MFEKmath::{Bezier, evaluate::Primitive};
 use editor::util::get_contour_start_or_end;
+use sdl2::mouse::MouseButton;
 #[derive(Clone)]
 pub struct Pen {}
 
@@ -12,6 +13,7 @@ impl Tool for Pen {
     fn handle_event(&mut self, v: &mut Editor, event: EditorEvent) {
         match event {
             EditorEvent::MouseEvent { event_type, meta } => {
+                if meta.button != MouseButton::Left { return };
                 match event_type {
                     super::MouseEventType::Pressed => { self.mouse_pressed(v, meta) }
                     super::MouseEventType::Released => { self.mouse_released(v, meta)}
@@ -85,13 +87,13 @@ impl Pen {
         if let Some(info) = nearest_point_on_curve(v, meta.position) {
             v.with_active_layer_mut(|layer| {
                 let mut second_idx_zero = false;
-                let contour = get_contour_mut!(layer, info.contour_idx);
-                let mut point = contour.remove(info.seg_idx);
-                let mut next_point = if info.seg_idx == contour.len() {
+                let contour = &mut layer.outline[info.contour_idx];
+                let mut point = contour.inner.remove(info.seg_idx);
+                let mut next_point = if info.seg_idx == contour.inner.len() {
                     second_idx_zero = true;
-                    contour.remove(0)
+                    contour.inner.remove(0)
                 } else { 
-                    contour.remove(info.seg_idx) 
+                    contour.inner.remove(info.seg_idx) 
                 };
 
                 let bez = Bezier::from(&point, &next_point);
@@ -103,13 +105,13 @@ impl Pen {
                     next_point.b = sub_b[2].to_handle();
 
                     if second_idx_zero { 
-                        contour.insert(0, next_point);
+                        contour.inner.insert(0, next_point);
                     } else {
-                        contour.insert(info.seg_idx, next_point);
+                        contour.inner.insert(info.seg_idx, next_point);
                     }
 
                     let (x, y) = (sub_a[3].x, sub_a[3].y);
-                    contour.insert(info.seg_idx, Point{
+                    contour.inner.insert(info.seg_idx, Point{
                         x: x as f32,
                         y: y as f32,
                         a: sub_b[1].to_handle(),
@@ -119,8 +121,9 @@ impl Pen {
                         data: None,
 
                     });
+                    contour.operation = contour_operations::insert(contour, info.seg_idx);
+                    contour.inner.insert(info.seg_idx, point);
 
-                    contour.insert(info.seg_idx, point);
                 }
             });
             return
@@ -138,6 +141,7 @@ impl Pen {
                     PointType::Curve,
                     ));
     
+                    layer.outline[contour_idx].operation = contour_operations::insert(&layer.outline[contour_idx], contour_len);
                     Some(get_contour_len!(layer, contour_idx) - 1)
                 });
                 return
@@ -164,7 +168,7 @@ impl Pen {
         v.point_idx = Some(0);
     }
 
-    fn mouse_released(&self, v: &mut Editor, _meta: MouseInfo) {
+    fn mouse_released(&self, v: &mut Editor, meta: MouseInfo) {
         // No matter what a mouse press generates a layer modification so we have to finalize that here.
         if let Some(idx) = v.contour_idx {
             v.with_active_layer_mut(|layer| {

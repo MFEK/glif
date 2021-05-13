@@ -18,6 +18,7 @@ impl History {
 
 impl History {
     pub fn add_undo_entry(&mut self, entry: HistoryEntry<MFEKPointData> ) {
+        println!("{0}", entry.description);
         self.undo_stack.push(entry);
         self.redo_stack.clear();
     }
@@ -61,7 +62,7 @@ impl Editor {
                 self.selected = selected
             }
 
-            self.rebuild();
+            self.mark_preview_dirty();
         }
     }
 
@@ -102,7 +103,7 @@ impl Editor {
                 self.selected = selected
             }
 
-            self.rebuild();
+            self.mark_preview_dirty();
         }    
     }
 }
