@@ -42,7 +42,7 @@ dependencies = [
 [[package]]
 name = "MFEKmath"
 version = "0.1.0"
-source = "git+https://github.com/MFEK/math.rlib?branch=mfek#99cd8cd5fce0ff6372deb4e3d048639503d4c723"
+source = "git+https://github.com/MFEK/math.rlib?branch=mfek#ae7bdd04c80cd0fc95e96ba03029d8e1607154bc"
 dependencies = [
  "flo_curves",
  "glifparser",
@@ -177,9 +177,9 @@ dependencies = [
 
 [[package]]
 name = "bindgen"
-version = "0.57.0"
+version = "0.58.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fd4865004a46a0aafb2a0a5eb19d3c9fc46ee5f063a6cfc605c69ac9ecf5263d"
+checksum = "0f8523b410d7187a43085e7e064416ea32ded16bd0a4e6fc025e21616d01258f"
 dependencies = [
  "bitflags",
  "cexpr",
@@ -794,7 +794,7 @@ dependencies = [
 [[package]]
 name = "glifparser"
 version = "1.0.0"
-source = "git+https://github.com/MFEK/glifparser.rlib?branch=mfek#0aa7b2d27abf1c2d885bcf5d6c15559e71743455"
+source = "git+https://github.com/MFEK/glifparser.rlib?branch=mfek#cc67e1e517b9ee65f2900719992d0899d687417d"
 dependencies = [
  "image",
  "integer_or_float",
@@ -889,7 +889,7 @@ dependencies = [
 [[package]]
 name = "imgui-skia-renderer"
 version = "0.1.0"
-source = "git+https://github.com/MFEK/imgui-skia-renderer.rlib?branch=main#4c11d05dfe97b7df878ebcbe7778b27ab6aad134"
+source = "git+https://github.com/MFEK/imgui-skia-renderer.rlib?branch=main#7b082cfdaab7274372d62fbe1bbad73618076652"
 dependencies = [
  "imgui",
  "skia-safe",
@@ -1600,9 +1600,9 @@ checksum = "388a1df253eca08550bef6c72392cfe7c30914bf41df5269b68cbd6ff8f570a3"
 
 [[package]]
 name = "serde"
-version = "1.0.125"
+version = "1.0.126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "558dc50e1a5a5fa7112ca2ce4effcb321b0300c0d4ccf0776a9f60cd89031171"
+checksum = "ec7505abeacaec74ae4778d9d9328fe5a5d04253220a85c4ee022239fc996d03"
 dependencies = [
  "serde_derive",
 ]
@@ -1618,9 +1618,9 @@ dependencies = [
 
 [[package]]
 name = "serde_derive"
-version = "1.0.125"
+version = "1.0.126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b093b7a2bb58203b5da3056c05b4ec1fed827dcfdb37347a8841695263b3d06d"
+checksum = "963a7dbc9895aeac7ac90e74f34a5d5261828f79df35cbed41e10189d3804d43"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1671,15 +1671,15 @@ dependencies = [
 
 [[package]]
 name = "shlex"
-version = "0.1.1"
+version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7fdf1b9db47230893d76faad238fd6097fd6d6a9245cd7a4d90dbd639536bbd2"
+checksum = "42a568c8f2cd051a4d283bd6eb0343ac214c1b0f1ac19f93e1175b2dee38c73d"
 
 [[package]]
 name = "skia-bindings"
-version = "0.38.3"
+version = "0.39.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9f91c17f795cdcbd7954b01712d5085b73d00abf5e6ed9ca7b7de9de3ca4b1a9"
+checksum = "751462e70a68391c38c76d5e14ea24ed4bedd7db4b9bcefffa179f63bddf5c86"
 dependencies = [
  "bindgen",
  "cc",
@@ -1695,9 +1695,9 @@ dependencies = [
 
 [[package]]
 name = "skia-safe"
-version = "0.38.3"
+version = "0.39.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "08cf4d676fb90433cdf9e84c676b3c99488ce528b7ea89359e2c562fd5211f3c"
+checksum = "4b06dfa844d8f75dd616b600c1dd018950ee5eff19bb36d97ec4a7232b3bdb60"
 dependencies = [
  "bitflags",
  "lazy_static",

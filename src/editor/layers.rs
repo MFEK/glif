@@ -11,6 +11,7 @@ impl Editor {
             name: format!("{}", self.glyph.as_ref().unwrap().layers.len()),
             visible: true,
             color: None,
+            images: vec!(),
             outline: MFEKOutline::new(),
             operation: None,
         };
