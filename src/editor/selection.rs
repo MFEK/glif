@@ -57,11 +57,11 @@ impl Editor {
 
         self.clipboard = Some(Layer{
             name: "".to_string(),
-            images: vec!(),
             visible: true,
             color: None,
             outline: new_outline,
             operation: None,
+            images: layer.images.clone(),
         })
     }
 
