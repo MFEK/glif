@@ -8,13 +8,13 @@ Very early glyph editor for the Modular Font Editor K project.
 
 ## Overview
 
-MFEKglif mixes three technologies: Skia, a very powerful path rasterizer and manipulation library; Dear ImGui, an immediate mode user interface toolkit; and Rust, a modern high-performance systems language.
+MFEKglif mixes three technologies: Skia, a powerful path rasterizer and manipulation library; Dear ImGui, an immediate mode GUI toolkit; and Rust, a modern high-performance systems language.
 
 I wrote it after, hopefully, learning from the mistakes made by George Williams in FontForge, after being a user of FontForge for six years and a co-maintainer for one and a half years.
 
-MFEKglif is the premier program of the Modular Font Editor K project. This project aims to create a full font editor by making many small programs that will all work together, fulfilling the Unix adage that each program should have one task and do that task well. MFEKglif aims to do the task of drawing and editing glyphs well.
+MFEKglif is the flagship program of the Modular Font Editor K project, which aims to create a full font editor by making many small programs that all work together, fulfilling the Unix adage that each program should have one task and do that task well. MFEKglif aims to do the task of creating and editing glyphs well.
 
-To make this as easy as possible to build, and cross-platform without hassle, the icon is compiled right into the binary via the Rust `include_str!` macro.
+To make this as easy as possible to build, and cross-platform without hassle, resources are compiled into the binary via the Rust `include_str!` macro, and MFEKglif is statically compiled.
 
 ## Running from artifacts
 
@@ -44,7 +44,7 @@ On Ubuntu, these three packages provide the dependencies: `libgtk-3-dev` `libxcb
 
 ### Errors?
 
-If you previously pulled the repository and get errors related to `glifparser`, `mfeq-ipc`, or another local unstable dependency, try running `cargo update` to force Cargo to pull the latest versions from GitHub.
+If you previously pulled the repository and get errors related to `glifparser`, `mfek-ipc`, or another local unstable dependency, try running `cargo update` to force Cargo to pull the latest versions from GitHub.
 
 ## Contributing
 
@@ -54,9 +54,7 @@ I typically build and run MFEKglif like this:
 RUST_LOG=debug RUST_BACKTRACE=1 cargo run -- examples/Q_.glif
 ```
 
-I welcome all contributions! Please open an issue first so we can discuss before you make big changes so no effort is wasted.
-
-Please format the codebase with `cargo fmt` before opening a pull request.
+We welcome all contributions! Please open an issue first so we can discuss before you make big changes so no effort is wasted.
 
 ### More debug output
 
@@ -68,7 +66,7 @@ Contributions which do not work on at least GNU/Linux and Windows will be reject
 
 ## License
 
-Copyright 2020 Fredrick Brennan & MFEK Authors
+Copyright 2020–2021 Fredrick R. Brennan, Matthew Blanchard & MFEK Authors
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use
 this software or any of the provided source code files except in compliance
