@@ -1,3 +1,5 @@
+mod dialog;
+
 use MFEKmath::{Vector, Piecewise, Evaluate};
 use glifparser::glif::{CapType, ContourOperations, InterpolationType, JoinType, VWSContour, VWSHandle};
 use sdl2::mouse::MouseButton;
@@ -27,6 +29,7 @@ impl Tool for VWS {
             EditorEvent::Draw { skia_canvas } => {
                  self.draw_handles(v, skia_canvas);
             }
+            EditorEvent::Ui {ui} => { self.build_vws_settings_window(v, ui) }
             _ => {}
         }
     }

@@ -2,8 +2,8 @@ use pub_mod::pub_mod;
 // Include all tools via procedural macro. Expands to `pub mod pen; pub mod select; ...`
 pub_mod!("src/tools");
 
-use self::{pap::PAP, prelude::*};
-use self::{measure::Measure, pan::Pan, pen::Pen, select::Select, zoom::Zoom, vws::VWS, anchors::Anchors, shapes::Shapes};
+use self::prelude::*;
+use self::{measure::Measure, pan::Pan, pen::Pen, select::Select, zoom::Zoom, vws::VWS, anchors::Anchors, shapes::Shapes, pap::PAP};
 use dyn_clone::DynClone;
 use imgui::Ui;
 

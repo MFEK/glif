@@ -1,9 +1,10 @@
+mod dialog;
+
 use std::rc::Rc;
 
 use glifparser::glif::{ContourOperations, PAPContour, PatternCopies, PatternSubdivide};
-use imgui::Ui;
 
-use crate::{contour_operations::ContourOperation, editor::Editor, user_interface::{self, InputPrompt}};
+use crate::{contour_operations::ContourOperation, editor::Editor, user_interface::{InputPrompt}};
 use super::prelude::*;
 
 #[derive(Clone)]
@@ -75,29 +76,6 @@ impl PAP {
     fn mouse_released(&mut self, _v: &mut Editor, _meta: MouseInfo) {
     }
 
-    fn tool_dialog(&mut self, v: &mut Editor, ui: &Ui) {
-        let (tx, ty, tw, th) = user_interface::get_tools_dialog_rect(v);
-
-        imgui::Window::new(&imgui::ImString::new("Pattern Along Path"))
-        .bg_alpha(1.) // See comment on fn redraw_skia
-        .flags(
-            #[rustfmt::skip]
-              imgui::WindowFlags::NO_RESIZE
-                | imgui::WindowFlags::NO_MOVE
-                | imgui::WindowFlags::NO_COLLAPSE,
-        )
-        .position(
-            [tx, ty],
-            imgui::Condition::Always,
-        )
-        .size(
-            [tw, th],
-            imgui::Condition::Always,
-        )
-        .build(ui, || {
-            
-        });
-    }
     fn generate_PAP_contour()
     {
 
