@@ -2,12 +2,12 @@ use crate::editor::Editor;
 
 use glifparser::{Glif, MFEKGlif, glif::MFEKPointData};
 use log::debug;
-use std::env;
+use std::{env, fs};
 use std::path::Path;
 
 pub fn load_glif<F: AsRef<Path> + Clone>(v: &mut Editor, filename: F) {
     // TODO: Actually handle errors now that we have them.
-    let mut glif: MFEKGlif<MFEKPointData> = glifparser::read_from_filename(&filename).expect("Invalid glif!").into();
+    let glif: MFEKGlif<MFEKPointData> = glifparser::read_from_filename(&filename).expect("Invalid glif!").into();
 
     if env::var("DEBUG_DUMP_GLYPH").is_ok() {
         debug!("{:#?}", &glif.clone());
@@ -41,10 +41,10 @@ pub fn save_glif(v: &mut Editor) {
         let filename: std::path::PathBuf = glyph.filename.clone().unwrap();
 
         let glif_string = {
-            // TODO: glifparser::write(&glyph.glif)
+            glifparser::write(&glyph.clone().into())
         };
     
-        //TODO: fs::write(filename, glif_string).expect("Unable to write file");
+        fs::write(filename, glif_string.unwrap()).expect("Unable to write file");
     });
 }
 

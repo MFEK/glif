@@ -56,7 +56,7 @@ pub fn render_frame(v: &mut Editor, canvas: &mut Canvas) {
                 let mut tm = canvas.local_to_device_as_3x3();
                 canvas.save();
                 //let matrix2 = EncodedOrigin::to_matrix(EncodedOrigin::BottomLeft, (image.img.width(), image.img.height()));
-                let mut matrix = tm * matrix3 * *i_matrix * origin_transform ;
+                let mut matrix = tm * matrix3 * i_matrix.to_skia_matrix() * origin_transform ;
                 canvas.set_matrix(&((matrix).into()));
                 //eprintln!("{:?}", Matrix::new_identity().set_rotate(45., None).to_affine());
                 // We shouldn't use (0., 0.) because this is a glifparser image, relative to the glif's points.

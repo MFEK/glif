@@ -1,5 +1,4 @@
-use glifparser::{MFEKGlif, Image, glif::{HistoryEntry, HistoryType, Layer, MFEKPointData}};
-use glifparser::{Color as GlifColor};
+use glifparser::{MFEKGlif, glif::{HistoryEntry, HistoryType, Layer, MFEKPointData}};
 
 pub use crate::renderer::console::Console as RendererConsole;
 use crate::{tools::{EditorEvent, Tool, ToolEnum, pan::Pan, tool_enum_to_tool}, user_interface::InputPrompt};
@@ -10,7 +9,7 @@ use sdl2::{Sdl, video::Window};
 
 pub use crate::renderer::points::calc::*;
 
-use std::{cell::RefCell, rc::Rc, sync::Arc};
+use std::{cell::RefCell};
 use std::collections::HashSet;
 
 use crate::get_contour_mut;
