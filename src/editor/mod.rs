@@ -22,6 +22,8 @@ pub mod util;
 pub mod viewport;
 pub use self::viewport::Viewport;
 
+pub mod headless;
+
 pub mod images;
 
 pub mod input;
@@ -100,7 +102,6 @@ impl Editor {
             preview_dirty: true,
         }
     }
-    
     
     pub fn set_glyph(&mut self, glyph: MFEKGlif<MFEKPointData>)
     {

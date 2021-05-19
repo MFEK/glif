@@ -64,11 +64,12 @@ glifparser = { git = "https://github.com/MFEK/glifparser.rlib", branch = "mfek",
 #glifparser = { path = "../glifparser.rlib", features=["skia", "mfek"] } # for development
 
 MFEKmath = { git = "https://github.com/MFEK/math.rlib", branch = "mfek" }
-#MFEKmath = { path = "../MFEKmath" } # for development
+#MFEKmath = { path = "../math.rlib" } # for development
 
 pub-mod = { git = "https://github.com/MFEK/pub_mod.rlib" }
 
-mfek-ipc = { git = "https://github.com/mfek/ipc" }
+mfek-ipc = { git = "https://github.com/MFEK/ipc.rlib" }
+#mfek-ipc = { path = "../ipc.rlib" }
 
 #xml parsing
 xmltree = "0.10.1"
@@ -86,7 +87,11 @@ strum_macros = "0.20"
 #for logo, could be used in future for background images
 image = { version = "0.23", features = ["png"], default-features = false }
 
+# for certain Bézier curve manipulation functions
 flo_curves = { git = "https://github.com/MFEK/flo_curves", branch = "master" }
+
+# for exporting UFO .glif files to layers
+plist = "1"
 
 # See src/util/mod.rs::set_codepage_utf8
 [target.'cfg(windows)'.dependencies]

@@ -38,7 +38,7 @@ pub fn draw(canvas: &mut Canvas, v: &mut Editor, active_layer: usize)  -> Path {
     let mut total_closed_path = Path::new();
     let mut total_outline_path = Path::new();
     let mut root_color = if let Some(color) = glif.layers[0].color {
-        Some(Color4f::new(color[0],color[1],color[2],color[3]))
+        Some(Color4f::new(color.r.into(), color.g.into(), color.b.into(), color.a.into()))
     } else {
         None
     };
@@ -85,7 +85,7 @@ pub fn draw(canvas: &mut Canvas, v: &mut Editor, active_layer: usize)  -> Path {
             total_outline_path = Path::new();
 
             root_color = if let Some(color) = layer.color {
-                Some(Color4f::new(color[0],color[1],color[2],color[3]))
+                Some(Color4f::new(color.r.into(), color.g.into(), color.b.into(), color.a.into()))
             } else {
                 None
             };
