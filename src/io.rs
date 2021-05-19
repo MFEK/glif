@@ -1,5 +1,7 @@
+use crate::ipc;
 use crate::editor::Editor;
 
+use mfek_ipc;
 use glifparser::{Glif, MFEKGlif, glif::MFEKPointData};
 use log::debug;
 use std::{env, fs};
@@ -14,6 +16,10 @@ pub fn load_glif<F: AsRef<Path> + Clone>(v: &mut Editor, filename: F) {
     }
 
     v.set_glyph(glif);
+
+    if mfek_ipc::module_available("MFEKmetadata".into()) == mfek_ipc::Available::Yes {
+        ipc::fetch_metrics(v);
+    }
 
     /* 
     v.borrow().glyph.as_ref().map(|glyph| {
@@ -51,7 +57,6 @@ pub fn save_glif(v: &mut Editor) {
 use crate::filedialog;
 
 pub fn export_glif(v: &Editor) {
-
     let cur_file = v.with_glyph(|glyph| { glyph.filename.clone() });
     let filename = filedialog::save_filename(Some("glif"), None);
 }

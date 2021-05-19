@@ -6,6 +6,7 @@
     panic_info_message,
     stmt_expr_attributes,
     cell_leak,
+    let_chains,
 )]
 
 // Cargo.toml comments say what crates are used for what.
@@ -38,6 +39,7 @@ use command::{Command, CommandInfo};
 use tools::{EditorEvent, MouseEventType, ToolEnum};
 use editor::Editor;
 use editor::MouseInfo;
+use util::argparser::HeadlessMode;
 //use renderer::render_frame;
 use sdl2::keyboard::Keycode;
 use sdl2::{
@@ -85,15 +87,17 @@ fn main() {
     util::set_panic_hook();
 
     let args = util::argparser::parse_args();
-    let filename = filedialog::filename_or_panic(&args.filename, Some("glif"), None);
 
     let mut editor = Editor::new();
-    // Makes glyph available to on_load_glif events
-    let _glif = io::load_glif(&mut editor, &filename);
 
-    if mfek_ipc::module_available("MFEKmetadata".into()) == mfek_ipc::Available::Yes {
-        ipc::fetch_metrics(&mut editor);
+    if args.headless_mode != HeadlessMode::None {
+        editor.do_headless(&args);
     }
+
+    let filename = filedialog::filename_or_panic(&args.filename, Some("glif"), None);
+
+    // Makes glyph available to on_load_glif events
+    io::load_glif(&mut editor, &filename);
 
     let (sdl_context, sdl_window): (Sdl, Window) = initialize_sdl(&mut editor, &WindowSettings {
         filename: filename.to_str().unwrap().to_string(),

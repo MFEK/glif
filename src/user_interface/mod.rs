@@ -284,19 +284,19 @@ pub fn build_and_check_layer_list(v: &mut Editor, ui: &imgui::Ui) {
             let mut color_token: Option<ColorStackToken> = None;
             let mut default_color: Option<[f32; 4]> = None;
             if let Some(color) = v.with_glyph(|glif| glif.layers[layer].color) {
-                color_token = Some(ui.push_style_color(imgui::StyleColor::Button, color));
+                color_token = Some(ui.push_style_color(imgui::StyleColor::Button, color.into()));
             }
             ui.button(imgui::im_str!("##"), [0., 0.]);
             if ui.is_item_clicked(imgui::MouseButton::Left) {
                 v.prompts.push(InputPrompt::Color {
                     label: "Layer color:".to_string(),
-                    default: v.with_glyph(|glif| glif.layers[layer].color.unwrap_or([0., 0., 0., 1.])),
+                    default: v.with_glyph(|glif| glif.layers[layer].color.unwrap_or([0., 0., 0., 1.].into())).into(),
                     func: Rc::new(move |editor, color| {
                         let active_layer = editor.get_active_layer();
                         editor.set_active_layer(layer);
         
                         editor.begin_layer_modification("Changed layer color.");
-                        editor.with_active_layer_mut(|layer| layer.color = color);
+                        editor.with_active_layer_mut(|layer| layer.color = color.map(|c|c.into()));
                         editor.end_layer_modification();
         
                         editor.set_active_layer(active_layer);

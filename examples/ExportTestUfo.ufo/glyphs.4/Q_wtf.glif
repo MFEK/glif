@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<glyph name="" format="2">
+  <anchor y="848" name="mark_top" x="444" />
+  <outline>
+    <contour>
+      <point y="497.99997" x="706.00024" type="line" />
+      <point type="line" y="439.9999" x="196.00005" />
+      <point x="186.00005" type="line" y="766" />
+      <point type="line" x="716.0001" y="748" />
+      <point x="706.0002" y="497.99994" type="line" />
+    </contour>
+  </outline>
+</glyph>
