@@ -38,7 +38,8 @@ impl Editor {
 
         // preview contains flattened versions of all the layers, which are always cubic Bézier
         // splines. We know it's Some(_) because we rebuilt above.
-        for (i, layer) in self.preview.as_ref().unwrap().layers.iter().enumerate() {
+        let export = self.prepare_export();
+        for (i, layer) in export.layers.iter().enumerate() {
             if !layer.visible { continue }
 
             let target_dir = layer.to_glyphs_dir(i);

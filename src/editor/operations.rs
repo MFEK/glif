@@ -1,5 +1,9 @@
 use MFEKmath::{Piecewise, VWSSettings, variable_width_stroke};
-use glifparser::glif::{ContourOperations, InterpolationType, MFEKContour, VWSHandle};
+use glifparser::{MFEKGlif, Outline, glif::{ContourOperations, InterpolationType, Layer, LayerOperation, MFEKContour, MFEKPointData, VWSHandle}};
+use glifparser::outline::skia::{SkiaPointTransforms, FromSkiaPath, ToSkiaPaths};
+use skulpin::skia_safe::{Path, PathOp};
+use crate::renderer::points::calc::*;
+
 
 use crate::contour_operations;
 
@@ -10,7 +14,6 @@ impl Editor {
     pub fn mark_preview_dirty(&mut self)
     {
         self.preview_dirty = true;
-
     }
 
     pub fn rebuild(&mut self) {
@@ -45,39 +48,61 @@ impl Editor {
         self.preview_dirty = false;
     }
 
-    /* 
-    // this call checks if the contour ops are in tact and have information for all of it's points
-    // before we build the previews
-    pub fn fix_contour_ops(&mut self)
+    pub fn prepare_export(&self) -> MFEKGlif<MFEKPointData>
     {
-        for layer in &mut self.glyph.as_mut().unwrap().layers {
-            for (idx, glif_contour) in &mut layer.outline.iter().enumerate() {
-                match layer.contour_ops.get(&idx) {
-                    Some(contour_op) => {
-                        match contour_op {
-                            ContourOp::VariableWidthStroke { contour } => {
-                                let mut new_contour = contour.clone();
-                                while glif_contour.inner.len() + 1 > new_contour.handles.len() {
-                                    new_contour.handles.push(VWSHandle{
-                                        left_offset: contour.handles.last().unwrap().left_offset,
-                                        right_offset: contour.handles.last().unwrap().right_offset,
-                                        interpolation: InterpolationType::Linear,
-                                        tangent_offset: 0.,
-                                    })
-                                }
+        let glif = self.preview.as_ref().unwrap();
+    
+        // MFEKGlif always has a layer zero so this is safe.
+        let mut last_combine_layer: Layer<MFEKPointData> = glif.layers[0].clone();
+        let mut exported_layers: Vec<Layer<MFEKPointData>> = vec![];
+        let new_combine_paths = last_combine_layer.outline.to_skia_paths(Some(SkiaPointTransforms{calc_x: calc_x, calc_y: calc_y})).closed;
+        let mut current_layer_group = new_combine_paths.unwrap_or(Path::new());
 
-                                while new_contour.handles.len() > glif_contour.inner.len() + 1 {
-                                    new_contour.handles.pop();
-                                }
+        for (layer_idx, layer) in glif.layers.iter().enumerate() {
+            if !layer.visible { continue; }
+            if layer_idx == 0 { continue; }
+    
+            let skpaths = layer.outline.to_skia_paths(Some(SkiaPointTransforms{calc_x: calc_x, calc_y: calc_y}));
 
-                                layer.contour_ops.insert(idx, ContourOp::VariableWidthStroke { contour: new_contour} );
-                            }
+            match &layer.operation {
+                Some(op) => {
+                    let pathop = match op {
+                        LayerOperation::Difference  => PathOp::Difference,
+                        LayerOperation::Union  => PathOp::Union,
+                        LayerOperation::Intersect => PathOp::Intersect,
+                        LayerOperation::XOR => PathOp::XOR
+                    };
+        
+                    if let Some(closed) = skpaths.closed {
+                        if let Some(result) = current_layer_group.op(&closed, pathop) {
+                            current_layer_group = result;
                         }
                     }
-                    None => {
-                    }
+                }
+                
+                None => {
+                    let mut combined_layer = last_combine_layer.clone();
+                    last_combine_layer = layer.clone();
+
+                    let combined_layer_outline = Outline::from_skia_path(&current_layer_group);
+                    let mfek_outline = combined_layer_outline.iter().map(|c| c.into()).collect();
+                    combined_layer.outline = mfek_outline;
+                    exported_layers.push(combined_layer);
+
+                    let new_combine_paths = layer.outline.to_skia_paths(None).closed;
+                    current_layer_group = new_combine_paths.unwrap_or(Path::new());
                 }
             }
         }
-    } */
+
+        let mut combined_layer = last_combine_layer.clone();
+        let combined_layer_outline = Outline::from_skia_path(&current_layer_group);
+        let mfek_outline = combined_layer_outline.iter().map(|c| c.into()).collect();
+        combined_layer.outline = mfek_outline;
+        exported_layers.push(combined_layer);
+
+        let mut exported_mfek = glif.clone();
+        exported_mfek.layers = exported_layers;
+        return exported_mfek;
+    }
 }
