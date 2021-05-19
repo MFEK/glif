@@ -87,7 +87,11 @@ strum_macros = "0.20"
 #for logo, could be used in future for background images
 image = { version = "0.23", features = ["png"], default-features = false }
 
+# for certain Bézier curve manipulation functions
 flo_curves = { git = "https://github.com/MFEK/flo_curves", branch = "master" }
+
+# for exporting UFO .glif files to layers
+plist = "1"
 
 # See src/util/mod.rs::set_codepage_utf8
 [target.'cfg(windows)'.dependencies]

@@ -28,6 +28,7 @@ dependencies = [
  "log",
  "mfek-ipc",
  "nfd",
+ "plist",
  "pub-mod",
  "regex",
  "sdl2",
@@ -42,7 +43,6 @@ dependencies = [
 [[package]]
 name = "MFEKmath"
 version = "0.1.0"
-source = "git+https://github.com/MFEK/math.rlib?branch=mfek#ae7bdd04c80cd0fc95e96ba03029d8e1607154bc"
 dependencies = [
  "flo_curves",
  "glifparser",
@@ -770,7 +770,6 @@ dependencies = [
 [[package]]
 name = "glifparser"
 version = "1.0.0"
-source = "git+https://github.com/MFEK/glifparser.rlib?branch=mfek#032910724d184978841dbc26bd255b7ea8a6ceab"
 dependencies = [
  "image",
  "integer_or_float",

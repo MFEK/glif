@@ -52,7 +52,7 @@ impl Editor {
     {
         let glif = self.preview.as_ref().unwrap();
     
-        // MFEKGlif always has a layer zero so this is safe.
+        // MFEKGlif always has a layer zero so this is safe. (No it isn't, it can be invisible. TODO: Fix this.)
         let mut last_combine_layer: Layer<MFEKPointData> = glif.layers[0].clone();
         let mut exported_layers: Vec<Layer<MFEKPointData>> = vec![];
         let new_combine_paths = last_combine_layer.outline.to_skia_paths(Some(SkiaPointTransforms{calc_x: calc_x, calc_y: calc_y})).closed;
