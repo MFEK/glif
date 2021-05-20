@@ -91,7 +91,7 @@ fn main() {
     let mut editor = Editor::new();
 
     if args.headless_mode != HeadlessMode::None {
-        editor.do_headless(&args);
+        editor.headless(&args);
     }
 
     let filename = filedialog::filename_or_panic(&args.filename, Some("glif"), None);
@@ -167,12 +167,12 @@ fn main() {
                     }
                 }
                 Event::KeyDown {
-                    keycode: Some(Keycode::E),
+                    keycode: Some(Keycode::U), // Unlink Reference in FontForge, by default, is U.
                     keymod: km,
                     ..
                 } => {
                     if km.contains(Mod::LCTRLMOD) || km.contains(Mod::RCTRLMOD) {
-                        io::export_glif(&editor);
+                        editor.flatten_glif();
                         continue;
                     }
                 }

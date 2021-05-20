@@ -55,14 +55,14 @@ impl Editor {
         // MFEKGlif always has a layer zero so this is safe. (No it isn't, it can be invisible. TODO: Fix this.)
         let mut last_combine_layer: Layer<MFEKPointData> = glif.layers[0].clone();
         let mut exported_layers: Vec<Layer<MFEKPointData>> = vec![];
-        let new_combine_paths = last_combine_layer.outline.to_skia_paths(Some(SkiaPointTransforms{calc_x: calc_x, calc_y: calc_y})).closed;
+        let new_combine_paths = last_combine_layer.outline.to_skia_paths(None).closed;
         let mut current_layer_group = new_combine_paths.unwrap_or(Path::new());
 
         for (layer_idx, layer) in glif.layers.iter().enumerate() {
             if !layer.visible { continue; }
             if layer_idx == 0 { continue; }
     
-            let skpaths = layer.outline.to_skia_paths(Some(SkiaPointTransforms{calc_x: calc_x, calc_y: calc_y}));
+            let skpaths = layer.outline.to_skia_paths(None);
 
             match &layer.operation {
                 Some(op) => {
