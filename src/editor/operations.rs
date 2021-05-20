@@ -74,7 +74,7 @@ impl Editor {
                     };
         
                     if let Some(closed) = skpaths.closed {
-                        if let Some(result) = current_layer_group.op(&closed, pathop) {
+                        if let Some(result) = current_layer_group.op(&closed, pathop).unwrap().as_winding() {
                             current_layer_group = result;
                         }
                     }

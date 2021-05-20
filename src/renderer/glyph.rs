@@ -65,19 +65,20 @@ pub fn draw(canvas: &mut Canvas, v: &mut Editor, active_layer: usize)  -> Path {
                 paint.set_color4f(color, None);
             }
 
-            canvas.draw_path(&total_closed_path, &paint);
-
-            paint.set_style(PaintStyle::Stroke);
-            canvas.draw_path(&total_open_path, &paint);
-
             if v.viewport.preview_mode != PreviewMode::Paper {
                 paint.set_color(OUTLINE_STROKE);
                 if let Some(color) = root_color {
                     paint.set_color4f(color, None);
                 }
-                paint.set_style(PaintStyle::Stroke);
                 canvas.draw_path(&total_closed_path, &paint);
-                canvas.draw_path(&total_outline_path, &paint);
+
+                paint.set_style(PaintStyle::Stroke);
+                canvas.draw_path(&total_open_path, &paint);
+            } else {
+                canvas.draw_path(&total_closed_path, &paint);
+
+                paint.set_style(PaintStyle::Stroke);
+                canvas.draw_path(&total_open_path, &paint);
             }
             
             total_open_path = Path::new();
@@ -113,7 +114,7 @@ pub fn draw(canvas: &mut Canvas, v: &mut Editor, active_layer: usize)  -> Path {
                 total_outline_path.add_path(&closed, (0., 0.), skulpin::skia_safe::path::AddPathMode::Append);
                 if let Some(result) = total_closed_path.op(&closed, pathop) {
                     total_closed_path = Path::new();
-                    total_closed_path.add_path(&result, (0., 0.), skulpin::skia_safe::path::AddPathMode::Append);
+                    total_closed_path.add_path(&result.as_winding().unwrap(), (0., 0.), skulpin::skia_safe::path::AddPathMode::Append);
                 }
                 else 
                 {
