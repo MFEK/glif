@@ -2,7 +2,7 @@
 
 # glif
 
-Very early glyph editor for the Modular Font Editor K project.
+Glyph editor for the Modular Font Editor K project.
 
 <img src="https://raw.githubusercontent.com/MFEK/glif/master/doc/screenshot.png" width="300"><img src="https://raw.githubusercontent.com/MFEK/glif/master/doc/screenshot2.png" width="300">
 
