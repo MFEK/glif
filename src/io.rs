@@ -1,8 +1,9 @@
+use crate::filedialog;
 use crate::ipc;
 use crate::editor::Editor;
 
 use mfek_ipc;
-use glifparser::{Glif, MFEKGlif, glif::MFEKPointData};
+use glifparser::{MFEKGlif, glif::MFEKPointData};
 use log::debug;
 use std::{env, fs};
 use std::path::Path;
@@ -40,23 +41,4 @@ pub fn load_glif<F: AsRef<Path> + Clone>(v: &mut Editor, filename: F) {
         );
     });
     */
-}
-
-pub fn save_glif(v: &mut Editor) {
-    v.with_glyph(|glyph| {
-        let filename: std::path::PathBuf = glyph.filename.clone().unwrap();
-
-        let glif_string = {
-            glifparser::write(&glyph.clone().into())
-        };
-    
-        fs::write(filename, glif_string.unwrap()).expect("Unable to write file");
-    });
-}
-
-use crate::filedialog;
-
-pub fn export_glif(v: &Editor) {
-    let cur_file = v.with_glyph(|glyph| { glyph.filename.clone() });
-    let filename = filedialog::save_filename(Some("glif"), None);
 }

@@ -147,6 +147,7 @@ fn main() {
             // we're gonna handle some of these events before handling commands so that we don't have the logic for this stuff
             // intertwined in command handling
             match &event {
+                // Quit
                 Event::KeyDown {
                     keycode: Some(Keycode::Q),
                     keymod: km,
@@ -156,16 +157,19 @@ fn main() {
                         break 'main_loop;
                     }
                 }
+                // Save
                 Event::KeyDown {
                     keycode: Some(Keycode::S),
                     keymod: km,
                     ..
                 } => {
                     if km.contains(Mod::LCTRLMOD) || km.contains(Mod::RCTRLMOD) {
-                        io::save_glif(&mut editor);
+                        editor.save_glif();
+                        log::info!("Saved current glyph in-place");
                         continue;
                     }
                 }
+                // Flatten
                 Event::KeyDown {
                     keycode: Some(Keycode::U), // Unlink Reference in FontForge, by default, is U.
                     keymod: km,
@@ -176,6 +180,18 @@ fn main() {
                         continue;
                     }
                 }
+                // Export
+                Event::KeyDown {
+                    keycode: Some(Keycode::E),
+                    keymod: km,
+                    ..
+                } => {
+                    if km.contains(Mod::LCTRLMOD) || km.contains(Mod::RCTRLMOD) {
+                        editor.export_glif();
+                        continue;
+                    }
+                }
+                // Undo
                 Event::KeyDown {
                     keycode: Some(Keycode::Z),
                     keymod: km,
@@ -186,6 +202,7 @@ fn main() {
                         continue;
                     }
                 }
+                // Redo
                 Event::KeyDown {
                     keycode: Some(Keycode::Y),
                     keymod: km,
@@ -196,6 +213,7 @@ fn main() {
                         continue;
                     }
                 }
+                // Copy
                 Event::KeyDown {
                     keycode: Some(Keycode::C),
                     keymod: km,
@@ -206,6 +224,7 @@ fn main() {
                         continue;
                     }
                 }
+                // Paste
                 Event::KeyDown {
                     keycode: Some(Keycode::V),
                     keymod: km,

@@ -5,12 +5,23 @@ use glifparser::glif::{self, mfek::{MFEKGlif, MFEKPointData, Layer}};
 use log;
 use plist::{self, Value as PlistValue};
 
-use std::{fs, io, path, process};
+use std::{fs, io, path};
 
 use crate::filedialog;
-use crate::io as glif_io;
 
 impl Editor {
+    pub fn save_glif(&mut self) {
+        self.with_glyph(|glyph| {
+            let filename: std::path::PathBuf = glyph.filename.clone().unwrap();
+
+            let glif_string = {
+                glifparser::write(&glyph.clone().into())
+            };
+        
+            fs::write(filename, glif_string.unwrap()).expect("Unable to write file");
+        });
+    }
+
     pub fn flatten_glif(&mut self) {
         self.mark_preview_dirty();
         self.rebuild();
@@ -21,7 +32,7 @@ impl Editor {
         }
         
         let glif_struct = self.glyph.as_ref().unwrap().to_exported(&layer);
-        let target = filedialog::save_filename(Some("glif"), None).map(|f| {
+        filedialog::save_filename(Some("glif"), None).map(|f| {
             glif::write_to_filename(&glif_struct, &f).map(|()|log::info!("Requested flatten to {:?}", &f)).unwrap_or_else(|e|panic!("Failed to write glif: {:?}", e));
         }).unwrap_or_else(||log::warn!("Requested flatten cancelled due to failed dialog"));
     }
