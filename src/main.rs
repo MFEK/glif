@@ -6,7 +6,6 @@
     panic_info_message,
     stmt_expr_attributes,
     cell_leak,
-    let_chains,
 )]
 
 // Cargo.toml comments say what crates are used for what.
