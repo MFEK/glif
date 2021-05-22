@@ -5,85 +5,85 @@
   <anchor name="mark_top" x="444" y="848" />
   <outline>
     <contour>
-      <point type="curve" x="375" y="-30" />
-      <point y="-30" x="578" />
-      <point x="749" y="176" />
-      <point y="422" x="749" type="curve" />
+      <point type="curve" y="-30" x="375" />
+      <point x="578" y="-30" />
+      <point y="176" x="749" />
+      <point type="curve" y="422" x="749" />
       <point x="749" y="583" />
       <point x="666" y="706" />
-      <point type="curve" y="765" x="518" />
+      <point x="518" type="curve" y="765" />
       <point x="163" type="line" y="611" />
       <point type="line" x="163" y="579" />
-      <point type="line" y="684" x="405" />
+      <point type="line" x="405" y="684" />
       <point x="551" y="609" />
       <point x="645" y="468" />
-      <point y="322" x="645" type="curve" />
-      <point x="645" y="183" />
+      <point x="645" y="322" type="curve" />
+      <point y="183" x="645" />
       <point y="82" x="563" />
-      <point type="curve" x="450" y="82" />
-      <point x="303" y="82" />
-      <point y="249" x="179" />
+      <point x="450" y="82" type="curve" />
+      <point y="82" x="303" />
+      <point x="179" y="249" />
       <point x="179" y="446" type="curve" />
       <point x="179" y="579" />
       <point x="235" y="689" />
-      <point type="curve" x="341" y="768" />
-      <point type="line" y="786" x="327" />
+      <point y="768" type="curve" x="341" />
+      <point type="line" x="327" y="786" />
       <point x="165" y="717" />
       <point x="56" y="536" />
-      <point type="curve" y="335" x="56" />
+      <point y="335" type="curve" x="56" />
       <point x="56" y="125" />
       <point x="192" y="-30" />
     </contour>
     <contour>
       <point x="214" y="225" type="line" />
-      <point x="333" y="248" />
+      <point y="248" x="333" />
       <point y="311" x="396" />
       <point x="396" y="405" type="curve" />
-      <point x="396" y="695" type="line" />
-      <point x="267" y="641" type="line" />
+      <point type="line" x="396" y="695" />
+      <point y="641" x="267" type="line" />
       <point x="267" type="line" y="395" />
       <point y="324" x="267" />
-      <point x="249" y="285" />
-      <point x="201" y="254" type="curve" />
+      <point y="285" x="249" />
+      <point y="254" x="201" type="curve" />
     </contour>
     <contour>
-      <point x="682" y="-106" type="curve" />
-      <point x="832" y="12" type="line" />
+      <point x="682" type="curve" y="-106" />
+      <point x="832" type="line" y="12" />
       <point type="line" x="813" y="33" />
-      <point type="line" x="772" y="0" />
+      <point y="0" x="772" type="line" />
       <point x="716" y="29" />
-      <point y="76" x="668" />
+      <point x="668" y="76" />
       <point y="140" x="628" type="curve" />
       <point type="line" x="527" y="44" />
       <point x="575" y="-26" />
       <point y="-77" x="628" />
     </contour>
     <contour>
-      <point y="59" type="line" x="450" />
-      <point type="line" y="59" x="480" />
+      <point x="450" y="59" type="line" />
+      <point type="line" x="480" y="59" />
       <point x="480" y="678" type="line" />
-      <point x="450" y="678" type="line" />
+      <point type="line" y="678" x="450" />
     </contour>
     <contour>
-      <point y="374" type="line" x="463" />
-      <point y="459" type="line" x="633" />
-      <point type="line" x="633" y="490" />
-      <point y="406" type="line" x="463" />
+      <point x="463" y="374" type="line" />
+      <point y="459" x="633" type="line" />
+      <point type="line" y="490" x="633" />
+      <point y="406" x="463" type="line" />
     </contour>
     <contour>
-      <point type="line" y="269" x="463" />
-      <point x="667" type="line" y="372" />
-      <point type="line" y="403" x="667" />
-      <point type="line" y="301" x="463" />
+      <point y="269" x="463" type="line" />
+      <point x="667" y="372" type="line" />
+      <point type="line" x="667" y="403" />
+      <point x="463" type="line" y="301" />
     </contour>
   </outline>
-  <guideline y="650" name="ascender" angle="0" x="0" />
-  <guideline x="0" angle="0" name="descender" y="-350" />
-  <guideline y="650" angle="0" x="0" name="ascender" />
-  <guideline x="0" angle="0" name="descender" y="-350" />
-  <guideline name="ascender" y="650" angle="0" x="0" />
-  <guideline angle="0" name="descender" y="-350" x="0" />
-  <!-- {
+  <guideline x="0" y="650" angle="0" name="ascender" />
+  <guideline x="0" angle="0" y="-350" name="descender" />
+  <guideline y="650" name="ascender" x="0" angle="0" />
+  <guideline x="0" y="-350" name="descender" angle="0" />
+  <guideline x="0" y="650" angle="0" name="ascender" />
+  <guideline y="-350" x="0" name="descender" angle="0" />
+  <!-- !!MFEK!!{
   "layers": [
     {
       "name": "Layer 0",
@@ -1307,8 +1307,8 @@
               "data": null
             },
             {
-              "x": 612.0001,
-              "y": -144.00024,
+              "x": 615.71436,
+              "y": -144.28583,
               "a": "Colocated",
               "b": "Colocated",
               "name": null,
@@ -1499,7 +1499,8 @@
     "Q"
   ],
   "name": "Q",
+  "note": null,
   "format": 2,
-  "filename": "glyphs.MFEK/Q_wtf.glif"
+  "filename": "examples/ExportTestUfo.ufo/glyphs.MFEK/art.glif"
 } -->
 </glyph>

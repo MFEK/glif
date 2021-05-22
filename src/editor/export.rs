@@ -10,19 +10,23 @@ use std::{fs, io, path};
 use crate::filedialog;
 
 impl Editor {
-    pub fn save_glif(&mut self) {
+    pub fn save_glif(&mut self, rename: bool) {
         self.with_glyph(|glyph| {
-            let filename: std::path::PathBuf = glyph.filename.clone().unwrap();
-
-            let glif_string = {
-                glifparser::write(&glyph.clone().into())
+            let filename: std::path::PathBuf = if rename {
+                match filedialog::save_filename(Some("glif"), None) {
+                    Some(f) => f,
+                    None => return
+                }
+            } else {
+                glyph.filename.clone().unwrap()
             };
-        
-            fs::write(filename, glif_string.unwrap()).expect("Unable to write file");
+
+            let glif_struct = glyph.clone().into();
+            glif::write_to_filename(&glif_struct, &filename).map(|()|log::info!("Requested save to {:?}", &filename)).unwrap_or_else(|e|panic!("Failed to write glif: {:?}", e));
         });
     }
 
-    pub fn flatten_glif(&mut self) {
+    pub fn flatten_glif(&mut self, rename: bool) {
         self.mark_preview_dirty();
         self.rebuild();
         let export = self.prepare_export();
@@ -32,9 +36,19 @@ impl Editor {
         }
         
         let glif_struct = self.glyph.as_ref().unwrap().to_exported(&layer);
-        filedialog::save_filename(Some("glif"), None).map(|f| {
-            glif::write_to_filename(&glif_struct, &f).map(|()|log::info!("Requested flatten to {:?}", &f)).unwrap_or_else(|e|panic!("Failed to write glif: {:?}", e));
-        }).unwrap_or_else(||log::warn!("Requested flatten cancelled due to failed dialog"));
+
+        self.with_glyph(|glyph| {
+            let filename: std::path::PathBuf = if rename {
+                match filedialog::save_filename(Some("glif"), None) {
+                    Some(f) => f,
+                    None => return
+                }
+            } else {
+                glyph.filename.clone().unwrap()
+            };
+
+            glif::write_to_filename(&glif_struct, &filename).map(|()|log::info!("Requested flatten to {:?}", &filename)).unwrap_or_else(|e|panic!("Failed to write glif: {:?}", e));
+        });
     }
 
     pub fn export_glif(&mut self) {
@@ -56,7 +70,8 @@ impl Editor {
         } else if export.layers.len() == 1 {
             None
         } else {
-            panic!("Glyph has {} layers; font must have a parent UFO!", self.get_layer_count())
+            log::error!("Glyph has {} layers; font must have a parent UFO!", self.get_layer_count());
+            return
         };
 
         for (i, layer) in export.layers.iter().enumerate() {

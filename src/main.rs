@@ -160,15 +160,14 @@ fn main() {
                         break 'main_loop;
                     }
                 }
-                // Save
+                // Save, Save As
                 Event::KeyDown {
                     keycode: Some(Keycode::S),
                     keymod: km,
                     ..
                 } => {
                     if km.contains(Mod::LCTRLMOD) || km.contains(Mod::RCTRLMOD) {
-                        editor.save_glif();
-                        log::info!("Saved current glyph in-place");
+                        editor.save_glif(km.contains(Mod::LSHIFTMOD) || km.contains(Mod::RSHIFTMOD));
                         continue;
                     }
                 }
@@ -179,7 +178,7 @@ fn main() {
                     ..
                 } => {
                     if km.contains(Mod::LCTRLMOD) || km.contains(Mod::RCTRLMOD) {
-                        editor.flatten_glif();
+                        editor.flatten_glif(true);
                         continue;
                     }
                 }
