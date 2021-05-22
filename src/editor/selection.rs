@@ -1,9 +1,8 @@
-use std::collections::HashMap;
+
 use MFEKmath::{Bezier, Evaluate, Piecewise};
-use glifparser::{Handle, Outline, Point, PointType, glif::{ContourOperations::VariableWidthStroke, Layer, MFEKContour, MFEKOutline, MFEKPointData}};
+use glifparser::{Handle, PointType, glif::{Layer, MFEKContour, MFEKOutline, MFEKPointData}};
 
 use crate::{contour_operations, renderer::points::calc::*};
-use crate::contour_operations::ContourOperation;
 use super::Editor;
 use super::util::is_point_selected;
 

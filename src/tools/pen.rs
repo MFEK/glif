@@ -168,7 +168,7 @@ impl Pen {
         v.point_idx = Some(0);
     }
 
-    fn mouse_released(&self, v: &mut Editor, meta: MouseInfo) {
+    fn mouse_released(&self, v: &mut Editor, _meta: MouseInfo) {
         // No matter what a mouse press generates a layer modification so we have to finalize that here.
         if let Some(idx) = v.contour_idx {
             v.with_active_layer_mut(|layer| {

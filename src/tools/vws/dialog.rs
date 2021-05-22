@@ -1,5 +1,5 @@
 use crate::user_interface::get_tools_dialog_rect;
-use glifparser::glif::{CapType, ContourOperations, InterpolationType, JoinType, VWSContour, VWSHandle};
+use glifparser::glif::{CapType, ContourOperations, JoinType};
 use super::VWS;
 use super::super::prelude::*;
 
@@ -45,7 +45,7 @@ impl VWS {
 
         let _vws_contour = self.get_vws_contour(v, contour_idx);
 
-        if let Some(mut vws_contour) = _vws_contour {
+        if let Some(vws_contour) = _vws_contour {
             let old_s = cap_type_to_idx(vws_contour.cap_start_type);
             let old_e = cap_type_to_idx(vws_contour.cap_end_type);
             let mut s_current_selection = old_s;
@@ -92,7 +92,7 @@ impl VWS {
 
         let _vws_contour = self.get_vws_contour(v, contour_idx);
 
-        if let Some(mut vws_contour) = _vws_contour {
+        if let Some(vws_contour) = _vws_contour {
             let mut current_selection = join_type_to_idx(vws_contour.join_type);
 
             let options = [
@@ -128,7 +128,7 @@ impl VWS {
             return;
         }
 
-        let contour_idx = v.contour_idx.unwrap();
+        let _contour_idx = v.contour_idx.unwrap();
 
         imgui::Window::new(imgui::im_str!("VWS Settings"))
             .bg_alpha(1.) // See comment on fn redraw_skia

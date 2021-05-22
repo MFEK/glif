@@ -1,4 +1,4 @@
-use skulpin::skia_safe::{Canvas, Color, Font, FontStyle, Paint, Path, Rect, TextBlob, Typeface};
+use skulpin::skia_safe::{Canvas, Font, FontStyle, Paint, Path, Rect, TextBlob, Typeface};
 
 use crate::editor::Editor;
 
@@ -18,6 +18,7 @@ pub struct UiString<'a> {
     pub padding: Option<f32>,
 }
 
+#[allow(dead_code)]
 impl<'a> UiString<'a> {
     pub fn new(s: &'a str) -> Self {
         Self {

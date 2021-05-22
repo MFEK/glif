@@ -9,7 +9,7 @@ use glifparser::IntegerOrFloat;
 
 pub fn draw_guideline(v: &Editor, canvas: &mut Canvas, guideline: &Guideline, color: Option<u32>) {
     let angle = guideline.angle * DEGREES_IN_RADIANS;
-    let extra = (v.viewport.offset.0 * (1. / v.viewport.factor), v.viewport.offset.1 * (1. / v.viewport.factor));
+    let _extra = (v.viewport.offset.0 * (1. / v.viewport.factor), v.viewport.offset.1 * (1. / v.viewport.factor));
     let at2 = GuidelinePoint { x: guideline.at.x+((1000.*v.viewport.winsize.0 as f32)*f32::from(angle).cos()), y: guideline.at.y+((1000.*v.viewport.winsize.1 as f32)*f32::from(angle).sin()) };
     let at3 = GuidelinePoint { x: guideline.at.x+((-(1000.*v.viewport.winsize.0 as f32))*f32::from(angle).cos()), y: guideline.at.y+((-(1000.*v.viewport.winsize.1 as f32))*f32::from(angle).sin()) };
     let factor = v.viewport.factor;

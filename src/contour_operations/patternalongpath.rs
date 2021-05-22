@@ -1,5 +1,5 @@
-use MFEKmath::{Piecewise, VWSSettings, pattern_along_path_mfek};
-use glifparser::{VWSContour, glif::{self, MFEKContour, MFEKOutline, MFEKPointData, PAPContour, VWSHandle}};
+use MFEKmath::{Piecewise, pattern_along_path_mfek};
+use glifparser::glif::{MFEKContour, MFEKOutline, MFEKPointData, PAPContour};
 
 use super::ContourOperation;
 
@@ -18,15 +18,15 @@ impl ContourOperation for PAPContour {
         return output;
     }
 
-    fn sub(&self, contour: &MFEKContour<MFEKPointData>, begin: usize, end: usize) -> Self {
+    fn sub(&self, _contour: &MFEKContour<MFEKPointData>, _begin: usize, _end: usize) -> Self {
         return self.clone();
     }
 
-    fn append(&self, contour: &MFEKContour<MFEKPointData>, append: &MFEKContour<MFEKPointData>) -> Self {
+    fn append(&self, _contour: &MFEKContour<MFEKPointData>, _append: &MFEKContour<MFEKPointData>) -> Self {
         return self.clone();
     }
 
-    fn insert(&self, contour: &MFEKContour<MFEKPointData>, point_idx: usize) -> Self {
+    fn insert(&self, _contour: &MFEKContour<MFEKPointData>, _point_idx: usize) -> Self {
         return self.clone();
     }
 }

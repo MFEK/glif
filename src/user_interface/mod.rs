@@ -1,9 +1,9 @@
-use std::{borrow::BorrowMut, cell::RefCell, rc::Rc};
+use std::{cell::RefCell, rc::Rc};
 
 use imgui::{self, ColorStackToken, Context, FontId, Key, StyleColor, StyleVar};
-use regex::bytes::Replacer;
 
-use crate::{editor, tools::ToolEnum, tools::EditorEvent};
+
+use crate::{tools::ToolEnum, tools::EditorEvent};
 use crate::editor::Editor;
 use glifparser::glif::{Layer, LayerOperation, MFEKPointData};
 
@@ -166,8 +166,8 @@ pub fn build_and_check_layer_list(v: &mut Editor, ui: &imgui::Ui) {
     ui.button(unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icons::ARROWUP) }, [0., 0.]);
     if ui.is_item_clicked(imgui::MouseButton::Left) {
         if active_layer != 0 {
-            let start_layer_type = v.with_glyph(|glif| glif.layers[active_layer].operation.clone());
-            let target_layer_type = v.with_glyph(|glif| glif.layers[active_layer-1].operation.clone());
+            let _start_layer_type = v.with_glyph(|glif| glif.layers[active_layer].operation.clone());
+            let _target_layer_type = v.with_glyph(|glif| glif.layers[active_layer-1].operation.clone());
 
             v.swap_layers(active_layer, active_layer-1, true);
         }
@@ -282,7 +282,7 @@ pub fn build_and_check_layer_list(v: &mut Editor, ui: &imgui::Ui) {
         if layer_op.is_none() {
             ui.same_line(0.);
             let mut color_token: Option<ColorStackToken> = None;
-            let mut default_color: Option<[f32; 4]> = None;
+            let _default_color: Option<[f32; 4]> = None;
             if let Some(color) = v.with_glyph(|glif| glif.layers[layer].color) {
                 color_token = Some(ui.push_style_color(imgui::StyleColor::Button, color.into()));
             }
@@ -330,8 +330,6 @@ pub fn build_and_check_layer_list(v: &mut Editor, ui: &imgui::Ui) {
 
 pub const LAYERBOX_WIDTH: f32 = 250.;
 pub const LAYERBOX_HEIGHT: f32 = 250.;
-pub const PROMPTBOX_WIDTH: f32 = 250.;
-pub const PROMPTBOX_HEIGHT: f32 = 65.;
 
 pub fn get_tools_dialog_rect(v: &Editor) -> (f32, f32, f32, f32) {
     (
@@ -416,7 +414,7 @@ fn build_and_check_prompts(v: &mut Editor, ui: &mut imgui::Ui)
     if v.prompts.is_empty() { return };
     
     match v.prompts[0].clone() {
-        InputPrompt::Text{ label, default, func} => {
+        InputPrompt::Text{ label, default: _, func} => {
             imgui::Window::new(&imgui::im_str!("{}", label))
             .bg_alpha(1.) // See comment on fn redraw_skia
             .flags(
@@ -450,7 +448,7 @@ fn build_and_check_prompts(v: &mut Editor, ui: &mut imgui::Ui)
             });
         }
 
-        InputPrompt::Color { label, default, func } => {
+        InputPrompt::Color { label, default: _, func } => {
             let mut color = PROMPT_CLR.with(|clr| clr.borrow_mut().clone() );
 
             imgui::Window::new(&imgui::im_str!("{}", label))

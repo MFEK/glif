@@ -1,11 +1,11 @@
-use crate::filedialog;
+
 use crate::ipc;
 use crate::editor::Editor;
 
 use mfek_ipc;
 use glifparser::{MFEKGlif, glif::MFEKPointData};
 use log::debug;
-use std::{env, fs};
+use std::{env};
 use std::path::Path;
 
 pub fn load_glif<F: AsRef<Path> + Clone>(v: &mut Editor, filename: F) {

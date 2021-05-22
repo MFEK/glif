@@ -9,7 +9,7 @@ use std::{
 use strum_macros::{Display, EnumString};
 use xmltree;
 
-use crate::settings::APP_INFO;
+
 
 // a command file is put into the user's config directory upon first run
 // <command name="ToolPen" key = "A">

@@ -1,8 +1,7 @@
-use MFEKmath::{Piecewise, VWSSettings, variable_width_stroke};
-use glifparser::{MFEKGlif, Outline, glif::{ContourOperations, InterpolationType, Layer, LayerOperation, MFEKContour, MFEKPointData, VWSHandle}};
-use glifparser::outline::skia::{SkiaPointTransforms, FromSkiaPath, ToSkiaPaths};
+use glifparser::{MFEKGlif, Outline, glif::{Layer, LayerOperation, MFEKPointData}};
+use glifparser::outline::skia::{FromSkiaPath, ToSkiaPaths};
 use skulpin::skia_safe::{Path, PathOp};
-use crate::renderer::points::calc::*;
+
 
 
 use crate::contour_operations;
@@ -28,7 +27,7 @@ impl Editor {
         for layer in &self.glyph.as_ref().unwrap().layers {
             let mut preview_outline = Vec::new();
 
-            for (idx, glif_contour) in layer.outline.iter().enumerate() {
+            for (_idx, glif_contour) in layer.outline.iter().enumerate() {
                 if glif_contour.inner.len() < 2 { preview_outline.push(glif_contour.clone()); continue; }
 
                 let build_result = contour_operations::build(glif_contour);

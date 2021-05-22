@@ -124,7 +124,7 @@ fn shape_direction(cx: f32) -> PathDirection {
     if cx.is_sign_negative() { PathDirection::CCW } else { PathDirection::CW }
 }
 
-use std::iter;
+
 
 impl ShapeDrawer {
     fn calculate_radius(&self) -> (f32, f32, f32) {
@@ -136,7 +136,7 @@ impl ShapeDrawer {
     }
 
     fn draw_circle(&self) -> Outline<MFEKPointData> {
-        let (cx, cy, dist) = self.calculate_radius();
+        let (cx, _cy, dist) = self.calculate_radius();
         let path = Path::circle(self.from, dist, Some(shape_direction(cx)));
         Outline::from_skia_path(&path)
     }
@@ -151,7 +151,7 @@ impl ShapeDrawer {
 
         let (cxm, cym, radius) = self.calculate_radius();
         let rotangle = (cym/cxm).atan();
-        let rotangle = (rotangle * (180. / PI));
+        let rotangle = rotangle * (180. / PI);
         let rotangle = if cxm > 0. { 180. + rotangle } else { rotangle };
         // I'm not sure if this is a Skia thing, or a "Fred is bad at math" thing, but this does
         // fix it.
@@ -244,7 +244,6 @@ impl Shapes {
                     ShapeType::Circle => sd.draw_circle(),
                     ShapeType::Oval | ShapeType::Rectangle | ShapeType::RoundedRectangle => sd.draw_fits_in_rect(self.stype),
                     ShapeType::Polygon => sd.draw_polygon(self.stype),
-                    _ => {unimplemented!("Attempt to draw unimplemented shape")}
                 };
 
                 let mfek_o: Vec<MFEKContour<MFEKPointData>> = o.iter().map(|e| e.into()).collect();

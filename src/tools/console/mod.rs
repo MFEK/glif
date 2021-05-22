@@ -6,6 +6,7 @@ use lazy_static::lazy_static;
 use log::debug;
 
 mod commands;
+pub use commands::initialize_console_commands;
 
 use sdl2::keyboard::Keycode;
 use sdl2::keyboard::Mod;

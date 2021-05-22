@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use MFEKmath::{Bezier, Evaluate, Piecewise, Vector, evaluate::Primitive};
 use flo_curves::bezier::solve_curve_for_t;
-use glifparser::{Handle, Outline, WhichHandle, glif::{MFEKOutline, MFEKPointData}};
+use glifparser::{Handle, WhichHandle, glif::{MFEKOutline, MFEKPointData}};
 use crate::{tools::prelude::math::FlipIfRequired};
 use crate::get_contour_len;
 use crate::renderer::constants::*;
@@ -75,8 +75,7 @@ pub fn get_contour_start_or_end(v: &Editor, contour_idx: usize, point_idx: usize
     let contour_len = v.with_active_layer(|layer| {get_contour_len!(layer, contour_idx)} ) - 1;
     match point_idx {
         0 => Some(SelectPointInfo::Start),
-        contour_len => Some(SelectPointInfo::End),
-        _ => None
+        idx => if idx == contour_len { Some(SelectPointInfo::End) } else { None },
     }
 }
 

@@ -55,7 +55,7 @@ use imgui_skia_renderer::Renderer;
 
 use enum_iterator::IntoEnumIterator as _;
 
-use std::{collections::HashSet, rc::Rc};
+use std::{collections::HashSet};
 
 // Provides thread-local global variables.
 pub mod editor;
@@ -120,8 +120,12 @@ fn main() {
         .expect("Could not create sdl event pump");
 
     command::initialize_keybinds();
+    tools::console::initialize_console_commands();
 
     'main_loop: loop {
+        // Quit from console
+        if editor.quit_requested { break 'main_loop }
+
         // Create a set of pressed Keys.
         let keys_down: HashSet<Keycode> = event_pump
             .keyboard_state()

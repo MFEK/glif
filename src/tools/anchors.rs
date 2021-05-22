@@ -1,6 +1,6 @@
 use super::prelude::*;
 
-use crate::user_interface::{self, InputPrompt, TOOLBOX_HEIGHT, icons};
+use crate::user_interface::{self, InputPrompt};
 
 use crate::command::Command;
 
@@ -48,7 +48,7 @@ impl Tool for Anchors {
 impl Anchors {
     fn draw_selected(&self, v: &Editor, canvas: &mut Canvas) {
         if let Some(idx) = self.anchor_idx {
-            let scale = v.viewport.factor;
+            let _scale = v.viewport.factor;
             v.with_glyph(|glif| {
                 let anchor = &glif.anchors[idx];
                 let mut paint = Paint::default();
@@ -141,7 +141,7 @@ impl Anchors {
 use std::rc::Rc;
 use crate::editor::{Editor, MouseInfo};
 use glifparser::Anchor as GlifAnchor;
-use skulpin::skia_safe::{Paint, PaintStyle};
+use skulpin::skia_safe::{Paint};
 impl Anchors {
     fn mouse_pressed(&mut self, v: &mut Editor, meta: MouseInfo) {
         // Reset selected anchor
@@ -166,7 +166,7 @@ impl Anchors {
         });
 
         // If we have, return, and wait for motion
-        if let Some(idx) = self.anchor_idx { return }
+        if let Some(_idx) = self.anchor_idx { return }
 
         v.prompts.push(InputPrompt::Text {
             label: "Anchor name:".to_string(),

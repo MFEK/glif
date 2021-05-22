@@ -349,7 +349,7 @@ impl VWS {
             let vws_handle = vws_contour.handles[handle_idx];
             
             // if we've got an open contour and are dealing with the last handle we need special logic
-            let (bezier, start_point, tangent, normal) = 
+            let (_bezier, start_point, tangent, normal) = 
                 if !contour_pw.is_closed() && handle_idx == contour_pw.segs.len() {
                     let bezier = &contour_pw.segs[handle_idx-1];
                     let start_point = bezier.end_point();

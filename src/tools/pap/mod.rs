@@ -4,7 +4,7 @@ use std::rc::Rc;
 
 use glifparser::glif::{ContourOperations, PAPContour, PatternCopies, PatternSubdivide};
 
-use crate::{contour_operations::ContourOperation, editor::Editor, user_interface::{InputPrompt}};
+use crate::{editor::Editor, user_interface::InputPrompt};
 use super::prelude::*;
 
 #[derive(Clone)]
@@ -17,7 +17,7 @@ impl Tool for PAP {
                 match event_type {
                     MouseEventType::Moved => { self.mouse_moved(v, meta) }
                     MouseEventType::Pressed => { self.mouse_pressed(v, meta) }
-                    MouseEventType::Released => { self.mouse_released(v, meta) }
+                    //MouseEventType::Released => { self.mouse_released(v, meta) }
                     _ => {}
                 }
             }
@@ -32,13 +32,13 @@ impl PAP {
         Self {}
     }
 
-    fn mouse_moved(&mut self, v: &mut Editor, meta: MouseInfo) {
+    fn mouse_moved(&mut self, _v: &mut Editor, _meta: MouseInfo) {
     }
 
     fn mouse_pressed(&mut self, v: &mut Editor, meta: MouseInfo) {
-        if let Some((ci, pi, wh)) = clicked_point_or_handle(v, meta.position, None) {
+        if let Some((ci, pi, _wh)) = clicked_point_or_handle(v, meta.position, None) {
             let layer_op = v.with_active_layer(|layer| layer.outline[ci].operation.clone() );
-            if let Some(op) = layer_op {
+            if let Some(_op) = layer_op {
                 
             }
             else {
@@ -71,13 +71,5 @@ impl PAP {
                 });
             }
         }   
-    }
-
-    fn mouse_released(&mut self, _v: &mut Editor, _meta: MouseInfo) {
-    }
-
-    fn generate_PAP_contour()
-    {
-
     }
 }

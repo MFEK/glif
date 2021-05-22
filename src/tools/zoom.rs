@@ -47,8 +47,8 @@ impl Zoom {
         let diff = (meta.absolute_position.0 - center.0, meta.absolute_position.1 - center.1);
         offset.0 -= diff.0;
         offset.1 -= diff.1;
-        offset.0 /= (current_scale / scale);
-        offset.1 /= (current_scale / scale);
+        offset.0 /= current_scale / scale;
+        offset.1 /= current_scale / scale;
 
         v.update_viewport(Some(offset), Some(scale));
         v.center_cursor();

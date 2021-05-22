@@ -19,11 +19,11 @@ pub fn draw_components(v: &Editor, canvas: &mut Canvas) {
     let mut path = Path::new();
     for rect in glif.component_rects.as_ref().unwrap() {
         let skrect = Rect::new(calc_x(rect.minx), calc_y(rect.miny), calc_x(rect.maxx), calc_y(rect.maxy));
-        let uis = UiString::with_colors(&rect.name, COMPONENT_NAME_COLOR, None);
+        let uis = UiString::with_colors(&rect.name, COMPONENT_NAME_COLOR, Some(COMPONENT_NAME_BGCOLOR));
         uis.draw(v, (calc_x(rect.minx), calc_y(rect.maxy)), canvas);
         path.add_rect(skrect, None);
     }
-    let skpaths = glif.flattened.as_ref().map(|f|f.to_skia_paths(Some(SkiaPointTransforms{calc_x: calc_x, calc_y: calc_y})));
+    let skpaths = glif.flattened.as_ref().map(|f|f.to_skia_paths(Some(SkiaPointTransforms{calc_x, calc_y})));
     skpaths.map(|skp|skp.closed.map(|skpc|canvas.draw_path(&skpc, &paint)));
     canvas.draw_path(&path, &paint);
 }
@@ -151,6 +151,8 @@ pub fn draw(canvas: &mut Canvas, v: &mut Editor, active_layer: usize)  -> Path {
 
     if let Some(color) = root_color {
         paint.set_color4f(color, None);
+    } else if v.viewport.preview_mode == PreviewMode::Paper {
+        paint.set_color(PAPER_FILL);
     }
 
     canvas.draw_path(&total_closed_path, &paint);
@@ -177,7 +179,7 @@ pub fn draw(canvas: &mut Canvas, v: &mut Editor, active_layer: usize)  -> Path {
             flattened.map(|f| {
                 glif.flattened = f.flattened;
                 glif.component_rects = rects;
-            });
+            }).unwrap_or_else(|e|log::warn!("Failed to draw components: {:?}", e));
         },
     }
 

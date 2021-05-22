@@ -2,7 +2,7 @@ use super::super::prelude::*;
 use super::PAP;
 use imgui::Ui;
 use crate::user_interface::get_tools_dialog_rect;
-use glifparser::glif::{ContourOperations, PAPContour, PatternCopies, PatternSubdivide};
+use glifparser::glif::{ContourOperations, PatternCopies, PatternSubdivide};
 
 fn imgui_decimal_text_field(label: &str, ui: &imgui::Ui, data: &mut f32) {
     let mut x = imgui::im_str!("{}", data);

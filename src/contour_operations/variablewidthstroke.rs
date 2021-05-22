@@ -23,7 +23,7 @@ impl ContourOperation for VWSContour {
         return output;
     }
 
-    fn sub(&self, contour: &MFEKContour<MFEKPointData>, begin: usize, end: usize) -> Self {
+    fn sub(&self, _contour: &MFEKContour<MFEKPointData>, begin: usize, end: usize) -> Self {
         let temp_handles = self.handles.split_at(begin);
         let (final_handles, _) = temp_handles.1.split_at(end + 1 - begin);
         VWSContour {
@@ -36,7 +36,7 @@ impl ContourOperation for VWSContour {
         }
     }
 
-    fn append(&self, contour: &MFEKContour<MFEKPointData>, append: &MFEKContour<MFEKPointData>) -> Self {
+    fn append(&self, _contour: &MFEKContour<MFEKPointData>, append: &MFEKContour<MFEKPointData>) -> Self {
         let mut temp_handles = self.handles.clone();
 
         match append.operation.clone() {
@@ -83,7 +83,7 @@ impl ContourOperation for VWSContour {
         }    
     }
 
-    fn insert(&self, contour: &MFEKContour<MFEKPointData>, point_idx: usize) -> Self {
+    fn insert(&self, _contour: &MFEKContour<MFEKPointData>, point_idx: usize) -> Self {
         let mut temp_handles = self.handles.clone();
         temp_handles.insert(point_idx, VWSHandle {
             left_offset: temp_handles[point_idx - 1].left_offset,

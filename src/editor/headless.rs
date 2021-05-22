@@ -1,13 +1,5 @@
 use super::Editor;
 
-use glifparser::Glif;
-use glifparser::glif::{self, mfek::{MFEKGlif, MFEKPointData, Layer}};
-use log;
-use plist::{self, Value as PlistValue};
-
-use std::fs;
-use std::io;
-use std::path;
 use std::process;
 
 use crate::io as glif_io;

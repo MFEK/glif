@@ -1,7 +1,7 @@
 use skulpin::skia_safe::{ColorInfo as SkColorInfo, ColorType as SkColorType, AlphaType as SkAlphaType, ColorSpace as SkColorSpace, ImageInfo as SkImageInfo};
 use skulpin::skia_safe::{Image as SkImage, Data as SkData, Matrix};
-use glifparser::{Color as GlifColor, GlifImage, Image as GpImage, image::{DataLoadState, DataOrBitmap}};
-use glifparser::IntegerOrFloat::{Float, Integer};
+use glifparser::{Color as GlifColor, Image as GpImage, image::{DataLoadState, DataOrBitmap}};
+
 use glifparser::matrix::ToSkiaMatrix;
 
 use std::collections::HashMap;
@@ -52,7 +52,7 @@ impl Editor {
         self.images = self.with_glyph(|glif| {
             let mut ret = HashMap::new();
             for layer in &glif.layers {
-                for (image, matrix) in &layer.images {
+                for (image, _matrix) in &layer.images {
                     let im = image.to_image_of(glif);
                     match im {
                         Err(_) => warn!("Failed to read image {:?}", image.filename),
