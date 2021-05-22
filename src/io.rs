@@ -5,7 +5,8 @@ use crate::editor::Editor;
 use mfek_ipc;
 use glifparser::{MFEKGlif, glif::MFEKPointData};
 use log::debug;
-use std::{env};
+
+use std::env;
 use std::path::Path;
 
 pub fn load_glif<F: AsRef<Path> + Clone>(v: &mut Editor, filename: F) {
@@ -22,23 +23,7 @@ pub fn load_glif<F: AsRef<Path> + Clone>(v: &mut Editor, filename: F) {
         ipc::fetch_metrics(v);
     }
 
-    /* 
-    v.borrow().glyph.as_ref().map(|glyph| {
-        let glif = &glyph.glif;
-        debug!(
-            "Loaded {:?} (U+{:04x}) from {}",
-            glif.name,
-            glif.unicode,
-            STATE
-                .with(|v| v
-                    .borrow()
-                    .glyph
-                    .as_ref()
-                    .expect("Glyph NULL!?")
-                    .filename
-                    .clone())
-                .display()
-        );
-    });
-    */
+    if let Some(ref mut window) = v.sdl_window {
+        window.set_title(&format!("MFEKglif — {}", filename.as_ref().to_str().unwrap() )).expect("Failed to set SDL2 window title");
+    }
 }

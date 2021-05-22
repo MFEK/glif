@@ -16,6 +16,13 @@ pub fn filename_or_panic(
     }
 }
 
+pub fn open_filename(filter: Option<&str>, start_in: Option<&str>) -> Option<PathBuf> {
+    match nfd::open_file_dialog(filter, start_in) {
+        Ok(nfd::Response::Okay(file)) => Some(file.into()),
+        Ok(_) | Err(_) => None,
+    }
+}
+
 pub fn save_filename(filter: Option<&str>, start_in: Option<&str>) -> Option<PathBuf> {
     match nfd::open_save_dialog(filter, start_in) {
         Ok(nfd::Response::Okay(file)) => Some(file.into()),

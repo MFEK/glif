@@ -77,10 +77,6 @@ mod contour_operations;
 
 use crate::renderer::constants::*;
 
-struct WindowSettings {
-    filename: String,
-}
-
 fn main() {
     env_logger::init();
     util::set_panic_hook();
@@ -90,17 +86,13 @@ fn main() {
     let mut editor = Editor::new();
 
     if args.headless_mode != HeadlessMode::None {
-        editor.headless(&args);
+        editor.headless(&args); // this function always calls exit()
     }
 
     let filename = filedialog::filename_or_panic(&args.filename, Some("glif"), None);
 
-    // Makes glyph available to on_load_glif events
-    io::load_glif(&mut editor, &filename);
+    let (sdl_context, sdl_window): (Sdl, Window) = initialize_sdl(&mut editor, filename.to_str().unwrap());
 
-    let (sdl_context, sdl_window): (Sdl, Window) = initialize_sdl(&mut editor, &WindowSettings {
-        filename: filename.to_str().unwrap().to_string(),
-    });
     editor.sdl_context = Some(sdl_context);
     editor.sdl_window = Some(sdl_window);
 
@@ -117,6 +109,9 @@ fn main() {
         .unwrap()
         .event_pump()
         .expect("Could not create sdl event pump");
+ 
+    // Makes glyph available to on_load_glif events
+    io::load_glif(&mut editor, &filename);
 
     command::initialize_keybinds();
     tools::console::initialize_console_commands();
@@ -158,6 +153,21 @@ fn main() {
                 } => {
                     if km.contains(Mod::LCTRLMOD) || km.contains(Mod::RCTRLMOD) {
                         break 'main_loop;
+                    }
+                }
+                // Open
+                Event::KeyDown {
+                    keycode: Some(Keycode::O),
+                    keymod: km,
+                    ..
+                } => {
+                    if km.contains(Mod::LCTRLMOD) || km.contains(Mod::RCTRLMOD) {
+                        let filename = match filedialog::open_filename(Some("glif"), None) {
+                            Some(f) => f,
+                            None => continue,
+                        };
+                        io::load_glif(&mut editor, &filename);
+                        continue;
                     }
                 }
                 // Save, Save As
@@ -446,7 +456,7 @@ fn main() {
     }
 }
 
-fn initialize_sdl(v: &mut Editor, ws: &WindowSettings) -> (Sdl, Window) {
+fn initialize_sdl(v: &mut Editor, filename: &str) -> (Sdl, Window) {
     // SDL initialization
     let sdl_context = sdl2::init().expect("Failed to initialize sdl2");
     let video_subsystem = sdl_context
@@ -462,7 +472,7 @@ fn initialize_sdl(v: &mut Editor, ws: &WindowSettings) -> (Sdl, Window) {
 
     let window = video_subsystem
         .window(
-            &format!("MFEKglif — {}", ws.filename),
+            &format!("MFEKglif — {}", filename),
             logical_size.width,
             logical_size.height,
         )
