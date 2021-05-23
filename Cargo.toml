@@ -78,7 +78,7 @@ xmltree = "0.10.1"
 dyn-clone = "1.0.4"
 
 #config file directory resolution
-app_dirs = "1.2.1"
+directories = "3.0"
 
 #converting enums to strings
 strum = "0.20"

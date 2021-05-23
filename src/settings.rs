@@ -1,13 +1,15 @@
-use app_dirs::{AppDataType, AppInfo, app_dir};
+use directories::BaseDirs;
 use lazy_static::lazy_static;
+use log;
 
 use std::path::PathBuf;
 
-pub const APP_INFO: AppInfo = AppInfo {
-    name: "MFEK",
-    author: "MFEK team",
-};
-
 lazy_static! {
-    pub static ref CONFIG_PATH: PathBuf = app_dir(AppDataType::UserConfig, &APP_INFO, "glif").unwrap();
+    pub static ref CONFIG_PATH: PathBuf = {
+        let mut ret = BaseDirs::new().unwrap().config_dir().to_path_buf();
+        ret.push("MFEK");
+        ret.push("glif");
+        log::info!("Configuration directory is {:?}", &ret);
+        ret
+    };
 }

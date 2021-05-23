@@ -1,5 +1,5 @@
 use sdl2::keyboard::Keycode;
-use std::fs::read_to_string;
+use std::fs;
 use std::path::Path;
 use std::{
     cell::RefCell,
@@ -8,8 +8,7 @@ use std::{
 };
 use strum_macros::{Display, EnumString};
 use xmltree;
-
-
+use crate::settings::CONFIG_PATH;
 
 // a command file is put into the user's config directory upon first run
 // <command name="ToolPen" key = "A">
@@ -149,8 +148,8 @@ pub fn key_down_to_mod(keys_down: &HashSet<Keycode>) -> CommandMod {
 
 fn load_keybinding_xml() -> String {
     // check for a keybinding file in our local directory first
-    let CONFIG_PATH = Path::new("./keybindings.xml");
-    let config_string = read_to_string(&CONFIG_PATH);
+    let config_path = Path::new("./keybindings.xml");
+    let config_string = fs::read_to_string(&config_path);
 
     if let Ok(config_string) = config_string {
         return config_string;
@@ -162,7 +161,7 @@ fn load_keybinding_xml() -> String {
     pb.set_extension("xml");
 
     let path = pb.as_path();
-    let config_string = read_to_string(path);
+    let config_string = fs::read_to_string(path);
 
     if let Ok(config_string) = config_string {
         return config_string;
