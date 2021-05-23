@@ -19,7 +19,7 @@ use sdl2::{
 };
 pub use skulpin::skia_safe;
 use skulpin::{rafx::api::RafxError, rafx::api::RafxExtents2D, LogicalSize, RendererBuilder};
-
+use image;
 use imgui_skia_renderer::Renderer;
 
 use enum_iterator::IntoEnumIterator as _;
@@ -342,7 +342,7 @@ fn main() {
                     let meta = MouseInfo::new(&editor, None, position, None, keymod);
                     editor.dispatch_editor_event(EditorEvent::MouseEvent{
                         event_type: MouseEventType::Moved,
-                        meta: meta
+                        meta,
 
                     });
 
@@ -355,7 +355,7 @@ fn main() {
                     let meta = MouseInfo::new(&editor, Some(mouse_btn), position, Some(true), keymod);              
                     editor.dispatch_editor_event(EditorEvent::MouseEvent{
                         event_type: MouseEventType::DoubleClick,
-                        meta: meta
+                        meta,
                     });
 
                     editor.mouse_info = meta;
@@ -367,7 +367,7 @@ fn main() {
                     let meta = MouseInfo::new(&editor, Some(mouse_btn), position, Some(true), keymod);              
                     editor.dispatch_editor_event(EditorEvent::MouseEvent{
                         event_type: MouseEventType::Pressed,
-                        meta: meta
+                        meta,
                     });
 
                     editor.mouse_info = meta;
@@ -378,7 +378,7 @@ fn main() {
                     let meta = MouseInfo::new(&editor, Some(mouse_btn), position, Some(false), keymod);
                     editor.dispatch_editor_event(EditorEvent::MouseEvent{
                         event_type: MouseEventType::Released,
-                        meta: meta
+                        meta,
                     });
 
                     editor.mouse_info = meta;
@@ -440,7 +440,7 @@ fn initialize_sdl(v: &mut Editor, filename: &str) -> (Sdl, Window) {
         height: HEIGHT,
     };
 
-    let window = video_subsystem
+    let mut window = video_subsystem
         .window(
             &format!("MFEKglif — {}", filename),
             logical_size.width,
@@ -451,24 +451,21 @@ fn initialize_sdl(v: &mut Editor, filename: &str) -> (Sdl, Window) {
         .vulkan()
         .resizable()
         .build()
-        .expect("Failed to create editor.sdl_window.as_ref().unwrap()");
+        .expect("Failed to create SDL Window");
 
-    /* TODO: Fix icon. 
-    let logo = include_bytes!("../doc/logo.png");
-    let im = image::load_from_memory_with_format(logo, image::ImageFormat::Png)
+    let logo = include_bytes!("../resources/icon.png");
+    let mut im = image::load_from_memory_with_format(logo, image::ImageFormat::Png)
         .unwrap()
-        .into_rgb8();
-    let mut bytes = im.into_vec();
-    let surface = Surface::from_data(
-        &mut bytes,
-        701,
-        701,
-        701 * 3,
-        sdl2::pixels::PixelFormatEnum::RGB888,
+        .into_rgba8();
+    let surface = sdl2::surface::Surface::from_data(
+        &mut im,
+        512,
+        512,
+        512 * 4,
+        sdl2::pixels::PixelFormatEnum::ARGB8888,
     )
     .unwrap();
-    editor.sdl_window.as_ref().unwrap().set_icon(surface);
-    */
+    window.set_icon(surface);
 
     v.viewport.winsize = (WIDTH as u32, HEIGHT as u32);
 
