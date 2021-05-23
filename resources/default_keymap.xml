@@ -32,41 +32,37 @@
 
 <keybindings>
     <!-- zoom -->
-    <binding command = "ResetScale" key = "1"/>
-    <binding command = "ZoomIn" key = "="/>
-    <binding command = "ZoomOut" key = "-"/>
+    <binding command="ResetScale" key="1"/>
+    <binding command="ZoomIn" key="="/>
+    <binding command="ZoomOut" key="-"/>
 
     <!-- move camera -->
-    <binding command = "NudgeUp" key = "Up"/>
-    <binding command = "NudgeDown" key = "Down"/>
-    <binding command = "NudgeLeft" key = "Left"/>
-    <binding command = "NudgeRight" key = "Right"/>
+    <binding command="NudgeUp" key="Up"/>
+    <binding command="NudgeDown" key="Down"/>
+    <binding command="NudgeLeft" key="Left"/>
+    <binding command="NudgeRight" key="Right"/>
 
     <!-- tools -->
-    <binding command = "ToolPan" key = "A"/>
-    <binding command = "ToolPen" key = "P"/>
-    <binding command = "ToolSelect" key = "V"/>
-    <binding command = "ToolZoom" key = "Z"/>
-    <binding command = "ToolVWS" key = "S"/>
-    <binding command = "ToolMeasure" key = "M"/>
-    <binding command = "ToolAnchors" key = "N"/>
-    <binding command = "ToolShapes" key = "H"/>
+    <binding command="ToolPan" key="A"/>
+    <binding command="ToolPen" key="P"/>
+    <binding command="ToolSelect" key="V"/>
+    <binding command="ToolZoom" key="Z"/>
+    <binding command="ToolVWS" key="S"/>
+    <binding command="ToolMeasure" key="M"/>
+    <binding command="ToolAnchors" key="N"/>
+    <binding command="ToolShapes" key="H"/>
 
     <!-- actions -->
-    <binding command = "DeleteSelection" key = "Backspace"/>
+    <binding command="DeleteSelection" key="Backspace"/>
 
 
     <!-- view modes -->
-    <binding command = "TogglePointLabels" key = "3"/>
-    <binding command = "TogglePreviewMode" key = "`"/>
+    <binding command="TogglePointLabels" key="3"/>
+    <binding command="TogglePreviewMode" key="`"/>
 
     <!-- console -->
-    <binding command = "ToggleConsole" key = ";"/>
+    <binding command="ToggleConsole" key=";"/>
 
-    <!-- mod keys -->
-    <mod name = "ShiftMod" key = "Left Shift"/>
-    <mod name = "CtrlMod" key = "Left Ctrl"/>
-
-    <mod name = "ShiftMod" key = "Right Shift"/>
-    <mod name = "CtrlMod" key = "Right Ctrl"/>
+    <!-- select -->
+    <binding command="SelectAll" key="A" mod="CtrlMod"/>
 </keybindings>

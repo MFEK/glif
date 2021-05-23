@@ -3,7 +3,7 @@
 //! (c) 2020. Apache 2.0 licensed.
 #![allow(non_snake_case)] // for our name MFEKglif
 
-use command::{Command, CommandInfo};
+use command::{Command, CommandInfo, CommandMod};
 
 use tools::{EditorEvent, MouseEventType, ToolEnum};
 use editor::Editor;
@@ -97,7 +97,7 @@ fn main() {
             .filter_map(Keycode::from_scancode)
             .collect();
 
-        let keymod = command::key_down_to_mod(&keys_down);
+        let keymod = command::keys_down_to_mod(&keys_down).unwrap_or(CommandMod{shift: false, ctrl: false});
 
         // sdl event handling
         for event in event_pump.poll_iter() {
@@ -195,6 +195,18 @@ fn main() {
                         continue;
                     }
                 }
+                // Cut
+                Event::KeyDown {
+                    keycode: Some(Keycode::X),
+                    keymod: km,
+                    ..
+                } => {
+                    if km.contains(Mod::LCTRLMOD) || km.contains(Mod::RCTRLMOD) {
+                        editor.copy_selection();
+                        editor.delete_selection();
+                        continue;
+                    }
+                }
                 // Copy
                 Event::KeyDown {
                     keycode: Some(Keycode::C),
@@ -257,6 +269,7 @@ fn main() {
                         command_mod: command_info.command_mod,
                         stop_after: &mut delete_after,
                     });
+                    if delete_after { continue; }
 
                     match command_info.command {
                         Command::ResetScale => {
@@ -330,9 +343,9 @@ fn main() {
                         Command::DeleteSelection => {
                             editor.delete_selection();
                         }
-
-                        _ => unreachable!(
-                            "Command unimplemented!"
+                        Command::SelectAll => {}
+                        cmd => unreachable!(
+                            "Command unimplemented: {:?}", cmd
                         ),
                     }
                 }
@@ -454,9 +467,11 @@ fn initialize_sdl(v: &mut Editor, filename: &str) -> (Sdl, Window) {
         .expect("Failed to create SDL Window");
 
     let logo = include_bytes!("../resources/icon.png");
+
     let mut im = image::load_from_memory_with_format(logo, image::ImageFormat::Png)
         .unwrap()
         .into_rgba8();
+
     let surface = sdl2::surface::Surface::from_data(
         &mut im,
         512,
@@ -465,6 +480,7 @@ fn initialize_sdl(v: &mut Editor, filename: &str) -> (Sdl, Window) {
         sdl2::pixels::PixelFormatEnum::ARGB8888,
     )
     .unwrap();
+
     window.set_icon(surface);
 
     v.viewport.winsize = (WIDTH as u32, HEIGHT as u32);

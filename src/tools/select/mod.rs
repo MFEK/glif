@@ -1,8 +1,9 @@
 use std::collections::HashSet;
 
 // Select
+use crate::command::Command;
 use crate::editor::macros::get_point;
-use super::{EditorEvent, Tool, prelude::*};
+use super::{EditorEvent, MouseEventType, Tool, prelude::*};
 use crate::renderer::{UIPointType, points::draw_point};
 use crate::editor::{Editor, util::clicked_point_or_handle};
 
@@ -69,11 +70,15 @@ impl Tool for Select {
         match event {
             EditorEvent::MouseEvent { event_type, meta } => {
                 match event_type {
-                    super::MouseEventType::Pressed => { self.mouse_pressed(v, meta) }
-                    super::MouseEventType::Released => {self.mouse_released(v, meta)}
-                    super::MouseEventType::Moved => { self.mouse_moved(v, meta) }
-                    super::MouseEventType::DoubleClick => { self.mouse_double_pressed(v, meta) }
+                    MouseEventType::Pressed => { self.mouse_pressed(v, meta) }
+                    MouseEventType::Released => {self.mouse_released(v, meta)}
+                    MouseEventType::Moved => { self.mouse_moved(v, meta) }
+                    MouseEventType::DoubleClick => { self.mouse_double_pressed(v, meta) }
                 }
+            }
+            EditorEvent::ToolCommand { command: Command::SelectAll, stop_after, .. } => {
+                *stop_after = true;
+                self.select_all(v);
             }
             EditorEvent::Draw { skia_canvas } => {
                 self.draw_selbox(v, skia_canvas);
@@ -96,6 +101,19 @@ impl Select {
             corner_two: None,
             show_sel_box: false,
         }
+    }
+
+    fn select_all(&mut self, v: &mut Editor) {
+        let points = v.with_active_layer(|layer| {
+            let mut points = HashSet::new();
+            for (ci, contour) in layer.outline.iter().enumerate() {
+                for (pi, _point) in contour.inner.iter().enumerate() {
+                    points.insert((ci, pi));
+                }
+            }
+            points
+        });
+        v.selected = points;
     }
     
     fn mouse_moved(&mut self, v: &mut Editor, meta: MouseInfo) {

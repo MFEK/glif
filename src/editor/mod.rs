@@ -148,7 +148,7 @@ impl Editor {
         where F: FnMut(&mut Layer<MFEKPointData>) -> R {
         if self.modifying == false { panic!("A modification is not in progress!")}
         let glyph = self.glyph.as_mut().unwrap();
-        let ret =closure(&mut glyph.layers[self.layer_idx.unwrap()]);
+        let ret = closure(&mut glyph.layers[self.layer_idx.unwrap()]);
 
         self.mark_preview_dirty();
         ret

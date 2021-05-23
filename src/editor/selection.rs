@@ -1,8 +1,7 @@
 
-use MFEKmath::{Bezier, Evaluate, Piecewise};
-use glifparser::{Handle, PointType, glif::{Layer, MFEKContour, MFEKOutline, MFEKPointData}};
+use glifparser::{PointType, glif::{Layer, MFEKContour, MFEKPointData}};
 
-use crate::{contour_operations, renderer::points::calc::*};
+use crate::contour_operations;
 use super::Editor;
 use super::util::is_point_selected;
 

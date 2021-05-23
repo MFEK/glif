@@ -37,6 +37,7 @@ pub enum Command {
     ToolShapes,
 
     DeleteSelection,
+    SelectAll,
 
     // view modes
     TogglePointLabels,
@@ -44,15 +45,25 @@ pub enum Command {
 
     // console
     ToggleConsole,
-
-    ShiftMod,
-    CtrlMod,
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub struct CommandMod {
     pub shift: bool,
     pub ctrl: bool,
+}
+
+use std::convert::TryFrom;
+impl TryFrom<&str> for CommandMod {
+    type Error = ();
+    fn try_from(s: &str) -> Result<CommandMod, ()> {
+        match s {
+            "CtrlMod" => Ok(CommandMod { ctrl: true, shift: false }),
+            "ShiftMod" => Ok(CommandMod { ctrl: false, shift: true }),
+            "CtrlShiftMod" => Ok(CommandMod { ctrl: true, shift: true }),
+            _ => Err(())
+        }
+    }
 }
 
 pub struct CommandInfo {
@@ -65,7 +76,8 @@ pub fn initialize_keybinds() {
     let mut config =
         xmltree::Element::parse(binding_xml.as_bytes()).expect("Invalid keybinding XML!");
 
-    let mut hm = HashMap::new();
+    let mut hm: HashMap<(Keycode, Option<CommandMod>), Command> = HashMap::new();
+
     while let Some(binding) = config.take_child("binding") {
         let keycode = binding
             .attributes
@@ -75,29 +87,21 @@ pub fn initialize_keybinds() {
             .attributes
             .get("command")
             .expect("Binding does not have a command associated!");
+        let modifier = binding
+            .attributes
+            .get("mod");
+
+        let command_mod: Option<CommandMod> = if let Some(m) = modifier {
+            CommandMod::try_from(m.as_str()).map(|m|Some(m)).unwrap_or(None)
+        } else {
+            None
+        };
 
         let command_enum = Command::from_str(command).expect("Invalid command string!");
         let keycode_enum =
             sdl2::keyboard::Keycode::from_name(keycode).expect("Invalid keycode string!");
 
-        hm.insert(keycode_enum, command_enum);
-    }
-
-    while let Some(keymod) = config.take_child("mod") {
-        let keycode = keymod
-            .attributes
-            .get("key")
-            .expect("Binding does not have a key associated!");
-        let command = keymod
-            .attributes
-            .get("name")
-            .expect("Binding does not have a command associated!");
-
-        let command_enum = Command::from_str(command).expect("Invalid command string!");
-        let keycode_enum =
-            sdl2::keyboard::Keycode::from_name(keycode).expect("Invalid keycode string!");
-
-        hm.insert(keycode_enum, command_enum);
+        hm.insert((keycode_enum, command_mod), command_enum);
     }
 
     KEYMAP.with(|v| {
@@ -105,12 +109,21 @@ pub fn initialize_keybinds() {
     })
 }
 
+pub fn keys_down_to_mod(keys_down: &HashSet<Keycode>) -> Option<CommandMod> {
+    let ret = CommandMod {
+        ctrl: keys_down.contains(&Keycode::LCtrl) || keys_down.contains(&Keycode::RCtrl),
+        shift: keys_down.contains(&Keycode::LShift) || keys_down.contains(&Keycode::RShift),
+    };
+    if !ret.ctrl && !ret.shift {
+        None
+    } else {
+        Some(ret)
+    }
+}
+
 pub fn keycode_to_command(keycode: &Keycode, keys_down: &HashSet<Keycode>) -> Option<CommandInfo> {
     let command_enum = KEYMAP.with(|v| {
-        if let Some(key) = v.borrow().keybindings.get(keycode) {
-            if key == &Command::ShiftMod || key == &Command::CtrlMod {
-                return None;
-            }
+        if let Some(key) = v.borrow().keybindings.get(&(*keycode, keys_down_to_mod(keys_down))) {
             return Some(*key);
         }
 
@@ -120,30 +133,11 @@ pub fn keycode_to_command(keycode: &Keycode, keys_down: &HashSet<Keycode>) -> Op
     if let Some(command_enum) = command_enum {
         return Some(CommandInfo {
             command: command_enum,
-            command_mod: key_down_to_mod(keys_down),
+            command_mod: CommandMod { ctrl: false, shift: false },
         });
     }
 
     return None;
-}
-
-// kinda clunky but it works
-pub fn key_down_to_mod(keys_down: &HashSet<Keycode>) -> CommandMod {
-    let mut keymod = CommandMod {
-        shift: false,
-        ctrl: false,
-    };
-
-    for key in keys_down.iter() {
-        KEYMAP.with(|v| {
-            if let Some(command) = v.borrow().keybindings.get(key) {
-                if command == &Command::ShiftMod { keymod.shift = true; };
-                if command == &Command::CtrlMod { keymod.ctrl = true; };
-            }
-        });
-    }
-
-    return keymod;
 }
 
 fn load_keybinding_xml() -> String {
@@ -174,7 +168,7 @@ fn load_keybinding_xml() -> String {
 const DEFAULT_KEYBINDINGS: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/resources/default_keymap.xml"));
 
 struct KeyData {
-    keybindings: HashMap<Keycode, Command>,
+    keybindings: HashMap<(Keycode, Option<CommandMod>), Command>,
 }
 
 thread_local! {
