@@ -2,12 +2,9 @@ use glifparser::{MFEKGlif, Outline, glif::{Layer, LayerOperation, MFEKPointData}
 use glifparser::outline::skia::{FromSkiaPath, ToSkiaPaths};
 use skulpin::skia_safe::{Path, PathOp};
 
-
-
 use crate::contour_operations;
 
 use super::Editor;
-
 
 impl Editor {
     pub fn mark_preview_dirty(&mut self)

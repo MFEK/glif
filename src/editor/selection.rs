@@ -64,59 +64,20 @@ impl Editor {
         })
     }
 
-    pub fn paste_selection(&mut self, position: (f32, f32)) {  
+    pub fn paste_selection(&mut self, _position: (f32, f32)) {
         self.begin_layer_modification("Paste clipboard.");
         if let Some(clipboard) = &self.clipboard {
             self.contour_idx = None;
             self.point_idx = None;
             self.selected.clear();
 
-            let pw: Piecewise<Piecewise<Bezier>> = (&clipboard.outline).into();
-            let size = pw.bounds();
-
-            let translated_outline: MFEKOutline<MFEKPointData> = clipboard.outline.iter().map(|contour| {
-                MFEKContour {
-                    inner: contour.inner.iter().map(|point| {
-                        let mut translated_point = point.clone();
-                        let offset_x = calc_x(position.0 as f32) - size.width() as f32 / 2.;
-                        let offset_y = calc_y(position.1 as f32) - size.height() as f32 / 2.;
-    
-    
-                        translated_point.x = translated_point.x + offset_x;
-                        translated_point.y = translated_point.y + offset_y;
-    
-                        translated_point.a = match translated_point.a {
-                            Handle::At(x, y) => { Handle::At(
-                                x + offset_x,
-                                y + offset_y
-    
-                        )}
-                            _ => {Handle::Colocated}
-                        };
-                        
-                        translated_point.b = match translated_point.b {
-                            Handle::At(x, y) => { Handle::At(
-                                x + offset_x,
-                                y + offset_y
-    
-                        )}
-                            _ => {Handle::Colocated}
-                        };
-                        translated_point
-                    }).collect(),
-                    operation: contour.operation.clone(),
-                    
-                }
-
-            }).collect();
-
             let layer = &mut self.glyph.as_mut().unwrap().layers[self.layer_idx.unwrap()];
-            for contour in translated_outline {
+            for contour in clipboard.outline.iter() {
                 let cur_idx = layer.outline.len();
                 for (point_selection, _) in contour.inner.iter().enumerate() {
                     self.selected.insert((cur_idx, point_selection));
                 }
-                layer.outline.push(contour);
+                layer.outline.push(contour.clone());
             }
         }
         self.end_layer_modification();
