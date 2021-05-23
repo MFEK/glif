@@ -1,5 +1,5 @@
 use log::error;
-use mfek_ipc::{self, IPCInfo};
+use mfek_ipc::{self, Available, IPCInfo};
 use glifparser::{Guideline, GuidelinePoint, IntegerOrFloat};
 
 use crate::editor::Editor;
@@ -7,7 +7,8 @@ use crate::editor::Editor;
 use std::{process, str};
 
 pub fn fetch_metrics(v: &mut Editor) {
-    let qmdbin = mfek_ipc::module_name("MFEKmetadata".into());
+    let (status, qmdbin) = mfek_ipc::module_available("metadata".into());
+    if status != Available::Yes { return }
     let filename = v.with_glyph(|glyph| {glyph.filename.clone()});
     let ipc_info = IPCInfo::from_glif_path("MFEKglif".to_string(), &filename.unwrap());
 

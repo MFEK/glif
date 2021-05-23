@@ -2,7 +2,6 @@
 use crate::ipc;
 use crate::editor::Editor;
 
-use mfek_ipc;
 use glifparser::{MFEKGlif, glif::MFEKPointData};
 use log::debug;
 
@@ -19,9 +18,7 @@ pub fn load_glif<F: AsRef<Path> + Clone>(v: &mut Editor, filename: F) {
 
     v.set_glyph(glif);
 
-    if mfek_ipc::module_available("MFEKmetadata".into()) == mfek_ipc::Available::Yes {
-        ipc::fetch_metrics(v);
-    }
+    ipc::fetch_metrics(v);
 
     if let Some(ref mut window) = v.sdl_window {
         window.set_title(&format!("MFEKglif — {}", filename.as_ref().to_str().unwrap() )).expect("Failed to set SDL2 window title");

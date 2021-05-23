@@ -1,6 +1,4 @@
-
-
-use glifparser::{glif::{MFEKOutline, HistoryEntry, HistoryType, Layer}};
+use glifparser::glif::{MFEKOutline, HistoryEntry, HistoryType, Layer};
 use super::Editor;
 
 impl Editor {
