@@ -176,7 +176,6 @@ impl Select {
                         };
                     }
         
-                    #[rustfmt::skip]
                     match wh {
                         WhichHandle::A => { move_mirror!(a, b); },
                         WhichHandle::B => { move_mirror!(b, a); },

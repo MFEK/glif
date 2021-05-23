@@ -344,7 +344,6 @@ pub fn build_imgui_ui(v: &mut Editor, ui: &mut imgui::Ui) {
     imgui::Window::new(imgui::im_str!("Tools"))
         .bg_alpha(1.) // See comment on fn redraw_skia
         .flags(
-            #[rustfmt::skip]
                     imgui::WindowFlags::NO_RESIZE
                 | imgui::WindowFlags::NO_MOVE
                 | imgui::WindowFlags::NO_COLLAPSE,
@@ -371,7 +370,6 @@ pub fn build_imgui_ui(v: &mut Editor, ui: &mut imgui::Ui) {
     imgui::Window::new( imgui::im_str!("Layers"))
         .bg_alpha(1.)
         .flags(
-            #[rustfmt::skip]
                     imgui::WindowFlags::NO_RESIZE
                 | imgui::WindowFlags::NO_MOVE
                 | imgui::WindowFlags::NO_COLLAPSE
@@ -395,7 +393,6 @@ fn build_and_check_prompts(v: &mut Editor, ui: &mut imgui::Ui)
 
     imgui::Window::new(&imgui::im_str!("##"))
     .flags(
-        #[rustfmt::skip]
                 imgui::WindowFlags::NO_RESIZE
             | imgui::WindowFlags::NO_MOVE
             | imgui::WindowFlags::NO_COLLAPSE
@@ -418,7 +415,6 @@ fn build_and_check_prompts(v: &mut Editor, ui: &mut imgui::Ui)
             imgui::Window::new(&imgui::im_str!("{}", label))
             .bg_alpha(1.) // See comment on fn redraw_skia
             .flags(
-                #[rustfmt::skip]
                         imgui::WindowFlags::NO_RESIZE
                     | imgui::WindowFlags::NO_COLLAPSE,
             )
@@ -454,7 +450,6 @@ fn build_and_check_prompts(v: &mut Editor, ui: &mut imgui::Ui)
             imgui::Window::new(&imgui::im_str!("{}", label))
             .bg_alpha(1.) // See comment on fn redraw_skia
             .flags(
-                #[rustfmt::skip]
                         imgui::WindowFlags::NO_RESIZE
                     | imgui::WindowFlags::NO_COLLAPSE,
             )
@@ -491,7 +486,6 @@ fn build_and_check_prompts(v: &mut Editor, ui: &mut imgui::Ui)
             imgui::Window::new(&imgui::im_str!("{}", label))
             .bg_alpha(1.) // See comment on fn redraw_skia
             .flags(
-                #[rustfmt::skip]
                     imgui::WindowFlags::NO_RESIZE
                     | imgui::WindowFlags::NO_COLLAPSE,
             )

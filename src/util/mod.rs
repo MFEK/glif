@@ -54,10 +54,6 @@ pub fn set_panic_hook() {
             eprintln!("\n{}\n", info.bright_red());
         }
 
-        if let Some(args) = info.message() {
-            eprintln!("\n{}\n", args.to_string().bright_red());
-        }
-
         if env::var("RUST_BACKTRACE").is_ok() {
             let mut bt = Backtrace::new();
             bt.resolve();

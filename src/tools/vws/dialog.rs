@@ -133,7 +133,6 @@ impl VWS {
         imgui::Window::new(imgui::im_str!("VWS Settings"))
             .bg_alpha(1.) // See comment on fn redraw_skia
             .flags(
-                #[rustfmt::skip]
                 imgui::WindowFlags::NO_RESIZE
                     | imgui::WindowFlags::NO_MOVE
                     | imgui::WindowFlags::NO_COLLAPSE,

@@ -2,11 +2,6 @@
 //! Main author is Fredrick Brennan (@ctrlcctrlv); see AUTHORS.
 //! (c) 2020. Apache 2.0 licensed.
 #![allow(non_snake_case)] // for our name MFEKglif
-#![feature(
-    panic_info_message,
-    stmt_expr_attributes,
-    cell_leak,
-)]
 
 // Cargo.toml comments say what crates are used for what.
 extern crate backtrace;
