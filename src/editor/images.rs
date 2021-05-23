@@ -55,10 +55,10 @@ impl Editor {
                 for (image, _matrix) in &layer.images {
                     let im = image.to_image_of(glif);
                     match im {
-                        Err(_) => warn!("Failed to read image {:?}", image.filename),
+                        Err(_) => log::warn!("Failed to read image {:?}", image.filename),
                         Ok(mut gpim) => {
-                            gpim.load().unwrap_or_else(|_|warn!("Failed to read image {:?}", image.filename));
-                            gpim.decode().unwrap_or_else(|_|warn!("Failed to decode image {:?}", image.filename));
+                            gpim.load().unwrap_or_else(|_|log::warn!("Failed to read image {:?}", image.filename));
+                            gpim.decode().unwrap_or_else(|_|log::warn!("Failed to decode image {:?}", image.filename));
                             if gpim.data.state == DataLoadState::Decoded {
                                 ret.insert(image.filename.clone(), gpim.into());
                             }

@@ -62,6 +62,11 @@ pub fn set_panic_hook() {
     }));
 }
 
+pub fn init_env_logger() {
+    if env::var("RUST_LOG").is_err() { env::set_var("RUST_LOG", "INFO,rafx_framework=off,rafx_api=off,skulpin=off") }
+    env_logger::init();
+}
+
 // This prevents debug!() etc from producing mojibake. Yes, really, this is the best solution. :-|
 #[cfg(target_family = "windows")]
 pub fn set_codepage_utf8() {

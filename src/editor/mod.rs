@@ -111,7 +111,7 @@ impl Editor {
         self.layer_idx = Some(0);
         self.mark_preview_dirty();
         self.recache_images();
-        debug!("Images: {:?}", &self.images);
+        log::debug!("Images: {:?}", &self.images);
     }
 
     /// This is the function that powers the editor. Tools recieve events from the Editor and then use them to modify state.

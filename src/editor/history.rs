@@ -18,7 +18,7 @@ impl History {
 
 impl History {
     pub fn add_undo_entry(&mut self, entry: HistoryEntry<MFEKPointData> ) {
-        debug!("Added undo entry: {0}", entry.description);
+        log::debug!("Added undo entry: {0}", entry.description);
         self.undo_stack.push(entry);
         self.redo_stack.clear();
     }

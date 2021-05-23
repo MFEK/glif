@@ -3,31 +3,6 @@
 //! (c) 2020. Apache 2.0 licensed.
 #![allow(non_snake_case)] // for our name MFEKglif
 
-// Cargo.toml comments say what crates are used for what.
-extern crate backtrace;
-extern crate clap;
-extern crate colored;
-extern crate derive_more;
-extern crate enum_iterator;
-extern crate lazy_static;
-#[macro_use]
-extern crate log;
-extern crate env_logger;
-extern crate font_kit;
-extern crate git_version; // for util::parse_args
-
-extern crate skulpin;
-
-extern crate clipboard;
-extern crate regex;
-
-// Our crates
-extern crate glifparser;
-extern crate mfek_ipc;
-extern crate xmltree;
-
-extern crate sdl2;
-
 use command::{Command, CommandInfo};
 
 use tools::{EditorEvent, MouseEventType, ToolEnum};
@@ -49,7 +24,7 @@ use imgui_skia_renderer::Renderer;
 
 use enum_iterator::IntoEnumIterator as _;
 
-use std::{collections::HashSet};
+use std::collections::HashSet;
 
 // Provides thread-local global variables.
 pub mod editor;
@@ -73,7 +48,7 @@ mod contour_operations;
 use crate::renderer::constants::*;
 
 fn main() {
-    env_logger::init();
+    util::init_env_logger();
     util::set_panic_hook();
 
     let args = util::argparser::parse_args();
@@ -446,7 +421,7 @@ fn main() {
         });
 
         if drew.is_err() {
-            warn!("Failed to draw frame. This can happen when resizing due to VkError(ERROR_DEVICE_LOST); if happens otherwise, file an issue.");
+            log::warn!("Failed to draw frame. This can happen when resizing due to VkError(ERROR_DEVICE_LOST); if happens otherwise, file an issue.");
         }
     }
 }

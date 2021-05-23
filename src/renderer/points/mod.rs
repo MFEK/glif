@@ -7,10 +7,10 @@ use self::calc::*;
 pub mod names;
 
 use super::constants::*;
-use crate::{glifparser, editor::Editor};
+use crate::editor::Editor;
 use crate::editor::{HandleStyle, PointLabels};
 
-use glifparser::{Point as GlifPoint, PointType};
+use glifparser::{self, Point as GlifPoint, PointType};
 
 type Color = u32;
 

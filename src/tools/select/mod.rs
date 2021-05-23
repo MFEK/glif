@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 // Select
-use crate::{get_point};
+use crate::editor::macros::get_point;
 use super::{EditorEvent, Tool, prelude::*};
 use crate::renderer::{UIPointType, points::draw_point};
 use crate::editor::{Editor, util::clicked_point_or_handle};
@@ -27,7 +27,7 @@ pub enum Follow {
 }
 
 use crate::tools::MouseInfo;
-use crate::sdl2::mouse::MouseButton;
+use sdl2::mouse::MouseButton;
 impl From<MouseInfo> for Follow {
     fn from(m: MouseInfo) -> Follow {
         match m {
