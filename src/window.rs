@@ -1,4 +1,4 @@
-use sdl2::{video::Window, Sdl};
+use sdl2::{video::Window, Sdl, surface::Surface, pixels::PixelFormatEnum};
 use skulpin::{rafx::api::RafxError, rafx::api::RafxExtents2D, LogicalSize, RendererBuilder};
 use image;
 
@@ -38,14 +38,25 @@ pub fn initialize_sdl(v: &mut Editor, filename: &str) -> (Sdl, Window) {
         .unwrap()
         .into_rgba8();
 
-    let surface = sdl2::surface::Surface::from_data(
+    // SDL2's pixel formats are not byte-by-byte, but rather word-by-word, where the words are each
+    // 32 bits long. So RGBA8888 means a 32-bit word where 8 bits are R, G, B and A. However,
+    // SDL2's words are not big endian, they are little endian, so we need to reverse them.
+    im.chunks_exact_mut(4).for_each(|pixel: &mut _| {
+        let oldpixel: [u8; 4] = [pixel[0], pixel[1], pixel[2], pixel[3]];
+        pixel[0] = oldpixel[3];
+        pixel[1] = oldpixel[2];
+        pixel[2] = oldpixel[1];
+        pixel[3] = oldpixel[0];
+    });
+
+    let surface = Surface::from_data(
         &mut im,
         512,
         512,
         512 * 4,
-        sdl2::pixels::PixelFormatEnum::ARGB8888,
+        PixelFormatEnum::RGBA8888,
     )
-    .unwrap();
+    .expect("Failed to create SDL2 Surface");
 
     window.set_icon(surface);
 
