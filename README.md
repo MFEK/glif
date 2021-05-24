@@ -20,18 +20,24 @@ To make this as easy as possible to build, and cross-platform without hassle, re
 
 Note: This is a basic list to get you started. A complete list can be found in `resources/default_keymap.xml`. You may copy this file to e.g. `$HOME/.config/MFEK/glif/keybindings.xml` on Linux and modify it.
 
+### I/O
 * <kbd>Ctrl</kbd><kbd>O</kbd> &mdash; Open user-specified .glif file
 * <kbd>Ctrl</kbd><kbd>S</kbd> &mdash; Save current glyph in a multi-layered .glif
 * <kbd>Ctrl</kbd><kbd>U</kbd> &mdash; Flatten the topmost layer, and write it to a user-specified .glif file
 * <kbd>Ctrl</kbd><kbd>E</kbd> &mdash; Export the multi-layered .glif to different `glyphs/` directories for each layer, with `layerinfo.plist` and update `layercontents.plist` for each.
+
+### Tools
 * <kbd>A</kbd> &mdash; Select &laquo;Pan&raquo; tool
 * <kbd>P</kbd> &mdash; Select &laquo;Pen&raquo; tool
 * <kbd>V</kbd> &mdash; Select &laquo;Select&raquo; tool
 * <kbd>Z</kbd> &mdash; Select &laquo;Zoom&raquo; tool
-* <kbd>S</kbd> &mdash; Select &laquo;Variable Width Stroke&raquo; tool
+* <kbd>W</kbd> &mdash; Select &laquo;Variable Width Stroke&raquo; tool
 * <kbd>M</kbd> &mdash; Select &laquo;Measure&raquo; tool
 * <kbd>N</kbd> &mdash; Select &laquo;Anchors&raquo; tool
-* <kbd>H</kbd> &mdash; Select &laquo;Shapes&raquo; tool
+* <kbd>S</kbd> &mdash; Select &laquo;Shapes&raquo; tool
+
+### Selection
+* <kbd>Ctrl</kbd><kbd>A</kbd> &mdash; Select all points in current layer
 
 ## Running from artifacts
 
