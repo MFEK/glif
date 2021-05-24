@@ -1,40 +1,29 @@
 //! MFEKglif - A cross-platform .glif renderer and editor.
-//! Main author is Fredrick Brennan (@ctrlcctrlv); see AUTHORS.
-//! (c) 2020. Apache 2.0 licensed.
+//! (c) 2020–2021 Fredrick R. Brennan, Matthew Blanchard & MFEK Authors
+//! Apache 2.0 licensed. See AUTHORS.
 #![allow(non_snake_case)] // for our name MFEKglif
 
 use command::{Command, CommandInfo, CommandMod};
-
 use tools::{EditorEvent, MouseEventType, ToolEnum};
-use editor::Editor;
-use editor::MouseInfo;
+use editor::{Editor, MouseInfo, HandleStyle, PointLabels, PreviewMode, CONSOLE};
 use util::argparser::HeadlessMode;
-//use renderer::render_frame;
-use sdl2::keyboard::Keycode;
+
 use sdl2::{
     event::{Event, WindowEvent},
-    keyboard::Mod,
+    keyboard::{Keycode, Mod},
     video::Window,
     Sdl,
 };
-pub use skulpin::skia_safe;
-use skulpin::{rafx::api::RafxError, rafx::api::RafxExtents2D, LogicalSize, RendererBuilder};
-use image;
+pub use skulpin::{skia_safe, rafx::api as RafxApi};
 use imgui_skia_renderer::Renderer;
 
 use enum_iterator::IntoEnumIterator as _;
 
 use std::collections::HashSet;
 
-// Provides thread-local global variables.
 pub mod editor;
-pub use crate::editor::{HandleStyle, PointLabels, PreviewMode}; // enums
-pub use crate::editor::{CONSOLE}; // globals
-
 mod filedialog;
-#[macro_use]
 pub mod util;
-#[macro_use]
 mod tools;
 mod command;
 mod io;
@@ -44,8 +33,7 @@ pub mod settings;
 mod system_fonts;
 mod user_interface;
 mod contour_operations;
-
-use crate::renderer::constants::*;
+mod window;
 
 fn main() {
     util::init_env_logger();
@@ -61,13 +49,13 @@ fn main() {
 
     let filename = filedialog::filename_or_panic(&args.filename, Some("glif"), None);
 
-    let (sdl_context, sdl_window): (Sdl, Window) = initialize_sdl(&mut editor, filename.to_str().unwrap());
+    let (sdl_context, sdl_window): (Sdl, Window) = window::initialize_sdl(&mut editor, filename.to_str().unwrap());
 
     editor.sdl_context = Some(sdl_context);
     editor.sdl_window = Some(sdl_window);
 
     // Skulpin initialization TODO: proper error handling
-    let mut renderer = initialize_skulpin_renderer(&editor.sdl_window.as_ref().unwrap()).unwrap();
+    let mut renderer = window::initialize_skulpin_renderer(&editor.sdl_window.as_ref().unwrap()).unwrap();
 
     // set up imgui
     let mut imgui = user_interface::setup_imgui();
@@ -101,6 +89,7 @@ fn main() {
 
         // sdl event handling
         for event in event_pump.poll_iter() {
+            util::debug_event!("Got event: {:?}", &event);
             imgui_sdl2.handle_event(&mut imgui, &event);
             if imgui_sdl2.ignore_event(&event) {
                 continue;
@@ -271,6 +260,7 @@ fn main() {
                     });
                     if delete_after { continue; }
 
+                    use crate::renderer::constants::OFFSET_FACTOR;
                     match command_info.command {
                         Command::ResetScale => {
                             editor.update_viewport(None, Some(1.));
@@ -423,7 +413,7 @@ fn main() {
 
         // draw glyph preview and imgui with skia
         let (window_width, window_height) = editor.sdl_window.as_ref().unwrap().vulkan_drawable_size();
-        let extents = RafxExtents2D {
+        let extents = RafxApi::RafxExtents2D {
             width: window_width,
             height: window_height,
         };
@@ -437,79 +427,4 @@ fn main() {
             log::warn!("Failed to draw frame. This can happen when resizing due to VkError(ERROR_DEVICE_LOST); if happens otherwise, file an issue.");
         }
     }
-}
-
-fn initialize_sdl(v: &mut Editor, filename: &str) -> (Sdl, Window) {
-    // SDL initialization
-    let sdl_context = sdl2::init().expect("Failed to initialize sdl2");
-    let video_subsystem = sdl_context
-        .video()
-        .expect("Failed to create sdl video subsystem");
-
-    video_subsystem.text_input().start();
-
-    let logical_size = LogicalSize {
-        width: WIDTH,
-        height: HEIGHT,
-    };
-
-    let mut window = video_subsystem
-        .window(
-            &format!("MFEKglif — {}", filename),
-            logical_size.width,
-            logical_size.height,
-        )
-        .position_centered()
-        .allow_highdpi()
-        .vulkan()
-        .resizable()
-        .build()
-        .expect("Failed to create SDL Window");
-
-    let logo = include_bytes!("../resources/icon.png");
-
-    let mut im = image::load_from_memory_with_format(logo, image::ImageFormat::Png)
-        .unwrap()
-        .into_rgba8();
-
-    let surface = sdl2::surface::Surface::from_data(
-        &mut im,
-        512,
-        512,
-        512 * 4,
-        sdl2::pixels::PixelFormatEnum::ARGB8888,
-    )
-    .unwrap();
-
-    window.set_icon(surface);
-
-    v.viewport.winsize = (WIDTH as u32, HEIGHT as u32);
-
-    (sdl_context, window)
-}
-
-fn initialize_skulpin_renderer(sdl_window: &Window) -> Result<skulpin::Renderer, RafxError> {
-    let (window_width, window_height) = sdl_window.vulkan_drawable_size();
-
-    let extents = RafxExtents2D {
-        width: window_width,
-        height: window_height,
-    };
-
-    let scale_to_fit = skulpin::skia_safe::matrix::ScaleToFit::Start;
-    let visible_range = skulpin::skia_safe::Rect {
-        left: 0.0,
-        right: WIDTH as f32,
-        top: 0.0,
-        bottom: HEIGHT as f32,
-    };
-
-    let renderer = RendererBuilder::new()
-        .coordinate_system(skulpin::CoordinateSystem::VisibleRange(
-            visible_range,
-            scale_to_fit,
-        ))
-        .build(sdl_window, extents);
-
-    return renderer;
 }

@@ -1,5 +1,5 @@
 // Console
-use crate::{CONSOLE, editor::Editor};
+use crate::{CONSOLE, editor::Editor, util};
 
 use clipboard::{ClipboardContext, ClipboardProvider};
 use lazy_static::lazy_static;
@@ -33,7 +33,7 @@ use crate::editor::RendererConsole;
 impl RendererConsole {
     ///! Handle chars which will not trigger events (so, not :, Escape or Return)
     pub fn handle_ch(&mut self, ch: char) {
-        debug_event!("Got ch: {:x}", ch as u8);
+        util::debug_event!("Got ch: {:x}", ch as u8);
         if ch != CHAR_BACKSPACE {
             self.stdin.push(ch);
         } else {

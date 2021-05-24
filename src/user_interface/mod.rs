@@ -527,8 +527,6 @@ fn build_and_check_prompts(v: &mut Editor, ui: &mut imgui::Ui)
             });
         }
     }
-
-
 }
 
 thread_local! { pub static PROMPT_STR: RefCell<imgui::ImString> = RefCell::new(imgui::ImString::new("")); }

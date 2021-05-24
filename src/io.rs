@@ -1,18 +1,17 @@
-
 use crate::ipc;
 use crate::editor::Editor;
+use crate::util::DEBUG_DUMP_GLYPH;
 
 use glifparser::{MFEKGlif, glif::MFEKPointData};
 use log::debug;
 
-use std::env;
 use std::path::Path;
 
 pub fn load_glif<F: AsRef<Path> + Clone>(v: &mut Editor, filename: F) {
     // TODO: Actually handle errors now that we have them.
     let glif: MFEKGlif<MFEKPointData> = glifparser::read_from_filename(&filename).expect("Invalid glif!").into();
 
-    if env::var("DEBUG_DUMP_GLYPH").is_ok() {
+    if *DEBUG_DUMP_GLYPH {
         debug!("{:#?}", &glif.clone());
     }
 

@@ -11,10 +11,9 @@ use colored::Colorize;
 use lazy_static::lazy_static;
 
 lazy_static! {
-    pub static ref DEBUG: bool = option_env!("DEBUG").is_some();
+    pub static ref DEBUG_DUMP_GLYPH: bool = option_env!("DEBUG_DUMP_GLYPH").is_some();
     pub static ref DEBUG_EVENTS: bool = option_env!("DEBUG_EVENTS").is_some();
 }
-
 
 #[macro_export]
 ///! Given a field on the State struct, and an enumerator that implements IntoEnumIterator, cycle
@@ -40,11 +39,13 @@ macro_rules! trigger_toggle_on {
 macro_rules! debug_event {
     ($($arg:tt)*) => ({
         use crate::util::DEBUG_EVENTS;
+        use log::debug;
         if *DEBUG_EVENTS {
             debug!($($arg)*);
         }
     })
 }
+pub use debug_event;
 
 pub fn set_panic_hook() {
     set_hook(Box::new(|info| {
@@ -66,6 +67,7 @@ pub fn set_panic_hook() {
 
 pub fn init_env_logger() {
     if env::var("RUST_LOG").is_err() { env::set_var("RUST_LOG", "INFO,rafx_framework=off,rafx_api=off,skulpin=off") }
+    if *DEBUG_DUMP_GLYPH || *DEBUG_EVENTS { env::set_var("RUST_LOG", "DEBUG") }
     env_logger::init();
 }
 

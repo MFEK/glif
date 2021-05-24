@@ -7,7 +7,7 @@ pub use crate::editor;
 pub use crate::editor::util::*;
 pub use crate::editor::{Editor, MouseInfo};
 pub use crate::util::*;
-pub use crate::CONSOLE;
+pub use crate::editor::CONSOLE;
 
 pub use crate::{get_contour, get_contour_mut, get_contour_type, get_contour_len};
 

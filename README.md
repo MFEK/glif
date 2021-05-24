@@ -38,6 +38,7 @@ Note: This is a basic list to get you started. A complete list can be found in `
 
 ### Selection
 * <kbd>Ctrl</kbd><kbd>A</kbd> &mdash; Select all points in current layer
+* <kbd>Backspace</kbd> &mdash; Delete currently selected points
 
 ## Running from artifacts
 
@@ -85,14 +86,17 @@ We welcome all contributions! Please open an issue first so we can discuss befor
 
 ### More debug output
 
-It is possible to get even more debug output out of MFEKglif for figuring out where problems lie. To ask MFEKglif to dump the parsed .glif file on runtime, pass `DEBUG_DUMP_GLYPH=Y`. To see every single `winit` event (warning: this will flood your stdout) pass `DEBUG_EVENTS=Y`.
+It is possible to get even more debug output out of MFEKglif for figuring out where problems lie. To ask MFEKglif to dump the parsed .glif file on runtime, pass `DEBUG_DUMP_GLYPH=Y`. To see every single `sdl2` event (warning: this will flood your stdout) pass `DEBUG_EVENTS=Y`.
 
 ### Goals
 
 Contributions which do not work on at least GNU/Linux and Windows will be rejected; we want to be able to build MFEKglif on as many platforms as possible. Both Skia and Dear ImGui are cross-platform; we use Vulkan and not OpenGL so we are future-proof even on OS X.
 
+Contibutions will also be judged on how well they fit into the MFEK project as a whole. It's possible that your idea fits better into another module and not MFEKglif; we can help you figure out where it should go.
+
 ## License
 
+```
 Copyright 2020–2021 Fredrick R. Brennan, Matthew Blanchard & MFEK Authors
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use
@@ -105,5 +109,6 @@ Unless required by applicable law or agreed to in writing, software distributed
 under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 CONDITIONS OF ANY KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations under the License.
+```
 
 **By contributing you release your contribution under the terms of the license.**
