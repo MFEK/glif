@@ -10,7 +10,7 @@ use util::argparser::HeadlessMode;
 
 use sdl2::{
     event::{Event, WindowEvent},
-    keyboard::{Keycode, Mod},
+    keyboard::Keycode,
     video::Window,
     Sdl,
 };
@@ -101,125 +101,8 @@ fn main() {
             }
 
             if !editor.prompts.is_empty() { continue; }
-            // we're gonna handle some of these events before handling commands so that we don't have the logic for this stuff
-            // intertwined in command handling
+            // we're gonna handle console text input here as this should steal input from the command system
             match &event {
-                // Quit
-                Event::KeyDown {
-                    keycode: Some(Keycode::Q),
-                    keymod: km,
-                    ..
-                } => {
-                    if km.contains(Mod::LCTRLMOD) || km.contains(Mod::RCTRLMOD) {
-                        break 'main_loop;
-                    }
-                }
-                // Open
-                Event::KeyDown {
-                    keycode: Some(Keycode::O),
-                    keymod: km,
-                    ..
-                } => {
-                    if km.contains(Mod::LCTRLMOD) || km.contains(Mod::RCTRLMOD) {
-                        let filename = match filedialog::open_filename(Some("glif"), None) {
-                            Some(f) => f,
-                            None => continue,
-                        };
-                        io::load_glif(&mut editor, &filename);
-                        continue;
-                    }
-                }
-                // Save, Save As
-                Event::KeyDown {
-                    keycode: Some(Keycode::S),
-                    keymod: km,
-                    ..
-                } => {
-                    if km.contains(Mod::LCTRLMOD) || km.contains(Mod::RCTRLMOD) {
-                        editor.save_glif(km.contains(Mod::LSHIFTMOD) || km.contains(Mod::RSHIFTMOD));
-                        continue;
-                    }
-                }
-                // Flatten
-                Event::KeyDown {
-                    keycode: Some(Keycode::U), // Unlink Reference in FontForge, by default, is U.
-                    keymod: km,
-                    ..
-                } => {
-                    if km.contains(Mod::LCTRLMOD) || km.contains(Mod::RCTRLMOD) {
-                        editor.flatten_glif(true);
-                        continue;
-                    }
-                }
-                // Export
-                Event::KeyDown {
-                    keycode: Some(Keycode::E),
-                    keymod: km,
-                    ..
-                } => {
-                    if km.contains(Mod::LCTRLMOD) || km.contains(Mod::RCTRLMOD) {
-                        editor.export_glif();
-                        continue;
-                    }
-                }
-                // Undo
-                Event::KeyDown {
-                    keycode: Some(Keycode::Z),
-                    keymod: km,
-                    ..
-                } => {
-                    if km.contains(Mod::LCTRLMOD) || km.contains(Mod::RCTRLMOD) {
-                        editor.undo();
-                        continue;
-                    }
-                }
-                // Redo
-                Event::KeyDown {
-                    keycode: Some(Keycode::Y),
-                    keymod: km,
-                    ..
-                } => {
-                    if km.contains(Mod::LCTRLMOD) || km.contains(Mod::RCTRLMOD) {
-                        editor.redo();
-                        continue;
-                    }
-                }
-                // Cut
-                Event::KeyDown {
-                    keycode: Some(Keycode::X),
-                    keymod: km,
-                    ..
-                } => {
-                    if km.contains(Mod::LCTRLMOD) || km.contains(Mod::RCTRLMOD) {
-                        editor.copy_selection();
-                        editor.delete_selection();
-                        continue;
-                    }
-                }
-                // Copy
-                Event::KeyDown {
-                    keycode: Some(Keycode::C),
-                    keymod: km,
-                    ..
-                } => {
-                    if km.contains(Mod::LCTRLMOD) || km.contains(Mod::RCTRLMOD) {
-                        editor.copy_selection();
-                        continue;
-                    }
-                }
-                // Paste
-                Event::KeyDown {
-                    keycode: Some(Keycode::V),
-                    keymod: km,
-                    ..
-                } => {
-                    if km.contains(Mod::LCTRLMOD) || km.contains(Mod::RCTRLMOD) {
-                        editor.paste_selection(editor.mouse_info.position);
-                        continue;
-                    }
-                }
-
-                // we're gonna handle console text input here too as this should steal input from the command system
                 Event::TextInput { text, .. } => {
                     if CONSOLE.with(|c| return c.borrow_mut().active) {
                         for ch in text.chars() {
@@ -333,7 +216,46 @@ fn main() {
                         Command::DeleteSelection => {
                             editor.delete_selection();
                         }
-                        Command::SelectAll => {}
+                        Command::SelectAll => {} // handled by select tool, only when select active
+                        Command::CopySelection => {
+                            editor.copy_selection();
+                        }
+                        Command::PasteSelection => {
+                            editor.paste_selection(editor.mouse_info.position);
+                        }
+                        Command::CutSelection => {
+                            editor.copy_selection();
+                            editor.delete_selection();
+                        }
+                        Command::HistoryUndo => {
+                            editor.undo();
+                        }
+                        Command::HistoryRedo => {
+                            editor.redo();
+                        }
+                        Command::IOOpen => {
+                            let filename = match filedialog::open_filename(Some("glif"), None) {
+                                Some(f) => f,
+                                None => continue,
+                            };
+                            io::load_glif(&mut editor, &filename);
+                        }
+                        Command::IOSave => {
+                            editor.save_glif(false)
+                        }
+                        Command::IOSaveAs => {
+                            editor.save_glif(true)
+                        }
+                        Command::IOFlatten => {
+                            editor.flatten_glif(true);
+                        }
+                        Command::IOExport => {
+                            editor.export_glif();
+                        }
+                        Command::Quit => {
+                            break 'main_loop;
+                        }
+                        #[allow(unreachable_patterns)] // This failsafe is here if you add a Command.
                         cmd => unreachable!(
                             "Command unimplemented: {:?}", cmd
                         ),

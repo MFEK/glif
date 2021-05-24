@@ -12,7 +12,6 @@ use crate::settings::CONFIG_PATH;
 
 // a command file is put into the user's config directory upon first run
 // <command name="ToolPen" key = "A">
-// <mod name= "Shift" key = "shift">
 #[derive(Copy, Clone, EnumString, Display, Debug, PartialEq)]
 pub enum Command {
     // zoom
@@ -36,8 +35,23 @@ pub enum Command {
     ToolAnchors,
     ToolShapes,
 
+    // selection
     DeleteSelection,
     SelectAll,
+    CopySelection,
+    PasteSelection,
+    CutSelection,
+
+    // history
+    HistoryUndo,
+    HistoryRedo,
+
+    // I/O
+    IOOpen,
+    IOSave,
+    IOSaveAs,
+    IOFlatten,
+    IOExport,
 
     // view modes
     TogglePointLabels,
@@ -45,6 +59,9 @@ pub enum Command {
 
     // console
     ToggleConsole,
+
+    // misc
+    Quit,
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]

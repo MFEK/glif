@@ -1,35 +1,4 @@
-<!--
-    Example binding:
-        <binding command = "ToolPen" keycode = "A"/>
-
-    Commands:
-
-        // zoom
-        ResetScale
-        ZoomIn
-        ZoomOut
-
-        // move camera
-        NudgeUp
-        NudgeDown
-        NudgeLeft
-        NudgeRight
-
-        // tools
-        ToolPen
-        ToolSelect
-        ToolZoom
-        ToolVWS
-
-        // view modes
-        TogglePointLabels
-        TogglePreviewMode
-
-        // mod
-        ShiftMod
-        CtrlMod
--->
-
+<!-- For a list of commands, see file src/command/mod.rs enum Command -->
 <keybindings>
     <!-- zoom -->
     <binding command="ResetScale" key="1"/>
@@ -52,10 +21,6 @@
     <binding command="ToolAnchors" key="N"/>
     <binding command="ToolShapes" key="S"/>
 
-    <!-- actions -->
-    <binding command="DeleteSelection" key="Backspace"/>
-
-
     <!-- view modes -->
     <binding command="TogglePointLabels" key="3"/>
     <binding command="TogglePreviewMode" key="`"/>
@@ -63,6 +28,24 @@
     <!-- console -->
     <binding command="ToggleConsole" key=";"/>
 
-    <!-- select -->
+    <!-- selection -->
+    <binding command="DeleteSelection" key="Backspace"/>
     <binding command="SelectAll" key="A" mod="CtrlMod"/>
+    <binding command="CopySelection" key="C" mod="CtrlMod"/>
+    <binding command="PasteSelection" key="V" mod="CtrlMod"/>
+    <binding command="CutSelection" key="X" mod="CtrlMod"/>
+
+    <!-- history -->
+    <binding command="HistoryUndo" key="Z" mod="CtrlMod"/>
+    <binding command="HistoryRedo" key="Y" mod="CtrlMod"/>
+
+    <!-- I/O -->
+    <binding command="IOOpen" key="O" mod="CtrlMod"/>
+    <binding command="IOSave" key="S" mod="CtrlMod"/>
+    <binding command="IOSaveAs" key="S" mod="CtrlShiftMod"/>
+    <binding command="IOFlatten" key="U" mod="CtrlMod"/>
+    <binding command="IOExport" key="E" mod="CtrlMod"/>
+
+    <!-- misc -->
+    <binding command="Quit" key="Q" mod="CtrlMod"/>
 </keybindings>
