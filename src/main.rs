@@ -97,7 +97,7 @@ fn main() {
             .filter_map(Keycode::from_scancode)
             .collect();
 
-        let keymod = command::keys_down_to_mod(&keys_down).unwrap_or(CommandMod{shift: false, ctrl: false});
+        let keymod = command::keys_down_to_mod(&keys_down).unwrap_or(CommandMod::none());
 
         // sdl event handling
         for event in event_pump.poll_iter() {

@@ -21,7 +21,7 @@ impl Default for MouseInfo {
             position: (0., 0.),
             absolute_position: (0., 0.),
             is_down: false,
-            modifiers: CommandMod{ shift: false, ctrl: false },
+            modifiers: CommandMod::none(),
         }
     }
 }

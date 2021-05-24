@@ -51,6 +51,19 @@ pub enum Command {
 pub struct CommandMod {
     pub shift: bool,
     pub ctrl: bool,
+    pub alt: bool,
+}
+
+impl CommandMod {
+    pub const fn none() -> Self {
+        Self { shift: false, ctrl: false, alt: false }
+    }
+}
+
+impl Default for CommandMod {
+    fn default() -> Self {
+        Self::none()
+    }
 }
 
 use std::convert::TryFrom;
@@ -58,9 +71,15 @@ impl TryFrom<&str> for CommandMod {
     type Error = ();
     fn try_from(s: &str) -> Result<CommandMod, ()> {
         match s {
-            "CtrlMod" => Ok(CommandMod { ctrl: true, shift: false }),
-            "ShiftMod" => Ok(CommandMod { ctrl: false, shift: true }),
-            "CtrlShiftMod" => Ok(CommandMod { ctrl: true, shift: true }),
+            "CtrlMod" => Ok(CommandMod { ctrl: true, ..CommandMod::default() }),
+            "CtrlAltMod" | "AltCtrlMod" => Ok(CommandMod { alt: true, ctrl: true, ..CommandMod::default() }),
+            "CtrlShiftMod" | "ShiftCtrlMod" => Ok(CommandMod { ctrl: true, shift: true, ..CommandMod::default() }),
+            "CtrlShiftAltMod" | "ShiftCtrlAltMod" |
+                "AltCtrlShiftMod" | "AltShiftCtrlMod" |
+                "ShiftAltCtrlMod" | "CtrlAltShiftMod" => Ok(CommandMod { ctrl: true, shift: true, alt: true, ..CommandMod::default() }),
+            "ShiftMod" => Ok(CommandMod { shift: true, ..CommandMod::default() }),
+            "ShiftAltMod" | "AltShiftMod" => Ok(CommandMod { alt: true, shift: true, ..CommandMod::default() }),
+            "AltMod" => Ok(CommandMod { alt: true, ..CommandMod::default() }),
             _ => Err(())
         }
     }
@@ -113,8 +132,9 @@ pub fn keys_down_to_mod(keys_down: &HashSet<Keycode>) -> Option<CommandMod> {
     let ret = CommandMod {
         ctrl: keys_down.contains(&Keycode::LCtrl) || keys_down.contains(&Keycode::RCtrl),
         shift: keys_down.contains(&Keycode::LShift) || keys_down.contains(&Keycode::RShift),
+        alt: keys_down.contains(&Keycode::LAlt) || keys_down.contains(&Keycode::RAlt),
     };
-    if !ret.ctrl && !ret.shift {
+    if !ret.ctrl && !ret.shift && !ret.alt {
         None
     } else {
         Some(ret)
@@ -133,7 +153,7 @@ pub fn keycode_to_command(keycode: &Keycode, keys_down: &HashSet<Keycode>) -> Op
     if let Some(command_enum) = command_enum {
         return Some(CommandInfo {
             command: command_enum,
-            command_mod: CommandMod { ctrl: false, shift: false },
+            command_mod: CommandMod::none(),
         });
     }
 
