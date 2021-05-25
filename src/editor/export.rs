@@ -10,12 +10,12 @@ use std::{fs, io, path};
 use crate::filedialog;
 
 impl Editor {
-    pub fn save_glif(&mut self, rename: bool) {
+    pub fn save_glif(&mut self, rename: bool) -> Result<path::PathBuf, ()> {
         self.with_glyph(|glyph| {
-            let filename: std::path::PathBuf = if rename {
+            let filename: path::PathBuf = if rename {
                 match filedialog::save_filename(Some("glif"), None) {
                     Some(f) => f,
-                    None => return
+                    None => return Err(())
                 }
             } else {
                 glyph.filename.clone().unwrap()
@@ -23,7 +23,8 @@ impl Editor {
 
             let glif_struct = glyph.clone().into();
             glif::write_to_filename(&glif_struct, &filename).map(|()|log::info!("Requested save to {:?}", &filename)).unwrap_or_else(|e|panic!("Failed to write glif: {:?}", e));
-        });
+            Ok(filename)
+        })
     }
 
     pub fn flatten_glif(&mut self, rename: bool) {

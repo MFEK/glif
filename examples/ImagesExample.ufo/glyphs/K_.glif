@@ -1,0 +1,2167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<glyph name="Q" format="2">
+  <advance width="780" />
+  <unicode hex="51" />
+  <anchor x="362" y="630" name="mark_top" />
+  <anchor y="-291" name="mark_bottom" x="362" />
+  <outline>
+    <contour>
+      <point type="curve" y="493.49985" x="157.00008" />
+      <point x="157.00008" y="493.49985" type="curve" />
+      <point y="490.5175" x="157.00008" />
+      <point x="158.05449" y="487.9719" />
+      <point x="160.16331" y="485.86304" type="curve" />
+      <point y="483.75424" x="162.27214" />
+      <point x="164.81773" y="482.69983" />
+      <point type="curve" x="167.80008" y="482.69983" />
+      <point x="318.66684" type="curve" y="482.6665" />
+      <point y="482.6665" x="321.64917" />
+      <point y="483.72092" x="324.19476" />
+      <point type="curve" x="326.30356" y="485.8297" />
+      <point x="328.41238" y="487.93857" />
+      <point y="490.48416" x="329.4668" />
+      <point y="493.46652" x="329.46683" type="curve" />
+      <point x="329.46683" y="493.46652" type="curve" />
+      <point y="496.44885" x="329.4668" />
+      <point x="328.41238" y="498.99442" />
+      <point type="curve" x="326.30356" y="501.1032" />
+      <point x="324.19476" y="503.21207" />
+      <point x="321.64917" y="504.26648" />
+      <point x="318.66684" y="504.2665" type="curve" />
+      <point type="curve" x="167.80008" y="504.29984" />
+      <point x="164.81773" y="504.2998" />
+      <point x="162.27214" y="503.2454" />
+      <point x="160.16331" y="501.13654" type="curve" />
+      <point x="158.05449" y="499.02774" />
+      <point y="496.48218" x="157.00008" />
+    </contour>
+    <contour>
+      <point x="201.73915" y="223.913" type="curve" />
+      <point x="201.73915" type="curve" y="447.39127" />
+      <point x="201.73914" y="459.2774" />
+      <point y="469.42282" x="205.94151" />
+      <point x="214.34627" y="477.82758" type="curve" />
+      <point x="222.75104" y="486.23233" />
+      <point y="490.43472" x="232.89648" />
+      <point type="curve" x="244.78262" y="490.43475" />
+      <point type="curve" y="490.43475" x="244.78262" />
+      <point y="490.43472" x="256.66873" />
+      <point x="266.81418" y="486.23233" />
+      <point y="477.82755" type="curve" x="275.21893" />
+      <point y="469.42282" x="283.62372" />
+      <point x="287.8261" y="459.2774" />
+      <point y="447.39127" type="curve" x="287.8261" />
+      <point x="287.8261" y="223.913" type="curve" />
+      <point x="287.8261" y="212.02686" />
+      <point x="283.62372" y="201.88141" />
+      <point x="275.21893" type="curve" y="193.47664" />
+      <point y="185.07188" x="266.81418" />
+      <point y="180.8695" x="256.66873" />
+      <point y="180.8695" x="244.78262" type="curve" />
+      <point x="244.78262" type="curve" y="180.8695" />
+      <point x="232.89648" y="180.8695" />
+      <point x="222.75104" y="185.07188" />
+      <point y="193.47662" type="curve" x="214.34627" />
+      <point y="201.8814" x="205.94151" />
+      <point y="212.02686" x="201.73914" />
+    </contour>
+    <contour>
+      <point x="163.47827" type="curve" y="175.65213" />
+      <point type="curve" x="163.47827" y="175.65213" />
+      <point x="163.47826" y="173.49101" />
+      <point x="164.24232" y="171.64638" />
+      <point y="170.11826" type="curve" x="165.77048" />
+      <point x="167.2986" y="168.59012" />
+      <point y="167.82605" x="169.14323" />
+      <point x="171.30435" y="167.82605" type="curve" />
+      <point x="325.21744" type="curve" y="167.82605" />
+      <point x="327.37854" y="167.82605" />
+      <point x="329.22318" y="168.59012" />
+      <point x="330.75128" y="170.11826" type="curve" />
+      <point x="332.27942" y="171.64638" />
+      <point x="333.0435" y="173.49101" />
+      <point x="333.04352" type="curve" y="175.65213" />
+      <point x="333.04352" y="175.65213" type="curve" />
+      <point y="177.81323" x="333.0435" />
+      <point x="332.27942" y="179.65785" />
+      <point type="curve" x="330.75128" y="181.18597" />
+      <point y="182.71413" x="329.22318" />
+      <point x="327.37854" y="183.4782" />
+      <point x="325.21744" y="183.47821" type="curve" />
+      <point x="171.30435" y="183.47821" type="curve" />
+      <point y="183.4782" x="169.14323" />
+      <point x="167.2986" y="182.71413" />
+      <point x="165.77048" type="curve" y="181.18597" />
+      <point x="164.24232" y="179.65785" />
+      <point x="163.47826" y="177.81323" />
+    </contour>
+    <contour>
+      <point type="curve" x="225.2174" y="328.69562" />
+      <point y="328.69562" type="curve" x="225.2174" />
+      <point y="331.33694" x="225.21739" />
+      <point y="333.5915" x="226.15126" />
+      <point type="curve" y="335.45923" x="228.01898" />
+      <point x="229.88672" y="337.32697" />
+      <point x="232.14127" y="338.26083" />
+      <point y="338.26083" x="234.78264" type="curve" />
+      <point type="curve" x="333.04352" y="338.26083" />
+      <point x="335.68484" y="338.26083" />
+      <point x="337.9394" y="337.32697" />
+      <point y="335.45926" type="curve" x="339.80713" />
+      <point y="333.5915" x="341.67484" />
+      <point x="342.6087" y="331.33694" />
+      <point y="328.69562" x="342.60873" type="curve" />
+      <point type="curve" y="328.69562" x="342.60873" />
+      <point y="326.05423" x="342.6087" />
+      <point y="323.79968" x="341.67484" />
+      <point type="curve" y="321.93195" x="339.8071" />
+      <point y="320.06424" x="337.9394" />
+      <point y="319.13037" x="335.68484" />
+      <point x="333.04352" type="curve" y="319.13037" />
+      <point x="234.78264" y="319.13037" type="curve" />
+      <point x="232.14127" y="319.13037" />
+      <point y="320.06424" x="229.88672" />
+      <point x="228.01898" type="curve" y="321.93195" />
+      <point y="323.79968" x="226.15126" />
+      <point x="225.21739" y="326.05423" />
+    </contour>
+    <contour>
+      <point x="293.9131" type="line" y="328.69562" />
+      <point type="curve" x="433.04352" y="486.0869" />
+      <point type="curve" x="483.4783" y="484.34778" />
+      <point x="363.4783" y="363.4782" type="curve" />
+      <point x="507.82614" type="curve" y="198.2608" />
+      <point type="curve" x="393.9131" y="199.99994" />
+    </contour>
+    <contour>
+      <point type="curve" x="380.00003" y="493.47824" />
+      <point x="380.00003" y="493.47824" type="curve" />
+      <point y="490.7168" x="380" />
+      <point x="380.97632" y="488.35977" />
+      <point y="486.40717" x="382.92892" type="curve" />
+      <point x="384.88156" y="484.45456" />
+      <point y="483.47824" x="387.2386" />
+      <point type="curve" x="390.00003" y="483.47824" />
+      <point y="483.47824" x="535.21747" type="curve" />
+      <point y="483.47824" x="537.9789" />
+      <point y="484.45456" x="540.3359" />
+      <point type="curve" x="542.2886" y="486.40717" />
+      <point x="544.24115" y="488.35977" />
+      <point y="490.7168" x="545.21747" />
+      <point y="493.47824" type="curve" x="545.21747" />
+      <point type="curve" y="493.47824" x="545.21747" />
+      <point y="496.23962" x="545.21747" />
+      <point y="498.59665" x="544.24115" />
+      <point type="curve" x="542.2886" y="500.5493" />
+      <point y="502.5019" x="540.3359" />
+      <point x="537.9789" y="503.4782" />
+      <point type="curve" x="535.21747" y="503.47824" />
+      <point x="390.00003" y="503.47824" type="curve" />
+      <point x="387.2386" y="503.4782" />
+      <point x="384.88156" y="502.5019" />
+      <point type="curve" x="382.92892" y="500.5493" />
+      <point y="498.59665" x="380.97632" />
+      <point x="380" y="496.23962" />
+    </contour>
+    <contour>
+      <point y="176.5217" type="curve" x="360.00003" />
+      <point y="176.5217" type="curve" x="360.00003" />
+      <point x="360" y="178.92293" />
+      <point x="360.84897" y="180.9725" />
+      <point x="362.5469" type="curve" y="182.67043" />
+      <point x="364.24484" y="184.36836" />
+      <point y="185.21733" x="366.29443" />
+      <point type="curve" y="185.21735" x="368.69568" />
+      <point x="545.2174" type="curve" y="185.21735" />
+      <point y="185.21733" x="547.6186" />
+      <point y="184.36836" x="549.6682" />
+      <point x="551.36615" type="curve" y="182.67043" />
+      <point y="180.9725" x="553.0641" />
+      <point x="553.913" y="178.92293" />
+      <point x="553.9131" type="curve" y="176.5217" />
+      <point x="553.9131" y="176.5217" type="curve" />
+      <point y="174.12045" x="553.913" />
+      <point y="172.07086" x="553.0641" />
+      <point y="170.37294" type="curve" x="551.36615" />
+      <point x="549.6682" y="168.67502" />
+      <point x="547.6186" y="167.82605" />
+      <point x="545.2174" y="167.82605" type="curve" />
+      <point x="368.69568" type="curve" y="167.82605" />
+      <point y="167.82605" x="366.29443" />
+      <point y="168.675" x="364.24484" />
+      <point x="362.5469" y="170.37292" type="curve" />
+      <point x="360.84897" y="172.07086" />
+      <point x="360" y="174.12045" />
+    </contour>
+    <contour>
+      <point y="181.02533" type="line" x="172.8206" />
+      <point x="187.69241" y="183.07654" />
+      <point y="195.8971" type="curve" x="194.8719" />
+      <point y="208.71765" x="202.05139" />
+      <point type="curve" x="203.58984" y="248.20483" />
+      <point x="259.4873" y="174.35864" type="curve" />
+    </contour>
+  </outline>
+  <image xyScale="0.707" fileName="logo.png" yxScale="-0.707" yScale="0.707" xOffset="0" yOffset="0" xScale="0.707" />
+  <image fileName="logo.png" yxScale="0" xyScale="0" yOffset="0" xScale="1" yScale="1" xOffset="0" />
+  <image yScale="0.1" xOffset="0" yOffset="0" fileName="logo.png" xyScale="0" xScale="0.1" yxScale="0" />
+  <guideline name="ascender" x="0" angle="0" y="701" />
+  <guideline name="descender" x="0" y="-172" angle="0" />
+  <!-- !!MFEK!!{
+  "layers": [
+    {
+      "name": "0",
+      "visible": true,
+      "color": {
+        "r": {
+          "Float": 0.0
+        },
+        "g": {
+          "Float": 0.0
+        },
+        "b": {
+          "Float": 0.0
+        },
+        "a": {
+          "Float": 0.6666667
+        }
+      },
+      "outline": [
+        {
+          "inner": [
+            {
+              "x": 157.00008,
+              "y": 493.49985,
+              "a": "Colocated",
+              "b": {
+                "At": [
+                  157.00008,
+                  496.48218
+                ]
+              },
+              "name": null,
+              "ptype": "Line",
+              "data": null
+            },
+            {
+              "x": 157.00008,
+              "y": 493.49985,
+              "a": {
+                "At": [
+                  157.00008,
+                  490.5175
+                ]
+              },
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 160.16331,
+              "y": 485.86304,
+              "a": {
+                "At": [
+                  162.27214,
+                  483.75424
+                ]
+              },
+              "b": {
+                "At": [
+                  158.05449,
+                  487.9719
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 167.80008,
+              "y": 482.69983,
+              "a": "Colocated",
+              "b": {
+                "At": [
+                  164.81773,
+                  482.69983
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 318.66684,
+              "y": 482.6665,
+              "a": {
+                "At": [
+                  321.64917,
+                  482.6665
+                ]
+              },
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 326.30356,
+              "y": 485.8297,
+              "a": {
+                "At": [
+                  328.41238,
+                  487.93857
+                ]
+              },
+              "b": {
+                "At": [
+                  324.19476,
+                  483.72092
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 329.46683,
+              "y": 493.46652,
+              "a": "Colocated",
+              "b": {
+                "At": [
+                  329.4668,
+                  490.48416
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 329.46683,
+              "y": 493.46652,
+              "a": {
+                "At": [
+                  329.4668,
+                  496.44885
+                ]
+              },
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 326.30356,
+              "y": 501.1032,
+              "a": {
+                "At": [
+                  324.19476,
+                  503.21207
+                ]
+              },
+              "b": {
+                "At": [
+                  328.41238,
+                  498.99442
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 318.66684,
+              "y": 504.2665,
+              "a": "Colocated",
+              "b": {
+                "At": [
+                  321.64917,
+                  504.26648
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 167.80008,
+              "y": 504.29984,
+              "a": {
+                "At": [
+                  164.81773,
+                  504.2998
+                ]
+              },
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 160.16331,
+              "y": 501.13654,
+              "a": {
+                "At": [
+                  158.05449,
+                  499.02774
+                ]
+              },
+              "b": {
+                "At": [
+                  162.27214,
+                  503.2454
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            }
+          ],
+          "operation": null
+        },
+        {
+          "inner": [
+            {
+              "x": 201.73915,
+              "y": 223.913,
+              "a": "Colocated",
+              "b": {
+                "At": [
+                  201.73914,
+                  212.02686
+                ]
+              },
+              "name": null,
+              "ptype": "Line",
+              "data": null
+            },
+            {
+              "x": 201.73915,
+              "y": 447.39127,
+              "a": {
+                "At": [
+                  201.73914,
+                  459.2774
+                ]
+              },
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 214.34627,
+              "y": 477.82758,
+              "a": {
+                "At": [
+                  222.75104,
+                  486.23233
+                ]
+              },
+              "b": {
+                "At": [
+                  205.94151,
+                  469.42282
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 244.78262,
+              "y": 490.43475,
+              "a": "Colocated",
+              "b": {
+                "At": [
+                  232.89648,
+                  490.43472
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 244.78262,
+              "y": 490.43475,
+              "a": {
+                "At": [
+                  256.66873,
+                  490.43472
+                ]
+              },
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 275.21893,
+              "y": 477.82755,
+              "a": {
+                "At": [
+                  283.62372,
+                  469.42282
+                ]
+              },
+              "b": {
+                "At": [
+                  266.81418,
+                  486.23233
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 287.8261,
+              "y": 447.39127,
+              "a": "Colocated",
+              "b": {
+                "At": [
+                  287.8261,
+                  459.2774
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 287.8261,
+              "y": 223.913,
+              "a": {
+                "At": [
+                  287.8261,
+                  212.02686
+                ]
+              },
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 275.21893,
+              "y": 193.47664,
+              "a": {
+                "At": [
+                  266.81418,
+                  185.07188
+                ]
+              },
+              "b": {
+                "At": [
+                  283.62372,
+                  201.88141
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 244.78262,
+              "y": 180.8695,
+              "a": "Colocated",
+              "b": {
+                "At": [
+                  256.66873,
+                  180.8695
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 244.78262,
+              "y": 180.8695,
+              "a": {
+                "At": [
+                  232.89648,
+                  180.8695
+                ]
+              },
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 214.34627,
+              "y": 193.47662,
+              "a": {
+                "At": [
+                  205.94151,
+                  201.8814
+                ]
+              },
+              "b": {
+                "At": [
+                  222.75104,
+                  185.07188
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            }
+          ],
+          "operation": null
+        },
+        {
+          "inner": [
+            {
+              "x": 163.47827,
+              "y": 175.65213,
+              "a": "Colocated",
+              "b": {
+                "At": [
+                  163.47826,
+                  177.81323
+                ]
+              },
+              "name": null,
+              "ptype": "Line",
+              "data": null
+            },
+            {
+              "x": 163.47827,
+              "y": 175.65213,
+              "a": {
+                "At": [
+                  163.47826,
+                  173.49101
+                ]
+              },
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 165.77048,
+              "y": 170.11826,
+              "a": {
+                "At": [
+                  167.2986,
+                  168.59012
+                ]
+              },
+              "b": {
+                "At": [
+                  164.24232,
+                  171.64638
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 171.30435,
+              "y": 167.82605,
+              "a": "Colocated",
+              "b": {
+                "At": [
+                  169.14323,
+                  167.82605
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 325.21744,
+              "y": 167.82605,
+              "a": {
+                "At": [
+                  327.37854,
+                  167.82605
+                ]
+              },
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 330.75128,
+              "y": 170.11826,
+              "a": {
+                "At": [
+                  332.27942,
+                  171.64638
+                ]
+              },
+              "b": {
+                "At": [
+                  329.22318,
+                  168.59012
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 333.04352,
+              "y": 175.65213,
+              "a": "Colocated",
+              "b": {
+                "At": [
+                  333.0435,
+                  173.49101
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 333.04352,
+              "y": 175.65213,
+              "a": {
+                "At": [
+                  333.0435,
+                  177.81323
+                ]
+              },
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 330.75128,
+              "y": 181.18597,
+              "a": {
+                "At": [
+                  329.22318,
+                  182.71413
+                ]
+              },
+              "b": {
+                "At": [
+                  332.27942,
+                  179.65785
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 325.21744,
+              "y": 183.47821,
+              "a": "Colocated",
+              "b": {
+                "At": [
+                  327.37854,
+                  183.4782
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 171.30435,
+              "y": 183.47821,
+              "a": {
+                "At": [
+                  169.14323,
+                  183.4782
+                ]
+              },
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 165.77048,
+              "y": 181.18597,
+              "a": {
+                "At": [
+                  164.24232,
+                  179.65785
+                ]
+              },
+              "b": {
+                "At": [
+                  167.2986,
+                  182.71413
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            }
+          ],
+          "operation": null
+        },
+        {
+          "inner": [
+            {
+              "x": 225.2174,
+              "y": 328.69562,
+              "a": "Colocated",
+              "b": {
+                "At": [
+                  225.21739,
+                  326.05423
+                ]
+              },
+              "name": null,
+              "ptype": "Line",
+              "data": null
+            },
+            {
+              "x": 225.2174,
+              "y": 328.69562,
+              "a": {
+                "At": [
+                  225.21739,
+                  331.33694
+                ]
+              },
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 228.01898,
+              "y": 335.45923,
+              "a": {
+                "At": [
+                  229.88672,
+                  337.32697
+                ]
+              },
+              "b": {
+                "At": [
+                  226.15126,
+                  333.5915
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 234.78264,
+              "y": 338.26083,
+              "a": "Colocated",
+              "b": {
+                "At": [
+                  232.14127,
+                  338.26083
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 333.04352,
+              "y": 338.26083,
+              "a": {
+                "At": [
+                  335.68484,
+                  338.26083
+                ]
+              },
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 339.80713,
+              "y": 335.45926,
+              "a": {
+                "At": [
+                  341.67484,
+                  333.5915
+                ]
+              },
+              "b": {
+                "At": [
+                  337.9394,
+                  337.32697
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 342.60873,
+              "y": 328.69562,
+              "a": "Colocated",
+              "b": {
+                "At": [
+                  342.6087,
+                  331.33694
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 342.60873,
+              "y": 328.69562,
+              "a": {
+                "At": [
+                  342.6087,
+                  326.05423
+                ]
+              },
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 339.8071,
+              "y": 321.93195,
+              "a": {
+                "At": [
+                  337.9394,
+                  320.06424
+                ]
+              },
+              "b": {
+                "At": [
+                  341.67484,
+                  323.79968
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 333.04352,
+              "y": 319.13037,
+              "a": "Colocated",
+              "b": {
+                "At": [
+                  335.68484,
+                  319.13037
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 234.78264,
+              "y": 319.13037,
+              "a": {
+                "At": [
+                  232.14127,
+                  319.13037
+                ]
+              },
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 228.01898,
+              "y": 321.93195,
+              "a": {
+                "At": [
+                  226.15126,
+                  323.79968
+                ]
+              },
+              "b": {
+                "At": [
+                  229.88672,
+                  320.06424
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            }
+          ],
+          "operation": null
+        },
+        {
+          "inner": [
+            {
+              "x": 293.9131,
+              "y": 328.69562,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 433.04352,
+              "y": 486.0869,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 483.4783,
+              "y": 484.34778,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 363.4783,
+              "y": 363.4782,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 507.82614,
+              "y": 198.2608,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 393.9131,
+              "y": 199.99994,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            }
+          ],
+          "operation": null
+        },
+        {
+          "inner": [
+            {
+              "x": 380.00003,
+              "y": 493.47824,
+              "a": "Colocated",
+              "b": {
+                "At": [
+                  380.0,
+                  496.23962
+                ]
+              },
+              "name": null,
+              "ptype": "Line",
+              "data": null
+            },
+            {
+              "x": 380.00003,
+              "y": 493.47824,
+              "a": {
+                "At": [
+                  380.0,
+                  490.7168
+                ]
+              },
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 382.92892,
+              "y": 486.40717,
+              "a": {
+                "At": [
+                  384.88156,
+                  484.45456
+                ]
+              },
+              "b": {
+                "At": [
+                  380.97632,
+                  488.35977
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 390.00003,
+              "y": 483.47824,
+              "a": "Colocated",
+              "b": {
+                "At": [
+                  387.2386,
+                  483.47824
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 535.21747,
+              "y": 483.47824,
+              "a": {
+                "At": [
+                  537.9789,
+                  483.47824
+                ]
+              },
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 542.2886,
+              "y": 486.40717,
+              "a": {
+                "At": [
+                  544.24115,
+                  488.35977
+                ]
+              },
+              "b": {
+                "At": [
+                  540.3359,
+                  484.45456
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 545.21747,
+              "y": 493.47824,
+              "a": "Colocated",
+              "b": {
+                "At": [
+                  545.21747,
+                  490.7168
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 545.21747,
+              "y": 493.47824,
+              "a": {
+                "At": [
+                  545.21747,
+                  496.23962
+                ]
+              },
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 542.2886,
+              "y": 500.5493,
+              "a": {
+                "At": [
+                  540.3359,
+                  502.5019
+                ]
+              },
+              "b": {
+                "At": [
+                  544.24115,
+                  498.59665
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 535.21747,
+              "y": 503.47824,
+              "a": "Colocated",
+              "b": {
+                "At": [
+                  537.9789,
+                  503.4782
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 390.00003,
+              "y": 503.47824,
+              "a": {
+                "At": [
+                  387.2386,
+                  503.4782
+                ]
+              },
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 382.92892,
+              "y": 500.5493,
+              "a": {
+                "At": [
+                  380.97632,
+                  498.59665
+                ]
+              },
+              "b": {
+                "At": [
+                  384.88156,
+                  502.5019
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            }
+          ],
+          "operation": null
+        },
+        {
+          "inner": [
+            {
+              "x": 360.00003,
+              "y": 176.5217,
+              "a": "Colocated",
+              "b": {
+                "At": [
+                  360.0,
+                  174.12045
+                ]
+              },
+              "name": null,
+              "ptype": "Line",
+              "data": null
+            },
+            {
+              "x": 360.00003,
+              "y": 176.5217,
+              "a": {
+                "At": [
+                  360.0,
+                  178.92293
+                ]
+              },
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 362.5469,
+              "y": 182.67043,
+              "a": {
+                "At": [
+                  364.24484,
+                  184.36836
+                ]
+              },
+              "b": {
+                "At": [
+                  360.84897,
+                  180.9725
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 368.69568,
+              "y": 185.21735,
+              "a": "Colocated",
+              "b": {
+                "At": [
+                  366.29443,
+                  185.21733
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 545.2174,
+              "y": 185.21735,
+              "a": {
+                "At": [
+                  547.6186,
+                  185.21733
+                ]
+              },
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 551.36615,
+              "y": 182.67043,
+              "a": {
+                "At": [
+                  553.0641,
+                  180.9725
+                ]
+              },
+              "b": {
+                "At": [
+                  549.6682,
+                  184.36836
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 553.9131,
+              "y": 176.5217,
+              "a": "Colocated",
+              "b": {
+                "At": [
+                  553.913,
+                  178.92293
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 553.9131,
+              "y": 176.5217,
+              "a": {
+                "At": [
+                  553.913,
+                  174.12045
+                ]
+              },
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 551.36615,
+              "y": 170.37294,
+              "a": {
+                "At": [
+                  549.6682,
+                  168.67502
+                ]
+              },
+              "b": {
+                "At": [
+                  553.0641,
+                  172.07086
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 545.2174,
+              "y": 167.82605,
+              "a": "Colocated",
+              "b": {
+                "At": [
+                  547.6186,
+                  167.82605
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 368.69568,
+              "y": 167.82605,
+              "a": {
+                "At": [
+                  366.29443,
+                  167.82605
+                ]
+              },
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 362.5469,
+              "y": 170.37292,
+              "a": {
+                "At": [
+                  360.84897,
+                  172.07086
+                ]
+              },
+              "b": {
+                "At": [
+                  364.24484,
+                  168.675
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            }
+          ],
+          "operation": null
+        },
+        {
+          "inner": [
+            {
+              "x": 172.8206,
+              "y": 181.02533,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 194.8719,
+              "y": 195.8971,
+              "a": {
+                "At": [
+                  202.05139,
+                  208.71765
+                ]
+              },
+              "b": {
+                "At": [
+                  187.69241,
+                  183.07654
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 203.58984,
+              "y": 248.20483,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 259.4873,
+              "y": 174.35864,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            }
+          ],
+          "operation": null
+        }
+      ],
+      "operation": null,
+      "images": [
+        [
+          {
+            "filename": "logo.png",
+            "xScale": {
+              "Float": 0.707
+            },
+            "xyScale": {
+              "Float": 0.707
+            },
+            "yxScale": {
+              "Float": -0.707
+            },
+            "yScale": {
+              "Float": 0.707
+            },
+            "xOffset": {
+              "Integer": 0
+            },
+            "yOffset": {
+              "Integer": 0
+            },
+            "identifier": null,
+            "color": {
+              "r": {
+                "Integer": 0
+              },
+              "g": {
+                "Integer": 0
+              },
+              "b": {
+                "Integer": 1
+              },
+              "a": {
+                "Float": 0.5
+              }
+            }
+          },
+          [
+            0.7070000171661377,
+            0.7070000171661377,
+            -0.7070000171661377,
+            0.7070000171661377,
+            0.0,
+            0.0
+          ]
+        ],
+        [
+          {
+            "filename": "logo.png",
+            "xScale": {
+              "Integer": 1
+            },
+            "xyScale": {
+              "Integer": 0
+            },
+            "yxScale": {
+              "Integer": 0
+            },
+            "yScale": {
+              "Integer": 1
+            },
+            "xOffset": {
+              "Integer": 0
+            },
+            "yOffset": {
+              "Integer": 0
+            },
+            "identifier": null,
+            "color": {
+              "r": {
+                "Integer": 0
+              },
+              "g": {
+                "Integer": 0
+              },
+              "b": {
+                "Integer": 1
+              },
+              "a": {
+                "Float": 0.5
+              }
+            }
+          },
+          [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        [
+          {
+            "filename": "logo.png",
+            "xScale": {
+              "Float": 0.1
+            },
+            "xyScale": {
+              "Integer": 0
+            },
+            "yxScale": {
+              "Integer": 0
+            },
+            "yScale": {
+              "Float": 0.1
+            },
+            "xOffset": {
+              "Integer": 0
+            },
+            "yOffset": {
+              "Integer": 0
+            },
+            "identifier": null,
+            "color": {
+              "r": {
+                "Integer": 0
+              },
+              "g": {
+                "Integer": 0
+              },
+              "b": {
+                "Integer": 1
+              },
+              "a": {
+                "Float": 0.5
+              }
+            }
+          },
+          [
+            0.10000000149011612,
+            0.0,
+            0.0,
+            0.10000000149011612,
+            0.0,
+            0.0
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "union",
+      "visible": true,
+      "color": null,
+      "outline": [
+        {
+          "inner": [
+            {
+              "x": 230.83337,
+              "y": 231.66656,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 286.45172,
+              "y": 236.12885,
+              "a": {
+                "At": [
+                  286.72958,
+                  224.46204
+                ]
+              },
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 295.00015,
+              "y": 200.5553,
+              "a": {
+                "At": [
+                  299.5646,
+                  194.16505
+                ]
+              },
+              "b": {
+                "At": [
+                  289.8219,
+                  209.6172
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 311.6668,
+              "y": 189.44415,
+              "a": {
+                "At": [
+                  321.48755,
+                  183.33148
+                ]
+              },
+              "b": {
+                "At": [
+                  306.018,
+                  192.96011
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 330.00006,
+              "y": 177.49988,
+              "a": "Colocated",
+              "b": {
+                "At": [
+                  330.00006,
+                  177.49988
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 234.16672,
+              "y": 177.49988,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            }
+          ],
+          "operation": null
+        },
+        {
+          "inner": [
+            {
+              "x": 368.3334,
+              "y": 183.33319,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 387.50006,
+              "y": 192.49988,
+              "a": {
+                "At": [
+                  392.50006,
+                  196.66656
+                ]
+              },
+              "b": {
+                "At": [
+                  382.50006,
+                  188.33319
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 399.16675,
+              "y": 207.49988,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 493.33344,
+              "y": 212.49988,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 518.33344,
+              "y": 194.16656,
+              "a": {
+                "At": [
+                  527.5001,
+                  189.16656
+                ]
+              },
+              "b": {
+                "At": [
+                  509.16675,
+                  199.16656
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 548.33344,
+              "y": 178.33319,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            }
+          ],
+          "operation": null
+        },
+        {
+          "inner": [
+            {
+              "x": 169.1667,
+              "y": 169.99988,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 270.00006,
+              "y": 172.49988,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 214.1667,
+              "y": 204.99988,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            }
+          ],
+          "operation": null
+        },
+        {
+          "inner": [
+            {
+              "x": 169.20009,
+              "y": 181.19965,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 188.60474,
+              "y": 190.2323,
+              "a": {
+                "At": [
+                  194.18613,
+                  193.02301
+                ]
+              },
+              "b": {
+                "At": [
+                  170.69774,
+                  185.58112
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 199.60011,
+              "y": 203.59967,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 199.60011,
+              "y": 175.9997,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            }
+          ],
+          "operation": null
+        }
+      ],
+      "operation": "Union",
+      "images": []
+    },
+    {
+      "name": "union 2",
+      "visible": true,
+      "color": null,
+      "outline": [
+        {
+          "inner": [
+            {
+              "x": 177.20009,
+              "y": 171.19965,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 182.8001,
+              "y": 185.9997,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 210.0001,
+              "y": 189.9997,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 213.20012,
+              "y": 174.39966,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            }
+          ],
+          "operation": null
+        }
+      ],
+      "operation": "Union",
+      "images": []
+    },
+    {
+      "name": "union 3",
+      "visible": true,
+      "color": null,
+      "outline": [
+        {
+          "inner": [
+            {
+              "x": 202.4391,
+              "y": 433.6584,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 198.04886,
+              "y": 469.26816,
+              "a": {
+                "At": [
+                  187.31714,
+                  480.9755
+                ]
+              },
+              "b": {
+                "At": [
+                  208.78058,
+                  457.56082
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 166.82933,
+              "y": 489.75598,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 325.8538,
+              "y": 495.12183,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 294.63425,
+              "y": 473.65842,
+              "a": {
+                "At": [
+                  281.95132,
+                  458.04865
+                ]
+              },
+              "b": {
+                "At": [
+                  307.31717,
+                  489.2682
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 283.41473,
+              "y": 439.02426,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            }
+          ],
+          "operation": null
+        },
+        {
+          "inner": [
+            {
+              "x": 408.00006,
+              "y": 441.33328,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 414.00006,
+              "y": 469.33328,
+              "a": {
+                "At": [
+                  412.66672,
+                  475.33328
+                ]
+              },
+              "b": {
+                "At": [
+                  415.3334,
+                  463.33328
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 390.00006,
+              "y": 489.33328,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 536.00006,
+              "y": 496.66663,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 485.3334,
+              "y": 471.99997,
+              "a": {
+                "At": [
+                  464.66672,
+                  461.33328
+                ]
+              },
+              "b": {
+                "At": [
+                  506.0001,
+                  482.66666
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            }
+          ],
+          "operation": null
+        }
+      ],
+      "operation": "Union",
+      "images": []
+    }
+  ],
+  "history": [],
+  "order": "Cubic",
+  "anchors": [
+    {
+      "x": 362.0,
+      "y": 630.0,
+      "class": "mark_top",
+      "type": "Undefined"
+    },
+    {
+      "x": 362.0,
+      "y": -291.0,
+      "class": "mark_bottom",
+      "type": "Undefined"
+    }
+  ],
+  "components": {
+    "root": "Q",
+    "vec": []
+  },
+  "flattened": null,
+  "component_rects": null,
+  "guidelines": [
+    {
+      "at": {
+        "x": 0.0,
+        "y": 701.0
+      },
+      "angle": {
+        "Float": 0.0
+      },
+      "name": "ascender",
+      "color": null,
+      "identifier": null
+    },
+    {
+      "at": {
+        "x": 0.0,
+        "y": -172.0
+      },
+      "angle": {
+        "Float": 0.0
+      },
+      "name": "descender",
+      "color": null,
+      "identifier": null
+    }
+  ],
+  "width": 780,
+  "unicode": [
+    "Q"
+  ],
+  "name": "Q",
+  "note": null,
+  "format": 2,
+  "filename": "examples/ImagesExample.ufo/glyphs/K_.glif"
+} -->
+</glyph>

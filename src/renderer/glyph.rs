@@ -179,7 +179,7 @@ pub fn draw(canvas: &mut Canvas, v: &mut Editor, active_layer: usize)  -> Path {
             flattened.map(|f| {
                 glif.flattened = f.flattened;
                 glif.component_rects = rects;
-            }).unwrap_or_else(|e|log::warn!("Failed to draw components: {:?}", e));
+            }).unwrap_or_else(|e|log::error!("Failed to draw components: {:?}", e));
         },
     }
 
