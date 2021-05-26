@@ -1,30 +1,26 @@
 //! Skia renderer.
 
-use crate::{tools::{EditorEvent}, editor::{PreviewMode, Editor}};
-use crate::{CONSOLE};
-use glifparser::Handle;
-use glifparser::matrix::{ToSkiaMatrix};
+use crate::{tools::EditorEvent, editor::{PreviewMode, Editor}};
+
+use crate::CONSOLE;
 
 pub mod constants;
 use self::constants::*;
-
 pub mod console;
 mod guidelines;
 pub mod points; // point drawing functions
                 // This imports calc_x, etc. which transforms coordinates between .glif and Skia
+pub use points::calc::{calc_x, calc_y};
 pub mod string;
-
 mod anchors;
 mod glyph;
 pub mod viewport;
 
-// Provides thread-local global variables.
-// TODO: pub use crate::events::vws;
-pub use crate::editor::{HandleStyle, PointLabels}; // enums
-
+use glifparser::Handle;
+use glifparser::matrix::ToSkiaMatrix as _;
+use log;
 use skulpin::skia_safe::{Canvas, Matrix};
 
-pub use points::calc::{calc_x, calc_y};
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum UIPointType {
@@ -47,9 +43,15 @@ pub fn render_frame(v: &mut Editor, canvas: &mut Canvas) {
     // canvas.restore() will need to take that matrix into consideration.
     viewport::redraw_viewport(v, canvas);
 
-    v.with_glyph(|glif| {
+    let dropped = v.with_glyph(|glif| {
+        let mut dropped = vec![];
         for layer in &glif.layers {
             for (l_image, i_matrix) in &layer.images {
+                if !v.images.contains_key(&l_image.filename) {
+                    log::error!("Layer's image {} has gone out of scope and will be dropped! Did you save the glyph into a location without the image?", l_image.filename.to_string_lossy());
+                    dropped.push(l_image.filename.clone());
+                    continue;
+                }
                 let image = &v.images[&l_image.filename];
                 let origin_transform = Matrix::translate((0., 0. - image.img.height() as f32));
                 let matrix3 = Matrix::translate((calc_x(0.), calc_y(0.)));
@@ -66,7 +68,16 @@ pub fn render_frame(v: &mut Editor, canvas: &mut Canvas) {
                 canvas.restore();
             }
         }
+        dropped
     });
+
+    for dropee in dropped {
+        v.with_glyph_mut(|glif| {
+            for layer in glif.layers.iter_mut() {
+                layer.images.retain(|(gi, _)|gi.filename != dropee);
+            }
+        });
+    }
 
     if pm != PreviewMode::Paper || PAPER_DRAW_GUIDELINES {
         guidelines::draw_all(v, canvas);

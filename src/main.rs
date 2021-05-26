@@ -241,10 +241,13 @@ fn main() {
                             io::load_glif(&mut editor, &filename);
                         }
                         Command::IOSave => {
-                            editor.save_glif(false)
+                            drop(editor.save_glif(false));
                         }
                         Command::IOSaveAs => {
-                            editor.save_glif(true)
+                            match editor.save_glif(true) {
+                                Ok(pb) => io::load_glif(&mut editor, &pb),
+                                Err(()) => {},
+                            }
                         }
                         Command::IOFlatten => {
                             editor.flatten_glif(true);
