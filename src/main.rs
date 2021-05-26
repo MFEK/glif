@@ -255,6 +255,9 @@ fn main() {
                         Command::Quit => {
                             break 'main_loop;
                         }
+                        Command::SkiaDump => {
+                            editor.skia_dump();
+                        }
                         #[allow(unreachable_patterns)] // This failsafe is here if you add a Command.
                         cmd => unreachable!(
                             "Command unimplemented: {:?}", cmd

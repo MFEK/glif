@@ -48,4 +48,7 @@
 
     <!-- misc -->
     <binding command="Quit" key="Q" mod="CtrlMod"/>
+
+    <!-- debug -->
+    <binding command="SkiaDump" key="D" mod="CtrlShiftMod"/>
 </keybindings>

@@ -62,6 +62,9 @@ pub enum Command {
 
     // misc
     Quit,
+
+    // debug
+    SkiaDump,
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]

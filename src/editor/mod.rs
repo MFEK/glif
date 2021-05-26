@@ -39,6 +39,8 @@ use crate::editor::history::History;
 
 pub mod operations;
 
+pub mod debug;
+
 #[macro_use]
 pub mod macros;
 
