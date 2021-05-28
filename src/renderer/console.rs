@@ -5,6 +5,7 @@
 //! the normal stdout as well, that's the persistent stdout.
 
 use lazy_static::lazy_static;
+use crate::user_interface::Interface;
 
 pub struct Console {
     pub stdin: String,
@@ -57,7 +58,7 @@ lazy_static! {
 use super::constants::*;
 use skulpin::skia_safe::{Canvas, Paint, PaintStyle, Path, Rect, TextBlob};
 impl Console {
-    pub fn draw(&mut self, v: &Editor, canvas: &mut Canvas) {
+    pub fn draw(&mut self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
         if !self.active {
             return;
         }
@@ -67,7 +68,7 @@ impl Console {
         matrix.set_scale((1., 1.), None);
 
         let font = Font::from_typeface_with_params(&*CONSOLE_TYPEFACE, 14., 1., 0.0);
-        let winsize = v.viewport.winsize;
+        let winsize = i.viewport.winsize;
         let mut topleft = (0., winsize.1 as f32);
         let mut size = (winsize.0 as f32, 0.);
 

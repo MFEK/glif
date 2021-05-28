@@ -1,6 +1,6 @@
 use super::prelude::*;
 
-use crate::user_interface;
+use crate::user_interface::Interface;
 
 use imgui;
 use skulpin::skia_safe::{Matrix, Path, PathDirection, PathEffect, Rect, RRect, Point as SkPoint, StrokeRec};
@@ -8,7 +8,7 @@ use glifparser::{Outline, glif::MFEKContour, outline::skia::FromSkiaPath};
 
 
 impl Tool for Shapes {
-    fn handle_event(&mut self, v: &mut Editor, event: EditorEvent) {
+    fn handle_event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
         match event {
             EditorEvent::MouseEvent { event_type, meta } => {
                 match event_type {
@@ -19,7 +19,7 @@ impl Tool for Shapes {
                 }
             },
             EditorEvent::Ui { ui } => {
-                self.shape_settings(v, ui);
+                self.shape_settings(v, i, ui);
             },
             _ => {}
         }
@@ -74,8 +74,8 @@ impl Shapes {
         }
     }
 
-    fn shape_settings(&mut self, v: &mut Editor, ui: &imgui::Ui) {
-        let (tx, ty, tw, th) = user_interface::get_tools_dialog_rect(v);
+    fn shape_settings(&mut self, v: &mut Editor, i: &mut Interface, ui: &imgui::Ui) {
+        let (tx, ty, tw, th) = i.get_tools_dialog_rect();
         imgui::Window::new(imgui::im_str!("Shape Settings"))
             .bg_alpha(1.) // See comment on fn redraw_skia
             .flags(

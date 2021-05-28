@@ -1,4 +1,4 @@
-use crate::user_interface::get_tools_dialog_rect;
+use crate::user_interface::Interface;
 use glifparser::glif::{CapType, ContourOperations, JoinType};
 use super::VWS;
 use super::super::prelude::*;
@@ -120,8 +120,8 @@ impl VWS {
         }
     }
 
-    pub fn build_vws_settings_window(&self, v: &mut Editor, ui: &mut imgui::Ui) {
-        let (tx, ty, tw, th) = get_tools_dialog_rect(v);
+    pub fn build_vws_settings_window(&self, v: &mut Editor, i: &Interface, ui: &mut imgui::Ui) {
+        let (tx, ty, tw, th) = i.get_tools_dialog_rect();
 
         // if we don't have a contour selected we don't draw this
         if v.contour_idx.is_none() {

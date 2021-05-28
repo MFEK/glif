@@ -1,7 +1,7 @@
 //! Skia renderer.
 
 use crate::{tools::EditorEvent, editor::{PreviewMode, Editor}};
-
+use crate::user_interface::Interface;
 use crate::CONSOLE;
 
 pub mod constants;
@@ -31,9 +31,9 @@ pub enum UIPointType {
     Direction,
 }
 
-pub fn render_frame(v: &mut Editor, canvas: &mut Canvas) {
+pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
     canvas.save();
-    let pm = v.viewport.preview_mode;
+    let pm = i.viewport.preview_mode;
     canvas.clear(if pm == PreviewMode::Paper {
         PAPER_BGCOLOR
     } else {
@@ -41,7 +41,7 @@ pub fn render_frame(v: &mut Editor, canvas: &mut Canvas) {
     });
     // This will change the SkCanvas transformation matrix, and everything from here to
     // canvas.restore() will need to take that matrix into consideration.
-    viewport::redraw_viewport(v, canvas);
+    viewport::redraw_viewport(i, canvas);
 
     let dropped = v.with_glyph(|glif| {
         let mut dropped = vec![];
@@ -80,21 +80,21 @@ pub fn render_frame(v: &mut Editor, canvas: &mut Canvas) {
     }
 
     if pm != PreviewMode::Paper || PAPER_DRAW_GUIDELINES {
-        guidelines::draw_all(v, canvas);
+        guidelines::draw_all(v, &i.viewport, canvas);
     }
 
     let active_layer = v.get_active_layer();
-    let path = glyph::draw(canvas, v, active_layer);
+    let path = glyph::draw(canvas, v, &i.viewport, active_layer);
 
     // TODO: let _path = glyph::draw_previews(v, canvas);
 
     match pm {
         PreviewMode::None => {
-            points::draw_all(v, canvas);
-            points::draw_directions(v, path, canvas);
-            anchors::draw_anchors(v, canvas);
+            points::draw_all(v, &i.viewport, canvas);
+            points::draw_directions(v, &i.viewport, path, canvas);
+            anchors::draw_anchors(v, &i.viewport, canvas);
             //points::draw_selected(v, canvas);
-            v.dispatch_editor_event(EditorEvent::Draw {
+            v.dispatch_editor_event(i, EditorEvent::Draw {
                 skia_canvas: canvas,
             });
         }
@@ -107,5 +107,5 @@ pub fn render_frame(v: &mut Editor, canvas: &mut Canvas) {
     canvas.restore();
 
     // Draw console
-    CONSOLE.with(|c| c.borrow_mut().draw(v, canvas));
+    CONSOLE.with(|c| c.borrow_mut().draw(v, i, canvas));
 }

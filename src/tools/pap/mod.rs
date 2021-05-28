@@ -11,17 +11,17 @@ use super::prelude::*;
 pub struct PAP {}
 
 impl Tool for PAP {
-    fn handle_event(&mut self, v: &mut Editor, event: EditorEvent) {
+    fn handle_event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
         match event {
             EditorEvent::MouseEvent { event_type, meta } => {
                 match event_type {
                     MouseEventType::Moved => { self.mouse_moved(v, meta) }
-                    MouseEventType::Pressed => { self.mouse_pressed(v, meta) }
+                    MouseEventType::Pressed => { self.mouse_pressed(v, i, meta) }
                     //MouseEventType::Released => { self.mouse_released(v, meta) }
                     _ => {}
                 }
             }
-            EditorEvent::Ui { ui}=> { self.tool_dialog(v, ui) }
+            EditorEvent::Ui { ui}=> { self.tool_dialog(v, i, ui) }
             _ => {}
         }
     }
@@ -35,14 +35,14 @@ impl PAP {
     fn mouse_moved(&mut self, _v: &mut Editor, _meta: MouseInfo) {
     }
 
-    fn mouse_pressed(&mut self, v: &mut Editor, meta: MouseInfo) {
-        if let Some((ci, pi, _wh)) = clicked_point_or_handle(v, meta.position, None) {
+    fn mouse_pressed(&mut self, v: &mut Editor, i: &mut Interface, meta: MouseInfo) {
+        if let Some((ci, pi, _wh)) = clicked_point_or_handle(v, i, meta.position, None) {
             let layer_op = v.with_active_layer(|layer| layer.outline[ci].operation.clone() );
             if let Some(_op) = layer_op {
                 
             }
             else {
-                v.prompts.push(InputPrompt::Layer{
+                i.push_prompt(InputPrompt::Layer{
                     label: "Select a pattern.".to_string(),
                     func: Rc::new(move |editor, source_layer| {
                         editor.contour_idx = Some(ci);

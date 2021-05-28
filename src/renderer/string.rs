@@ -5,6 +5,8 @@ use crate::editor::Editor;
 use std::cell::RefCell;
 use std::collections::HashMap;
 
+use crate::user_interface::viewport::Viewport;
+
 use super::constants::*;
 
 pub static POINTFONTSIZE: f32 = 14.0;
@@ -78,8 +80,8 @@ pub fn pointfont_from_size_and_factor(size: f32, factor: f32) -> Font {
 }
 
 impl UiString<'_> {
-    pub fn draw(&self, v: &Editor, mut at: (f32, f32), canvas: &mut Canvas) {
-        let factor = v.viewport.factor;
+    pub fn draw(&self, v: &Editor, viewport: &Viewport, mut at: (f32, f32), canvas: &mut Canvas) {
+        let factor = viewport.factor;
         let mut paint = Paint::default();
         paint.set_color(self.color);
         paint.set_anti_alias(true);

@@ -1,7 +1,7 @@
 use super::super::prelude::*;
 use super::PAP;
 use imgui::Ui;
-use crate::user_interface::get_tools_dialog_rect;
+use crate::user_interface::Interface;
 use glifparser::glif::{ContourOperations, PatternCopies, PatternSubdivide};
 
 fn imgui_decimal_text_field(label: &str, ui: &imgui::Ui, data: &mut f32) {
@@ -41,8 +41,8 @@ fn idx_to_repeat_type(idx: usize) -> PatternCopies {
 }
 
 impl PAP {
-    pub fn tool_dialog(&mut self, v: &mut Editor, ui: &Ui) {
-        let (tx, ty, tw, th) = get_tools_dialog_rect(v);
+    pub fn tool_dialog(&mut self, v: &mut Editor, i: &Interface, ui: &Ui) {
+        let (tx, ty, tw, th) = i.get_tools_dialog_rect();
 
         imgui::Window::new(&imgui::ImString::new("Pattern Along Path"))
         .bg_alpha(1.) // See comment on fn redraw_skia

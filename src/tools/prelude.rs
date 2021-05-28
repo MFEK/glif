@@ -5,7 +5,8 @@ pub use crate::renderer::constants::*;
 pub use crate::renderer::points::calc::*;
 pub use crate::editor;
 pub use crate::editor::util::*;
-pub use crate::editor::{Editor, MouseInfo};
+pub use crate::editor::Editor;
+pub use crate::user_interface::{Interface, MouseInfo};
 pub use crate::util::*;
 pub use crate::editor::CONSOLE;
 

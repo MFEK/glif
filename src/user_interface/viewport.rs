@@ -1,6 +1,6 @@
 use crate::{HandleStyle, PointLabels, PreviewMode};
 
-use super::Editor;
+use super::Interface;
 
 pub struct Viewport {
     pub winsize: (u32, u32),
@@ -26,7 +26,7 @@ impl Default for Viewport {
     }
 }
 
-impl Editor {  
+impl Interface {  
     // this gets called by tools so it accepts &mut State
     pub fn update_viewport(&mut self, offset: Option<(f32, f32)>, scale: Option<f32>) {
         let offset = match offset {

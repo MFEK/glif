@@ -1,11 +1,10 @@
 use glifparser::{MFEKGlif, glif::{HistoryEntry, HistoryType, Layer, MFEKPointData}};
 
 pub use crate::renderer::console::Console as RendererConsole;
-use crate::{tools::{EditorEvent, Tool, ToolEnum, pan::Pan, tool_enum_to_tool}, user_interface::InputPrompt};
+use crate::{tools::{EditorEvent, Tool, ToolEnum, pan::Pan, tool_enum_to_tool}, user_interface::{InputPrompt, Interface}};
 
 pub use skulpin::skia_safe::Contains as _;
 pub use skulpin::skia_safe::{Canvas, Matrix, Path as SkPath, Point as SkPoint, Rect as SkRect};
-use sdl2::{Sdl, video::Window};
 
 pub use crate::renderer::points::calc::*;
 
@@ -21,15 +20,10 @@ pub mod export;
 
 pub mod util;
 
-pub mod viewport;
-pub use self::viewport::Viewport;
 
 pub mod headless;
 
 pub mod images;
-
-pub mod input;
-pub use self::input::MouseInfo;
 
 pub mod selection;
 pub mod layers;
@@ -62,12 +56,7 @@ pub struct Editor {
     pub selected: HashSet<(usize, usize)>,
 
     pub images: images::EditorImages,
- 
-    pub prompts: Vec<InputPrompt>,
-    pub mouse_info: MouseInfo,
-    pub viewport: Viewport,
-    pub sdl_context: Option<Sdl>,
-    pub sdl_window: Option<Window>,
+
     pub quit_requested: bool, // allows for quits from outside event loop, e.g. from command closures
 
     pub ipc_info: Option<mfek_ipc::IPCInfo>,
@@ -91,17 +80,9 @@ impl Editor {
             point_idx: None,
 
             selected: HashSet::new(),
-            prompts: Vec::new(),
 
             images: images::EditorImages::new(),
-
-            // selection state
-            mouse_info: MouseInfo::default(),
-            viewport: Viewport::default(),   // index into Outline
-            sdl_context: None, // index into Contour
-            sdl_window: None,
             quit_requested: false,
-
             ipc_info: None,
             preview_dirty: true,
         }
@@ -119,9 +100,9 @@ impl Editor {
     /// This is the function that powers the editor. Tools recieve events from the Editor and then use them to modify state.
     /// Adding new events is as simple as creating a new anonymous struct to EditorEvent and a call to this function in the appropriate
     /// place.Tools can then implement behavior for that event in their handle_event implementation.
-    pub fn dispatch_editor_event(&mut self, event: EditorEvent) {
+    pub fn dispatch_editor_event(&mut self, i: &mut Interface, event: EditorEvent) {
         let mut active_tool = dyn_clone::clone_box(&*self.active_tool);
-        active_tool.handle_event(self, event);
+        active_tool.handle_event(self, i, event);
         self.active_tool = active_tool;
     }
 

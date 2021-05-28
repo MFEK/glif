@@ -66,14 +66,14 @@ pub struct Select {
 }
 
 impl Tool for Select {
-    fn handle_event(&mut self, v: &mut Editor, event: EditorEvent) {
+    fn handle_event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
         match event {
             EditorEvent::MouseEvent { event_type, meta } => {
                 match event_type {
-                    MouseEventType::Pressed => { self.mouse_pressed(v, meta) }
-                    MouseEventType::Released => {self.mouse_released(v, meta)}
+                    MouseEventType::Pressed => { self.mouse_pressed(v, i, meta) }
+                    MouseEventType::Released => {self.mouse_released(v, i, meta)}
                     MouseEventType::Moved => { self.mouse_moved(v, meta) }
-                    MouseEventType::DoubleClick => { self.mouse_double_pressed(v, meta) }
+                    MouseEventType::DoubleClick => { self.mouse_double_pressed(v, i, meta) }
                 }
             }
             EditorEvent::ToolCommand { command: Command::SelectAll, stop_after, .. } => {
@@ -81,11 +81,11 @@ impl Tool for Select {
                 self.select_all(v);
             }
             EditorEvent::Draw { skia_canvas } => {
-                self.draw_selbox(v, skia_canvas);
-                self.draw_merge_preview(v, skia_canvas);
+                self.draw_selbox(v, i, skia_canvas);
+                self.draw_merge_preview(v, i, skia_canvas);
             }
             EditorEvent::Ui { ui } => {
-                self.select_settings(v, ui);
+                self.select_settings(v, i, ui);
             }
             _ => {}
         }
@@ -226,10 +226,10 @@ impl Select {
         };
     }
 
-    fn mouse_pressed(&mut self, v: &mut Editor, meta: MouseInfo) {
+    fn mouse_pressed(&mut self, v: &mut Editor, i: &Interface, meta: MouseInfo) {
 
         // if we found a point or handle we're going to start a drag operation
-        match clicked_point_or_handle(v, meta.position, None) {
+        match clicked_point_or_handle(v, i, meta.position, None) {
             Some((ci, pi, wh)) => {
                 if meta.modifiers.shift || meta.modifiers.ctrl {
                     if let Some(point_idx) = v.point_idx {
@@ -262,8 +262,8 @@ impl Select {
         };
     }
 
-    fn mouse_double_pressed(&mut self, v: &mut Editor, meta: MouseInfo) {
-        let ci = if let Some((ci, _pi, _wh)) = clicked_point_or_handle(v, meta.position, None) {
+    fn mouse_double_pressed(&mut self, v: &mut Editor, i: &Interface, meta: MouseInfo) {
+        let ci = if let Some((ci, _pi, _wh)) = clicked_point_or_handle(v, i, meta.position, None) {
             ci
         } else {
             return
@@ -280,14 +280,14 @@ impl Select {
         }
     }
 
-    fn mouse_released(&mut self, v: &mut Editor, meta: MouseInfo) {
+    fn mouse_released(&mut self, v: &mut Editor, i: &Interface, meta: MouseInfo) {
         // we are going to check if we're dropping this point onto another and if this is the end, and that the 
         // start or vice versa if so we're going to merge but first we have to check we're dragging a point
         if self.handle == WhichHandle::Neither && v.is_modifying() {
             let (vci, vpi) = (v.contour_idx.unwrap(), v.point_idx.unwrap());
 
             // are we overlapping a point?
-            if let Some((ci, pi, WhichHandle::Neither)) = clicked_point_or_handle(v, meta.position, Some((vci, vpi))) {
+            if let Some((ci, pi, WhichHandle::Neither)) = clicked_point_or_handle(v, i, meta.position, Some((vci, vpi))) {
                 // if that point the start or end of it's contour?
                 if let Some(info) = get_contour_start_or_end(v, vci, vpi) {
                     // is our current point the start or end of it's contour?
@@ -315,12 +315,12 @@ impl Select {
 
     // This draws a preview to show if we're overlapping a point we can merge with or not.
     // Note that all tool draw events draw over the glyph view.
-    fn draw_merge_preview(&self, v: &Editor, canvas: &mut Canvas) {
+    fn draw_merge_preview(&self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
         if self.handle == WhichHandle::Neither && v.is_modifying() {
             let (vci, vpi) = (v.contour_idx.unwrap(), v.point_idx.unwrap());
 
             // are we overlapping a point?
-            if let Some((ci, pi, WhichHandle::Neither)) = clicked_point_or_handle(v, v.mouse_info.position, Some((vci, vpi))) {
+            if let Some((ci, pi, WhichHandle::Neither)) = clicked_point_or_handle(v, i, i.mouse_info.position, Some((vci, vpi))) {
                 // if that point the start or end of it's contour?
                 if let Some(info) = get_contour_start_or_end(v, vci, vpi) {
                     // is our current point the start or end of it's contour?
@@ -335,6 +335,7 @@ impl Select {
                             let merge =  v.with_active_layer(|layer| {get_contour!(layer, ci)[pi].clone()});
                             draw_point(
                                 v,
+                                &i.viewport,
                                 (calc_x(merge.x), calc_y(merge.y)),
                                 (merge.x, merge.y),
                                 None,
@@ -350,7 +351,7 @@ impl Select {
     }
 
     // This renders the dashed path of the selection box. 
-    fn draw_selbox(&self, v: &Editor, canvas: &mut Canvas) {
+    fn draw_selbox(&self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
         let c1 = self.corner_one.unwrap_or((0., 0.));
         let c2 = self.corner_two.unwrap_or((0., 0.));
     
@@ -364,8 +365,8 @@ impl Select {
         path.close();
         paint.set_color(OUTLINE_STROKE);
         paint.set_style(PaintStyle::Stroke);
-        paint.set_stroke_width(OUTLINE_STROKE_THICKNESS * (1. / v.viewport.factor));
-        let dash_offset = (1. / v.viewport.factor) * 2.;
+        paint.set_stroke_width(OUTLINE_STROKE_THICKNESS * (1. / i.viewport.factor));
+        let dash_offset = (1. / i.viewport.factor) * 2.;
         paint.set_path_effect(dash_path_effect::new(&[dash_offset, dash_offset], 0.0));
         canvas.draw_path(&path, &paint);
     }

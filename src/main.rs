@@ -5,21 +5,15 @@
 
 use command::{Command, CommandInfo, CommandMod};
 use tools::{EditorEvent, MouseEventType, ToolEnum};
-use editor::{Editor, MouseInfo, HandleStyle, PointLabels, PreviewMode, CONSOLE};
+use editor::{Editor, HandleStyle, PointLabels, PreviewMode, CONSOLE};
+use user_interface::{ImguiManager, Interface};
 use util::argparser::HeadlessMode;
 
-use sdl2::{
-    event::{Event, WindowEvent},
-    keyboard::Keycode,
-    video::Window,
-    Sdl,
-};
+use sdl2::event::{Event, WindowEvent};
 pub use skulpin::{skia_safe, rafx::api as RafxApi};
-use imgui_skia_renderer::Renderer;
-
 use enum_iterator::IntoEnumIterator as _;
 
-use std::collections::HashSet;
+use crate::user_interface::mouse_input::MouseInfo;
 
 pub mod editor;
 mod filedialog;
@@ -33,7 +27,6 @@ pub mod settings;
 mod system_fonts;
 mod user_interface;
 mod contour_operations;
-mod window;
 
 fn main() {
     util::init_env_logger();
@@ -48,59 +41,37 @@ fn main() {
     }
 
     let filename = filedialog::filename_or_panic(&args.filename, Some("glif"), None);
+    let mut interface = Interface::new(filename.to_str().unwrap());
+    let mut imgui_manager = ImguiManager::new(&interface.sdl_window);
 
-    let (sdl_context, sdl_window): (Sdl, Window) = window::initialize_sdl(&mut editor, filename.to_str().unwrap());
+    let mut skulpin_renderer = Interface::initialize_skulpin_renderer(&interface.sdl_window);
 
-    editor.sdl_context = Some(sdl_context);
-    editor.sdl_window = Some(sdl_window);
-
-    // Skulpin initialization TODO: proper error handling
-    let mut renderer = window::initialize_skulpin_renderer(&editor.sdl_window.as_ref().unwrap()).unwrap();
-
-    // set up imgui
-    let mut imgui = user_interface::setup_imgui();
-    let mut imgui_sdl2 = imgui_sdl2::ImguiSdl2::new(&mut imgui, &editor.sdl_window.as_ref().unwrap());
-    let imgui_renderer = Renderer::new(&mut imgui);
-
-    let mut event_pump = editor.sdl_context
-        .as_ref()
-        .unwrap()
-        .event_pump()
-        .expect("Could not create sdl event pump");
- 
     // Makes glyph available to on_load_glif events
-    io::load_glif(&mut editor, &filename);
+    io::load_glif(&mut editor, &mut interface, &filename);
 
     command::initialize_keybinds();
     tools::console::initialize_console_commands();
 
+    let mut event_pump = interface.get_event_pump();
     'main_loop: loop {
         // Quit from console
         if editor.quit_requested { break 'main_loop }
 
-        // Create a set of pressed Keys.
-        let keys_down: HashSet<Keycode> = event_pump
-            .keyboard_state()
-            .pressed_scancodes()
-            .filter_map(Keycode::from_scancode)
-            .collect();
-
+        let keys_down = interface.get_pressed_keys(&event_pump);
         let keymod = command::keys_down_to_mod(&keys_down).unwrap_or(CommandMod::none());
 
         // sdl event handling
         for event in event_pump.poll_iter() {
             util::debug_event!("Got event: {:?}", &event);
-            imgui_sdl2.handle_event(&mut imgui, &event);
-            if imgui_sdl2.ignore_event(&event) {
-                continue;
-            };
 
             match &event {
                 Event::Quit { .. } => break 'main_loop,
                 _ => {}
             }
 
-            if !editor.prompts.is_empty() { continue; }
+            if imgui_manager.handle_imgui_event(&event) { continue; }
+            if interface.active_prompts() { continue; }
+
             // we're gonna handle console text input here as this should steal input from the command system
             match &event {
                 Event::TextInput { text, .. } => {
@@ -124,7 +95,7 @@ fn main() {
                     }
                     let keycode = keycode.unwrap();
 
-                    tools::console::set_state(&mut editor, keycode, keymod);
+                    tools::console::set_state(&mut editor, &mut interface, keycode, keymod);
                     if CONSOLE.with(|c| c.borrow_mut().active) {
                         continue;
                     }
@@ -136,7 +107,7 @@ fn main() {
                     };
 
                     let mut delete_after = false;
-                    editor.dispatch_editor_event(EditorEvent::ToolCommand {
+                    editor.dispatch_editor_event(&mut interface,EditorEvent::ToolCommand {
                         command: command_info.command,
                         command_mod: command_info.command_mod,
                         stop_after: &mut delete_after,
@@ -146,27 +117,27 @@ fn main() {
                     use crate::renderer::constants::OFFSET_FACTOR;
                     match command_info.command {
                         Command::ResetScale => {
-                            editor.update_viewport(None, Some(1.));
+                            interface.update_viewport(None, Some(1.));
                         }
                         Command::ZoomIn => {
-                            let scale = tools::zoom_in_factor(editor.viewport.factor, &mut editor);
-                            editor.update_viewport(None, Some(scale));
+                            let scale = tools::zoom_in_factor(interface.viewport.factor, &mut interface);
+                            interface.update_viewport(None, Some(scale));
                         }
                         Command::ZoomOut => {
-                            let scale = tools::zoom_out_factor(editor.viewport.factor, &mut editor);
-                            editor.update_viewport(None, Some(scale));
+                            let scale = tools::zoom_out_factor(interface.viewport.factor, &mut interface);
+                            interface.update_viewport(None, Some(scale));
                         }
                         Command::NudgeUp => {
-                            editor.update_viewport(Some((0., OFFSET_FACTOR)), None);
+                            interface.update_viewport(Some((0., OFFSET_FACTOR)), None);
                         }
                         Command::NudgeDown => {
-                            editor.update_viewport(Some((0., -OFFSET_FACTOR)), None);
+                            interface.update_viewport(Some((0., -OFFSET_FACTOR)), None);
                         }
                         Command::NudgeLeft => {
-                            editor.update_viewport(Some((OFFSET_FACTOR, 0.)), None);
+                            interface.update_viewport(Some((OFFSET_FACTOR, 0.)), None);
                         }
                         Command::NudgeRight => {
-                            editor.update_viewport(Some((-OFFSET_FACTOR, 0.)), None);
+                            interface.update_viewport(Some((-OFFSET_FACTOR, 0.)), None);
                         }
                         Command::ToolPan => {
                             editor.set_tool(ToolEnum::Pan);
@@ -194,7 +165,7 @@ fn main() {
                         }
                         Command::TogglePointLabels => {
                             trigger_toggle_on!(
-                                editor,
+                                interface,
                                 point_labels,
                                 PointLabels,
                                 command_info.command_mod.shift
@@ -202,7 +173,7 @@ fn main() {
                         }
                         Command::TogglePreviewMode => {
                             trigger_toggle_on!(
-                                editor,
+                                interface,
                                 preview_mode,
                                 PreviewMode,
                                 !command_info.command_mod.shift
@@ -221,7 +192,7 @@ fn main() {
                             editor.copy_selection();
                         }
                         Command::PasteSelection => {
-                            editor.paste_selection(editor.mouse_info.position);
+                            editor.paste_selection(interface.mouse_info.position);
                         }
                         Command::CutSelection => {
                             editor.copy_selection();
@@ -238,14 +209,14 @@ fn main() {
                                 Some(f) => f,
                                 None => continue,
                             };
-                            io::load_glif(&mut editor, &filename);
+                            io::load_glif(&mut editor, &mut interface, &filename);
                         }
                         Command::IOSave => {
                             drop(editor.save_glif(false));
                         }
                         Command::IOSaveAs => {
                             match editor.save_glif(true) {
-                                Ok(pb) => io::load_glif(&mut editor, &pb),
+                                Ok(pb) => io::load_glif(&mut editor, &mut interface, &pb),
                                 Err(()) => {},
                             }
                         }
@@ -270,57 +241,57 @@ fn main() {
 
                 Event::MouseMotion { x, y, .. } => {
                     let position = (x as f32, y as f32);
-                    let meta = MouseInfo::new(&editor, None, position, None, keymod);
-                    editor.dispatch_editor_event(EditorEvent::MouseEvent{
+                    let meta = MouseInfo::new(&interface, None, position, None, keymod);
+                    editor.dispatch_editor_event(&mut interface, EditorEvent::MouseEvent{
                         event_type: MouseEventType::Moved,
                         meta,
 
                     });
 
-                    editor.mouse_info = meta;
+                    interface.mouse_info = meta;
                 }
 
                 Event::MouseButtonDown { mouse_btn, x, y, clicks: 2, .. } => {
                     
                     let position = (x as f32, y as f32);
-                    let meta = MouseInfo::new(&editor, Some(mouse_btn), position, Some(true), keymod);              
-                    editor.dispatch_editor_event(EditorEvent::MouseEvent{
+                    let meta = MouseInfo::new(&interface, Some(mouse_btn), position, Some(true), keymod);              
+                    editor.dispatch_editor_event(&mut interface,EditorEvent::MouseEvent{
                         event_type: MouseEventType::DoubleClick,
                         meta,
                     });
 
-                    editor.mouse_info = meta;
+                    interface.mouse_info = meta;
                 }
 
                 Event::MouseButtonDown { mouse_btn, x, y, .. } => {
                     
                     let position = (x as f32, y as f32);
-                    let meta = MouseInfo::new(&editor, Some(mouse_btn), position, Some(true), keymod);              
-                    editor.dispatch_editor_event(EditorEvent::MouseEvent{
+                    let meta = MouseInfo::new(&interface, Some(mouse_btn), position, Some(true), keymod);              
+                    editor.dispatch_editor_event(&mut interface, EditorEvent::MouseEvent{
                         event_type: MouseEventType::Pressed,
                         meta,
                     });
 
-                    editor.mouse_info = meta;
+                    interface.mouse_info = meta;
                 }
 
                 Event::MouseButtonUp { mouse_btn, x, y, .. } => {
                     let position = (x as f32, y as f32);
-                    let meta = MouseInfo::new(&editor, Some(mouse_btn), position, Some(false), keymod);
-                    editor.dispatch_editor_event(EditorEvent::MouseEvent{
+                    let meta = MouseInfo::new(&interface, Some(mouse_btn), position, Some(false), keymod);
+                    editor.dispatch_editor_event(&mut interface, EditorEvent::MouseEvent{
                         event_type: MouseEventType::Released,
                         meta,
                     });
 
-                    editor.mouse_info = meta;
+                    interface.mouse_info = meta;
                 }
 
                 Event::Window { win_event, .. } => match win_event {
                     WindowEvent::SizeChanged(x, y) => {
-                        editor.viewport.winsize = (x as u32, y as u32);
+                        interface.viewport.winsize = (x as u32, y as u32);
                     }
                     WindowEvent::Resized(x, y) => {
-                        editor.viewport.winsize = (x as u32, y as u32);
+                        interface.viewport.winsize = (x as u32, y as u32);
                     }
 
                     _ => {}
@@ -330,29 +301,13 @@ fn main() {
         }
 
         editor.rebuild();
-
-        // build and render imgui
-        imgui_sdl2.prepare_frame(imgui.io_mut(), &editor.sdl_window.as_ref().unwrap(), &event_pump.mouse_state());
-        let mut ui = imgui.frame();
-        user_interface::build_imgui_ui(&mut editor, &mut ui);
-
-        imgui_sdl2.prepare_render(&ui, &editor.sdl_window.as_ref().unwrap());
-        let dd = ui.render();
-
-        // draw glyph preview and imgui with skia
-        let (window_width, window_height) = editor.sdl_window.as_ref().unwrap().vulkan_drawable_size();
-        let extents = RafxApi::RafxExtents2D {
-            width: window_width,
-            height: window_height,
-        };
-
-        let drew = renderer.draw(extents, 1.0, |canvas, _coordinate_system_helper| {
-            renderer::render_frame(&mut editor, canvas);
-            imgui_renderer.render_imgui(canvas, dd);
-        });
-
-        if drew.is_err() {
-            log::warn!("Failed to draw frame. This can happen when resizing due to VkError(ERROR_DEVICE_LOST); if happens otherwise, file an issue.");
-        }
+        interface.render(
+            &mut editor,
+            &mut imgui_manager.imgui_context,
+            &mut imgui_manager.imgui_sdl2,
+            &mut imgui_manager.imgui_renderer,
+            &mut skulpin_renderer,
+            &event_pump.mouse_state()
+        );
     }
 }
