@@ -2,6 +2,7 @@
 use super::prelude::*;
 use crate::{contour_operations, renderer::UIPointType};
 use crate::renderer::points::draw_point;
+use crate::user_interface::Interface;
 
 use MFEKmath::{Bezier, evaluate::Primitive};
 use editor::util::get_contour_start_or_end;
@@ -10,20 +11,20 @@ use sdl2::mouse::MouseButton;
 pub struct Pen {}
 
 impl Tool for Pen {
-    fn handle_event(&mut self, v: &mut Editor, event: EditorEvent) {
+    fn handle_event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
         match event {
             EditorEvent::MouseEvent { event_type, meta } => {
                 if meta.button != MouseButton::Left { return };
                 match event_type {
-                    super::MouseEventType::Pressed => { self.mouse_pressed(v, meta) }
+                    super::MouseEventType::Pressed => { self.mouse_pressed(v, i, meta) }
                     super::MouseEventType::Released => { self.mouse_released(v, meta)}
                     super::MouseEventType::Moved => { self.mouse_moved(v, meta) }
                     _ => {}
                 }
             }
             EditorEvent::Draw { skia_canvas } => { 
-                self.draw_nearest_point(v, skia_canvas);
-                self.draw_merge_preview(v, skia_canvas);
+                self.draw_nearest_point(v, i, skia_canvas);
+                self.draw_merge_preview(v, i, skia_canvas);
              }
             _ => {}
         }
@@ -53,7 +54,7 @@ impl Pen {
         }
     }
 
-    fn mouse_pressed(&self, v: &mut Editor, meta: MouseInfo) {
+    fn mouse_pressed(&self, v: &mut Editor, i: &Interface, meta: MouseInfo) {
         v.begin_layer_modification("Add point.");
 
 
@@ -61,7 +62,7 @@ impl Pen {
         // If that is the case we merge them and then return.
         if let (Some(c_idx), Some(p_idx)) = (v.contour_idx, v.point_idx) {
             // we've clicked a handle?
-            if let Some(info) = clicked_point_or_handle(v, meta.position, None) {
+            if let Some(info) = clicked_point_or_handle(v, i, meta.position, None) {
                 // we have the end of one contour active and clicked the start of another?
                 let end_is_active = get_contour_start_or_end(v, c_idx, p_idx) == Some(SelectPointInfo::End);
                 let start_is_clicked = get_contour_start_or_end(v, info.0, info.1) == Some(SelectPointInfo::Start);
@@ -84,7 +85,7 @@ impl Pen {
         }
 
         // Next we check if our mouse is over an existing curve. If so we add a point to the curve and return.
-        if let Some(info) = nearest_point_on_curve(v, meta.position) {
+        if let Some(info) = nearest_point_on_curve(v, i, meta.position) {
             v.with_active_layer_mut(|layer| {
                 let mut second_idx_zero = false;
                 let contour = &mut layer.outline[info.contour_idx];
@@ -183,13 +184,14 @@ impl Pen {
         v.end_layer_modification();
     }
 
-    fn draw_nearest_point(&self, v: &mut Editor, canvas: &mut Canvas) {
-        if v.mouse_info.is_down { return };
-        let info = nearest_point_on_curve(v, v.mouse_info.position);
+    fn draw_nearest_point(&self, v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
+        if i.mouse_info.is_down { return };
+        let info = nearest_point_on_curve(v, i, i.mouse_info.position);
 
         if let Some(info) = info {
             draw_point(
                 v,
+                &i.viewport,
                 (calc_x(info.point.0), calc_y(info.point.1)),
                 info.point,
                 None,
@@ -200,11 +202,11 @@ impl Pen {
         }
     }
 
-    fn draw_merge_preview(&self, v: &Editor, canvas: &mut Canvas) {
+    fn draw_merge_preview(&self, v: &Editor, i: &mut Interface, canvas: &mut Canvas) {
         // we've got a point selected?
         if v.contour_idx.is_some() && v.point_idx.is_some() {
             // we've clicked a handle?
-            if let Some(info) = clicked_point_or_handle(v, v.mouse_info.position, None) {
+            if let Some(info) = clicked_point_or_handle(v, i, i.mouse_info.position, None) {
                 let c_idx = v.contour_idx.unwrap();
                 let p_idx = v.contour_idx.unwrap();
 
@@ -219,6 +221,7 @@ impl Pen {
                     let point = v.with_active_layer(|layer| get_contour!(layer, info.0)[info.1].clone());
                     draw_point(
                         v,
+                        &i.viewport,
                         (calc_x(point.x), calc_y(point.y)),
                         (point.x, point.y),
                         None,

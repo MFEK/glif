@@ -5,12 +5,13 @@ use glifparser::{glif::{LayerOperation}, outline::skia::{ToSkiaPaths, SkiaPointT
 use glifparser::FlattenedGlif;
 use skulpin::skia_safe::{Canvas, Color4f, Paint, PaintStyle, Path, PathOp, Rect};
 
+use crate::user_interface::viewport::Viewport;
 use crate::editor::{Editor, PreviewMode};
 pub use crate::editor::{HandleStyle, PointLabels, CONSOLE}; // enums
 pub use crate::tools::ToolEnum; // globals
 use crate::renderer::string::UiString;
 
-pub fn draw_components(v: &Editor, canvas: &mut Canvas) {
+pub fn draw_components(v: &Editor, viewport: &Viewport, canvas: &mut Canvas) {
     let glif = v.preview.as_ref().unwrap();
     let mut paint = Paint::default();
     paint.set_anti_alias(true);
@@ -20,7 +21,7 @@ pub fn draw_components(v: &Editor, canvas: &mut Canvas) {
     for rect in glif.component_rects.as_ref().unwrap() {
         let skrect = Rect::new(calc_x(rect.minx), calc_y(rect.miny), calc_x(rect.maxx), calc_y(rect.maxy));
         let uis = UiString::with_colors(&rect.name, COMPONENT_NAME_COLOR, Some(COMPONENT_NAME_BGCOLOR));
-        uis.draw(v, (calc_x(rect.minx), calc_y(rect.maxy)), canvas);
+        uis.draw(v, viewport, (calc_x(rect.minx), calc_y(rect.maxy)), canvas);
         path.add_rect(skrect, None);
     }
     let skpaths = glif.flattened.as_ref().map(|f|f.to_skia_paths(Some(SkiaPointTransforms{calc_x, calc_y})));
@@ -31,7 +32,7 @@ pub fn draw_components(v: &Editor, canvas: &mut Canvas) {
 //TODO: pub use crate::events::vws;
 // Before we draw we've got to build a flattened path out of the glyph by resolving
 // each layer operation in turn.
-pub fn draw(canvas: &mut Canvas, v: &mut Editor, active_layer: usize)  -> Path {
+pub fn draw(canvas: &mut Canvas, v: &mut Editor, viewport: &Viewport, active_layer: usize)  -> Path {
     let glif = v.preview.as_mut().unwrap();
     let mut active_path = Path::new();
     let mut total_open_path = Path::new();
@@ -51,13 +52,13 @@ pub fn draw(canvas: &mut Canvas, v: &mut Editor, active_layer: usize)  -> Path {
             let mut paint = Paint::default();
             paint.set_anti_alias(true);
             
-            if v.viewport.preview_mode == PreviewMode::Paper {
+            if viewport.preview_mode == PreviewMode::Paper {
                 paint.set_style(PaintStyle::Fill);
             } else {
                 paint.set_style(PaintStyle::StrokeAndFill);
                 paint.set_color(OUTLINE_FILL);
                 paint.set_stroke_width(
-                    OUTLINE_STROKE_THICKNESS * (1. / v.viewport.factor),
+                    OUTLINE_STROKE_THICKNESS * (1. / viewport.factor),
                 );
             }
 
@@ -65,7 +66,7 @@ pub fn draw(canvas: &mut Canvas, v: &mut Editor, active_layer: usize)  -> Path {
                 paint.set_color4f(color, None);
             }
 
-            if v.viewport.preview_mode != PreviewMode::Paper {
+            if viewport.preview_mode != PreviewMode::Paper {
                 paint.set_color(OUTLINE_STROKE);
                 if let Some(color) = root_color {
                     paint.set_color4f(color, None);
@@ -139,19 +140,19 @@ pub fn draw(canvas: &mut Canvas, v: &mut Editor, active_layer: usize)  -> Path {
     let mut paint = Paint::default();
     paint.set_anti_alias(true);
     
-    if v.viewport.preview_mode == PreviewMode::Paper {
+    if viewport.preview_mode == PreviewMode::Paper {
         paint.set_style(PaintStyle::Fill);
     } else {
         paint.set_style(PaintStyle::StrokeAndFill);
         paint.set_color(OUTLINE_FILL);
         paint.set_stroke_width(
-            OUTLINE_STROKE_THICKNESS * (1. / v.viewport.factor),
+            OUTLINE_STROKE_THICKNESS * (1. / viewport.factor),
         );
     }
 
     if let Some(color) = root_color {
         paint.set_color4f(color, None);
-    } else if v.viewport.preview_mode == PreviewMode::Paper {
+    } else if viewport.preview_mode == PreviewMode::Paper {
         paint.set_color(PAPER_FILL);
     }
 
@@ -160,7 +161,7 @@ pub fn draw(canvas: &mut Canvas, v: &mut Editor, active_layer: usize)  -> Path {
     paint.set_style(PaintStyle::Stroke);
     canvas.draw_path(&total_open_path, &paint);
 
-    if v.viewport.preview_mode != PreviewMode::Paper {
+    if viewport.preview_mode != PreviewMode::Paper {
         paint.set_style(PaintStyle::Stroke);
 
         if root_color.is_none() {
@@ -172,7 +173,7 @@ pub fn draw(canvas: &mut Canvas, v: &mut Editor, active_layer: usize)  -> Path {
 
     // Cache component rects and flattened outline on MFEKGlif
     match &glif.component_rects {
-        Some(_) => {draw_components(v, canvas);},
+        Some(_) => {draw_components(v, viewport, canvas);},
         None => {
             let mut rects = Some(vec![]);
             let flattened = glif.flattened(&mut rects);

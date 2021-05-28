@@ -1,5 +1,6 @@
 // Console
 use crate::{CONSOLE, editor::Editor, util};
+use crate::user_interface::Interface;
 
 use clipboard::{ClipboardContext, ClipboardProvider};
 use lazy_static::lazy_static;
@@ -12,14 +13,14 @@ use sdl2::keyboard::Keycode;
 use sdl2::keyboard::Mod;
 
 // Only called if ElementState::Pressed
-pub fn set_state(v: &mut Editor, vk: Keycode, _m: Mod) {
+pub fn set_state(v: &mut Editor, i: &mut Interface, vk: Keycode, _m: Mod) {
     CONSOLE.with(|c| match vk {
         Keycode::Escape => {
             c.borrow_mut().active(false);
         }
         Keycode::Return => {
             if c.borrow().active {
-                run_command(v, &mut c.borrow_mut());
+                run_command(v, i, &mut c.borrow_mut());
             }
             c.borrow_mut().active(false);
         }
@@ -55,7 +56,7 @@ impl RendererConsole {
 }
 
 use regex::Regex;
-pub fn run_command(v: &mut Editor, c: &mut RendererConsole) {
+pub fn run_command(v: &mut Editor, i: &mut Interface, c: &mut RendererConsole) {
     lazy_static! {
         static ref COMMAND_RE: Regex = Regex::new(r"\s+").unwrap();
     }
@@ -66,7 +67,7 @@ pub fn run_command(v: &mut Editor, c: &mut RendererConsole) {
 
     commands::MAP.with(|m| {
         m.borrow_mut().get(command)
-            .map(|(_, f)| f(v, args.to_vec().iter().map(|s| s.to_string()).collect()))
+            .map(|(_, f)| f(v, i, args.to_vec().iter().map(|s| s.to_string()).collect()))
     });
 
     debug!("Command requested to be run: {:?}", (command, args));

@@ -4,6 +4,7 @@ use MFEKmath::{Vector, Piecewise, Evaluate};
 use glifparser::glif::{CapType, ContourOperations, InterpolationType, JoinType, VWSContour, VWSHandle};
 use sdl2::mouse::MouseButton;
 use skulpin::skia_safe::{Canvas, Paint, PaintStyle, Path as SkiaPath};
+use crate::user_interface::Interface;
 
 use super::prelude::*;
 
@@ -16,20 +17,20 @@ pub struct VWS {
 }
 
 impl Tool for VWS {
-    fn handle_event(&mut self, v: &mut Editor, event: EditorEvent) {
+    fn handle_event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
         match event {
             EditorEvent::MouseEvent { event_type, meta } => {
                 match event_type {
-                    super::MouseEventType::Pressed => { self.mouse_pressed(v, meta) }
+                    super::MouseEventType::Pressed => { self.mouse_pressed(v, i, meta) }
                     super::MouseEventType::Released => {self.mouse_released(v, meta) }
-                    super::MouseEventType::Moved => { self.mouse_moved(v, meta) }
+                    super::MouseEventType::Moved => { self.mouse_moved(v, i, meta) }
                     _ => {}
                 }
             }
             EditorEvent::Draw { skia_canvas } => {
-                 self.draw_handles(v, skia_canvas);
+                 self.draw_handles(v, i, skia_canvas);
             }
-            EditorEvent::Ui {ui} => { self.build_vws_settings_window(v, ui) }
+            EditorEvent::Ui {ui} => { self.build_vws_settings_window(v, i, ui) }
             _ => {}
         }
     }
@@ -45,8 +46,8 @@ impl VWS {
         }
     }
 
-    fn mouse_pressed(&mut self, v: &mut Editor, meta: MouseInfo){
-        match self.clicked_handle(v, meta) {
+    fn mouse_pressed(&mut self, v: &mut Editor, i: &Interface, meta: MouseInfo){
+        match self.clicked_handle(v, i, meta) {
             Some((ci, pi, wh)) => {
                 v.contour_idx = Some(ci);
                 v.point_idx = Some(pi);
@@ -61,8 +62,8 @@ impl VWS {
         };
     }
 
-    fn mouse_moved(&self, v: &mut Editor, meta: MouseInfo) {
-        if !v.mouse_info.is_down {
+    fn mouse_moved(&self, v: &mut Editor, i: &Interface, meta: MouseInfo) {
+        if !i.mouse_info.is_down {
             return;
         }
 
@@ -242,8 +243,8 @@ impl VWS {
     }
     
 
-    fn clicked_handle(&self, v: &Editor, meta: MouseInfo) -> Option<(usize, usize, WhichHandle)> {
-        let factor = v.viewport.factor;
+    fn clicked_handle(&self, v: &Editor, i: &Interface, meta: MouseInfo) -> Option<(usize, usize, WhichHandle)> {
+        let factor = i.viewport.factor;
         let mouse_pos = meta.position;
 
         v.with_active_layer(|layer| {
@@ -399,9 +400,9 @@ impl VWS {
         })
     }
     
-    pub fn draw_handles(&self, v: &Editor, canvas: &mut Canvas) {
+    pub fn draw_handles(&self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
         v.with_active_layer( |layer | {
-            let factor = v.viewport.factor;
+            let factor = i.viewport.factor;
 
             for (contour_idx, contour) in layer.outline.iter().enumerate() {
                 let contour_pw = Piecewise::from(contour);

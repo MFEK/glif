@@ -6,14 +6,14 @@ use self::prelude::*;
 use self::{measure::Measure, pan::Pan, pen::Pen, select::Select, zoom::Zoom, vws::VWS, anchors::Anchors, shapes::Shapes, pap::PAP};
 use dyn_clone::DynClone;
 use imgui::Ui;
-
+use crate::user_interface::Interface;
 pub use self::zoom::{zoom_in_factor, zoom_out_factor};
 
 use crate::command::{Command, CommandMod};
 use crate::editor::Editor;
 
 pub trait Tool: DynClone{
-    fn handle_event(&mut self, v: &mut Editor, event: EditorEvent);
+    fn handle_event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent);
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]

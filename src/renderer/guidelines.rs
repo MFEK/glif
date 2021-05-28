@@ -1,4 +1,5 @@
 use crate::editor::Editor;
+use crate::user_interface::viewport::Viewport;
 
 use super::constants::*;
 use super::points::calc::*;
@@ -7,12 +8,12 @@ use skulpin::skia_safe::{Canvas, Color, Paint, PaintStyle, Path};
 use glifparser::{Guideline, GuidelinePoint};
 use glifparser::IntegerOrFloat;
 
-pub fn draw_guideline(v: &Editor, canvas: &mut Canvas, guideline: &Guideline, color: Option<u32>) {
+pub fn draw_guideline(v: &Editor, viewport: &Viewport, canvas: &mut Canvas, guideline: &Guideline, color: Option<u32>) {
     let angle = guideline.angle * DEGREES_IN_RADIANS;
-    let _extra = (v.viewport.offset.0 * (1. / v.viewport.factor), v.viewport.offset.1 * (1. / v.viewport.factor));
-    let at2 = GuidelinePoint { x: guideline.at.x+((1000.*v.viewport.winsize.0 as f32)*f32::from(angle).cos()), y: guideline.at.y+((1000.*v.viewport.winsize.1 as f32)*f32::from(angle).sin()) };
-    let at3 = GuidelinePoint { x: guideline.at.x+((-(1000.*v.viewport.winsize.0 as f32))*f32::from(angle).cos()), y: guideline.at.y+((-(1000.*v.viewport.winsize.1 as f32))*f32::from(angle).sin()) };
-    let factor = v.viewport.factor;
+    let _extra = (viewport.offset.0 * (1. / viewport.factor), viewport.offset.1 * (1. / viewport.factor));
+    let at2 = GuidelinePoint { x: guideline.at.x+((1000.*viewport.winsize.0 as f32)*f32::from(angle).cos()), y: guideline.at.y+((1000.*viewport.winsize.1 as f32)*f32::from(angle).sin()) };
+    let at3 = GuidelinePoint { x: guideline.at.x+((-(1000.*viewport.winsize.0 as f32))*f32::from(angle).cos()), y: guideline.at.y+((-(1000.*viewport.winsize.1 as f32))*f32::from(angle).sin()) };
+    let factor = viewport.factor;
     let mut path = Path::new();
     path.move_to((calc_x(at2.x), calc_y(at2.y)));
     path.line_to((calc_x(at3.x), calc_y(at3.y)));
@@ -25,45 +26,49 @@ pub fn draw_guideline(v: &Editor, canvas: &mut Canvas, guideline: &Guideline, co
     canvas.draw_path(&path, &paint);
 }
 
-pub fn draw_lbearing(v: &Editor, canvas: &mut Canvas) {
+pub fn draw_lbearing(v: &Editor, viewport: &Viewport, canvas: &mut Canvas) {
     draw_guideline(
         v,
+        viewport,
         canvas,
         &Guideline::from_x_y_angle(0., 0., IntegerOrFloat::Float(90.)),
         Some(LBEARING_STROKE),
     );
 }
 
-pub fn draw_rbearing(v: &Editor, width: u64, canvas: &mut Canvas) {
+pub fn draw_rbearing(v: &Editor, viewport: &Viewport, width: u64, canvas: &mut Canvas) {
     draw_guideline(
         v,
+        viewport,
         canvas,
         &Guideline::from_x_y_angle(width as f32, 0., IntegerOrFloat::Float(90.)),
         Some(RBEARING_STROKE),
     );
 }
 
-pub fn draw_baseline(v: &Editor, canvas: &mut Canvas) {
+pub fn draw_baseline(v: &Editor, viewport: &Viewport, canvas: &mut Canvas) {
     draw_guideline(
         v,
+        viewport,
         canvas,
         &Guideline::from_x_y_angle(0., 0., IntegerOrFloat::Float(0.)),
         None,
     );
 }
 
-pub fn draw_all(v: &Editor, canvas: &mut Canvas) {
-    draw_lbearing(v, canvas);
+pub fn draw_all(v: &Editor, viewport: &Viewport, canvas: &mut Canvas) {
+    draw_lbearing(v, viewport, canvas);
     match v.with_glyph(|glif| glif.width) {
-        Some(w) => draw_rbearing(v, w, canvas),
+        Some(w) => draw_rbearing(v, viewport, w, canvas),
         None => {}
     }
-    draw_baseline(v, canvas);
+    draw_baseline(v, viewport, canvas);
 
     v.with_glyph(|glyph| {
         for guideline in &glyph.guidelines {
             draw_guideline(
                 v, 
+                viewport,
                 canvas,
                 guideline,
                 None,

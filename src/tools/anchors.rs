@@ -1,6 +1,6 @@
 use super::prelude::*;
 
-use crate::user_interface::{self, InputPrompt};
+use crate::user_interface::{InputPrompt, Interface};
 
 use crate::command::Command;
 
@@ -21,12 +21,12 @@ impl Anchors {
 }
 
 impl Tool for Anchors {
-    fn handle_event(&mut self, v: &mut Editor, event: EditorEvent) {
+    fn handle_event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
         match event {
             EditorEvent::MouseEvent { event_type, meta } => {
                 match event_type {
                     MouseEventType::Moved => { self.mouse_moved(v, meta) }
-                    MouseEventType::Pressed => { self.mouse_pressed(v, meta) }
+                    MouseEventType::Pressed => { self.mouse_pressed(v, i, meta) }
                     //MouseEventType::Released => { self.mouse_released(v, meta) }
                     _ => {}
                 }
@@ -35,10 +35,10 @@ impl Tool for Anchors {
                 self.delete_selection(v);
             },
             EditorEvent::Ui { ui } => {
-                self.anchor_settings(v, ui);
+                self.anchor_settings(v, i, ui);
             },
             EditorEvent::Draw { skia_canvas } => {
-                self.draw_selected(v, skia_canvas);
+                self.draw_selected(v, i, skia_canvas);
             },
             _ => {}
         }
@@ -46,9 +46,9 @@ impl Tool for Anchors {
 }
 
 impl Anchors {
-    fn draw_selected(&self, v: &Editor, canvas: &mut Canvas) {
+    fn draw_selected(&self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
         if let Some(idx) = self.anchor_idx {
-            let _scale = v.viewport.factor;
+            let _scale = i.viewport.factor;
             v.with_glyph(|glif| {
                 let anchor = &glif.anchors[idx];
                 let mut paint = Paint::default();
@@ -61,8 +61,8 @@ impl Anchors {
 
 // Make dialog box at right
 impl Anchors {
-    fn anchor_settings(&mut self, v: &mut Editor, ui: &imgui::Ui) {
-        let (tx, ty, tw, th) = user_interface::get_tools_dialog_rect(v);
+    fn anchor_settings(&mut self, v: &mut Editor, i: &Interface, ui: &imgui::Ui) {
+        let (tx, ty, tw, th) = i.get_tools_dialog_rect();
         imgui::Window::new(imgui::im_str!("Anchor Settings"))
             .bg_alpha(1.) // See comment on fn redraw_skia
             .flags(
@@ -138,18 +138,18 @@ impl Anchors {
 
 // Mouse
 use std::rc::Rc;
-use crate::editor::{Editor, MouseInfo};
+use crate::editor::{Editor};
 use glifparser::Anchor as GlifAnchor;
 use skulpin::skia_safe::{Paint};
 impl Anchors {
-    fn mouse_pressed(&mut self, v: &mut Editor, meta: MouseInfo) {
+    fn mouse_pressed(&mut self, v: &mut Editor, i: &mut Interface, meta: MouseInfo) {
         // Reset selected anchor
         self.anchor_idx = None;
 
         // Find if we've clicked on an anchor
         v.with_glyph(|glif| {
             for (idx, anchor) in glif.anchors.iter().enumerate() {
-                let size = ((ANCHOR_RADIUS * 2.) + (ANCHOR_STROKE_THICKNESS * 2.)) * (1. / v.viewport.factor);
+                let size = ((ANCHOR_RADIUS * 2.) + (ANCHOR_STROKE_THICKNESS * 2.)) * (1. / i.viewport.factor);
                 // Topleft corner of point
                 let anchor_tl = SkPoint::new(
                     calc_x(anchor.x as f32) - (size / 2.),
@@ -167,11 +167,11 @@ impl Anchors {
         // If we have, return, and wait for motion
         if let Some(_idx) = self.anchor_idx { return }
 
-        v.prompts.push(InputPrompt::Text {
+        let position = i.mouse_info.position;
+        i.push_prompt(InputPrompt::Text {
             label: "Anchor name:".to_string(),
             default: "".to_string(),
             func: Rc::new(move |v, string| {
-                let position = v.mouse_info.position;
                 v.with_glyph_mut(|glif| {
                     let mut anchor = GlifAnchor::new();
                     anchor.x = f32::floor(calc_x(position.0));

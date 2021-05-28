@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use MFEKmath::{Bezier, Evaluate, Piecewise, Vector, evaluate::Primitive};
 use flo_curves::bezier::solve_curve_for_t;
 use glifparser::{Handle, WhichHandle, glif::{MFEKOutline, MFEKPointData}};
-use crate::{tools::prelude::math::FlipIfRequired};
+use crate::{tools::prelude::math::FlipIfRequired, user_interface::{Interface, viewport::Viewport}};
 use crate::get_contour_len;
 use crate::renderer::constants::*;
 use crate::renderer::points::calc::*;
@@ -23,8 +23,8 @@ pub enum SelectPointInfo {
 // in Editor.
 
 /// Utility function to quickly check which point or mouse is hovering. Optional mask parameter specifies a point to ignore.
-pub fn clicked_point_or_handle(v: &Editor, position: (f32, f32), mask: Option<(usize, usize)>) -> Option<(usize, usize, WhichHandle)> {
-    let factor = v.viewport.factor;
+pub fn clicked_point_or_handle(v: &Editor, i: &Interface, position: (f32, f32), mask: Option<(usize, usize)>) -> Option<(usize, usize, WhichHandle)> {
+    let factor = i.viewport.factor;
     let _contour_idx = 0;
     let _point_idx = 0;
 
@@ -102,7 +102,7 @@ pub struct PenPointInfo {
     pub b: (f32, f32),
 }
 
-pub fn nearest_point_on_curve(v: &Editor, position: (f32, f32)) -> Option<PenPointInfo>
+pub fn nearest_point_on_curve(v: &Editor, i: &Interface, position: (f32, f32)) -> Option<PenPointInfo>
 {
     v.with_active_layer(|layer| {
         let pw: Piecewise<Piecewise<Bezier>> = (&layer.outline).into();
@@ -119,7 +119,7 @@ pub fn nearest_point_on_curve(v: &Editor, position: (f32, f32)) -> Option<PenPoi
         for (cx, contour) in pw.segs.iter().enumerate() {
             for (bx, bezier) in contour.segs.iter().enumerate() {
                 let mouse_vec = Vector::from_components(calc_x(position.0) as f64, calc_y(position.1 as f32) as f64);
-                let ct = solve_curve_for_t(bezier, &mouse_vec, 3.5 / v.viewport.factor as f64);
+                let ct = solve_curve_for_t(bezier, &mouse_vec, 3.5 / i.viewport.factor as f64);
                 
                 if let Some(ct) = ct {
                     let new_distance = bezier.at(ct).distance(mouse_vec);

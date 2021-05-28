@@ -9,6 +9,7 @@ pub mod names;
 use super::constants::*;
 use crate::editor::Editor;
 use crate::editor::{HandleStyle, PointLabels};
+use crate::user_interface::viewport::Viewport;
 
 use glifparser::{self, Point as GlifPoint, PointType};
 
@@ -43,12 +44,12 @@ fn get_fill_and_stroke(kind: UIPointType, selected: bool) -> (Color, Color) {
     (fill, stroke)
 }
 
-pub fn draw_directions(v: &Editor, path: Path, canvas: &mut Canvas) {
+pub fn draw_directions(v: &Editor, viewport: &Viewport, path: Path, canvas: &mut Canvas) {
     let piter = ContourMeasureIter::from_path(&path, false, None);
     for cm in piter {
         // Get vector and tangent -4 Skia units along the contur
         let (vec, tan) = cm.pos_tan(-4.).unwrap();
-        draw_triangle_point(v, vec, tan, false, canvas);
+        draw_triangle_point(v, viewport, vec, tan, false, canvas);
     }
 }
 
@@ -57,9 +58,9 @@ pub fn draw_directions(v: &Editor, path: Path, canvas: &mut Canvas) {
 // is rotated at its center, such that they form an X. We elongate `path1` a bit so the final
 // triangle is not isoceles. We then move to the "point" (path2[1]), make a line to the second
 // point (on the base), finish that segment, and close the path.
-fn draw_triangle_point(v: &Editor, at: Point, along: Vector, selected: bool, canvas: &mut Canvas) {
+fn draw_triangle_point(v: &Editor, viewport: &Viewport, at: Point, along: Vector, selected: bool, canvas: &mut Canvas) {
     let (fill, stroke) = get_fill_and_stroke(UIPointType::Direction, selected);
-    let factor = v.viewport.factor;
+    let factor = viewport.factor;
     let mut paint = Paint::default();
     paint.set_stroke_width(DIRECTION_STROKE_THICKNESS * (1. / factor));
     paint.set_anti_alias(true);
@@ -155,6 +156,7 @@ fn draw_square_point(
 
 pub fn draw_point(
     v: &Editor,
+    viewport: &Viewport,
     at: (f32, f32),
     original: (f32, f32),
     number: Option<isize>,
@@ -170,47 +172,48 @@ pub fn draw_point(
     } else {
         POINT_STROKE_THICKNESS
     };
-    paint.set_stroke_width(thiccness * (1. / v.viewport.factor));
+    paint.set_stroke_width(thiccness * (1. / viewport.factor));
     let _radius = if kind == UIPointType::Handle {
         HANDLE_RADIUS
     } else {
         POINT_RADIUS
-    } * (1. / v.viewport.factor);
+    } * (1. / viewport.factor);
 
     match kind {
         UIPointType::Handle | UIPointType::Point((Handle::At(_, _), Handle::At(_, _))) => {
-            draw_round_point(at, kind, selected, canvas, &mut paint, v.viewport.factor);
+            draw_round_point(at, kind, selected, canvas, &mut paint, viewport.factor);
         }
         UIPointType::Point(_) => {
-            draw_square_point(at, kind, selected, canvas, &mut paint, v.viewport.factor);
+            draw_square_point(at, kind, selected, canvas, &mut paint, viewport.factor);
         }
         _ => {}
     }
 
     match number {
         None => {}
-        Some(i) => match v.viewport.point_labels {
+        Some(i) => match viewport.point_labels {
             PointLabels::None => {}
-            PointLabels::Numbered => names::draw_point_number(v, at, i, canvas),
-            PointLabels::Locations => names::draw_point_location(v, at, original, canvas),
+            PointLabels::Numbered => names::draw_point_number(v, viewport, at, i, canvas),
+            PointLabels::Locations => names::draw_point_location(v, viewport, at, original, canvas),
         },
     }
 
     if let UIPointType::Point((a, b)) = kind {
-        if v.viewport.handle_style != HandleStyle::None {
-            draw_handle(v, a, selected, canvas);
-            draw_handle(v, b, selected, canvas);
+        if viewport.handle_style != HandleStyle::None {
+            draw_handle(v, viewport, a, selected, canvas);
+            draw_handle(v, viewport, b, selected, canvas);
         }
     }
 }
 
-fn draw_handle(v: &Editor, h: Handle, selected: bool, canvas: &mut Canvas) {
+fn draw_handle(v: &Editor, viewport: &Viewport, h: Handle, selected: bool, canvas: &mut Canvas) {
 
     match h {
         Handle::Colocated => {}
         Handle::At(x, y) => {
             draw_point(
                 v,
+                viewport,
                 (calc_x(x), calc_y(y)),
                 (x, y),
                 None,
@@ -224,6 +227,7 @@ fn draw_handle(v: &Editor, h: Handle, selected: bool, canvas: &mut Canvas) {
 
 pub fn draw_handlebars<T>(
     v: &Editor,
+    viewport: &Viewport,
     prevpoint: Option<&glifparser::Point<T>>, // None in cubic mode when selecting as no access to prevpoints
     point: &glifparser::Point<T>,
     selected: bool,
@@ -238,7 +242,7 @@ pub fn draw_handlebars<T>(
     } else {
         HANDLEBAR_STROKE
     });
-    paint.set_stroke_width(HANDLEBAR_THICKNESS * (1. / v.viewport.factor));
+    paint.set_stroke_width(HANDLEBAR_THICKNESS * (1. / viewport.factor));
     paint.set_style(PaintStyle::Stroke);
 
     match point.a {
@@ -271,6 +275,7 @@ pub fn draw_handlebars<T>(
 
 pub fn draw_complete_point<T>(
     v: &Editor,
+    viewport: &Viewport,
     point: &glifparser::Point<T>,
     number: Option<isize>,
     selected: bool,
@@ -282,6 +287,7 @@ pub fn draw_complete_point<T>(
 
     draw_point(
         v,
+        viewport,
         (calc_x(point.x), calc_y(point.y)),
         (point.x, point.y),
         number,
@@ -291,9 +297,9 @@ pub fn draw_complete_point<T>(
     );
 }
 
-pub fn draw_all(v: &Editor, canvas: &mut Canvas) {
+pub fn draw_all(v: &Editor, viewport: &Viewport, canvas: &mut Canvas) {
     let mut i: isize = -1;
-    let handle_style = v.viewport.handle_style;
+    let handle_style = viewport.handle_style;
 
     // FIXME: this is bad but I can't access v from inside with glif
     let selected = v.selected.clone();
@@ -310,7 +316,7 @@ pub fn draw_all(v: &Editor, canvas: &mut Canvas) {
                             (lidx == active_layer && selected.contains(&(cidx, pidx))) ||
                             (lidx == active_layer && vcidx == Some(cidx) && vpidx == Some(pidx))
                         { true } else { false };
-                        draw_handlebars(v, Some(prevpoint), &point, selected, canvas);
+                        draw_handlebars(v, viewport, Some(prevpoint), &point, selected, canvas);
                         prevpoint = &point;
                     }
                 }
@@ -326,7 +332,7 @@ pub fn draw_all(v: &Editor, canvas: &mut Canvas) {
                         (lidx == active_layer && vcidx == Some(cidx) && vpidx == Some(pidx))
                     { true } else { false };
                 
-                    draw_complete_point(v, &point, Some(i), selected, canvas);
+                    draw_complete_point(v, viewport, &point, Some(i), selected, canvas);
                     if point.a != Handle::Colocated {
                         i += 1;
                     }

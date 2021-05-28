@@ -2,7 +2,7 @@ use super::Select;
 
 use crate::editor::Editor;
 use crate::editor::macros::{get_contour_len, get_contour_type, get_point};
-use crate::user_interface;
+use crate::user_interface::Interface;
 use crate::renderer::constants::PI;
 
 use glifparser::{Handle, Point, PointData, PointType, WhichHandle};
@@ -76,7 +76,7 @@ const DIALOG_ADDITIONAL_HEIGHT: f32 = 150.;
 
 // Make dialog box at right
 impl Select {
-    pub fn select_settings(&mut self, v: &mut Editor, ui: &imgui::Ui) {
+    pub fn select_settings(&mut self, v: &mut Editor, i: &Interface, ui: &imgui::Ui) {
         let (ci, pi) = if let (Some(ci), Some(pi)) = (v.contour_idx, v.point_idx) { // single click
             (ci, pi)
         } else if let Some((ci, pi)) = v.selected.iter().next() { // selbox
@@ -87,7 +87,7 @@ impl Select {
 
         let multiple_points_selected = v.selected.len() > 1;
 
-        let (tx, ty, tw, th) = user_interface::get_tools_dialog_rect(v);
+        let (tx, ty, tw, th) = i.get_tools_dialog_rect();
         let mut orig_point: Point<_> = Point::new();
         let mut point: Point<MFEKPointData> = Point::new();
         let mut should_make_next_point_curve: bool = false;
