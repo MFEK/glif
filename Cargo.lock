@@ -33,7 +33,7 @@ dependencies = [
  "regex",
  "sdl2",
  "skulpin",
- "skulpin-renderer",
+ "skulpin-renderer 0.13.1",
  "strum",
  "strum_macros",
  "winapi",
@@ -766,6 +766,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "glam"
+version = "0.13.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "70155b56080764b8b758e91e4c63d06da0262c0c939f2cd991cd1382087147df"
+dependencies = [
+ "serde",
+ "spirv-std",
+]
+
+[[package]]
 name = "glifparser"
 version = "1.0.0"
 source = "git+https://github.com/MFEK/glifparser.rlib?branch=master#5e095dd388e34f76c0cb45da9283cfef6cc1f14e"
@@ -984,6 +994,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "libm"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c7d73b3f436185384286bd8098d17ec07c9a7d2388a6599f824d8502b529702a"
+
+[[package]]
 name = "line-wrap"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1115,6 +1131,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9a64b1ec5cda2586e284722486d802acf1f7dbdc623e2bfc57e65ca1cd099290"
 dependencies = [
  "autocfg",
+ "libm",
 ]
 
 [[package]]
@@ -1267,7 +1284,16 @@ version = "0.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b0c71198452babfbba7419e716d29853c462d59da73c41485ab7dc8b4dc0c4be"
 dependencies = [
- "profiling-procmacros",
+ "profiling-procmacros 0.1.3",
+]
+
+[[package]]
+name = "profiling"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c3a66d5e88679f2720126c11ee29da07a08f094eac52306b066edd7d393752d6"
+dependencies = [
+ "profiling-procmacros 1.0.1",
 ]
 
 [[package]]
@@ -1275,6 +1301,16 @@ name = "profiling-procmacros"
 version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d3995ce7da4b4c820aa5fc5fa43bc41bab0d642c8939d872c87c9f092540716b"
+dependencies = [
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "profiling-procmacros"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9b83296b4ea7c60800e0832617bb9d274e4f5928abd08acc5a6ae8be0fb15969"
 dependencies = [
  "quote",
  "syn",
@@ -1303,9 +1339,21 @@ version = "0.0.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2b14a08dc1564d1f2f3901e9f4ecd02c7580392e6f6fb07190ea6df3514ea151"
 dependencies = [
- "rafx-api",
- "rafx-base",
- "rafx-framework",
+ "rafx-api 0.0.10",
+ "rafx-base 0.0.10",
+ "rafx-framework 0.0.10",
+]
+
+[[package]]
+name = "rafx"
+version = "0.0.13"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "da3d2d8a104309c0ec369dacbf1c43ad64a817a6325bcf5a7e8b03ebbe81d2dc"
+dependencies = [
+ "rafx-api 0.0.13",
+ "rafx-base 0.0.13",
+ "rafx-framework 0.0.13",
+ "rafx-visibility",
 ]
 
 [[package]]
@@ -1320,8 +1368,8 @@ dependencies = [
  "crossbeam-channel",
  "fnv",
  "log",
- "profiling",
- "rafx-base",
+ "profiling 0.1.10",
+ "rafx-base 0.0.10",
  "raw-window-handle",
  "serde",
  "serde_bytes",
@@ -1329,10 +1377,44 @@ dependencies = [
 ]
 
 [[package]]
+name = "rafx-api"
+version = "0.0.13"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9d5ff863fac0d7867e0d0a064630aef5e9343adc4c42a7a3827474cf6bf955b1"
+dependencies = [
+ "ash",
+ "ash-window",
+ "bitflags",
+ "crossbeam-channel",
+ "fnv",
+ "log",
+ "profiling 1.0.1",
+ "rafx-base 0.0.13",
+ "raw-window-handle",
+ "serde",
+ "serde_bytes",
+ "vk-mem",
+ "wasm-bindgen",
+ "web-sys",
+]
+
+[[package]]
 name = "rafx-base"
 version = "0.0.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c812530293e6fca69b97061d7fc435d46759ef3af1d79d3841cebba38b3fe60a"
+dependencies = [
+ "crossbeam-channel",
+ "downcast-rs",
+ "fnv",
+ "log",
+]
+
+[[package]]
+name = "rafx-base"
+version = "0.0.13"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "59338e3acdcf057df518231af0e337ef967dfa5e62b16f177bb747127a53533e"
 dependencies = [
  "crossbeam-channel",
  "downcast-rs",
@@ -1350,13 +1432,52 @@ dependencies = [
  "bitflags",
  "crossbeam-channel",
  "fnv",
- "glam",
+ "glam 0.8.7",
  "log",
- "profiling",
- "rafx-api",
- "rafx-base",
+ "profiling 0.1.10",
+ "rafx-api 0.0.10",
+ "rafx-base 0.0.10",
  "serde",
  "serde_bytes",
+]
+
+[[package]]
+name = "rafx-framework"
+version = "0.0.13"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9284f8a79d3676c673c89d08d568155157fcc25c1f23972d4a28a390db359d04"
+dependencies = [
+ "arrayvec",
+ "bitflags",
+ "crossbeam-channel",
+ "downcast-rs",
+ "fnv",
+ "glam 0.13.1",
+ "log",
+ "parking_lot",
+ "profiling 1.0.1",
+ "rafx-api 0.0.13",
+ "rafx-base 0.0.13",
+ "rafx-visibility",
+ "serde",
+ "serde_bytes",
+ "slotmap",
+]
+
+[[package]]
+name = "rafx-visibility"
+version = "0.0.13"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4d1cdf208008ba46cc2e389bd95313d7a11c42e310958cdbd36610675a8e52f9"
+dependencies = [
+ "crossbeam-channel",
+ "glam 0.13.1",
+ "log",
+ "parking_lot",
+ "profiling 1.0.1",
+ "rustc-hash",
+ "serde",
+ "slotmap",
 ]
 
 [[package]]
@@ -1649,12 +1770,12 @@ dependencies = [
 
 [[package]]
 name = "skulpin"
-version = "0.13.1"
+version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c1b2a35a3865ec06cb71acf3d520c31bea38e5756adb13ef03cf4cd10efb2001"
+checksum = "85dc6026af4703d241e27ee2d679867988ec451c6d443feeab7433f5ca0ca0a3"
 dependencies = [
  "log",
- "skulpin-renderer",
+ "skulpin-renderer 0.14.0",
 ]
 
 [[package]]
@@ -1666,9 +1787,32 @@ dependencies = [
  "bincode",
  "lazy_static",
  "log",
- "rafx",
+ "rafx 0.0.10",
  "skia-bindings",
  "skia-safe",
+]
+
+[[package]]
+name = "skulpin-renderer"
+version = "0.14.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e532ef1a543a455cd129d02b337122fbff92062768890850982df45f75de7da1"
+dependencies = [
+ "bincode",
+ "lazy_static",
+ "log",
+ "rafx 0.0.13",
+ "skia-bindings",
+ "skia-safe",
+]
+
+[[package]]
+name = "slotmap"
+version = "1.0.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "585cd5dffe4e9e06f6dfdf66708b70aca3f781bed561f4f667b2d9c0d4559e36"
+dependencies = [
+ "version_check",
 ]
 
 [[package]]
@@ -1682,6 +1826,37 @@ name = "spin"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
+
+[[package]]
+name = "spirv-std"
+version = "0.4.0-alpha.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "726c4c71ff802a9754ffae31c04c4d867aa23b49f883a56202dce285066ad792"
+dependencies = [
+ "bitflags",
+ "num-traits",
+ "spirv-std-macros",
+ "spirv-types",
+]
+
+[[package]]
+name = "spirv-std-macros"
+version = "0.4.0-alpha.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2eabd1540fccc466b5ae0b261972572fe9b8544c974610248de08a98ae4b813a"
+dependencies = [
+ "heck",
+ "proc-macro2",
+ "quote",
+ "spirv-types",
+ "syn",
+]
+
+[[package]]
+name = "spirv-types"
+version = "0.4.0-alpha.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2d7f880a5540c04261e7454b5f3a342b5540283911ca9ebfec83eba9fb607ca0"
 
 [[package]]
 name = "strsim"
