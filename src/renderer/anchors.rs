@@ -11,12 +11,12 @@ use skulpin::skia_safe::{Canvas, Path as SkPath, Paint, PaintStyle};
 pub fn draw_anchors(v: &mut Editor, viewport: &Viewport, canvas: &mut Canvas) {
     v.with_glyph(|glif| {
         for anchor in &glif.anchors {
-            draw_anchor(&anchor, v, viewport, canvas);
+            draw_anchor(&anchor, viewport, canvas);
         }
     });
 }
 
-fn draw_anchor(anchor: &Anchor, v: &Editor, viewport: &Viewport, canvas: &mut Canvas) {
+fn draw_anchor(anchor: &Anchor, viewport: &Viewport, canvas: &mut Canvas) {
     let mut path = SkPath::new();
     let (x, y) = (calc_x(anchor.x), calc_y(anchor.y));
     let radius = ANCHOR_RADIUS * (1. / viewport.factor);
@@ -36,5 +36,5 @@ fn draw_anchor(anchor: &Anchor, v: &Editor, viewport: &Viewport, canvas: &mut Ca
     paint.set_stroke_width(ANCHOR_STROKE_THICKNESS * (1. / viewport.factor));
     canvas.draw_path(&path, &paint);
     let uis = UiString::centered_with_colors(&anchor.class, ANCHOR_NAME_COLOR, Some(ANCHOR_NAME_BGCOLOR));
-    uis.draw(v, viewport, (x, y - (radius * 1.3)), canvas);
+    uis.draw(viewport, (x, y - (radius * 1.3)), canvas);
 }

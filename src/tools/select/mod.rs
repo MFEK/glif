@@ -81,7 +81,7 @@ impl Tool for Select {
                 self.select_all(v);
             }
             EditorEvent::Draw { skia_canvas } => {
-                self.draw_selbox(v, i, skia_canvas);
+                self.draw_selbox(i, skia_canvas);
                 self.draw_merge_preview(v, i, skia_canvas);
             }
             EditorEvent::Ui { ui } => {
@@ -351,7 +351,7 @@ impl Select {
     }
 
     // This renders the dashed path of the selection box. 
-    fn draw_selbox(&self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
+    fn draw_selbox(&self, i: &Interface, canvas: &mut Canvas) {
         let c1 = self.corner_one.unwrap_or((0., 0.));
         let c2 = self.corner_two.unwrap_or((0., 0.));
     

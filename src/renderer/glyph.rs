@@ -21,7 +21,7 @@ pub fn draw_components(v: &Editor, viewport: &Viewport, canvas: &mut Canvas) {
     for rect in glif.component_rects.as_ref().unwrap() {
         let skrect = Rect::new(calc_x(rect.minx), calc_y(rect.miny), calc_x(rect.maxx), calc_y(rect.maxy));
         let uis = UiString::with_colors(&rect.name, COMPONENT_NAME_COLOR, Some(COMPONENT_NAME_BGCOLOR));
-        uis.draw(v, viewport, (calc_x(rect.minx), calc_y(rect.maxy)), canvas);
+        uis.draw(viewport, (calc_x(rect.minx), calc_y(rect.maxy)), canvas);
         path.add_rect(skrect, None);
     }
     let skpaths = glif.flattened.as_ref().map(|f|f.to_skia_paths(Some(SkiaPointTransforms{calc_x, calc_y})));

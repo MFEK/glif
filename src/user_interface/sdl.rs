@@ -4,7 +4,7 @@ use std::ffi::NulError;
 use sdl2::EventPump;
 use sdl2::keyboard::Keycode;
 use sdl2::{video::Window, Sdl, surface::Surface, pixels::PixelFormatEnum};
-use skulpin::{rafx::api::RafxError, rafx::api::RafxExtents2D, LogicalSize, RendererBuilder};
+use skulpin::LogicalSize;
 use image;
 
 use crate::user_interface::Interface;

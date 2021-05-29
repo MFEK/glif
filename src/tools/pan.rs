@@ -14,7 +14,7 @@ pub struct Pan {
 // We implement Tool for our tool. Here you can route events to functions or implement logic directly in the
 // match statement.
 impl Tool for Pan {
-    fn handle_event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
+    fn handle_event(&mut self, _v: &mut Editor, i: &mut Interface, event: EditorEvent) {
         match event {
             EditorEvent::MouseEvent { event_type, meta } => {
                 match event_type {

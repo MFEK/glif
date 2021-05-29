@@ -10,7 +10,7 @@ use super::{EditorEvent, MouseEventType, Tool, prelude::*};
 pub struct Zoom {}
 
 impl Tool for Zoom {
-    fn handle_event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
+    fn handle_event(&mut self, _v: &mut Editor, i: &mut Interface, event: EditorEvent) {
         match event {
             EditorEvent::MouseEvent { event_type, meta } => {
                 match event_type {

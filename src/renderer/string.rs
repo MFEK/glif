@@ -1,7 +1,5 @@
 use skulpin::skia_safe::{Canvas, Font, FontStyle, Paint, Path, Rect, TextBlob, Typeface};
 
-use crate::editor::Editor;
-
 use std::cell::RefCell;
 use std::collections::HashMap;
 
@@ -80,7 +78,7 @@ pub fn pointfont_from_size_and_factor(size: f32, factor: f32) -> Font {
 }
 
 impl UiString<'_> {
-    pub fn draw(&self, v: &Editor, viewport: &Viewport, mut at: (f32, f32), canvas: &mut Canvas) {
+    pub fn draw(&self, viewport: &Viewport, mut at: (f32, f32), canvas: &mut Canvas) {
         let factor = viewport.factor;
         let mut paint = Paint::default();
         paint.set_color(self.color);
