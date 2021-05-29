@@ -2,7 +2,6 @@ use std::{rc::Rc};
 
 use imgui::{self, Context};
 use imgui_sdl2::ImguiSdl2;
-use sdl2::EventPump;
 use sdl2::mouse::MouseState;
 use ::skulpin::Renderer;
 use ::skulpin::rafx::api::RafxExtents2D;

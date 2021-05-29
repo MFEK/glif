@@ -44,12 +44,12 @@ fn get_fill_and_stroke(kind: UIPointType, selected: bool) -> (Color, Color) {
     (fill, stroke)
 }
 
-pub fn draw_directions(v: &Editor, viewport: &Viewport, path: Path, canvas: &mut Canvas) {
+pub fn draw_directions(viewport: &Viewport, path: Path, canvas: &mut Canvas) {
     let piter = ContourMeasureIter::from_path(&path, false, None);
     for cm in piter {
         // Get vector and tangent -4 Skia units along the contur
         let (vec, tan) = cm.pos_tan(-4.).unwrap();
-        draw_triangle_point(v, viewport, vec, tan, false, canvas);
+        draw_triangle_point(viewport, vec, tan, false, canvas);
     }
 }
 
@@ -58,7 +58,7 @@ pub fn draw_directions(v: &Editor, viewport: &Viewport, path: Path, canvas: &mut
 // is rotated at its center, such that they form an X. We elongate `path1` a bit so the final
 // triangle is not isoceles. We then move to the "point" (path2[1]), make a line to the second
 // point (on the base), finish that segment, and close the path.
-fn draw_triangle_point(v: &Editor, viewport: &Viewport, at: Point, along: Vector, selected: bool, canvas: &mut Canvas) {
+fn draw_triangle_point(viewport: &Viewport, at: Point, along: Vector, selected: bool, canvas: &mut Canvas) {
     let (fill, stroke) = get_fill_and_stroke(UIPointType::Direction, selected);
     let factor = viewport.factor;
     let mut paint = Paint::default();
@@ -193,8 +193,8 @@ pub fn draw_point(
         None => {}
         Some(i) => match viewport.point_labels {
             PointLabels::None => {}
-            PointLabels::Numbered => names::draw_point_number(v, viewport, at, i, canvas),
-            PointLabels::Locations => names::draw_point_location(v, viewport, at, original, canvas),
+            PointLabels::Numbered => names::draw_point_number(viewport, at, i, canvas),
+            PointLabels::Locations => names::draw_point_location(viewport, at, original, canvas),
         },
     }
 
@@ -226,7 +226,6 @@ fn draw_handle(v: &Editor, viewport: &Viewport, h: Handle, selected: bool, canva
 }
 
 pub fn draw_handlebars<T>(
-    v: &Editor,
     viewport: &Viewport,
     prevpoint: Option<&glifparser::Point<T>>, // None in cubic mode when selecting as no access to prevpoints
     point: &glifparser::Point<T>,
@@ -316,7 +315,7 @@ pub fn draw_all(v: &Editor, viewport: &Viewport, canvas: &mut Canvas) {
                             (lidx == active_layer && selected.contains(&(cidx, pidx))) ||
                             (lidx == active_layer && vcidx == Some(cidx) && vpidx == Some(pidx))
                         { true } else { false };
-                        draw_handlebars(v, viewport, Some(prevpoint), &point, selected, canvas);
+                        draw_handlebars(viewport, Some(prevpoint), &point, selected, canvas);
                         prevpoint = &point;
                     }
                 }

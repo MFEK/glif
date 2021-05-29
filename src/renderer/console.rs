@@ -32,7 +32,7 @@ impl Console {
 
 use skulpin::skia_safe::{Data, Font, FontStyle, Matrix, Typeface};
 
-use crate::{editor::Editor, system_fonts};
+use crate::system_fonts;
 lazy_static! {
     static ref MONO_FONT_BYTES: Option<Vec<u8>> = {
         match system_fonts::SYSTEMMONO.path {
@@ -58,7 +58,7 @@ lazy_static! {
 use super::constants::*;
 use skulpin::skia_safe::{Canvas, Paint, PaintStyle, Path, Rect, TextBlob};
 impl Console {
-    pub fn draw(&mut self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
+    pub fn draw(&mut self, i: &Interface, canvas: &mut Canvas) {
         if !self.active {
             return;
         }

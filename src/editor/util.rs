@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use MFEKmath::{Bezier, Evaluate, Piecewise, Vector, evaluate::Primitive};
 use flo_curves::bezier::solve_curve_for_t;
 use glifparser::{Handle, WhichHandle, glif::{MFEKOutline, MFEKPointData}};
-use crate::{tools::prelude::math::FlipIfRequired, user_interface::{Interface, viewport::Viewport}};
+use crate::{tools::prelude::math::FlipIfRequired, user_interface::Interface};
 use crate::get_contour_len;
 use crate::renderer::constants::*;
 use crate::renderer::points::calc::*;

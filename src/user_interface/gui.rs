@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::{editor::Editor, tools::{EditorEvent, ToolEnum}, user_interface::{self, InputPrompt}};
+use crate::{editor::Editor, tools::{EditorEvent, ToolEnum}, user_interface::InputPrompt};
 
 use super::{Interface, icons};
 
@@ -14,7 +14,7 @@ pub const LAYERBOX_WIDTH: f32 = 250.;
 pub const LAYERBOX_HEIGHT: f32 = 250.;
 
 use glifparser::glif::LayerOperation;
-use imgui::{self, ColorStackToken, Context, DrawData, FontId, Key, StyleColor, StyleVar, Ui};
+use imgui::{self, ColorStackToken, Context, DrawData, FontId, Key, StyleColor, StyleVar};
 use imgui_sdl2::ImguiSdl2;
 use imgui_skia_renderer::Renderer;
 use sdl2::{event::Event, mouse::MouseState, video::Window};

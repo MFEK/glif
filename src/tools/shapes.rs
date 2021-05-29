@@ -19,7 +19,7 @@ impl Tool for Shapes {
                 }
             },
             EditorEvent::Ui { ui } => {
-                self.shape_settings(v, i, ui);
+                self.shape_settings(i, ui);
             },
             _ => {}
         }
@@ -74,7 +74,7 @@ impl Shapes {
         }
     }
 
-    fn shape_settings(&mut self, v: &mut Editor, i: &mut Interface, ui: &imgui::Ui) {
+    fn shape_settings(&mut self, i: &mut Interface, ui: &imgui::Ui) {
         let (tx, ty, tw, th) = i.get_tools_dialog_rect();
         imgui::Window::new(imgui::im_str!("Shape Settings"))
             .bg_alpha(1.) // See comment on fn redraw_skia

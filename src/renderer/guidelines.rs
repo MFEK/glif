@@ -8,7 +8,7 @@ use skulpin::skia_safe::{Canvas, Color, Paint, PaintStyle, Path};
 use glifparser::{Guideline, GuidelinePoint};
 use glifparser::IntegerOrFloat;
 
-pub fn draw_guideline(v: &Editor, viewport: &Viewport, canvas: &mut Canvas, guideline: &Guideline, color: Option<u32>) {
+pub fn draw_guideline(viewport: &Viewport, canvas: &mut Canvas, guideline: &Guideline, color: Option<u32>) {
     let angle = guideline.angle * DEGREES_IN_RADIANS;
     let _extra = (viewport.offset.0 * (1. / viewport.factor), viewport.offset.1 * (1. / viewport.factor));
     let at2 = GuidelinePoint { x: guideline.at.x+((1000.*viewport.winsize.0 as f32)*f32::from(angle).cos()), y: guideline.at.y+((1000.*viewport.winsize.1 as f32)*f32::from(angle).sin()) };
@@ -26,9 +26,8 @@ pub fn draw_guideline(v: &Editor, viewport: &Viewport, canvas: &mut Canvas, guid
     canvas.draw_path(&path, &paint);
 }
 
-pub fn draw_lbearing(v: &Editor, viewport: &Viewport, canvas: &mut Canvas) {
+pub fn draw_lbearing(viewport: &Viewport, canvas: &mut Canvas) {
     draw_guideline(
-        v,
         viewport,
         canvas,
         &Guideline::from_x_y_angle(0., 0., IntegerOrFloat::Float(90.)),
@@ -36,9 +35,8 @@ pub fn draw_lbearing(v: &Editor, viewport: &Viewport, canvas: &mut Canvas) {
     );
 }
 
-pub fn draw_rbearing(v: &Editor, viewport: &Viewport, width: u64, canvas: &mut Canvas) {
+pub fn draw_rbearing(viewport: &Viewport, width: u64, canvas: &mut Canvas) {
     draw_guideline(
-        v,
         viewport,
         canvas,
         &Guideline::from_x_y_angle(width as f32, 0., IntegerOrFloat::Float(90.)),
@@ -46,9 +44,8 @@ pub fn draw_rbearing(v: &Editor, viewport: &Viewport, width: u64, canvas: &mut C
     );
 }
 
-pub fn draw_baseline(v: &Editor, viewport: &Viewport, canvas: &mut Canvas) {
+pub fn draw_baseline(viewport: &Viewport, canvas: &mut Canvas) {
     draw_guideline(
-        v,
         viewport,
         canvas,
         &Guideline::from_x_y_angle(0., 0., IntegerOrFloat::Float(0.)),
@@ -57,17 +54,16 @@ pub fn draw_baseline(v: &Editor, viewport: &Viewport, canvas: &mut Canvas) {
 }
 
 pub fn draw_all(v: &Editor, viewport: &Viewport, canvas: &mut Canvas) {
-    draw_lbearing(v, viewport, canvas);
+    draw_lbearing(viewport, canvas);
     match v.with_glyph(|glif| glif.width) {
-        Some(w) => draw_rbearing(v, viewport, w, canvas),
+        Some(w) => draw_rbearing(viewport, w, canvas),
         None => {}
     }
-    draw_baseline(v, viewport, canvas);
+    draw_baseline(viewport, canvas);
 
     v.with_glyph(|glyph| {
         for guideline in &glyph.guidelines {
             draw_guideline(
-                v, 
                 viewport,
                 canvas,
                 guideline,

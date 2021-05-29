@@ -91,7 +91,7 @@ pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
     match pm {
         PreviewMode::None => {
             points::draw_all(v, &i.viewport, canvas);
-            points::draw_directions(v, &i.viewport, path, canvas);
+            points::draw_directions(&i.viewport, path, canvas);
             anchors::draw_anchors(v, &i.viewport, canvas);
             //points::draw_selected(v, canvas);
             v.dispatch_editor_event(i, EditorEvent::Draw {
@@ -107,5 +107,5 @@ pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
     canvas.restore();
 
     // Draw console
-    CONSOLE.with(|c| c.borrow_mut().draw(v, i, canvas));
+    CONSOLE.with(|c| c.borrow_mut().draw(i, canvas));
 }

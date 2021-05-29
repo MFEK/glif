@@ -1,6 +1,6 @@
 use super::Editor;
 
-use glifparser::{glif::{LayerOperation}, outline::skia::{ToSkiaPaths, SkiaPointTransforms}};
+use glifparser::outline::skia::ToSkiaPaths;
 
 impl Editor {
     /// Dumps the current layers to console with skpath.dump(). This is useful for debugging
