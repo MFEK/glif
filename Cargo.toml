@@ -82,7 +82,7 @@ directories = "3.0"
 
 #converting enums to strings
 strum = "0.20"
-strum_macros = "0.20"
+strum_macros = "0.21"
 
 #for logo, could be used in future for background images
 image = { version = "0.23", features = ["png"], default-features = false }
