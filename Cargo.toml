@@ -81,7 +81,7 @@ dyn-clone = "1.0.4"
 directories = "3.0"
 
 #converting enums to strings
-strum = "0.20"
+strum = "0.21"
 strum_macros = "0.20"
 
 #for logo, could be used in future for background images
