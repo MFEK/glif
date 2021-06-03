@@ -52,12 +52,12 @@ impl MouseInfo {
         let raw_mposition = mposition;
 
         if let Some(grid) = &i.grid {
-            absolute_mposition.0 = (absolute_mposition.0 / grid.spacing).round() * grid.spacing;
-            absolute_mposition.1 = (absolute_mposition.1 / grid.spacing).round() * grid.spacing;
+            absolute_mposition.0 = (absolute_mposition.0 / grid.spacing + grid.offset).round() * grid.spacing;
+            absolute_mposition.1 = (absolute_mposition.1 / grid.spacing + grid.offset).round() * grid.spacing;
 
             mposition = (
-                (mposition.0 / grid.spacing).round() * grid.spacing,
-                (mposition.1 / grid.spacing).round() * grid.spacing,
+                (mposition.0 / grid.spacing + grid.offset).round() * grid.spacing,
+                (mposition.1 / grid.spacing + grid.offset).round() * grid.spacing,
             );
         }
 

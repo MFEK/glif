@@ -1,46 +1,88 @@
-use crate::editor::Editor;
-use crate::user_interface::Interface;
+use crate::user_interface::grid::Grid;
+
 use super::prelude::*;
 
 #[derive(Clone)]
-pub struct Grid {
+pub struct GridTool {
+    last_position: Option<(f32, f32)>,
 }
 
 
-impl Tool for Grid {
+impl Tool for GridTool {
     fn handle_event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
         match event {
-            EditorEvent::MouseEvent { event_type, meta } => {
-                match event_type {
-                    MouseEventType::Moved => { self.mouse_moved(i, meta) }
-                    MouseEventType::Pressed => { self.mouse_pressed(meta) }
-                    MouseEventType::Released => { self.mouse_released() }
-                    _ => {}
-                }
-            }
-            EditorEvent::Draw { skia_canvas } => { 
-                self.draw_grid(v, i, skia_canvas);
+            EditorEvent::Ui { ui } => {
+                self.grid_settings(v, i, ui);
             }
             _ => {}
         }
     }
 }
+
+fn imgui_decimal_text_field(label: &str, ui: &imgui::Ui, data: &mut f32) {
+    let mut x = imgui::im_str!("{}", data);
+    let label = imgui::ImString::new(label);
+    let entered;
+    {
+    let it = ui.input_text(&label, &mut x);
+    entered = it.enter_returns_true(true)
+        .chars_decimal(true)
+        .chars_noblank(true)
+        .auto_select_all(true)
+        .build();
+    }
+    if entered {
+        if x.to_str().len() > 0 {
+            let new_x: f32 = x.to_str().parse().unwrap();
+            *data = new_x;
+        }
+    }
+}
  
-impl Grid {
+impl GridTool {
     pub fn new() -> Self {
-        Self {}
+        Self { last_position: None }
     }
 
-    fn mouse_moved(&mut self, i: &mut Interface, meta: MouseInfo) {
-    }
+    pub fn grid_settings(&mut self, v: &mut Editor, i: &mut Interface, ui: &imgui::Ui) {
+        let (tx, ty, tw, th) = i.get_tools_dialog_rect();
 
-    fn mouse_pressed(&mut self, meta: MouseInfo) {
-    }
+        imgui::Window::new(
+                &imgui::ImString::new("Grid")
+            )
+            .bg_alpha(1.) // See comment on fn redraw_skia
+            .flags(
+                    imgui::WindowFlags::NO_RESIZE
+                    | imgui::WindowFlags::NO_MOVE
+                    | imgui::WindowFlags::NO_COLLAPSE,
+            )
+            .position(
+                [tx, ty],
+                imgui::Condition::Always,
+            )
+            .size(
+                [tw, th],
+                imgui::Condition::Always,
+            )
+            .build(ui, || {
+                let old_active = i.grid.is_some();
+                let mut active = old_active;
 
-    fn mouse_released(&mut self) {
-    }
+                ui.checkbox(imgui::im_str!("Active"), &mut active);
 
-    fn draw_grid(&mut self, v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
+                if !active {
+                    i.grid = None;
+                } else if !old_active && active { 
+                    i.grid = Some(Grid {
+                        offset: 0.,
+                        spacing: 30.,
+                    })
+                }
 
+                if let Some(grid) = &mut i.grid {
+                    imgui_decimal_text_field("Spacing", ui, &mut grid.spacing);
+                    imgui_decimal_text_field("Offset", ui, &mut grid.offset);
+                }
+            });
     }
 }
