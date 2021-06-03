@@ -15,6 +15,7 @@ pub use crate::user_interface::mouse_input::MouseInfo;
 use glifparser::glif::{Layer, MFEKPointData};
 use sdl2::{Sdl, video::Window};
 
+use self::grid::Grid;
 pub use self::gui::ImguiManager;
 use self::gui::LAYERBOX_HEIGHT;
 use self::gui::LAYERBOX_WIDTH;
@@ -28,12 +29,14 @@ pub mod gui;
 pub mod viewport;
 pub mod skulpin;
 pub mod mouse_input;
+pub mod grid;
 
 pub struct Interface {
     prompts: Vec<InputPrompt>,
     sdl_context: Sdl,
     pub sdl_window: Window,
 
+    pub grid: Option<Grid>,
     pub mouse_info: MouseInfo,
     pub viewport: Viewport,
 }
@@ -47,6 +50,10 @@ impl Interface {
             sdl_context: sdl,
             sdl_window: window,
 
+            grid: Some(Grid {
+                spacing: 30.,
+                offset: 0.,
+            }),
             mouse_info: MouseInfo::default(),
             viewport: Viewport::default(),
         };

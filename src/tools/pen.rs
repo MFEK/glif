@@ -25,7 +25,7 @@ impl Tool for Pen {
             EditorEvent::Draw { skia_canvas } => { 
                 self.draw_nearest_point(v, i, skia_canvas);
                 self.draw_merge_preview(v, i, skia_canvas);
-             }
+            }
             _ => {}
         }
     }
@@ -62,7 +62,7 @@ impl Pen {
         // If that is the case we merge them and then return.
         if let (Some(c_idx), Some(p_idx)) = (v.contour_idx, v.point_idx) {
             // we've clicked a handle?
-            if let Some(info) = clicked_point_or_handle(v, i, meta.position, None) {
+            if let Some(info) = clicked_point_or_handle(v, i, meta.raw_position, None) {
                 // we have the end of one contour active and clicked the start of another?
                 let end_is_active = get_contour_start_or_end(v, c_idx, p_idx) == Some(SelectPointInfo::End);
                 let start_is_clicked = get_contour_start_or_end(v, info.0, info.1) == Some(SelectPointInfo::Start);
@@ -206,7 +206,7 @@ impl Pen {
         // we've got a point selected?
         if v.contour_idx.is_some() && v.point_idx.is_some() {
             // we've clicked a handle?
-            if let Some(info) = clicked_point_or_handle(v, i, i.mouse_info.position, None) {
+            if let Some(info) = clicked_point_or_handle(v, i, i.mouse_info.raw_position, None) {
                 let c_idx = v.contour_idx.unwrap();
                 let p_idx = v.contour_idx.unwrap();
 

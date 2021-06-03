@@ -43,19 +43,21 @@ impl Pan {
             // calculate delta and offset camera
             let mut offset = i.viewport.offset;
 
-            offset.0 += (meta.absolute_position.0 - pivot_point.0).floor() as f32;
-            offset.1 += (meta.absolute_position.1 - pivot_point.1).floor() as f32;
+            // we use raw mouse position all the way through in pan because we don't want the viewport
+            // to snap to the grid, if one exists, as we move
+            offset.0 += (meta.raw_absolute_position.0 - pivot_point.0).floor() as f32;
+            offset.1 += (meta.raw_absolute_position.1 - pivot_point.1).floor() as f32;
            
             i.viewport.offset = offset;
 
             //update last mouse position
-            self.last_position = Some(meta.absolute_position);
+            self.last_position = Some(meta.raw_absolute_position);
         }
     }
 
     // When the mouse is pressed we store the point.
     fn mouse_pressed(&mut self, meta: MouseInfo) {
-        self.last_position = Some(meta.absolute_position);
+        self.last_position = Some(meta.raw_absolute_position);
     }
 
     // When it's released we set it to none.

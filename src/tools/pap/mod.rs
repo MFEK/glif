@@ -36,7 +36,7 @@ impl PAP {
     }
 
     fn mouse_pressed(&mut self, v: &mut Editor, i: &mut Interface, meta: MouseInfo) {
-        if let Some((ci, pi, _wh)) = clicked_point_or_handle(v, i, meta.position, None) {
+        if let Some((ci, pi, _wh)) = clicked_point_or_handle(v, i, meta.raw_position, None) {
             let layer_op = v.with_active_layer(|layer| layer.outline[ci].operation.clone() );
             if let Some(_op) = layer_op {
                 

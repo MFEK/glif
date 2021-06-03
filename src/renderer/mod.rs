@@ -5,7 +5,7 @@ use crate::user_interface::Interface;
 use crate::CONSOLE;
 
 pub mod constants;
-use self::constants::*;
+use self::{constants::*};
 pub mod console;
 mod guidelines;
 pub mod points; // point drawing functions
@@ -15,7 +15,9 @@ pub mod string;
 mod anchors;
 mod glyph;
 pub mod viewport;
+pub mod grid;
 
+use grid::draw_grid;
 use glifparser::Handle;
 use glifparser::matrix::ToSkiaMatrix as _;
 use log;
@@ -103,6 +105,11 @@ pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
         }
         PreviewMode::Paper => (),
     }
+
+    if let Some(grid) = &i.grid {
+        draw_grid(canvas, grid, &i.viewport);
+    }
+    
     // Reset transformation matrix
     canvas.restore();
 

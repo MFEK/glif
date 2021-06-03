@@ -229,7 +229,7 @@ impl Select {
     fn mouse_pressed(&mut self, v: &mut Editor, i: &Interface, meta: MouseInfo) {
 
         // if we found a point or handle we're going to start a drag operation
-        match clicked_point_or_handle(v, i, meta.position, None) {
+        match clicked_point_or_handle(v, i, meta.raw_position, None) {
             Some((ci, pi, wh)) => {
                 if meta.modifiers.shift || meta.modifiers.ctrl {
                     if let Some(point_idx) = v.point_idx {
@@ -263,7 +263,7 @@ impl Select {
     }
 
     fn mouse_double_pressed(&mut self, v: &mut Editor, i: &Interface, meta: MouseInfo) {
-        let ci = if let Some((ci, _pi, _wh)) = clicked_point_or_handle(v, i, meta.position, None) {
+        let ci = if let Some((ci, _pi, _wh)) = clicked_point_or_handle(v, i, meta.raw_position, None) {
             ci
         } else {
             return
@@ -287,7 +287,7 @@ impl Select {
             let (vci, vpi) = (v.contour_idx.unwrap(), v.point_idx.unwrap());
 
             // are we overlapping a point?
-            if let Some((ci, pi, WhichHandle::Neither)) = clicked_point_or_handle(v, i, meta.position, Some((vci, vpi))) {
+            if let Some((ci, pi, WhichHandle::Neither)) = clicked_point_or_handle(v, i, meta.raw_position, Some((vci, vpi))) {
                 // if that point the start or end of it's contour?
                 if let Some(info) = get_contour_start_or_end(v, vci, vpi) {
                     // is our current point the start or end of it's contour?
@@ -320,7 +320,7 @@ impl Select {
             let (vci, vpi) = (v.contour_idx.unwrap(), v.point_idx.unwrap());
 
             // are we overlapping a point?
-            if let Some((ci, pi, WhichHandle::Neither)) = clicked_point_or_handle(v, i, i.mouse_info.position, Some((vci, vpi))) {
+            if let Some((ci, pi, WhichHandle::Neither)) = clicked_point_or_handle(v, i, i.mouse_info.raw_position, Some((vci, vpi))) {
                 // if that point the start or end of it's contour?
                 if let Some(info) = get_contour_start_or_end(v, vci, vpi) {
                     // is our current point the start or end of it's contour?
