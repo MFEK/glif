@@ -1,4 +1,5 @@
 use crate::user_interface::grid::Grid;
+use super::ToolEnum;
 
 use super::prelude::*;
 
@@ -11,6 +12,12 @@ pub struct GridTool {
 impl Tool for GridTool {
     fn handle_event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
         match event {
+            EditorEvent::MouseEvent { event_type, meta } => {
+                match event_type {
+                    MouseEventType::Pressed => { self.mouse_pressed(v, i) }
+                    _ => {}
+                }
+            }
             EditorEvent::Ui { ui } => {
                 self.grid_settings(v, i, ui);
             }
@@ -42,6 +49,10 @@ fn imgui_decimal_text_field(label: &str, ui: &imgui::Ui, data: &mut f32) {
 impl GridTool {
     pub fn new() -> Self {
         Self { last_position: None }
+    }
+
+    pub fn mouse_pressed(&mut self, v: &mut Editor, i: &mut Interface) {
+        v.set_tool(ToolEnum::Pan);
     }
 
     pub fn grid_settings(&mut self, v: &mut Editor, i: &mut Interface, ui: &imgui::Ui) {
@@ -82,6 +93,8 @@ impl GridTool {
                 if let Some(grid) = &mut i.grid {
                     imgui_decimal_text_field("Spacing", ui, &mut grid.spacing);
                     imgui_decimal_text_field("Offset", ui, &mut grid.offset);
+
+                    grid.offset %= grid.spacing;
                 }
             });
     }

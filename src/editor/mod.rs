@@ -72,6 +72,7 @@ impl Editor {
 
             active_tool: Box::new(Pan::new()),
             active_tool_enum: ToolEnum::Pan,
+
             clipboard: None,
             layer_idx: None,
             preview: None,
@@ -101,9 +102,13 @@ impl Editor {
     /// Adding new events is as simple as creating a new anonymous struct to EditorEvent and a call to this function in the appropriate
     /// place.Tools can then implement behavior for that event in their handle_event implementation.
     pub fn dispatch_editor_event(&mut self, i: &mut Interface, event: EditorEvent) {
+        let old_active_tool = self.active_tool_enum;
         let mut active_tool = dyn_clone::clone_box(&*self.active_tool);
         active_tool.handle_event(self, i, event);
-        self.active_tool = active_tool;
+
+        if old_active_tool == self.active_tool_enum {
+            self.active_tool = active_tool;
+        }
     }
 
     /// This function MUST be called before calling with_active_<layer/glif>_mut or it will panic.
@@ -170,8 +175,8 @@ impl Editor {
     }
 
     /// Set the active tool by enum. When adding your own tools make sure to add them to ToolEnum.
-    pub fn set_tool(&mut self, tool: ToolEnum ) {
-        if self.active_tool_enum == tool { return };
+    pub fn set_tool(&mut self, tool: ToolEnum) {
+        if self.active_tool_enum == tool { println!("YEET2"); return };
 
         self.end_layer_modification();
         self.active_tool_enum = tool;
