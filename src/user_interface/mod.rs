@@ -50,10 +50,7 @@ impl Interface {
             sdl_context: sdl,
             sdl_window: window,
 
-            grid: Some(Grid {
-                spacing: 30.,
-                offset: 0.,
-            }),
+            grid: None,
             mouse_info: MouseInfo::default(),
             viewport: Viewport::default(),
         };
