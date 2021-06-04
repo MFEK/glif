@@ -10,7 +10,7 @@ pub use crate::user_interface::{Interface, MouseInfo};
 pub use crate::util::*;
 pub use crate::editor::CONSOLE;
 
-pub use crate::{get_contour, get_contour_mut, get_contour_type, get_contour_len};
+pub use crate::{get_contour, get_contour_mut, get_contour_type, get_contour_len, get_point};
 
 // Skia/Winit stuff
 pub use skulpin::skia_safe::Contains as _;
