@@ -7,7 +7,7 @@ use super::{Interface, icons};
 // These are before transformation by STATE.dpi (glutin scale_factor)
 pub const TOOLBOX_OFFSET_X: f32 = 10.;
 pub const TOOLBOX_OFFSET_Y: f32 = TOOLBOX_OFFSET_X;
-pub const TOOLBOX_WIDTH: f32 = 55.;
+pub const TOOLBOX_WIDTH: f32 = 52.;
 pub const TOOLBOX_HEIGHT: f32 = 300.;
 
 pub const LAYERBOX_WIDTH: f32 = 250.;
@@ -344,7 +344,7 @@ impl ImguiManager {
                 [TOOLBOX_OFFSET_X, TOOLBOX_OFFSET_Y],
                 imgui::Condition::Always,
             )
-            .size([TOOLBOX_WIDTH, TOOLBOX_HEIGHT+50.], imgui::Condition::Always)
+            .size([TOOLBOX_WIDTH, TOOLBOX_HEIGHT+60.], imgui::Condition::Always)
             .build(&ui, || {
                 Self::build_and_check_button(v, &ui, ToolEnum::Pan, &icons::PAN);
                 Self::build_and_check_button(v, &ui, ToolEnum::Select, &icons::SELECT);
