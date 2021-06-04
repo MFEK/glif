@@ -41,15 +41,16 @@ impl Pen {
 
         if let Some(idx) = v.contour_idx {
             let mousepos = meta.position;
+            let p_idx = v.point_idx.unwrap();
             v.with_active_layer_mut(|layer| {
-                let last_point = get_contour!(layer, idx).last().unwrap().clone();
+                let last_point = get_point!(layer, idx, p_idx).clone();
 
                 let pos = (calc_x(mousepos.0 as f32), calc_y(mousepos.1 as f32));
                 let offset = (last_point.x - pos.0, last_point.y - pos.1);
                 let handle_b = (last_point.x + offset.0, last_point.y + offset.1);
 
-                get_contour!(layer, idx).last_mut().unwrap().a = Handle::At(calc_x(mousepos.0 as f32), calc_y(mousepos.1 as f32));
-                get_contour!(layer, idx).last_mut().unwrap().b = Handle::At(handle_b.0, handle_b.1);
+                get_point!(layer, idx, p_idx).a = Handle::At(calc_x(mousepos.0 as f32), calc_y(mousepos.1 as f32));
+                get_point!(layer, idx, p_idx).b = Handle::At(handle_b.0, handle_b.1);
             });
         }
     }
@@ -142,6 +143,21 @@ impl Pen {
     
                     layer.outline[contour_idx].operation = contour_operations::insert(&layer.outline[contour_idx], contour_len);
                     Some(get_contour_len!(layer, contour_idx) - 1)
+                });
+                return
+            } else if v.point_idx.unwrap() == 0 {
+                v.with_active_layer_mut(|layer| {
+                    let point_type = get_point!(layer, contour_idx, 0).ptype;
+
+                    if get_point!(layer, contour_idx, 0).ptype == PointType::Move {
+                        get_point!(layer, contour_idx, 0).ptype = PointType::Curve;
+                    }
+                    get_contour!(layer, contour_idx).insert(0, Point::from_x_y_type(
+                    (calc_x(mouse_pos.0 as f32), calc_y(mouse_pos.1 as f32)),
+                    point_type,
+                    ));
+    
+                    layer.outline[contour_idx].operation = contour_operations::insert(&layer.outline[contour_idx], 0);
                 });
                 return
             }
