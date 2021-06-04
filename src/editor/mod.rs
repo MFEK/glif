@@ -176,7 +176,7 @@ impl Editor {
 
     /// Set the active tool by enum. When adding your own tools make sure to add them to ToolEnum.
     pub fn set_tool(&mut self, tool: ToolEnum) {
-        if self.active_tool_enum == tool { println!("YEET2"); return };
+        if self.active_tool_enum == tool { return };
 
         self.end_layer_modification();
         self.active_tool_enum = tool;
