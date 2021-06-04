@@ -12,14 +12,14 @@ pub struct GridTool {
 impl Tool for GridTool {
     fn handle_event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
         match event {
-            EditorEvent::MouseEvent { event_type, meta } => {
+            EditorEvent::MouseEvent { event_type, meta: _} => {
                 match event_type {
-                    MouseEventType::Pressed => { self.mouse_pressed(v, i) }
+                    MouseEventType::Pressed => { self.mouse_pressed(v) }
                     _ => {}
                 }
             }
             EditorEvent::Ui { ui } => {
-                self.grid_settings(v, i, ui);
+                self.grid_settings(i, ui);
             }
             _ => {}
         }
@@ -51,11 +51,11 @@ impl GridTool {
         Self { last_position: None }
     }
 
-    pub fn mouse_pressed(&mut self, v: &mut Editor, i: &mut Interface) {
+    pub fn mouse_pressed(&mut self, v: &mut Editor) {
         v.set_tool(ToolEnum::Pan);
     }
 
-    pub fn grid_settings(&mut self, v: &mut Editor, i: &mut Interface, ui: &imgui::Ui) {
+    pub fn grid_settings(&mut self, i: &mut Interface, ui: &imgui::Ui) {
         let (tx, ty, tw, th) = i.get_tools_dialog_rect();
 
         imgui::Window::new(
