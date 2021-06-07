@@ -229,6 +229,8 @@ fn main() {
                         Command::Quit => {
                             break 'main_loop;
                         }
+                        // TODO: More elegantly deal with Command's meant for consumption by a
+                        // single tool?
                         Command::ReverseContour => {
                             log::warn!("Tried to reverse contour outside Select tool");
                         }

@@ -67,7 +67,7 @@ pub trait ReverseContours {
 
 impl<PD: PointData> ReverseContours for Contour<PD> {
     fn reverse_contours(self) -> Contour<PD> {
-        let mut new_c = Contour::new();
+        let mut new_c = Contour::with_capacity(self.len());
         let open_contour = self.first().unwrap().ptype == PointType::Move && self.len() > 1;
         // This is necessary because although Rev and Chain both implement Iterator, they're
         // incompatible types. So, we need to make a mutable reference to a trait object.
