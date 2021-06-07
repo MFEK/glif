@@ -22,7 +22,7 @@
     <binding command="ToolShapes" key="S"/>
 
     <!-- view modes -->
-    <binding command="TogglePointLabels" key="3"/>
+    <binding command="TogglePointLabels" key="3" mod="ShiftMod"/>
     <binding command="TogglePreviewMode" key="`"/>
 
     <!-- console -->

@@ -168,7 +168,7 @@ fn main() {
                                 interface,
                                 point_labels,
                                 PointLabels,
-                                command_info.command_mod.shift
+                                !command_info.command_mod.shift
                             );
                         }
                         Command::TogglePreviewMode => {
