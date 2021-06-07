@@ -357,7 +357,7 @@ impl ImguiManager {
                 Self::build_and_check_button(v, &ui, ToolEnum::VWS, &icons::VWS);
                 Self::build_and_check_button(v, &ui, ToolEnum::PAP, &icons::_PAP);
                 Self::build_and_check_button(v, &ui, ToolEnum::Shapes, &icons::SHAPES);
-                Self::build_and_check_button(v, &ui, ToolEnum::Grid, &icons::SHAPES);
+                Self::build_and_check_button(v, &ui, ToolEnum::Grid, &icons::GRID);
             });
     
         imgui::Window::new( imgui::im_str!("Layers"))
