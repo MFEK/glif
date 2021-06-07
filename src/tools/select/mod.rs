@@ -6,6 +6,7 @@ use crate::editor::macros::get_point;
 use super::{EditorEvent, MouseEventType, Tool, prelude::*};
 use crate::renderer::{UIPointType, points::draw_point};
 use crate::editor::{Editor, util::clicked_point_or_handle};
+use crate::util::math::ReverseContours as _;
 
 use skulpin::skia_safe::dash_path_effect;
 use skulpin::skia_safe::{Canvas, Paint, PaintStyle, Path, Rect};
@@ -80,6 +81,10 @@ impl Tool for Select {
                 *stop_after = true;
                 self.select_all(v);
             }
+            EditorEvent::ToolCommand { command: Command::ReverseContour, stop_after, .. } => {
+                *stop_after = true;
+                self.reverse_selected(v);
+            }
             EditorEvent::Draw { skia_canvas } => {
                 self.draw_selbox(i, skia_canvas);
                 self.draw_merge_preview(v, i, skia_canvas);
@@ -114,6 +119,31 @@ impl Select {
             points
         });
         v.selected = points;
+    }
+
+    fn reverse_selected(&mut self, v: &mut Editor) {
+        let ci = if let Some((ci, _)) = v.selected() {
+            ci
+        } else {
+            return
+        };
+
+        v.begin_layer_modification("Reversing contours...");
+        let point_idx = v.point_idx;
+        v.point_idx = v.with_active_layer_mut(|layer| {
+            let contour_len = layer.outline[ci].inner.len();
+            layer.outline[ci].inner = layer.outline[ci].inner.clone().reverse_contours();
+            if let Some(pi) = point_idx {
+                if layer.outline[ci].inner[0].ptype != PointType::Move {
+                    Some(contour_len - pi)
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        });
+        v.end_layer_modification();
     }
     
     fn mouse_moved(&mut self, v: &mut Editor, meta: MouseInfo) {

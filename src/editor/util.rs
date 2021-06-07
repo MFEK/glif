@@ -200,3 +200,15 @@ pub fn move_point(outline: &mut MFEKOutline<MFEKPointData>, ci: usize, pi: usize
     }
 
 }
+
+impl Editor {
+    pub fn selected(&self) -> Option<(usize, usize)> {
+        if let (Some(ci), Some(pi)) = (self.contour_idx, self.point_idx) { // single click
+            Some((ci, pi))
+        } else if let Some((ci, pi)) = self.selected.iter().next() { // selbox
+            Some((*ci, *pi))
+        } else {
+            None
+        }
+    }
+}

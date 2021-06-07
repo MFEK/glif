@@ -48,6 +48,7 @@
 
     <!-- misc -->
     <binding command="Quit" key="Q" mod="CtrlMod"/>
+    <binding command="ReverseContour" key="Tab"/>
 
     <!-- debug -->
     <binding command="SkiaDump" key="D" mod="CtrlShiftMod"/>

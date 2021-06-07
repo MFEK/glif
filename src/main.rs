@@ -229,6 +229,9 @@ fn main() {
                         Command::Quit => {
                             break 'main_loop;
                         }
+                        Command::ReverseContour => {
+                            log::warn!("Tried to reverse contour outside Select tool");
+                        }
                         Command::SkiaDump => {
                             editor.skia_dump();
                         }

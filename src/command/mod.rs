@@ -62,6 +62,7 @@ pub enum Command {
 
     // misc
     Quit,
+    ReverseContour,
 
     // debug
     SkiaDump,

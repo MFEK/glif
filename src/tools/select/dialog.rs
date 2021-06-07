@@ -77,10 +77,8 @@ const DIALOG_ADDITIONAL_HEIGHT: f32 = 150.;
 // Make dialog box at right
 impl Select {
     pub fn select_settings(&mut self, v: &mut Editor, i: &Interface, ui: &imgui::Ui) {
-        let (ci, pi) = if let (Some(ci), Some(pi)) = (v.contour_idx, v.point_idx) { // single click
+        let (ci, pi) = if let Some((ci, pi)) = v.selected() {
             (ci, pi)
-        } else if let Some((ci, pi)) = v.selected.iter().next() { // selbox
-            (*ci, *pi)
         } else {
             return
         };

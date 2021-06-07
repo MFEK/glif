@@ -37,7 +37,7 @@ impl RoundFloat for f32 {
     }
 }
 
-use glifparser::{Handle, Point, PointData};
+use glifparser::{Contour, Handle, Outline, Point, PointData, PointType};
 
 trait FromHandle<P> {
     fn from_handle(h: Handle) -> Point<P>;
@@ -60,35 +60,59 @@ impl<P: PointData> FromHandle<P> for Point<P> {
     }
 }
 
-pub trait DeCasteljau<P> {
-    fn midpoint(p1: &Point<P>, p2: &Point<P>, t: f32) -> Point<P>;
-    fn de_casteljau(inp: (Point<P>, Point<P>), t: Option<f32>) -> (Point<P>, Point<P>, Point<P>);
+// TODO: Implement this trait on the `data` members of ContourOperations.
+pub trait ReverseContours {
+    fn reverse_contours(self) -> Self;
 }
 
-impl<P: PointData>  DeCasteljau<P> for Point<P> {
-    fn midpoint(p1: &Point<P>, p2: &Point<P>, t: f32) -> Point<P> {
-        let mut ret = Point::new();
-        ret.x = (p1.x + p2.x) * t;
-        ret.y = (p1.y + p2.y) * t;
-        ret
+impl<PD: PointData> ReverseContours for Contour<PD> {
+    fn reverse_contours(self) -> Contour<PD> {
+        let mut new_c = Contour::new();
+        let open_contour = self.first().unwrap().ptype == PointType::Move && self.len() > 1;
+        // This is necessary because although Rev and Chain both implement Iterator, they're
+        // incompatible types. So, we need to make a mutable reference to a trait object.
+        let (mut iter_t1, mut iter_t2);
+        let iter: &mut dyn Iterator<Item = &Point<PD>> = if !open_contour {
+            iter_t1 = self[0..1].iter().chain(self[1..].iter().rev());
+            &mut iter_t1
+        } else {
+            iter_t2 = self.iter().rev();
+            &mut iter_t2
+        };
+
+        // Considering the contour in reversed order, reverse a/b and point order.
+        for p in iter {
+            let mut new_p = p.clone();
+            // a is next, b is prev
+            let a = p.a;
+            let b = p.b;
+            new_p.a = b;
+            new_p.b = a;
+            new_p.ptype = if a != Handle::Colocated { PointType::Curve } else { PointType::Line };
+            new_c.push(new_p);
+        }
+
+        // Considering only open contours post-reversal, reverse which point is the Move.
+        if open_contour {
+            new_c[0].ptype = PointType::Move;
+            let c_len = new_c.len();
+            let ptype = match new_c[c_len-2].a { Handle::At(_, _) => { PointType::Curve }, Handle::Colocated => { PointType::Line }};
+            new_c[c_len-1].ptype = ptype;
+        }
+
+        new_c
     }
+}
 
-    fn de_casteljau(inp: (Point<P>, Point<P>), t: Option<f32>) -> (Point<P>, Point<P>, Point<P>) {
-        let (mut p1, mut p2) = inp;
-        let (h1, h2) = (Point::from_handle(p1.b), Point::from_handle(p2.a));
-        let t = t.unwrap_or(0.5);
-        let dcmp1 = Point::midpoint(&p1, &h1, t);
-        let dcmp2 = Point::midpoint(&h1, &h2, t);
-        let dcmp3 = Point::midpoint(&h2, &p2, t);
-        let dcmp_1 = Point::midpoint(&dcmp1, &dcmp2, t);
-        let dcmp_2 = Point::midpoint(&dcmp2, &dcmp3, t);
-        let mut dcmp__ = Point::midpoint(&dcmp_1, &dcmp_2, t);
+impl<PD: PointData> ReverseContours for Outline<PD> {
+    fn reverse_contours(self) -> Outline<PD> {
+        let mut ret = Outline::new();
 
-        p1.b = Handle::At(dcmp1.x, dcmp1.y);
-        p2.a = Handle::At(dcmp3.x, dcmp3.y);
-        dcmp__.a = Handle::At(dcmp_1.x, dcmp_1.y);
-        dcmp__.b = Handle::At(dcmp_2.x, dcmp_2.y);
+        for c in self.iter() {
+            let new_c = c.clone().reverse_contours();
+            ret.push(new_c);
+        }
 
-        (p1, dcmp__, p2)
+        ret
     }
 }
