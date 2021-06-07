@@ -135,7 +135,11 @@ impl Select {
             layer.outline[ci].inner = layer.outline[ci].inner.clone().reverse_contours();
             if let Some(pi) = point_idx {
                 if layer.outline[ci].inner[0].ptype != PointType::Move {
-                    Some(contour_len - pi)
+                    if pi == 0 {
+                        Some(0)
+                    } else {
+                        Some(contour_len - pi)
+                    }
                 } else {
                     None
                 }
