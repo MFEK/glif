@@ -55,6 +55,7 @@ MFEKglif currently does not have the ability to write errors or warnings to the 
 Apple charges a fee to "notarize" applications and without this "notarization" MFEKglif will not run correctly, or in some cases, at all. So, for the foreseeable future, you must _build MFEKglif from source on OS X_. This is not as hard as it sounds! :-)
 
 * Download and install the [Vulkan SDK](https://vulkan.lunarg.com/).
+* `cmake` is not included on macOS systems by default. Install [Homebrew](https://brew.sh/) and run `brew install cmake`
 
 ### Linux users
 
