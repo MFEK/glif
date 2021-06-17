@@ -1,4 +1,5 @@
 use sdl2::mouse::MouseButton;
+use crate::renderer::points::calc::*;
 
 use crate::{command::CommandMod, user_interface::Interface};
 
@@ -52,13 +53,49 @@ impl MouseInfo {
         let raw_mposition = mposition;
 
         if let Some(grid) = &i.grid {
-            absolute_mposition.0 = (absolute_mposition.0 / grid.spacing + grid.offset).round() * grid.spacing;
-            absolute_mposition.1 = (absolute_mposition.1 / grid.spacing + grid.offset).round() * grid.spacing;
+            let mpos = (mposition.0, calc_y(mposition.1));
 
-            mposition = (
-                (mposition.0 / grid.spacing + grid.offset).round() * grid.spacing,
-                (mposition.1 / grid.spacing + grid.offset).round() * grid.spacing,
+            let mut candidates = vec![];
+
+            let standard_snap = (
+                (mpos.0 / grid.spacing + grid.offset).round() * grid.spacing,
+                calc_y((mpos.1 / grid.spacing + grid.offset).round() * grid.spacing),
             );
+
+            let dist = f32::sqrt(f32::powi(standard_snap.0 - mpos.0, 2) + f32::powi(standard_snap.1 - mposition.1, 2));
+
+            candidates.push((
+                dist,
+                standard_snap
+            ));
+
+            if let Some(slope) = &grid.slope {
+                let x = mpos.0 - mpos.1/slope;
+                let s = (grid.spacing/slope).abs();
+                let c = (x/s + 0.5).floor() * s;
+                let c2 = c * -slope;
+
+                let closest_italic = ((mpos.1 - c2)/slope, mpos.1);
+
+                let horizontal_candidate = ((rcalc_y(standard_snap.1) - c2)/slope, standard_snap.1);
+                let dist = f32::sqrt(f32::powi(horizontal_candidate.0 - mpos.0, 2) + f32::powi(horizontal_candidate.1 - mposition.1, 2));
+
+                candidates.push((
+                    dist,
+                    horizontal_candidate
+                ));
+
+                let vertical_candidate = (standard_snap.0, rcalc_y(slope*standard_snap.0+c2));
+                let dist = f32::sqrt(f32::powi(vertical_candidate.0 - mpos.0, 2) + f32::powi(vertical_candidate.1 - mposition.1, 2));
+
+                candidates.push((
+                    dist,
+                    vertical_candidate
+                ));
+            }
+
+            candidates.sort_unstable_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
+            mposition = candidates[0].1;
         }
 
         MouseInfo {

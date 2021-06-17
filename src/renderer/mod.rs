@@ -21,7 +21,7 @@ use grid::draw_grid;
 use glifparser::Handle;
 use glifparser::matrix::ToSkiaMatrix as _;
 use log;
-use skulpin::skia_safe::{Canvas, Matrix};
+use skulpin::skia_safe::{Canvas, Matrix, Paint};
 
 
 #[derive(Clone, Copy, PartialEq)]
@@ -110,6 +110,7 @@ pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
         draw_grid(canvas, grid, &i.viewport);
     }
     
+    points::draw_round_point(i.mouse_info.position, UIPointType::Point((Handle::Colocated, Handle::Colocated)), true, canvas, &mut Paint::default(), i.viewport.factor);
     // Reset transformation matrix
     canvas.restore();
 

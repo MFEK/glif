@@ -5,3 +5,7 @@ pub fn calc_x(x: f32) -> f32 {
 pub fn calc_y(y: f32) -> f32 {
     800. + (y * -1.)
 }
+
+pub fn rcalc_y(y: f32) -> f32 {
+    (y - 800.) * -1.
+}
