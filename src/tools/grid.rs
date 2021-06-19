@@ -5,7 +5,6 @@ use super::prelude::*;
 
 #[derive(Clone)]
 pub struct GridTool {
-    last_position: Option<(f32, f32)>,
 }
 
 
@@ -48,7 +47,7 @@ fn imgui_decimal_text_field(label: &str, ui: &imgui::Ui, data: &mut f32) {
  
 impl GridTool {
     pub fn new() -> Self {
-        Self { last_position: None }
+        Self { }
     }
 
     pub fn mouse_pressed(&mut self, v: &mut Editor) {
@@ -87,12 +86,28 @@ impl GridTool {
                     i.grid = Some(Grid {
                         offset: 0.,
                         spacing: 30.,
+                        slope: None,
                     })
                 }
 
                 if let Some(grid) = &mut i.grid {
                     imgui_decimal_text_field("Spacing", ui, &mut grid.spacing);
                     imgui_decimal_text_field("Offset", ui, &mut grid.offset);
+
+                    let old_italic = grid.slope.is_some();
+                    let mut italic = grid.slope.is_some();
+                    ui.checkbox(imgui::im_str!("Italic"), &mut italic);
+                    if italic != old_italic && italic {
+                        grid.slope = Some(0.5);
+                    } else if italic != old_italic && !italic {
+                        grid.slope = None;
+                    }
+
+                    if let Some(slope) = grid.slope {
+                        let mut old_slope = slope.clone();
+                        imgui_decimal_text_field("Slope", ui, &mut old_slope);
+                        grid.slope = Some(old_slope);
+                    }
 
                     grid.offset %= grid.spacing;
                 }

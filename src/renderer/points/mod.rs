@@ -106,7 +106,7 @@ fn draw_triangle_point(viewport: &Viewport, at: Point, along: Vector, selected: 
     canvas.draw_path(&path, &paint);
 }
 
-fn draw_round_point(
+pub fn draw_round_point(
     at: (f32, f32),
     kind: UIPointType,
     selected: bool,

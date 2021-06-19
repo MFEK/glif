@@ -7,6 +7,7 @@ use crate::renderer::constants::GUIDELINE_THICKNESS;
 use crate::user_interface::viewport::Viewport;
 use crate::user_interface::grid::Grid;
 use crate::renderer::Canvas;
+use crate::renderer::points::calc::*;
 
 pub fn draw_grid(canvas: &mut Canvas, grid: &Grid, viewport: &Viewport) { 
     let mut grid_path = Path::new();
@@ -24,19 +25,52 @@ pub fn draw_grid(canvas: &mut Canvas, grid: &Grid, viewport: &Viewport) {
     let fractional_left_offset = whole_left_offset - whole_left_offset.floor();
     let units_from_left = fractional_left_offset * grid.spacing;
     
-    let total_vertical = f32::floor(viewport.winsize.0 as f32 / viewport.factor / grid.spacing) as usize;
+    println!("{:?}", scaled_top_offset);
+    let total_vertical = f32::floor(viewport.winsize.0 as f32 / viewport.factor / grid.spacing) as i32;
     for i in 0..total_vertical {
-        grid_path.move_to((units_from_left - scaled_left_offset + i as f32 * grid.spacing, -scaled_top_offset));
-        grid_path.line_to((units_from_left - scaled_left_offset + i as f32 * grid.spacing, -scaled_top_offset + viewport.winsize.1 as f32 / viewport.factor));
+        grid_path.move_to((calc_x(units_from_left - scaled_left_offset + i as f32 * grid.spacing), -scaled_top_offset));
+        grid_path.line_to((calc_x(units_from_left - scaled_left_offset + i as f32 * grid.spacing), -scaled_top_offset + viewport.winsize.1 as f32 / viewport.factor));
     }
 
     let whole_top_offset = (grid.offset + scaled_top_offset) / grid.spacing;
     let fractional_top_offset = whole_top_offset - whole_top_offset.floor();
     let units_from_top = fractional_top_offset * grid.spacing;
 
-    for i in 0..1000 {
-        grid_path.move_to((-scaled_left_offset, units_from_top - scaled_top_offset + i as f32 * grid.spacing));
-        grid_path.line_to((-scaled_left_offset + viewport.winsize.0 as f32 / viewport.factor, units_from_top - scaled_top_offset + i as f32 * grid.spacing));
+    let total_horizontal = f32::floor(viewport.winsize.1 as f32 / viewport.factor / grid.spacing) as i32;
+    for i in 0..total_horizontal {
+        grid_path.move_to((calc_x(-scaled_left_offset), calc_y(units_from_top + scaled_top_offset + i as f32 * grid.spacing)));
+        grid_path.line_to((calc_x(-scaled_left_offset + viewport.winsize.0 as f32 / viewport.factor), calc_y(units_from_top + scaled_top_offset + i as f32 * grid.spacing)));
+    }
+
+    if let Some(slope) = grid.slope {
+        if slope == 0. { return };
+
+        let viewx = viewport.winsize.0 as f32 /viewport.factor;
+
+        let extra = -total_horizontal + (-total_horizontal as f32 * slope) as i32;
+        let offset = ((grid.offset + scaled_top_offset + scaled_left_offset * slope) / grid.spacing).fract() * grid.spacing;
+
+        for i in extra..-extra {
+            grid_path.move_to((calc_x(-scaled_left_offset), calc_y(grid.spacing * i as f32 - offset + scaled_top_offset)));
+            grid_path.line_to((
+                calc_x(viewx - scaled_left_offset),
+                calc_y(slope*(viewx) + grid.spacing * i as f32 - offset + scaled_top_offset)
+            ));
+        }
+        /*
+        let whole_italic_offset = (grid.offset + scaled_left_offset - scaled_top_offset * slope) / grid.spacing;
+        let fractional_italic_offset = whole_italic_offset - whole_italic_offset.floor();
+        let units_from_left = fractional_italic_offset * grid.spacing - (viewport.winsize.1 as f32 / viewport.factor / grid.spacing * slope).floor() * grid.spacing;
+
+        let total_horizontal = f32::floor((viewport.winsize.0 as f32 + (viewport.winsize.0 as f32 * slope)) / viewport.factor / grid.spacing) as usize;
+        for i in 0..total_horizontal {
+            grid_path.move_to((units_from_left - scaled_left_offset + i as f32 * grid.spacing, -scaled_top_offset));
+            grid_path.line_to(
+                (units_from_left - scaled_left_offset + i as f32 * grid.spacing + viewport.winsize.1 as f32 / viewport.factor * slope,
+                -scaled_top_offset + viewport.winsize.1 as f32 / viewport.factor)
+            );
+        }
+        */
     }
 
     canvas.draw_path(&grid_path, &paint);
