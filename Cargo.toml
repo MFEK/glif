@@ -18,7 +18,7 @@ skulpin = { version = "0.14" }
 skulpin-renderer = "0.14"
 
 # For windowing, contexts, and events
-sdl2 = { version = ">=0.34", features = ["bundled", "static-link", "raw-window-handle"] }
+sdl2 = { version = ">=0.34", features = ["raw-window-handle"] }
 
 # For choosing font for toolbox
 font-kit = "0.10"
