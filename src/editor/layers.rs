@@ -97,8 +97,8 @@ impl Editor {
         let src_copy = self.glyph.as_mut().unwrap().layers[src].clone();
         let dest_copy = self.glyph.as_mut().unwrap().layers[dest].clone();
 
-        if self.layer_idx == Some(dest) { println!("src {0}", src); self.layer_idx = Some(src) };
-        if self.layer_idx == Some(src) { println!("dest {0}", dest); self.layer_idx = Some(dest) };
+        if self.layer_idx == Some(dest) { self.layer_idx = Some(src) };
+        if self.layer_idx == Some(src) { self.layer_idx = Some(dest) };
 
         self.glyph.as_mut().unwrap().layers[dest] = src_copy;
         self.glyph.as_mut().unwrap().layers[src] = dest_copy;

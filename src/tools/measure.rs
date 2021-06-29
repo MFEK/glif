@@ -112,7 +112,7 @@ pub fn draw_measure_string(i: &Interface, at: (f32, f32), angle: f32, s: &str, c
         at.0 - rect.width() / 2.,
         at.1 - rect.height() / 2.,
     );
-    println!("{0}", angle);
+
     arc.rotate(angle.to_degrees(), Some(at.into()));
     arc.draw_text_blob(&blob, center_at, &paint);
 }

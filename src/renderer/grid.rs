@@ -25,7 +25,6 @@ pub fn draw_grid(canvas: &mut Canvas, grid: &Grid, viewport: &Viewport) {
     let fractional_left_offset = whole_left_offset - whole_left_offset.floor();
     let units_from_left = fractional_left_offset * grid.spacing;
     
-    println!("{:?}", scaled_top_offset);
     let total_vertical = f32::floor(viewport.winsize.0 as f32 / viewport.factor / grid.spacing) as i32;
     for i in 0..total_vertical {
         grid_path.move_to((calc_x(units_from_left - scaled_left_offset + i as f32 * grid.spacing), -scaled_top_offset));
