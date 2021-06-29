@@ -8,6 +8,9 @@ use crate::renderer::{UIPointType, points::draw_point};
 use crate::editor::{Editor, util::clicked_point_or_handle};
 use crate::util::math::ReverseContours as _;
 
+use MFEKmath::Rect as MFEKRect;
+use MFEKmath::Vector;
+
 use skulpin::skia_safe::dash_path_effect;
 use skulpin::skia_safe::{Canvas, Paint, PaintStyle, Path, Rect};
 use derive_more::Display;
@@ -88,6 +91,7 @@ impl Tool for Select {
             EditorEvent::Draw { skia_canvas } => {
                 self.draw_selbox(i, skia_canvas);
                 self.draw_merge_preview(v, i, skia_canvas);
+                self.draw_bounding_box(v, i, skia_canvas);
             }
             EditorEvent::Ui { ui } => {
                 self.select_settings(v, i, ui);
@@ -235,7 +239,7 @@ impl Select {
 
     fn mouse_moved(&mut self, v: &mut Editor, meta: MouseInfo) {
         if !meta.is_down { return; }
-        
+
         match (v.contour_idx, v.point_idx, self.handle) {
             // Point itself is being moved.
             (Some(ci), Some(pi), WhichHandle::Neither) => {
@@ -412,6 +416,48 @@ impl Select {
         paint.set_stroke_width(OUTLINE_STROKE_THICKNESS * (1. / i.viewport.factor));
         let dash_offset = (1. / i.viewport.factor) * 2.;
         paint.set_path_effect(dash_path_effect::new(&[dash_offset, dash_offset], 0.0));
+        canvas.draw_path(&path, &paint);
+    }
+
+    fn draw_bounding_box(&self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
+        if v.selected.is_empty() { return; }
+
+        // so now that we know we've got a selection let's build a bounding box
+        let mut points = vec![];
+        for (ci, pi) in &v.selected {
+            let point = v.with_active_layer(|layer| layer.outline[*ci].inner[*pi].clone());
+            points.push(Vector { x: point.x as f64, y: point.y as f64 });
+
+            match point.a {
+                Handle::At(x, y) => {
+                    points.push(Vector { x: x as f64, y: y as f64 });
+                }
+                _ => {}
+            }
+
+            match point.b {
+                Handle::At(x, y) => {
+                    points.push(Vector { x: x as f64, y: y as f64 });
+                }
+                _ => {}
+            }
+        }
+
+        let bounding_box = MFEKRect::AABB_from_points(points);
+
+        let mut path = Path::new();
+        let mut paint = Paint::default();
+        let rect = Rect::new(
+            calc_x(bounding_box.left as f32), calc_y(bounding_box.top as f32),
+            calc_x(bounding_box.right as f32), calc_y(bounding_box.bottom as f32),
+        );
+
+        println!("{0} {1} {2} {3}", bounding_box.left, bounding_box.right, bounding_box.top, bounding_box.bottom);
+        path.add_rect(rect, None);
+        path.close();
+        paint.set_color(OUTLINE_STROKE);
+        paint.set_style(PaintStyle::Stroke);
+        paint.set_stroke_width(OUTLINE_STROKE_THICKNESS * (1. / i.viewport.factor));
         canvas.draw_path(&path, &paint);
     }
 }
