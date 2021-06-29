@@ -150,90 +150,100 @@ impl Select {
         v.end_layer_modification();
     }
     
-    fn mouse_moved(&mut self, v: &mut Editor, meta: MouseInfo) {
-        if !meta.is_down { return; }
-    
+    fn move_point(&mut self, v: &mut Editor, meta: MouseInfo, ci: usize, pi: usize) {
         let x = calc_x(meta.position.0 as f32);
         let y = calc_y(meta.position.1 as f32);
 
+        if !v.is_modifying() { 
+            v.begin_layer_modification("Move point.");
+        }
+
+        let reference_point = v.with_active_layer(|layer| get_point!(layer, ci, pi).clone());
+        let selected = v.selected.clone();
+        let ctrl_mod = meta.modifiers.ctrl;
+        v.with_active_layer_mut(|layer| {
+            if !ctrl_mod {
+                for (ci, pi) in &selected {
+                    let (ci, pi) = (*ci, *pi);
+                    let point = &get_point!(layer, ci, pi);                          
+                    let offset_x = point.x - reference_point.x;
+                    let offset_y = point.y - reference_point.y;
+                    move_point(&mut layer.outline, ci, pi, x + offset_x, y + offset_y);
+                }
+            }
+
+            move_point(&mut layer.outline, ci, pi, x, y);
+
+        });
+    }
+
+    fn move_handle(&mut self, v: &mut Editor, meta: MouseInfo, ci: usize, pi: usize, wh: WhichHandle) {
+        let x = calc_x(meta.position.0 as f32);
+        let y = calc_y(meta.position.1 as f32);
+
+        if !v.is_modifying() { 
+            v.begin_layer_modification("Move handle.");
+        }
+        
+        v.with_active_layer_mut(|layer| {
+            let handle = match wh {
+                WhichHandle::A => get_point!(layer, ci, pi).a,
+                WhichHandle::B => get_point!(layer, ci, pi).b,
+                WhichHandle::Neither => unreachable!("Should've been matched by above?!"),
+            };
+
+            // Current x, current y
+            let (cx, cy) = match handle {
+                Handle::At(cx, cy) => (cx, cy),
+                _ => panic!("Clicked non-existent handle A! Cidx {} pidx {}", ci, pi),
+            };
+
+            // Difference in x, difference in y
+            let (dx, dy) = (cx - x, cy - y);
+
+            // If Follow::Mirror (left mouse button), other control point (handle) will do mirror
+            // image action of currently selected control point. Perhaps pivoting around central
+            // point is better?
+            macro_rules! move_mirror {
+                ($cur:ident, $mirror:ident) => {
+                    get_point!(layer, ci, pi).$cur = Handle::At(x, y);
+                    let h = get_point!(layer, ci, pi).$mirror;
+                    match h {
+                        Handle::At(hx, hy) => {
+                            if self.follow == Follow::Mirror {
+                                get_point!(layer, ci, pi).$mirror = Handle::At(hx + dx, hy + dy);
+                            } else if self.follow == Follow::ForceLine {
+                                let (px, py) =
+                                    (get_point!(layer, ci, pi).x, get_point!(layer, ci, pi).y);
+                                let (dx, dy) = (px - x, py - y);
+
+                                get_point!(layer, ci, pi).$mirror = Handle::At(px + dx, py + dy);
+                            }
+                        }
+                        Handle::Colocated => (),
+                    }
+                };
+            }
+
+            match wh {
+                WhichHandle::A => { move_mirror!(a, b); },
+                WhichHandle::B => { move_mirror!(b, a); },
+                WhichHandle::Neither => unreachable!("Should've been matched by above?!"),
+            }
+        });
+    }
+
+    fn mouse_moved(&mut self, v: &mut Editor, meta: MouseInfo) {
+        if !meta.is_down { return; }
+        
         match (v.contour_idx, v.point_idx, self.handle) {
             // Point itself is being moved.
             (Some(ci), Some(pi), WhichHandle::Neither) => {
-                if !v.is_modifying() { 
-                    v.begin_layer_modification("Move point.");
-                }
-
-                let reference_point = v.with_active_layer(|layer| get_point!(layer, ci, pi).clone());
-                let selected = v.selected.clone();
-                let ctrl_mod = meta.modifiers.ctrl;
-                v.with_active_layer_mut(|layer| {
-                    if !ctrl_mod {
-                        for (ci, pi) in &selected {
-                            let (ci, pi) = (*ci, *pi);
-                            let point = &get_point!(layer, ci, pi);                          
-                            let offset_x = point.x - reference_point.x;
-                            let offset_y = point.y - reference_point.y;
-                            move_point(&mut layer.outline, ci, pi, x + offset_x, y + offset_y);
-                        }
-                    }
-
-                    move_point(&mut layer.outline, ci, pi, x, y);
-
-                });
-    
+                self.move_point(v, meta, ci, pi);
             }
             // A control point (A or B) is being moved.
             (Some(ci), Some(pi), wh) => {
-                if !v.is_modifying() { 
-                    v.begin_layer_modification("Move handle.");
-                }
-                
-                v.with_active_layer_mut(|layer| {
-                    let handle = match wh {
-                        WhichHandle::A => get_point!(layer, ci, pi).a,
-                        WhichHandle::B => get_point!(layer, ci, pi).b,
-                        WhichHandle::Neither => unreachable!("Should've been matched by above?!"),
-                    };
-        
-                    // Current x, current y
-                    let (cx, cy) = match handle {
-                        Handle::At(cx, cy) => (cx, cy),
-                        _ => panic!("Clicked non-existent handle A! Cidx {} pidx {}", ci, pi),
-                    };
-        
-                    // Difference in x, difference in y
-                    let (dx, dy) = (cx - x, cy - y);
-        
-                    // If Follow::Mirror (left mouse button), other control point (handle) will do mirror
-                    // image action of currently selected control point. Perhaps pivoting around central
-                    // point is better?
-                    macro_rules! move_mirror {
-                        ($cur:ident, $mirror:ident) => {
-                            get_point!(layer, ci, pi).$cur = Handle::At(x, y);
-                            let h = get_point!(layer, ci, pi).$mirror;
-                            match h {
-                                Handle::At(hx, hy) => {
-                                    if self.follow == Follow::Mirror {
-                                        get_point!(layer, ci, pi).$mirror = Handle::At(hx + dx, hy + dy);
-                                    } else if self.follow == Follow::ForceLine {
-                                        let (px, py) =
-                                            (get_point!(layer, ci, pi).x, get_point!(layer, ci, pi).y);
-                                        let (dx, dy) = (px - x, py - y);
-        
-                                        get_point!(layer, ci, pi).$mirror = Handle::At(px + dx, py + dy);
-                                    }
-                                }
-                                Handle::Colocated => (),
-                            }
-                        };
-                    }
-        
-                    match wh {
-                        WhichHandle::A => { move_mirror!(a, b); },
-                        WhichHandle::B => { move_mirror!(b, a); },
-                        WhichHandle::Neither => unreachable!("Should've been matched by above?!"),
-                    }
-                });
+                self.move_handle(v, meta, ci, pi, wh);
             }
             _ => {
                 if !meta.modifiers.shift {
