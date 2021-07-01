@@ -66,7 +66,9 @@ pub struct Select {
     handle: WhichHandle,
     corner_one: Option<(f32, f32)>,
     corner_two: Option<(f32, f32)>,
+    pivot_point: Option<(f32, f32)>,
     show_sel_box: bool,
+    rotate_vector: Option<(f32, f32)>,
 }
 
 impl Tool for Select {
@@ -91,7 +93,7 @@ impl Tool for Select {
             EditorEvent::Draw { skia_canvas } => {
                 self.draw_selbox(i, skia_canvas);
                 self.draw_merge_preview(v, i, skia_canvas);
-                self.draw_bounding_box(v, i, skia_canvas);
+                //self.draw_bounding_box(v, i, skia_canvas);
             }
             EditorEvent::Ui { ui } => {
                 self.select_settings(v, i, ui);
@@ -109,6 +111,9 @@ impl Select {
             corner_one: None,
             corner_two: None,
             show_sel_box: false,
+
+            rotate_vector: None,
+            pivot_point: None,
         }
     }
 
@@ -177,7 +182,6 @@ impl Select {
             }
 
             move_point(&mut layer.outline, ci, pi, x, y);
-
         });
     }
 
@@ -237,8 +241,40 @@ impl Select {
         });
     }
 
+    fn rotate_selection(&mut self, v: &mut Editor, meta: MouseInfo) {
+        if !v.is_modifying() { 
+            v.begin_layer_modification("Rotate selection.");
+        }
+
+        let rot = self.rotate_vector.unwrap();
+        let pivot = self.pivot_point.unwrap();
+        let pivot_vector = Vector::from_components(pivot.0 as f64, pivot.1 as f64);
+        let mouse_vector = Vector::from_components(meta.position.0 as f64, meta.position.1 as f64);
+    
+        let normal_from_pivot = (pivot_vector - mouse_vector).normalize();
+
+        let rot_vec = Vector::from_components(rot.0 as f64, rot.1 as f64);
+        let rotation_angle = normal_from_pivot.angle(rot_vec);
+
+        for (ci, pi) in &v.selected.clone() {
+            v.with_active_layer_mut(|layer| {
+                let old_point = get_point!(layer, *ci, *pi).clone();
+                let point_vec = Vector::from_components(old_point.x as f64, old_point.y as f64);
+                let rotated_point = point_vec.rotate(pivot_vector, rotation_angle);
+
+                move_point(&mut layer.outline, *ci, *pi, rotated_point.x as f32, rotated_point.y as f32);
+            });
+        }
+        self.rotate_vector = Some(normal_from_pivot.to_tuple());
+    }
+
     fn mouse_moved(&mut self, v: &mut Editor, meta: MouseInfo) {
         if !meta.is_down { return; }
+
+        if let Some(rot) = self.rotate_vector {
+            self.rotate_selection(v, meta);
+            return;
+        }
 
         match (v.contour_idx, v.point_idx, self.handle) {
             // Point itself is being moved.
@@ -250,9 +286,6 @@ impl Select {
                 self.move_handle(v, meta, ci, pi, wh);
             }
             _ => {
-                if !meta.modifiers.shift {
-                    v.selected = HashSet::new();
-                }
                 self.corner_two = Some(meta.position);
                 let last_selected = v.selected.clone();
                 let selected = v.with_active_layer(|layer| {
@@ -275,6 +308,25 @@ impl Select {
     }
 
     fn mouse_pressed(&mut self, v: &mut Editor, i: &Interface, meta: MouseInfo) {
+        if meta.button == MouseButton::Right {
+            self.pivot_point = Some(meta.position);
+            return;
+        }
+
+        if meta.modifiers.ctrl && !v.selected.is_empty() {
+            if self.pivot_point.is_none() {
+                self.pivot_point = Some(self.get_bounding_box_center(v));
+            }
+
+            let pivot = self.pivot_point.unwrap();
+            let pivot_vector = Vector::from_components(pivot.0 as f64, pivot.1 as f64);
+            let mouse_vector = Vector::from_components(meta.position.0 as f64, meta.position.1 as f64);
+        
+            let normal_from_pivot = (pivot_vector - mouse_vector).normalize();
+            self.pivot_point = Some(pivot);
+            self.rotate_vector = Some(normal_from_pivot.to_tuple());
+            return;
+        }
 
         // if we found a point or handle we're going to start a drag operation
         match clicked_point_or_handle(v, i, meta.raw_position, None) {
@@ -293,7 +345,7 @@ impl Select {
                 self.handle = wh;
             },
             None => {
-                if !meta.modifiers.ctrl {
+                if !meta.modifiers.shift {
                     v.selected = HashSet::new();
                 } else {
                     if let Some(point_idx) = v.point_idx {
@@ -332,6 +384,7 @@ impl Select {
         // we are going to check if we're dropping this point onto another and if this is the end, and that the 
         // start or vice versa if so we're going to merge but first we have to check we're dragging a point
         if self.handle == WhichHandle::Neither && v.is_modifying() {
+            if v.contour_idx.is_none() || v.point_idx.is_none() { return; }
             let (vci, vpi) = (v.contour_idx.unwrap(), v.point_idx.unwrap());
 
             // are we overlapping a point?
@@ -365,6 +418,8 @@ impl Select {
     // Note that all tool draw events draw over the glyph view.
     fn draw_merge_preview(&self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
         if self.handle == WhichHandle::Neither && v.is_modifying() {
+            if v.contour_idx.is_none() || v.point_idx.is_none() { return; }
+
             let (vci, vpi) = (v.contour_idx.unwrap(), v.point_idx.unwrap());
 
             // are we overlapping a point?
@@ -419,10 +474,7 @@ impl Select {
         canvas.draw_path(&path, &paint);
     }
 
-    fn draw_bounding_box(&self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
-        if v.selected.is_empty() { return; }
-
-        // so now that we know we've got a selection let's build a bounding box
+    fn build_selection_bounding_box(&self, v: &Editor) -> MFEKRect {
         let mut points = vec![];
         for (ci, pi) in &v.selected {
             let point = v.with_active_layer(|layer| layer.outline[*ci].inner[*pi].clone());
@@ -443,7 +495,21 @@ impl Select {
             }
         }
 
-        let bounding_box = MFEKRect::AABB_from_points(points);
+        return MFEKRect::AABB_from_points(points);
+    }
+
+    fn get_bounding_box_center(&self, v: &Editor) -> (f32, f32) {
+        let bounding_box = self.build_selection_bounding_box(v);
+
+        let half_width = ((bounding_box.left - bounding_box.right)/2.) as f32;
+        let half_height = ((bounding_box.top - bounding_box.bottom)/2.) as f32;
+        return (bounding_box.left as f32 - half_width, bounding_box.top as f32 - half_height);
+    }
+
+    fn draw_bounding_box(&self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
+        if v.selected.is_empty() { return; }
+
+        let bounding_box = self.build_selection_bounding_box(v);
 
         let mut path = Path::new();
         let mut paint = Paint::default();
@@ -452,13 +518,16 @@ impl Select {
             calc_x(bounding_box.right as f32), calc_y(bounding_box.bottom as f32),
         );
 
-        println!("{0} {1} {2} {3}", bounding_box.left, bounding_box.right, bounding_box.top, bounding_box.bottom);
         path.add_rect(rect, None);
         path.close();
         paint.set_color(OUTLINE_STROKE);
         paint.set_style(PaintStyle::Stroke);
         paint.set_stroke_width(OUTLINE_STROKE_THICKNESS * (1. / i.viewport.factor));
         canvas.draw_path(&path, &paint);
+
+        //let rot_handle_location = self.get_rot_handle_position(v);
+
+        //canvas.draw_circle(rot_handle_location, 5. * (1. / i.viewport.factor), &paint);
     }
 }
 
