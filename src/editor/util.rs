@@ -201,6 +201,48 @@ pub fn move_point(outline: &mut MFEKOutline<MFEKPointData>, ci: usize, pi: usize
 
 }
 
+pub fn move_point_without_handles(outline: &mut MFEKOutline<MFEKPointData>, ci: usize, pi: usize, x: f32, y: f32) {
+    outline[ci].inner[pi].x = x;
+    outline[ci].inner[pi].y = y;
+}
+
+pub fn get_handle_pos(outline: &mut MFEKOutline<MFEKPointData>, ci: usize, pi: usize, handle: WhichHandle) -> Option<(f32, f32)> {
+    let ret_handle = match handle {
+        WhichHandle::Neither => panic!("This function should be called with a proper handle!"),
+        WhichHandle::A => outline[ci].inner[pi].a,
+        WhichHandle::B => outline[ci].inner[pi].b,
+    };
+
+    return match ret_handle {
+        Handle::At(hx, hy) => {
+            return Some((hx, hy));
+        }
+        Handle::Colocated => None,
+    }
+}
+
+pub fn move_handle(outline: &mut MFEKOutline<MFEKPointData>, ci: usize, pi: usize, handle: WhichHandle, x: f32, y: f32)  {
+    match handle {
+        WhichHandle::Neither => panic!("This function should be called with a proper handle!"),
+        WhichHandle::A => {
+            match outline[ci].inner[pi].a {
+                Handle::At(_hx, _hy) => {
+                    outline[ci].inner[pi].a = Handle::At(x, y)
+                }
+                Handle::Colocated => (),
+            }
+        },
+        WhichHandle::B => {
+            match outline[ci].inner[pi].b {
+                Handle::At(_hx, _hy) => {
+                    outline[ci].inner[pi].b = Handle::At(x, y)
+                }
+                Handle::Colocated => (),
+            }
+        },
+    };
+}
+
 impl Editor {
     pub fn selected(&self) -> Option<(usize, usize)> {
         if let (Some(ci), Some(pi)) = (self.contour_idx, self.point_idx) { // single click

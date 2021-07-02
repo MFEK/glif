@@ -93,7 +93,7 @@ impl Tool for Select {
             EditorEvent::Draw { skia_canvas } => {
                 self.draw_selbox(i, skia_canvas);
                 self.draw_merge_preview(v, i, skia_canvas);
-                //self.draw_bounding_box(v, i, skia_canvas);
+                self.draw_pivot_point(v, i, skia_canvas);
             }
             EditorEvent::Ui { ui } => {
                 self.select_settings(v, i, ui);
@@ -248,7 +248,8 @@ impl Select {
 
         let rot = self.rotate_vector.unwrap();
         let pivot = self.pivot_point.unwrap();
-        let pivot_vector = Vector::from_components(pivot.0 as f64, pivot.1 as f64);
+        let raw_pivot_vector = Vector::from_components(pivot.0 as f64, pivot.1 as f64);
+        let pivot_vector = Vector::from_components(calc_x(pivot.0) as f64, calc_y(pivot.1) as f64);
         let mouse_vector = Vector::from_components(meta.position.0 as f64, meta.position.1 as f64);
     
         let normal_from_pivot = (pivot_vector - mouse_vector).normalize();
@@ -260,9 +261,23 @@ impl Select {
             v.with_active_layer_mut(|layer| {
                 let old_point = get_point!(layer, *ci, *pi).clone();
                 let point_vec = Vector::from_components(old_point.x as f64, old_point.y as f64);
-                let rotated_point = point_vec.rotate(pivot_vector, rotation_angle);
+                let rotated_point = point_vec.rotate(raw_pivot_vector, rotation_angle);
 
-                move_point(&mut layer.outline, *ci, *pi, rotated_point.x as f32, rotated_point.y as f32);
+                move_point_without_handles(&mut layer.outline, *ci, *pi, rotated_point.x as f32, rotated_point.y as f32);
+
+                if let Some(a_pos) = get_handle_pos(&mut layer.outline, *ci, *pi, WhichHandle::A) {
+                    let a_vec = Vector::from_components(a_pos.0 as f64, a_pos.1 as f64);
+                    let rotated_a = a_vec.rotate(raw_pivot_vector, rotation_angle);
+
+                    move_handle(&mut layer.outline, *ci, *pi, WhichHandle::A, rotated_a.x as f32, rotated_a.y as f32)
+                }
+
+                if let Some(b_pos) = get_handle_pos(&mut layer.outline, *ci, *pi, WhichHandle::B) {
+                    let b_vec = Vector::from_components(b_pos.0 as f64, b_pos.1 as f64);
+                    let rotated_b = b_vec.rotate(raw_pivot_vector, rotation_angle);
+
+                    move_handle(&mut layer.outline, *ci, *pi, WhichHandle::B, rotated_b.x as f32, rotated_b.y as f32)
+                }
             });
         }
         self.rotate_vector = Some(normal_from_pivot.to_tuple());
@@ -309,17 +324,14 @@ impl Select {
 
     fn mouse_pressed(&mut self, v: &mut Editor, i: &Interface, meta: MouseInfo) {
         if meta.button == MouseButton::Right {
-            self.pivot_point = Some(meta.position);
+            self.pivot_point = Some((meta.position.0, rcalc_y(meta.position.1)));
             return;
         }
 
         if meta.modifiers.ctrl && !v.selected.is_empty() {
-            if self.pivot_point.is_none() {
-                self.pivot_point = Some(self.get_bounding_box_center(v));
-            }
-
-            let pivot = self.pivot_point.unwrap();
-            let pivot_vector = Vector::from_components(pivot.0 as f64, pivot.1 as f64);
+            let pivot = self.pivot_point.unwrap_or(self.get_bounding_box_center(v));
+            let pivot_calc = (calc_x(pivot.0), calc_y(pivot.1));
+            let pivot_vector = Vector::from_components(pivot_calc.0 as f64, pivot_calc.1 as f64);
             let mouse_vector = Vector::from_components(meta.position.0 as f64, meta.position.1 as f64);
         
             let normal_from_pivot = (pivot_vector - mouse_vector).normalize();
@@ -381,6 +393,13 @@ impl Select {
     }
 
     fn mouse_released(&mut self, v: &mut Editor, i: &Interface, meta: MouseInfo) {
+        if let Some(rot) = self.rotate_vector {
+            self.rotate_vector = None;
+            self.pivot_point = None;
+            v.end_layer_modification();
+            return;
+        }
+
         // we are going to check if we're dropping this point onto another and if this is the end, and that the 
         // start or vice versa if so we're going to merge but first we have to check we're dragging a point
         if self.handle == WhichHandle::Neither && v.is_modifying() {
@@ -506,28 +525,16 @@ impl Select {
         return (bounding_box.left as f32 - half_width, bounding_box.top as f32 - half_height);
     }
 
-    fn draw_bounding_box(&self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
-        if v.selected.is_empty() { return; }
-
-        let bounding_box = self.build_selection_bounding_box(v);
-
-        let mut path = Path::new();
-        let mut paint = Paint::default();
-        let rect = Rect::new(
-            calc_x(bounding_box.left as f32), calc_y(bounding_box.top as f32),
-            calc_x(bounding_box.right as f32), calc_y(bounding_box.bottom as f32),
-        );
-
-        path.add_rect(rect, None);
-        path.close();
-        paint.set_color(OUTLINE_STROKE);
-        paint.set_style(PaintStyle::Stroke);
-        paint.set_stroke_width(OUTLINE_STROKE_THICKNESS * (1. / i.viewport.factor));
-        canvas.draw_path(&path, &paint);
-
-        //let rot_handle_location = self.get_rot_handle_position(v);
-
-        //canvas.draw_circle(rot_handle_location, 5. * (1. / i.viewport.factor), &paint);
+    fn draw_pivot_point(&self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
+        if let Some(pivot) = self.pivot_point {
+            let pivot = (calc_x(pivot.0), calc_y(pivot.1));
+            let mut paint = Paint::default();
+    
+            paint.set_color(OUTLINE_STROKE);
+            paint.set_style(PaintStyle::Stroke);
+            paint.set_stroke_width(OUTLINE_STROKE_THICKNESS * (1. / i.viewport.factor));
+            canvas.draw_circle(pivot, 5. * (1. / i.viewport.factor), &paint);
+        }
     }
 }
 

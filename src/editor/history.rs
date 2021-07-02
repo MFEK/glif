@@ -27,6 +27,7 @@ impl History {
 impl Editor {
     /// Pops a HistoryEntry off the layer stack and restores it.
     pub fn undo(&mut self) {
+        if self.modifying { return; }
         let entry = self.history.undo_stack.pop();
         
         if let Some(undo_entry) = entry {
@@ -67,6 +68,7 @@ impl Editor {
     }
 
     pub fn redo(&mut self) {
+        if self.modifying { return; }
         let entry = self.history.redo_stack.pop();
         
         if let Some(redo_entry) = entry {
