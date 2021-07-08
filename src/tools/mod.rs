@@ -3,7 +3,19 @@ use pub_mod::pub_mod;
 pub_mod!("src/tools");
 
 use self::prelude::*;
-use self::{measure::Measure, pan::Pan, pen::Pen, select::Select, zoom::Zoom, vws::VWS, anchors::Anchors, shapes::Shapes, pap::PAP, grid::GridTool};
+use self::{
+    measure::Measure,
+    pan::Pan,
+    pen::Pen,
+    select::Select,
+    zoom::Zoom,
+    vws::VWS,
+    anchors::Anchors,
+    shapes::Shapes,
+    pap::PAP,
+    grid::GridTool,
+    image::Image,
+};
 use dyn_clone::DynClone;
 use imgui::Ui;
 use crate::user_interface::Interface;
@@ -28,6 +40,7 @@ pub enum ToolEnum {
     Shapes,
     PAP,
     Grid,
+    Image
 }
 
 pub fn tool_enum_to_tool(tool: ToolEnum) -> Box<dyn Tool> {
@@ -42,6 +55,7 @@ pub fn tool_enum_to_tool(tool: ToolEnum) -> Box<dyn Tool> {
         ToolEnum::VWS => {Box::new(VWS::new())} //FIXME: enable vws
         ToolEnum::PAP => {Box::new(PAP::new())}
         ToolEnum::Grid => {Box::new(GridTool::new())}
+        ToolEnum::Image => {Box::new(Image::new())}
     }
 }
 

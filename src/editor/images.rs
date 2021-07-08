@@ -1,6 +1,6 @@
 use skulpin::skia_safe::{ColorInfo as SkColorInfo, ColorType as SkColorType, AlphaType as SkAlphaType, ColorSpace as SkColorSpace, ImageInfo as SkImageInfo};
 use skulpin::skia_safe::{Image as SkImage, Data as SkData, Matrix};
-use glifparser::{Color as GlifColor, Image as GpImage, image::{DataLoadState, DataOrBitmap}};
+use glifparser::{Color as GlifColor, GlifImage, Image as GpImage, image::{DataLoadState, DataOrBitmap}};
 
 use glifparser::matrix::ToSkiaMatrix;
 
@@ -68,5 +68,23 @@ impl Editor {
             }
             ret
         });
+    }
+
+    /// This function must be called between begin_layer_modification and end_layer_modification
+    pub fn add_image_to_active_layer(&mut self, path: PathBuf) {
+        // okay so first we've got to take our pathbuf and we've got to convert it into a glyph image
+        let image_result = GlifImage::from_filename(path);
+
+        let image = match image_result {
+            Ok(image) => image,
+            Err(_) => todo!(), // need to add some way to tell the user we failed to load the image
+            // a pop up box or something should do but I'm not super concerned about this at the moment
+        };
+
+        self.with_active_layer_mut(|layer| {
+            // this clone is a bit rough as this could be a -lot- of data
+            layer.images.push((image.clone(), image.matrix().into()))
+        });
+        self.recache_images();
     }
 }

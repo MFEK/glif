@@ -24,6 +24,7 @@ dependencies = [
  "imgui",
  "imgui-sdl2",
  "imgui-skia-renderer",
+ "kurbo",
  "lazy_static",
  "log",
  "mfek-ipc",
