@@ -16,6 +16,13 @@ pub fn filename_or_panic(
     }
 }
 
+pub fn open_image(start_in: Option<&str>) -> Option<PathBuf> {
+    match nfd::open_file_dialog(Some("jpg,png,gif,webp,bmp"), start_in) {
+        Ok(nfd::Response::Okay(file)) => Some(file.into()),
+        Ok(_) | Err(_) => None,
+    }
+}
+
 pub fn open_filename(filter: Option<&str>, start_in: Option<&str>) -> Option<PathBuf> {
     match nfd::open_file_dialog(filter, start_in) {
         Ok(nfd::Response::Okay(file)) => Some(file.into()),

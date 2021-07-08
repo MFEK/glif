@@ -141,7 +141,7 @@ pub fn draw_round_point(
     canvas.draw_circle((at.0, at.1), radius, &paint);
 }
 
-fn draw_square_point(
+pub fn draw_square_point(
     at: (f32, f32),
     kind: UIPointType,
     selected: bool,
