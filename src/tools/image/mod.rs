@@ -4,13 +4,13 @@ use crate::command::CommandMod;
 use crate::editor::Editor;
 use crate::user_interface::{Interface, MouseInfo};
 use super::prelude::*;
-use MFEKmath::{Rect, Vector};
+use MFEKmath::{Vector};
 use glifparser::matrix::ToSkiaMatrix;
 use crate::filedialog;
-use crate::renderer::{UIPointType, points::draw_square_point};
 use skulpin::skia_safe::{Paint, Path, PaintStyle};
 use kurbo::Affine;
 
+mod dialog;
 
 // The image tool is for adding and manipulating images on layers. With the image tool selected you can click an empty space in order
 // to add an image to the current layer. Clicking an image without holding any modifiers translates that image. Clicking while holding
@@ -38,6 +38,9 @@ impl Tool for Image {
             }
             EditorEvent::Draw { skia_canvas } => { 
                 self.draw_selected(v, i, skia_canvas);
+            }
+            EditorEvent::Ui { ui } => {
+                self.tool_dialog(v, i, ui);
             }
             _ => {}
         }
@@ -74,7 +77,6 @@ impl Image {
             // is relative to 0,0 and the image forms an axis aligned bounding box
             let iter = layer.images.iter().enumerate();
             for (idx, (l_image, i_matrix)) in iter {
-                let sk_mat = i_matrix.to_skia_matrix();
                 let image = &v.images[&l_image.filename];
 
                 let img_rect = image.img.bounds();
@@ -99,7 +101,6 @@ impl Image {
 
     fn get_image_pivot(&self, v: &Editor, idx: usize) -> (f32, f32) {
         v.with_active_layer(|layer| {
-            let sk_mat = layer.images[idx].1.to_skia_matrix();
             let image = &v.images[&layer.images[idx].0.filename];
     
             let img_rect = image.img.bounds();
@@ -107,9 +108,6 @@ impl Image {
             let origin_transform = Matrix::translate((0., 0. - image.img.height() as f32));
             let matrix3 = Matrix::translate((calc_x(0.), calc_y(0.)));
             let origin_mat = matrix3 * layer.images[idx].1.to_skia_matrix() * origin_transform;
-    
-            let f_rect = SkRect::new(img_rect.left() as f32, img_rect.top() as f32, img_rect.right() as f32, img_rect.bottom() as f32);
-            let final_img_rect = origin_mat.map_rect(f_rect).0;
             let final_img_pivot = origin_mat.map_xy(0., img_rect.bottom() as f32);
 
             (final_img_pivot.x, final_img_pivot.y)
@@ -118,7 +116,6 @@ impl Image {
 
     fn get_image_rect(&self, v: &Editor, idx: usize) -> SkRect {
         v.with_active_layer(|layer| {
-            let sk_mat = layer.images[idx].1.to_skia_matrix();
             let image = &v.images[&layer.images[idx].0.filename];
 
             let img_rect = image.img.bounds();
@@ -132,13 +129,12 @@ impl Image {
         })
     }
 
-    fn mouse_moved(&mut self, v: &mut Editor, i: &mut Interface, meta: MouseInfo) {
+    fn mouse_moved(&mut self, v: &mut Editor, _i: &mut Interface, meta: MouseInfo) {
         // when the user has their mouse down we should translate the image by the mouse delta
         if meta.is_down {
             if let Some(selected) = self.selected_idx {
                 if let Some(lp) = self.last_pos {
                     if let Some(rot) = self.rotate_vector {
-                        let rot = self.rotate_vector.unwrap();
                         let pivot = self.pivot_point.unwrap();
                         let pivot_vector = Vector::from_components(pivot.0 as f64, pivot.1 as f64);
                         let mouse_vector = Vector::from_components(meta.position.0 as f64, meta.position.1 as f64);
@@ -236,7 +232,7 @@ impl Image {
 
     }
 
-    fn draw_selected(&mut self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
+    fn draw_selected(&mut self, v: &Editor, _i: &Interface, canvas: &mut Canvas) {
         if let Some(selected) = self.selected_idx {
             let mut selected_path = Path::new();
             let img_rect = self.get_image_rect(v, selected);

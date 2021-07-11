@@ -344,7 +344,7 @@ impl ImguiManager {
                 [TOOLBOX_OFFSET_X, TOOLBOX_OFFSET_Y],
                 imgui::Condition::Always,
             )
-            .size([TOOLBOX_WIDTH, TOOLBOX_HEIGHT+60.], imgui::Condition::Always)
+            .size([TOOLBOX_WIDTH, TOOLBOX_HEIGHT+90.], imgui::Condition::Always)
             .build(&ui, || {
                 Self::build_and_check_button(v, &ui, ToolEnum::Pan, &icons::PAN);
                 Self::build_and_check_button(v, &ui, ToolEnum::Select, &icons::SELECT);
