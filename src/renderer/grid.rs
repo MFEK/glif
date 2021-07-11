@@ -31,14 +31,14 @@ pub fn draw_grid(canvas: &mut Canvas, grid: &Grid, viewport: &Viewport) {
         grid_path.line_to((calc_x(units_from_left - scaled_left_offset + i as f32 * grid.spacing), -scaled_top_offset + viewport.winsize.1 as f32 / viewport.factor));
     }
 
-    let whole_top_offset = (grid.offset + scaled_top_offset) / grid.spacing;
+    let whole_top_offset = (grid.offset - scaled_top_offset) / grid.spacing;
     let fractional_top_offset = whole_top_offset - whole_top_offset.floor();
     let units_from_top = fractional_top_offset * grid.spacing;
 
     let total_horizontal = f32::floor(viewport.winsize.1 as f32 / viewport.factor / grid.spacing) as i32;
-    for i in 0..total_horizontal {
-        grid_path.move_to((calc_x(-scaled_left_offset), calc_y(units_from_top + scaled_top_offset + i as f32 * grid.spacing)));
-        grid_path.line_to((calc_x(-scaled_left_offset + viewport.winsize.0 as f32 / viewport.factor), calc_y(units_from_top + scaled_top_offset + i as f32 * grid.spacing)));
+    for i in -total_horizontal..total_horizontal {
+        grid_path.move_to((calc_x(-scaled_left_offset), calc_y(units_from_top) - scaled_top_offset + i as f32 * grid.spacing));
+        grid_path.line_to((calc_x(-scaled_left_offset + viewport.winsize.0 as f32 / viewport.factor), calc_y(units_from_top) - scaled_top_offset + i as f32 * grid.spacing));
     }
 
     if let Some(slope) = grid.slope {
