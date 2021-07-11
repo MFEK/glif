@@ -34,6 +34,10 @@ pub static RIB_STROKE: u32 = 0xaa_ff7e7e;
 
 pub static SELECTED_FILL: u32 = 0xff_ffed50;
 pub static SELECTED_STROKE: u32 = 0xff_ffa115;
+pub static SELECTED_TERTIARY: u32 = 0xff_e6830f;
+pub static SELECTED_OFFCURVE: u32 = 0xff_e6e6e6;
+pub static SELECTED_OFFCURVE_STROKE: u32 = 0xff_ffc829;
+
 
 pub static MEASURE_STROKE: u32 = 0xff_ff5050;
 

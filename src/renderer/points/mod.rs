@@ -9,6 +9,7 @@ pub mod names;
 use super::constants::*;
 use crate::editor::Editor;
 use crate::editor::{HandleStyle, PointLabels};
+use crate::user_interface::icons::SELECT;
 use crate::user_interface::viewport::Viewport;
 
 use glifparser::{self, Point as GlifPoint, PointType};
@@ -27,7 +28,17 @@ impl<T> SkiaFromGlyph<T> for Point {
 
 fn get_fill_and_stroke(kind: UIPointType, selected: bool) -> (Color, Color) {
     let (fill, stroke) = if selected {
-        (SELECTED_FILL, SELECTED_STROKE)
+        match kind {
+            UIPointType::Handle => (SELECTED_OFFCURVE, SELECTED_OFFCURVE_STROKE),
+            UIPointType::Point((Handle::At(_, _), Handle::Colocated))
+            | UIPointType::Point((Handle::Colocated, Handle::At(_, _))) => {
+                (SELECTED_STROKE, SELECTED_TERTIARY)
+            }
+            UIPointType::Point((Handle::Colocated, Handle::Colocated)) | UIPointType::Direction => {
+                (SELECTED_STROKE, SELECTED_TERTIARY)
+            }
+            _ => (SELECTED_FILL, SELECTED_STROKE),
+        }
     } else {
         match kind {
             UIPointType::Handle => (HANDLE_FILL, HANDLE_STROKE),
