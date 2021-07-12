@@ -43,17 +43,19 @@ pub fn draw_grid(canvas: &mut Canvas, grid: &Grid, viewport: &Viewport) {
 
     if let Some(slope) = grid.slope {
         if slope == 0. { return };
+        let slope_max = f32::max(slope, 1.);
 
         let viewx = viewport.winsize.0 as f32 /viewport.factor;
 
+        let spacing = grid.spacing * slope_max;
         let extra = -total_horizontal + (-total_horizontal as f32 * slope) as i32;
-        let offset = ((grid.offset + scaled_top_offset + scaled_left_offset * slope) / grid.spacing).fract() * grid.spacing;
+        let offset = ((grid.offset + scaled_top_offset + scaled_left_offset * slope) / spacing).fract() * spacing;
 
         for i in extra..-extra {
-            grid_path.move_to((calc_x(-scaled_left_offset), calc_y(grid.spacing * i as f32 - offset + scaled_top_offset)));
+            grid_path.move_to((calc_x(-scaled_left_offset), calc_y(spacing * i as f32 - offset + scaled_top_offset)));
             grid_path.line_to((
                 calc_x(viewx - scaled_left_offset),
-                calc_y(slope*(viewx) + grid.spacing * i as f32 - offset + scaled_top_offset)
+                calc_y(slope*(viewx) + spacing * i as f32 - offset + scaled_top_offset)
             ));
         }
         /*
