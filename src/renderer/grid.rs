@@ -43,9 +43,10 @@ pub fn draw_grid(canvas: &mut Canvas, grid: &Grid, viewport: &Viewport) {
 
     if let Some(slope) = grid.slope {
         if slope == 0. { return };
-        let slope_max = f32::max(slope, 1.);
+        let slope_sign = f32::signum(slope);
+        let slope_max = f32::max(f32::abs(slope), 1.);
 
-        let viewx = viewport.winsize.0 as f32 /viewport.factor;
+        let viewx = viewport.winsize.0 as f32 / viewport.factor;
 
         let spacing = grid.spacing * slope_max;
         let extra = -total_horizontal + (-total_horizontal as f32 * slope) as i32;
@@ -58,20 +59,6 @@ pub fn draw_grid(canvas: &mut Canvas, grid: &Grid, viewport: &Viewport) {
                 calc_y(slope*(viewx) + spacing * i as f32 - offset + scaled_top_offset)
             ));
         }
-        /*
-        let whole_italic_offset = (grid.offset + scaled_left_offset - scaled_top_offset * slope) / grid.spacing;
-        let fractional_italic_offset = whole_italic_offset - whole_italic_offset.floor();
-        let units_from_left = fractional_italic_offset * grid.spacing - (viewport.winsize.1 as f32 / viewport.factor / grid.spacing * slope).floor() * grid.spacing;
-
-        let total_horizontal = f32::floor((viewport.winsize.0 as f32 + (viewport.winsize.0 as f32 * slope)) / viewport.factor / grid.spacing) as usize;
-        for i in 0..total_horizontal {
-            grid_path.move_to((units_from_left - scaled_left_offset + i as f32 * grid.spacing, -scaled_top_offset));
-            grid_path.line_to(
-                (units_from_left - scaled_left_offset + i as f32 * grid.spacing + viewport.winsize.1 as f32 / viewport.factor * slope,
-                -scaled_top_offset + viewport.winsize.1 as f32 / viewport.factor)
-            );
-        }
-        */
     }
 
     canvas.draw_path(&grid_path, &paint);

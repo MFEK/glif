@@ -70,7 +70,8 @@ impl MouseInfo {
             ));
 
             if let Some(slope) = &grid.slope {
-                let slope_max = f32::min(*slope, 1.);
+                let slope_sign = f32::signum(*slope);
+                let slope_max = f32::min(f32::abs(*slope), 1.);
                 let x = mpos.0 - mpos.1/slope;
                 let s = (grid.spacing/slope_max).abs();
                 let c = (x/s + 0.5).floor() * s;
