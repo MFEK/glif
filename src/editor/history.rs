@@ -37,7 +37,7 @@ impl Editor {
                 contour_idx: self.contour_idx,
                 point_idx: self.point_idx,
                 selected: Some(self.selected.clone()),
-                layer: self.glyph.as_ref().unwrap().layers[self.layer_idx.unwrap()].clone(),
+                layer: undo_entry.layer.clone(),
                 kind: undo_entry.kind.clone()
             });
     
@@ -48,11 +48,17 @@ impl Editor {
                 HistoryType::LayerAdded => {
                     self.glyph.as_mut().unwrap().layers.pop();
                 }
-                HistoryType::LayerDeleted => {
+                HistoryType::LayerDeleted { layer_operation } => {
                     self.glyph.as_mut().unwrap().layers.insert(undo_entry.layer_idx.unwrap(), undo_entry.layer);
+                    if let Some(layerop) = layer_operation {
+                        self.glyph.as_mut().unwrap().layers[self.layer_idx.unwrap()+1].operation = Some(layerop);
+                    }
                 }
-                HistoryType::LayerMoved { to, from } => {
-                    self.swap_layers(to, from, false)
+                HistoryType::LayerMoved { to, from, layer_operation} => {
+                    self.swap_layers(to, from, false);
+                    if let Some(layerop) = layer_operation {
+                        self.glyph.as_mut().unwrap().layers[self.layer_idx.unwrap()+1].operation = Some(layerop);
+                    }
                 }
             }
 
@@ -90,10 +96,10 @@ impl Editor {
                 HistoryType::LayerAdded => {
                     self.glyph.as_mut().unwrap().layers.push(redo_entry.layer);
                 }
-                HistoryType::LayerDeleted => {
-                    self.glyph.as_mut().unwrap().layers.insert(redo_entry.layer_idx.unwrap(), redo_entry.layer);
+                HistoryType::LayerDeleted { .. } => {
+                    self.glyph.as_mut().unwrap().layers.remove(redo_entry.layer_idx.unwrap());
                 }
-                HistoryType::LayerMoved { to, from } => {
+                HistoryType::LayerMoved { to, from, .. } => {
                     self.swap_layers(from, to, false)
                 }
             }
