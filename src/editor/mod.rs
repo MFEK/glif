@@ -183,6 +183,11 @@ impl Editor {
         self.active_tool = tool_enum_to_tool(tool);
     }
 
+    pub fn reset_tool(&mut self) {
+        self.end_layer_modification();
+        self.active_tool = tool_enum_to_tool(self.active_tool_enum);       
+    }
+
     /// Get the active tool by enum.
     pub fn get_tool(&self) -> ToolEnum {
         self.active_tool_enum

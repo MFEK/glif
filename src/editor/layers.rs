@@ -65,6 +65,11 @@ impl Editor {
     }
 
     pub fn set_active_layer(&mut self, idx: usize) {
+        if let Some(old_idx) = self.layer_idx {
+            if idx != old_idx {
+                self.reset_tool();
+            }
+        }
         // TODO: save selection when leaving layer
         self.layer_idx = Some(idx);
         self.contour_idx = None;
