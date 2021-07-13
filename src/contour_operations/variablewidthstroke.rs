@@ -86,10 +86,10 @@ impl ContourOperation for VWSContour {
     fn insert(&self, _contour: &MFEKContour<MFEKPointData>, point_idx: usize) -> Self {
         let mut temp_handles = self.handles.clone();
         temp_handles.insert(point_idx, VWSHandle {
-            left_offset: temp_handles[point_idx - 1].left_offset,
-            right_offset: temp_handles[point_idx - 1].right_offset,
-            tangent_offset: temp_handles[point_idx - 1].tangent_offset,
-            interpolation: temp_handles[point_idx - 1].interpolation,
+            left_offset: temp_handles[point_idx].left_offset,
+            right_offset: temp_handles[point_idx].right_offset,
+            tangent_offset: temp_handles[point_idx].tangent_offset,
+            interpolation: temp_handles[point_idx].interpolation,
         });
 
         VWSContour {
