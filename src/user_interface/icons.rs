@@ -24,4 +24,5 @@ pub const LAYERCOMBINE: &[u8] = &[239, 128, 151, 0]; // U+F017
 pub const _LAYERDIFFERENCE: &[u8] = &[239, 128, 152, 0]; // U+F018
 pub const _LAYERINTERSECTION: &[u8] = &[239, 128, 153, 0]; // U+F019
 pub const _LAYERXOR: &[u8] = &[239, 128, 154, 0]; // U+F01A
+pub const IMAGES: &[u8] = &[239, 128, 156, 0]; // U+F01C
 pub const GRID: &[u8] = &[239, 128, 169, 0]; // U+F029
