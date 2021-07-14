@@ -2,7 +2,7 @@ use directories::BaseDirs;
 use lazy_static::lazy_static;
 use log;
 
-use std::path::PathBuf;
+use std::{fs, path::PathBuf};
 
 lazy_static! {
     pub static ref CONFIG_PATH: PathBuf = {
@@ -10,6 +10,9 @@ lazy_static! {
         ret.push("MFEK");
         ret.push("glif");
         log::info!("Configuration directory is {:?}", &ret);
+
+        fs::create_dir_all(ret.clone().to_path_buf());
+
         ret
     };
 }

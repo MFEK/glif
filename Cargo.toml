@@ -23,6 +23,9 @@ sdl2 = { version = ">=0.34", features = ["bundled", "static-link", "raw-window-h
 # For choosing font for toolbox
 font-kit = "0.10"
 
+# Used in the panic hook to display cross platform message boxes.
+msgbox = "0.6.1"
+
 # For global state
 lazy_static = "1.4"
 
