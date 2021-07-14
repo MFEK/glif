@@ -62,6 +62,9 @@ pub fn draw_all(v: &Editor, viewport: &Viewport, canvas: &mut Canvas) {
     draw_baseline(viewport, canvas);
 
     v.with_glyph(|glyph| {
+        // These draw guidelines defined in the specific glyph, if any.
+        // e.g., in a multi-script font, the Hebrew glyphs may define a "Hebrew x-height",
+        // which would be different than the Latin x-height.
         for guideline in &glyph.guidelines {
             draw_guideline(
                 viewport,
@@ -70,5 +73,18 @@ pub fn draw_all(v: &Editor, viewport: &Viewport, canvas: &mut Canvas) {
                 None,
             );
         }
-    })
+    });
+
+    // These draw the UFO-global guidelines. This includes always (in a valid UFO) ascender and
+    // descender, but in a single-script font, like for example a Latin-only font, may include
+    // user-defined guidelines like x-height, cap-height, "digit height", etc., which are not
+    // meaningful to the output format.
+    for guideline in &v.guidelines {
+        draw_guideline(
+            viewport,
+            canvas,
+            guideline,
+            Some(UFO_GUIDELINE_STROKE),
+        );
+    }
 }

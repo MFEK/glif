@@ -26,3 +26,4 @@ pub const _LAYERINTERSECTION: &[u8] = &[239, 128, 153, 0]; // U+F019
 pub const _LAYERXOR: &[u8] = &[239, 128, 154, 0]; // U+F01A
 pub const IMAGES: &[u8] = &[239, 128, 156, 0]; // U+F01C
 pub const GRID: &[u8] = &[239, 128, 169, 0]; // U+F029
+pub const GUIDELINES: &[u8] = &[239, 128, 176, 0]; // U+F030

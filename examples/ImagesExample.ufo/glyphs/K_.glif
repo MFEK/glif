@@ -205,8 +205,6 @@
   <image xyScale="0.707" fileName="logo.png" yxScale="-0.707" yScale="0.707" xOffset="0" yOffset="0" xScale="0.707" />
   <image fileName="logo.png" yxScale="0" xyScale="0" yOffset="0" xScale="1" yScale="1" xOffset="0" />
   <image yScale="0.1" xOffset="0" yOffset="0" fileName="logo.png" xyScale="0" xScale="0.1" yxScale="0" />
-  <guideline name="ascender" x="0" angle="0" y="701" />
-  <guideline name="descender" x="0" y="-172" angle="0" />
   <!-- !!MFEK!!{
   "layers": [
     {
@@ -2130,30 +2128,7 @@
   "flattened": null,
   "component_rects": null,
   "guidelines": [
-    {
-      "at": {
-        "x": 0.0,
-        "y": 701.0
-      },
-      "angle": {
-        "Float": 0.0
-      },
-      "name": "ascender",
-      "color": null,
-      "identifier": null
-    },
-    {
-      "at": {
-        "x": 0.0,
-        "y": -172.0
-      },
-      "angle": {
-        "Float": 0.0
-      },
-      "name": "descender",
-      "color": null,
-      "identifier": null
-    }
+    
   ],
   "width": 780,
   "unicode": [

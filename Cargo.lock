@@ -15,6 +15,7 @@ dependencies = [
  "directories",
  "dyn-clone",
  "enum-iterator",
+ "enum-unitary",
  "env_logger",
  "flo_curves",
  "font-kit",
@@ -640,6 +641,16 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "enum-unitary"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "44afd1b5e6ac73229825b28e84e6ccca2ce7c419037c4f62a1aa56999e950496"
+dependencies = [
+ "enum-iterator",
+ "num-traits",
 ]
 
 [[package]]

@@ -15,6 +15,7 @@ use self::{
     pap::PAP,
     grid::GridTool,
     image::Image,
+    guidelines::Guidelines,
 };
 use dyn_clone::DynClone;
 use imgui::Ui;
@@ -28,19 +29,23 @@ pub trait Tool: DynClone{
     fn handle_event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent);
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub enum ToolEnum {
-    Pan,
-    Pen,
-    Select,
-    Zoom,
-    Measure,
-    VWS,
-    Anchors,
-    Shapes,
-    PAP,
-    Grid,
-    Image
+use enum_unitary::enum_unitary;
+enum_unitary! {
+    #[derive(Debug, Copy, PartialEq)]
+    pub enum ToolEnum {
+        Pan,
+        Pen,
+        Select,
+        Zoom,
+        Measure,
+        VWS,
+        Anchors,
+        Shapes,
+        PAP,
+        Grid,
+        Image,
+        Guidelines,
+    }
 }
 
 pub fn tool_enum_to_tool(tool: ToolEnum) -> Box<dyn Tool> {
@@ -56,6 +61,7 @@ pub fn tool_enum_to_tool(tool: ToolEnum) -> Box<dyn Tool> {
         ToolEnum::PAP => {Box::new(PAP::new())}
         ToolEnum::Grid => {Box::new(GridTool::new())}
         ToolEnum::Image => {Box::new(Image::new())}
+        ToolEnum::Guidelines => {Box::new(Guidelines::new())}
     }
 }
 

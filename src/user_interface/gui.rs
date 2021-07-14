@@ -8,7 +8,13 @@ use super::{Interface, icons};
 pub const TOOLBOX_OFFSET_X: f32 = 10.;
 pub const TOOLBOX_OFFSET_Y: f32 = TOOLBOX_OFFSET_X;
 pub const TOOLBOX_WIDTH: f32 = 52.;
-pub const TOOLBOX_HEIGHT: f32 = 300.;
+
+use enum_unitary::Bounded as _;
+use lazy_static::lazy_static;
+lazy_static! {
+    pub static ref NUM_TOOLS: usize = ToolEnum::max_value() as usize;
+    pub static ref TOOLBOX_HEIGHT: f32 = (*NUM_TOOLS * 20 + (*NUM_TOOLS * 10)) as f32;
+}
 
 pub const LAYERBOX_WIDTH: f32 = 250.;
 pub const LAYERBOX_HEIGHT: f32 = 250.;
@@ -344,7 +350,7 @@ impl ImguiManager {
                 [TOOLBOX_OFFSET_X, TOOLBOX_OFFSET_Y],
                 imgui::Condition::Always,
             )
-            .size([TOOLBOX_WIDTH, TOOLBOX_HEIGHT+90.], imgui::Condition::Always)
+            .size([TOOLBOX_WIDTH, *TOOLBOX_HEIGHT+90.], imgui::Condition::Always)
             .build(&ui, || {
                 Self::build_and_check_button(v, &ui, ToolEnum::Pan, &icons::PAN);
                 Self::build_and_check_button(v, &ui, ToolEnum::Select, &icons::SELECT);
@@ -359,6 +365,7 @@ impl ImguiManager {
                 Self::build_and_check_button(v, &ui, ToolEnum::Shapes, &icons::SHAPES);
                 Self::build_and_check_button(v, &ui, ToolEnum::Grid, &icons::GRID);
                 Self::build_and_check_button(v, &ui, ToolEnum::Image, &icons::IMAGES);
+                Self::build_and_check_button(v, &ui, ToolEnum::Guidelines, &icons::GUIDELINES);
             });
     
         imgui::Window::new( imgui::im_str!("Layers"))
@@ -418,7 +425,7 @@ impl ImguiManager {
                     [(i.viewport.winsize.0/2) as f32, (i.viewport.winsize.1/2) as f32],
                     imgui::Condition::Always,
                 )
-                .size([TOOLBOX_HEIGHT, TOOLBOX_WIDTH+10.], imgui::Condition::Always)
+                .size([*TOOLBOX_HEIGHT, TOOLBOX_WIDTH+10.], imgui::Condition::Always)
                 .focused(true)
                 .build(ui, || {
                     PROMPT_STR.with(|prompt_str| {
@@ -453,7 +460,7 @@ impl ImguiManager {
                     [(i.viewport.winsize.0/2) as f32, (i.viewport.winsize.1/2) as f32],
                     imgui::Condition::Always,
                 )
-                .size([TOOLBOX_HEIGHT, TOOLBOX_HEIGHT + 10.], imgui::Condition::Always)
+                .size([*TOOLBOX_HEIGHT, *TOOLBOX_HEIGHT + 10.], imgui::Condition::Always)
                 .focused(true)
                 .build(ui, || {
                     PROMPT_CLR.with(|ui_color| {
@@ -489,7 +496,7 @@ impl ImguiManager {
                     [(i.viewport.winsize.0/2) as f32, (i.viewport.winsize.1/2) as f32],
                     imgui::Condition::Always,
                 )
-                .size([TOOLBOX_HEIGHT, TOOLBOX_HEIGHT + 10.], imgui::Condition::Always)
+                .size([*TOOLBOX_HEIGHT, *TOOLBOX_HEIGHT + 10.], imgui::Condition::Always)
                 .focused(true)
                 .build(ui, || {
                     let layer_count = v.with_glyph(|glif| glif.layers.len());

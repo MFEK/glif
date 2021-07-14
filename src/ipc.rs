@@ -30,13 +30,15 @@ pub fn fetch_metrics(v: &mut Editor) {
             } else {
                 let names = &["ascender", "descender"];
                 for (i, line) in lines_iter.enumerate() {
-                    v.with_glyph_mut(|glyph|glyph.guidelines.push(Guideline {
-                        at: GuidelinePoint {x: 0., y: line.parse().expect("Font is corrupt, metrics not numeric!")},
-                        angle: IntegerOrFloat::Float(0.),
-                        name: Some(names[i].to_string()),
-                        color: None,
-                        identifier: None
-                    }));
+                    v.guidelines.push(
+                        Guideline {
+                            at: GuidelinePoint {x: 0., y: line.parse().expect("Font is corrupt, metrics not numeric!")},
+                            angle: IntegerOrFloat::Float(0.),
+                            name: Some(names[i].to_string()),
+                            color: None,
+                            identifier: None,
+                        }
+                    );
                 }
             }
         }

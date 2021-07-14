@@ -42,7 +42,9 @@ pub static SELECTED_OFFCURVE_STROKE: u32 = 0xff_ffc829;
 pub static MEASURE_STROKE: u32 = 0xff_ff5050;
 
 pub static LBEARING_STROKE: u32 = 0xff_7d7d7d;
-pub static RBEARING_STROKE: u32 = LBEARING_STROKE;
+pub static RBEARING_STROKE: u32 = 0xaa_003300;
+
+pub static UFO_GUIDELINE_STROKE: u32 = 0xaa_7d0000;
 
 pub static CONSOLE_FILL: u32 = 0xff_000000;
 pub static CONSOLE_TEXT_FILL: u32 = 0xff_ffffff;

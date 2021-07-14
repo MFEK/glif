@@ -1,4 +1,4 @@
-use glifparser::{MFEKGlif, glif::{HistoryEntry, HistoryType, Layer, MFEKPointData}};
+use glifparser::{MFEKGlif, Guideline, glif::{HistoryEntry, HistoryType, Layer, MFEKPointData}};
 
 pub use crate::renderer::console::Console as RendererConsole;
 use crate::{tools::{EditorEvent, Tool, ToolEnum, pan::Pan, tool_enum_to_tool}, user_interface::Interface};
@@ -56,6 +56,8 @@ pub struct Editor {
     pub selected: HashSet<(usize, usize)>,
 
     pub images: images::EditorImages,
+    // These are UFO-global guidelines which won't be picked up by glifparser.
+    pub guidelines: Vec<Guideline>,
 
     pub quit_requested: bool, // allows for quits from outside event loop, e.g. from command closures
 
@@ -83,6 +85,7 @@ impl Editor {
             selected: HashSet::new(),
 
             images: images::EditorImages::new(),
+            guidelines: vec![],
             quit_requested: false,
             ipc_info: None,
             preview_dirty: true,
