@@ -49,7 +49,7 @@ pub fn draw_grid(canvas: &mut Canvas, grid: &Grid, viewport: &Viewport) {
         let viewx = viewport.winsize.0 as f32 / viewport.factor;
 
         let spacing = grid.spacing * slope_max;
-        let extra = -total_horizontal + (-total_horizontal as f32 * slope) as i32;
+        let extra = -total_horizontal + (-total_horizontal as f32) as i32;
         let offset = ((grid.offset + scaled_top_offset + scaled_left_offset * slope) / spacing).fract() * spacing;
 
         for i in extra..-extra {
