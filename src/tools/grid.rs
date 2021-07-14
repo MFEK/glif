@@ -104,9 +104,23 @@ impl GridTool {
                     }
 
                     if let Some(slope) = grid.slope {
-                        let mut old_slope = slope.clone();
-                        imgui_decimal_text_field("Slope", ui, &mut old_slope);
-                        grid.slope = Some(old_slope);
+                        let old_slope = slope.clone();
+
+                        let mut new_slope = slope.clone();
+                        imgui_decimal_text_field("Slope", ui, &mut new_slope);
+
+                        if old_slope != new_slope { 
+                            grid.slope = Some(new_slope);
+                        };
+
+                        let old_angle = (f32::to_degrees(f32::atan(slope.clone())) * 10000.).round() / 10000.;
+                        let mut new_angle = old_angle.clone();
+
+                        imgui_decimal_text_field("Degrees", ui, &mut new_angle);
+
+                        if old_angle != new_angle {
+                            grid.slope = Some(f32::tan(f32::to_radians(new_angle)));
+                        }
                     }
 
                     grid.offset %= grid.spacing;
