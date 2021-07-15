@@ -54,33 +54,34 @@ pub fn draw(canvas: &mut Canvas, v: &mut Editor, viewport: &Viewport, active_lay
             
             if viewport.preview_mode == PreviewMode::Paper {
                 paint.set_style(PaintStyle::Fill);
+                paint.set_color(PAPER_FILL);
             } else {
                 paint.set_style(PaintStyle::StrokeAndFill);
                 paint.set_color(OUTLINE_FILL);
+        
                 paint.set_stroke_width(
                     OUTLINE_STROKE_THICKNESS * (1. / viewport.factor),
                 );
             }
-
+        
             if let Some(color) = root_color {
                 paint.set_color4f(color, None);
-            }
+            } 
+
+            canvas.draw_path(&total_closed_path, &paint);
+            paint.set_style(PaintStyle::Stroke);
+            canvas.draw_path(&total_open_path, &paint);
 
             if viewport.preview_mode != PreviewMode::Paper {
                 paint.set_color(OUTLINE_STROKE);
                 if let Some(color) = root_color {
                     paint.set_color4f(color, None);
                 }
-                canvas.draw_path(&total_closed_path, &paint);
-
-                paint.set_style(PaintStyle::Stroke);
-                canvas.draw_path(&total_open_path, &paint);
-            } else {
-                canvas.draw_path(&total_closed_path, &paint);
-
-                paint.set_style(PaintStyle::Stroke);
-                canvas.draw_path(&total_open_path, &paint);
             }
+
+            canvas.draw_path(&total_closed_path, &paint);
+            paint.set_style(PaintStyle::Stroke);
+            canvas.draw_path(&total_open_path, &paint);
             
             total_open_path = Path::new();
             total_closed_path = Path::new();
@@ -142,9 +143,11 @@ pub fn draw(canvas: &mut Canvas, v: &mut Editor, viewport: &Viewport, active_lay
     
     if viewport.preview_mode == PreviewMode::Paper {
         paint.set_style(PaintStyle::Fill);
+        paint.set_color(PAPER_FILL);
     } else {
         paint.set_style(PaintStyle::StrokeAndFill);
         paint.set_color(OUTLINE_FILL);
+
         paint.set_stroke_width(
             OUTLINE_STROKE_THICKNESS * (1. / viewport.factor),
         );
@@ -152,9 +155,7 @@ pub fn draw(canvas: &mut Canvas, v: &mut Editor, viewport: &Viewport, active_lay
 
     if let Some(color) = root_color {
         paint.set_color4f(color, None);
-    } else if viewport.preview_mode == PreviewMode::Paper {
-        paint.set_color(PAPER_FILL);
-    }
+    } 
 
     canvas.draw_path(&total_closed_path, &paint);
 
