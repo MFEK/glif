@@ -69,6 +69,7 @@ pub struct Select {
     pivot_point: Option<(f32, f32)>,
     show_sel_box: bool,
     rotate_vector: Option<(f32, f32)>,
+    selection: Option<HashSet<(usize, usize)>>
 }
 
 impl Tool for Select {
@@ -91,7 +92,7 @@ impl Tool for Select {
                 self.reverse_selected(v);
             }
             EditorEvent::Draw { skia_canvas } => {
-                self.draw_selbox(i, skia_canvas);
+                self.draw_selbox(v, i, skia_canvas);
                 self.draw_merge_preview(v, i, skia_canvas);
                 self.draw_pivot_point(v, i, skia_canvas);
             }
@@ -111,7 +112,7 @@ impl Select {
             corner_one: None,
             corner_two: None,
             show_sel_box: false,
-
+            selection: None,
             rotate_vector: None,
             pivot_point: None,
         }
@@ -302,8 +303,7 @@ impl Select {
             }
             _ => {
                 self.corner_two = Some(meta.position);
-                let last_selected = v.selected.clone();
-                let selected = v.with_active_layer(|layer| {
+                self.selection = Some(v.with_active_layer(|layer| {
                     let c1 = self.corner_one.unwrap_or((0., 0.));
                     let c2 = self.corner_two.unwrap_or((0., 0.));
                     let rect = Rect::from_point_and_size(
@@ -312,12 +312,10 @@ impl Select {
                     );
                     
                     build_box_selection(
-                        last_selected.clone(),
                         rect,
                         &layer.outline,
                     )
-                });
-                v.selected = selected
+                }));
             },
         };
     }
@@ -426,6 +424,14 @@ impl Select {
             }
         }
 
+        if let Some(selection) = &self.selection {
+            if !meta.modifiers.shift {
+                v.selected = selection.clone();
+            } else {
+                v.selected.extend(selection.clone());
+            }
+            self.selection = None;
+        }
 
         v.end_layer_modification();
         self.show_sel_box = false;
@@ -473,7 +479,7 @@ impl Select {
     }
 
     // This renders the dashed path of the selection box. 
-    fn draw_selbox(&self, i: &Interface, canvas: &mut Canvas) {
+    fn draw_selbox(&self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
         let c1 = self.corner_one.unwrap_or((0., 0.));
         let c2 = self.corner_two.unwrap_or((0., 0.));
     
@@ -491,6 +497,24 @@ impl Select {
         let dash_offset = (1. / i.viewport.factor) * 2.;
         paint.set_path_effect(dash_path_effect::new(&[dash_offset, dash_offset], 0.0));
         canvas.draw_path(&path, &paint);
+
+        if let Some(selected) = &self.selection {
+            v.with_active_layer(|layer| {
+                for (cidx, pidx) in selected {
+                    let point = &get_point!(layer, *cidx, *pidx);
+                    draw_point(
+                        v,
+                        &i.viewport,
+                        (calc_x(point.x), calc_y(point.y)),
+                        (point.x, point.y),
+                        None,
+                        UIPointType::Point((point.a, point.b)),
+                        true,
+                        canvas
+                    );
+                }
+            });
+        }
     }
 
     fn build_selection_bounding_box(&self, v: &Editor) -> MFEKRect {

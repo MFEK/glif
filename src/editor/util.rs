@@ -159,13 +159,12 @@ pub fn nearest_point_on_curve(v: &Editor, i: &Interface, position: (f32, f32)) -
 }
 
 pub fn build_box_selection(
-    selected: HashSet<(usize, usize)>,
     mut rect: SkRect,
     outline: &MFEKOutline<MFEKPointData>,
 ) -> HashSet<(usize, usize)> {
     rect.flip_if_required();
 
-    let mut selected = selected.clone();
+    let mut selected = HashSet::new();
     for (cidx, contour) in outline.iter().enumerate() {
         for (pidx, point) in contour.inner.iter().enumerate() {
             if SkRect::from(rect).contains(SkPoint::from((calc_x(point.x), calc_y(point.y)))) {
