@@ -85,6 +85,8 @@ impl Pen {
 
         // Next we check if our mouse is over an existing curve. If so we add a point to the curve and return.
         if let Some(info) = nearest_point_on_curve(v, i, meta.position) {
+            let old_idx = v.point_idx;
+            let mut new_idx = old_idx;
             v.with_active_layer_mut(|layer| {
                 let mut second_idx_zero = false;
                 let contour = &mut layer.outline[info.contour_idx];
@@ -124,8 +126,17 @@ impl Pen {
                     contour.operation = contour_operations::insert(contour, info.seg_idx);
                     contour.inner.insert(info.seg_idx, point);
 
+                    if let Some(pidx) = old_idx {
+                        if pidx >= info.seg_idx {
+                            new_idx = Some(pidx + 1);
+                        }
+                    }
                 }
             });
+
+            if old_idx != new_idx {
+                v.point_idx = new_idx;
+            }
             return
         }
 
