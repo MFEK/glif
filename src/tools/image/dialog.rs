@@ -4,6 +4,8 @@ use super::super::prelude::*;
 use super::Image;
 use imgui::Ui;
 use crate::user_interface::{InputPrompt, Interface};
+use kurbo::Affine;
+use std::convert::TryInto;
 
 fn imgui_decimal_text_field(label: &str, ui: &imgui::Ui, data: &mut f32) {
     let mut x = imgui::im_str!("{}", data);
@@ -67,6 +69,30 @@ impl Image {
                     let default_mat = kurbo::Affine::default();
                     v.begin_layer_modification("Reset image transform.");
                     v.with_active_layer_mut(|layer| layer.images[selected].1 = default_mat);
+                    v.end_layer_modification();
+                }
+
+                let mut scale = 1.;
+                imgui_decimal_text_field("Scale", ui, &mut scale);
+
+                if scale != 1. {
+                    v.begin_layer_modification("Set image scale.");
+                    v.with_active_layer_mut(|layer| {
+                        let affine = layer.images[selected].1.clone();
+                        let raw_affine: Vec<f32> = affine.as_coeffs().iter().map(|x| *x as f32).collect();
+
+                        let sk_affine = Matrix::from_affine(&raw_affine.try_into().unwrap());
+                        let scale_mat = Matrix::scale((scale, scale));
+
+                        let sk_affine = sk_affine * scale_mat;
+
+                        let translated_raw_affine = sk_affine.to_affine();
+
+                        if let Some(tra) = translated_raw_affine {
+                            let tra: Vec<f64> = tra.iter().map(|x| *x as f64).collect();
+                            layer.images[selected].1 = Affine::new(tra.try_into().unwrap());
+                        }
+                    });
                     v.end_layer_modification();
                 }
             }
