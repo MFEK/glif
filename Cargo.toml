@@ -39,7 +39,7 @@ clap = "2.33"
 git-version = "0.3"
 
 # For UI toggles
-enum-iterator = "=0.6.0"
+enum-iterator = "=0.7.0"
 
 # Display backtraces
 backtrace = "0.3"
