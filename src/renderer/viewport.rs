@@ -1,5 +1,5 @@
-use skulpin::skia_safe::{Canvas, Matrix};
 use crate::user_interface::Interface;
+use skulpin::skia_safe::{Canvas, Matrix};
 
 pub fn redraw_viewport(i: &Interface, canvas: &mut Canvas) {
     let mut matrix = Matrix::new_identity();

@@ -7,7 +7,7 @@ use crate::CONSOLE;
 pub mod constants;
 use self::{constants::*};
 pub mod console;
-mod guidelines;
+pub mod guidelines;
 pub mod points; // point drawing functions
                 // This imports calc_x, etc. which transforms coordinates between .glif and Skia
 pub use points::calc::{calc_x, calc_y};
