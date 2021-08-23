@@ -84,7 +84,7 @@ impl Measure {
                 i,
                 (halfway.x as f32, halfway.y as f32),
                 angle as f32,
-                distance.to_string().as_str(),
+                format!{"{0:.3}", distance}.as_str(),
                 canvas,
             );
         }
