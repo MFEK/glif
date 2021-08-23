@@ -16,7 +16,6 @@ mod dialog;
 #[derive(Clone)]
 pub struct Image {
     selected_idx: Option<usize>,
-    debug: MouseInfo,
 }
 
 impl Tool for Image {
@@ -26,7 +25,6 @@ impl Tool for Image {
                 event_type,
                 mouse_info,
             } => {
-                self.debug = mouse_info;
                 match event_type {
                     MouseEventType::Pressed => self.mouse_pressed(v, mouse_info),
                     _ => {}
@@ -60,20 +58,6 @@ impl Image {
     pub fn new() -> Self {
         Self {
             selected_idx: None,
-            debug: MouseInfo {
-                // this really needs a default
-                button: sdl2::mouse::MouseButton::Left,
-                position: (0., 0.),
-                raw_position: (0., 0.),
-                absolute_position: (0., 0.),
-                raw_absolute_position: (0., 0.),
-                is_down: (false),
-                modifiers: CommandMod {
-                    shift: false,
-                    ctrl: false,
-                    alt: false,
-                },
-            },
         }
     }
 
