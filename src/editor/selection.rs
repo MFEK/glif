@@ -1,9 +1,9 @@
 
-use glifparser::{PointType, glif::{Layer, MFEKContour, MFEKPointData}};
+use MFEKmath::{Rect, Vector};
+use glifparser::{Handle, PointType, glif::{Layer, MFEKContour, MFEKPointData}};
 
 use crate::contour_operations;
 use super::Editor;
-use super::util::is_point_selected;
 
 impl Editor {
     /// Copy the current selection and put it in our clipboard. 
@@ -18,7 +18,7 @@ impl Editor {
 
             let mut deleted = false;
             for (point_idx, point) in contour.inner.iter().enumerate() {
-                let to_delete = !is_point_selected(self, contour_idx, point_idx);
+                let to_delete = !self.point_selected(contour_idx, point_idx);
 
                 if to_delete {
                     let mut mfekcur: MFEKContour<MFEKPointData> = cur_contour.into();
@@ -95,7 +95,7 @@ impl Editor {
 
             let mut deleted = false;
             for (point_idx, point) in contour.inner.iter().enumerate() {
-                let to_delete = is_point_selected(self, contour_idx, point_idx);
+                let to_delete = self.point_selected(contour_idx, point_idx);
 
                 if to_delete {
                     let mut mfekcur: MFEKContour<MFEKPointData> = cur_contour.into();
@@ -138,4 +138,60 @@ impl Editor {
         self.point_idx = None;
         self.selected.clear();
     }
+
+    pub fn build_selection_bounding_box(&self) -> Rect {
+        let mut points = vec![];
+        for (ci, pi) in &self.selected {
+            let point = self.with_active_layer(|layer| layer.outline[*ci].inner[*pi].clone());
+            points.push(Vector { x: point.x as f64, y: point.y as f64 });
+    
+            match point.a {
+                Handle::At(x, y) => {
+                    points.push(Vector { x: x as f64, y: y as f64 });
+                }
+                _ => {}
+            }
+    
+            match point.b {
+                Handle::At(x, y) => {
+                    points.push(Vector { x: x as f64, y: y as f64 });
+                }
+                _ => {}
+            }
+        }
+    
+        return Rect::AABB_from_points(points);
+    }
+    
+    pub fn get_selection_bounding_box_center(&self) -> (f32, f32) {
+        let bounding_box = self.build_selection_bounding_box();
+    
+        let half_width = ((bounding_box.left - bounding_box.right)/2.) as f32;
+        let half_height = ((bounding_box.top - bounding_box.bottom)/2.) as f32;
+        return (bounding_box.left as f32 - half_width, bounding_box.top as f32 - half_height);
+    }
+
+    pub fn selected(&self) -> Option<(usize, usize)> {
+        if let (Some(ci), Some(pi)) = (self.contour_idx, self.point_idx) { // single click
+            Some((ci, pi))
+        } else if let Some((ci, pi)) = self.selected.iter().next() { // selbox
+            Some((*ci, *pi))
+        } else {
+            None
+        }
+    }
+
+    pub fn point_selected(&self, contour_idx: usize, point_idx: usize) -> bool
+    {
+        if let Some(editor_pidx) = self.point_idx {
+            let editor_cidx = self.contour_idx.unwrap();
+
+            if contour_idx == editor_cidx && point_idx == editor_pidx { return true };
+        }
+
+        if self.selected.contains(&(contour_idx, point_idx)) { return true };
+
+        return false;
+    }
+
 }

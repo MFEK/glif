@@ -9,7 +9,6 @@ pub mod names;
 use super::constants::*;
 use crate::editor::Editor;
 use crate::editor::{HandleStyle, PointLabels};
-use crate::user_interface::icons::SELECT;
 use crate::user_interface::viewport::Viewport;
 
 use glifparser::{self, Point as GlifPoint, PointType};

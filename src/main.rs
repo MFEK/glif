@@ -8,6 +8,7 @@ use tools::{EditorEvent, MouseEventType, ToolEnum};
 use editor::{Editor, HandleStyle, PointLabels, PreviewMode, CONSOLE};
 use user_interface::{ImguiManager, Interface};
 use util::argparser::HeadlessMode;
+use crate::tools::zoom::{zoom_in_factor, zoom_out_factor};
 
 use sdl2::event::{Event, WindowEvent};
 pub use skulpin::{skia_safe, rafx::api as RafxApi};
@@ -16,6 +17,7 @@ use enum_iterator::IntoEnumIterator as _;
 use crate::user_interface::mouse_input::MouseInfo;
 
 pub mod editor;
+mod tool_behaviors;
 mod filedialog;
 pub mod util;
 mod tools;
@@ -120,11 +122,11 @@ fn main() {
                             interface.update_viewport(None, Some(1.));
                         }
                         Command::ZoomIn => {
-                            let scale = tools::zoom_in_factor(interface.viewport.factor, &mut interface);
+                            let scale = zoom_in_factor(interface.viewport.factor, &mut interface);
                             interface.update_viewport(None, Some(scale));
                         }
                         Command::ZoomOut => {
-                            let scale = tools::zoom_out_factor(interface.viewport.factor, &mut interface);
+                            let scale = zoom_out_factor(interface.viewport.factor, &mut interface);
                             interface.update_viewport(None, Some(scale));
                         }
                         Command::NudgeUp => {
@@ -141,7 +143,7 @@ fn main() {
                         }
                         Command::ToolPan => {
                             editor.set_tool(ToolEnum::Pan);
-                        }
+                        } 
                         Command::ToolPen => {
                             editor.set_tool(ToolEnum::Pen);
                         }
@@ -151,18 +153,22 @@ fn main() {
                         Command::ToolZoom => {
                             editor.set_tool(ToolEnum::Zoom);
                         }
+                        /* 
                         Command::ToolVWS => {
                             editor.set_tool(ToolEnum::VWS);
                         }
                         Command::ToolMeasure => {
                             editor.set_tool(ToolEnum::Measure);
                         }
+                        */
                         Command::ToolAnchors => {
                             editor.set_tool(ToolEnum::Anchors);
                         }
+                        /*
                         Command::ToolShapes => {
                             editor.set_tool(ToolEnum::Shapes);
                         }
+                        */
                         Command::TogglePointLabels => {
                             trigger_toggle_on!(
                                 interface,
@@ -246,49 +252,49 @@ fn main() {
 
                 Event::MouseMotion { x, y, .. } => {
                     let position = (x as f32, y as f32);
-                    let meta = MouseInfo::new(&interface, None, position, None, keymod);
+                    let mouse_info = MouseInfo::new(&interface, None, position, None, keymod);
                     editor.dispatch_editor_event(&mut interface, EditorEvent::MouseEvent{
                         event_type: MouseEventType::Moved,
-                        meta,
+                        mouse_info,
 
                     });
 
-                    interface.mouse_info = meta;
+                    interface.mouse_info = mouse_info;
                 }
 
                 Event::MouseButtonDown { mouse_btn, x, y, clicks: 2, .. } => {
                     
                     let position = (x as f32, y as f32);
-                    let meta = MouseInfo::new(&interface, Some(mouse_btn), position, Some(true), keymod);              
+                    let mouse_info = MouseInfo::new(&interface, Some(mouse_btn), position, Some(true), keymod);              
                     editor.dispatch_editor_event(&mut interface,EditorEvent::MouseEvent{
                         event_type: MouseEventType::DoubleClick,
-                        meta,
+                        mouse_info,
                     });
 
-                    interface.mouse_info = meta;
+                    interface.mouse_info = mouse_info;
                 }
 
                 Event::MouseButtonDown { mouse_btn, x, y, .. } => {
                     
                     let position = (x as f32, y as f32);
-                    let meta = MouseInfo::new(&interface, Some(mouse_btn), position, Some(true), keymod);              
+                    let mouse_info = MouseInfo::new(&interface, Some(mouse_btn), position, Some(true), keymod);              
                     editor.dispatch_editor_event(&mut interface, EditorEvent::MouseEvent{
                         event_type: MouseEventType::Pressed,
-                        meta,
+                        mouse_info,
                     });
 
-                    interface.mouse_info = meta;
+                    interface.mouse_info = mouse_info;
                 }
 
                 Event::MouseButtonUp { mouse_btn, x, y, .. } => {
                     let position = (x as f32, y as f32);
-                    let meta = MouseInfo::new(&interface, Some(mouse_btn), position, Some(false), keymod);
+                    let mouse_info = MouseInfo::new(&interface, Some(mouse_btn), position, Some(false), keymod);
                     editor.dispatch_editor_event(&mut interface, EditorEvent::MouseEvent{
                         event_type: MouseEventType::Released,
-                        meta,
+                        mouse_info,
                     });
 
-                    interface.mouse_info = meta;
+                    interface.mouse_info = mouse_info;
                 }
 
                 Event::Window { win_event, .. } => match win_event {

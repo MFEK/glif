@@ -1,6 +1,7 @@
 use std::{rc::Rc};
 
 use imgui::{self, Context};
+use crate::user_interface::gui::build_imgui_ui;
 use imgui_sdl2::ImguiSdl2;
 use sdl2::mouse::MouseState;
 use ::skulpin::Renderer;
@@ -30,6 +31,8 @@ pub mod viewport;
 pub mod skulpin;
 pub mod mouse_input;
 pub mod grid;
+pub mod follow;
+pub mod util;
 
 pub struct Interface {
     prompts: Vec<InputPrompt>,
@@ -83,7 +86,7 @@ impl Interface {
 
     pub fn render(&mut self, v: &mut Editor, imgui: &mut Context, imsdl2: &mut ImguiSdl2, imgui_renderer: &mut imgui_skia_renderer::Renderer, skulpin: &mut Renderer, mouse_state: &MouseState) {
         // build and render imgui
-        let dd = ImguiManager::build_imgui_ui(imgui, imsdl2, v, self, &mouse_state);
+        let dd = build_imgui_ui(imgui, imsdl2, v, self, &mouse_state);
 
         // draw glyph preview and imgui with skia
         let (window_width, window_height) = self.sdl_window.vulkan_drawable_size();

@@ -1,6 +1,7 @@
 use crate::user_interface::Interface;
 use glifparser::glif::{CapType, ContourOperations, JoinType};
 use super::VWS;
+use super::util::*;
 use super::super::prelude::*;
 
 fn join_type_to_idx(jt: JoinType) -> usize {
@@ -43,7 +44,7 @@ impl VWS {
     fn build_and_check_vws_cap_combo(&self, v: &mut Editor, ui: &imgui::Ui) {
         let contour_idx = v.contour_idx.unwrap();
 
-        let _vws_contour = self.get_vws_contour(v, contour_idx);
+        let _vws_contour = get_vws_contour(v, contour_idx);
 
         if let Some(vws_contour) = _vws_contour {
             let old_s = cap_type_to_idx(vws_contour.cap_start_type);
@@ -90,7 +91,7 @@ impl VWS {
     fn build_and_check_vws_join_combo(&self, v: &mut Editor,  ui: &imgui::Ui) {
         let contour_idx = v.contour_idx.unwrap();
 
-        let _vws_contour = self.get_vws_contour(v, contour_idx);
+        let _vws_contour = get_vws_contour(v, contour_idx);
 
         if let Some(vws_contour) = _vws_contour {
             let mut current_selection = join_type_to_idx(vws_contour.join_type);

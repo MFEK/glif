@@ -79,21 +79,7 @@ pub fn get_contour_start_or_end(v: &Editor, contour_idx: usize, point_idx: usize
     }
 }
 
-pub fn is_point_selected(v: &Editor, contour_idx: usize, point_idx: usize) -> bool
-{
-    if let Some(editor_pidx) = v.point_idx {
-        let editor_cidx = v.contour_idx.unwrap();
-
-        if contour_idx == editor_cidx && point_idx == editor_pidx { return true };
-    }
-
-    if v.selected.contains(&(contour_idx, point_idx)) { return true };
-
-    return false;
-}
-
-
-pub struct PenPointInfo {
+pub struct HoveredPointInfo {
     pub t: f64,
     pub contour_idx: usize,
     pub seg_idx: usize,
@@ -102,7 +88,7 @@ pub struct PenPointInfo {
     pub b: (f32, f32),
 }
 
-pub fn nearest_point_on_curve(v: &Editor, i: &Interface, position: (f32, f32)) -> Option<PenPointInfo>
+pub fn nearest_point_on_curve(v: &Editor, i: &Interface, position: (f32, f32)) -> Option<HoveredPointInfo>
 {
     v.with_active_layer(|layer| {
         let pw: Piecewise<Piecewise<Bezier>> = (&layer.outline).into();
@@ -146,7 +132,7 @@ pub fn nearest_point_on_curve(v: &Editor, i: &Interface, position: (f32, f32)) -
 
         if let Some(current) = current { 
             let (h1, h2) = (h1.unwrap(), h2.unwrap());
-            Some(PenPointInfo {
+            Some(HoveredPointInfo {
                 t: t.unwrap(),
                 contour_idx: contour_idx.unwrap(),
                 seg_idx: seg_idx.unwrap(),
@@ -241,16 +227,4 @@ pub fn move_handle(outline: &mut MFEKOutline<MFEKPointData>, ci: usize, pi: usiz
             }
         },
     };
-}
-
-impl Editor {
-    pub fn selected(&self) -> Option<(usize, usize)> {
-        if let (Some(ci), Some(pi)) = (self.contour_idx, self.point_idx) { // single click
-            Some((ci, pi))
-        } else if let Some((ci, pi)) = self.selected.iter().next() { // selbox
-            Some((*ci, *pi))
-        } else {
-            None
-        }
-    }
 }

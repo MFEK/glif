@@ -1,5 +1,5 @@
 pub const _KNIFE: &[u8] = &[239, 128, 128, 0]; // U+F000
-pub const _MEASURE: &[u8] = &[239, 128, 129, 0]; // U+F001
+pub const MEASURE: &[u8] = &[239, 128, 129, 0]; // U+F001
 pub const PAN: &[u8] = &[239, 128, 130, 0]; // U+F002
 pub const PEN: &[u8] = &[239, 128, 131, 0]; // U+F003
 pub const _PENCIL: &[u8] = &[239, 128, 132, 0]; // U+F004

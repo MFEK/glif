@@ -43,7 +43,7 @@ impl MouseInfo {
         let uoffset = i.viewport.offset;
         let offset = (uoffset.0, uoffset.1);
     
-        let mut absolute_mposition = ((position.0).floor(), (position.1).floor());
+        let absolute_mposition = ((position.0).floor(), (position.1).floor());
         let mut mposition = (
             ((position.0).floor() - offset.0) * factor,
             ((position.1).floor() - offset.1) * factor,
@@ -70,14 +70,11 @@ impl MouseInfo {
             ));
 
             if let Some(slope) = &grid.slope {
-                let slope_sign = f32::signum(*slope);
                 let slope_max = f32::min(f32::abs(*slope), 1.);
                 let x = mpos.0 - mpos.1/slope;
                 let s = (grid.spacing/slope_max).abs();
                 let c = (x/s + 0.5).floor() * s;
                 let c2 = c * -slope;
-
-                let closest_italic = ((mpos.1 - c2)/slope, mpos.1);
 
                 let horizontal_candidate = ((rcalc_y(standard_snap.1) - c2)/slope, standard_snap.1);
                 let dist = f32::sqrt(f32::powi(horizontal_candidate.0 - mpos.0, 2) + f32::powi(horizontal_candidate.1 - mposition.1, 2));

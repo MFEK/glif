@@ -1,9 +1,10 @@
 use crate::user_interface::{InputPrompt, icons};
-use super::{GuidelineMode, Guidelines};
+use super::{Guidelines};
+use crate::tool_behaviors::add_guideline::AddGuideline;
 use super::super::prelude::*;
 use crate::user_interface::gui::FONT_IDS;
 use glifparser::IntegerOrFloat;
-use imgui::{StyleColor, StyleVar};
+use imgui::StyleColor;
 use std::rc::Rc;
 
 fn imgui_decimal_text_field(label: &str, ui: &imgui::Ui, data: &mut f32) {
@@ -50,7 +51,7 @@ impl Guidelines {
 
             ui.button(unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icons::PLUS) }, [0., 0.]);
             if ui.is_item_clicked(imgui::MouseButton::Left) {
-                self.mode = GuidelineMode::Add;
+                v.push_behavior(Box::new(AddGuideline::new()));
             } 
 
             if let Some(selected) = self.selected_idx {
@@ -137,7 +138,7 @@ impl Guidelines {
 
                     imgui_decimal_text_field("X", ui, &mut at.x);
                     imgui_decimal_text_field("Y", ui, &mut at.y);
-                    imgui_decimal_text_field("Angle", ui, &mut angle);
+                     imgui_decimal_text_field("Angle", ui, &mut angle);
 
 
                     glyph.guidelines[selected].at = at;

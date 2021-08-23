@@ -14,21 +14,22 @@ pub struct Measure {
 }
 
 impl Tool for Measure {
-    fn handle_event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
+    fn event(&mut self, v: &mut Editor, _i: &mut Interface, event: EditorEvent) {
         match event {
-            EditorEvent::MouseEvent { event_type, meta } => {
+            EditorEvent::MouseEvent { event_type, mouse_info } => {
                 match event_type {
-                    //MouseEventType::Moved => { self.mouse_moved(v, position, meta) }
-                    MouseEventType::Pressed => { self.mouse_pressed(v, meta) }
-                    MouseEventType::Released => { self.mouse_released(v, meta) }
+                    //MouseEventType::Moved => { self.mouse_moved(v, position, mouse_info) }
+                    MouseEventType::Pressed => { self.mouse_pressed(v, mouse_info) }
+                    MouseEventType::Released => { self.mouse_released(v, mouse_info) }
                     _ => {}
                 }
             }
-            EditorEvent::Draw { skia_canvas } => {
-                self.draw_line(i, skia_canvas);
-            }
             _ => {}
         }
+    }
+
+    fn draw(&self, _v: &Editor, i: &Interface, canvas: &mut Canvas) {
+        self.draw_line(i, canvas);
     }
 }
 
@@ -39,11 +40,11 @@ impl Measure {
         }
     }
     
-    fn mouse_pressed(&mut self, _v: &Editor ,meta: MouseInfo) {
-        self.measure_from = Some(meta.position);
+    fn mouse_pressed(&mut self, _v: &Editor ,mouse_info: MouseInfo) {
+        self.measure_from = Some(mouse_info.position);
     }
 
-    fn mouse_released(&mut self, _v: &Editor, _meta: MouseInfo) {
+    fn mouse_released(&mut self, _v: &Editor, _mouse_info: MouseInfo) {
         self.measure_from = None;
     }
 

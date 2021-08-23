@@ -3,7 +3,7 @@ use glifparser::glif::{HistoryType, HistoryEntry, MFEKPointData};
 use super::Editor;
 
 pub struct History {
-    undo_stack: Vec<HistoryEntry<MFEKPointData>>,
+    pub undo_stack: Vec<HistoryEntry<MFEKPointData>>,
     pub redo_stack: Vec<HistoryEntry<MFEKPointData>>,
 }
 

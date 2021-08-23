@@ -1,6 +1,22 @@
-use pub_mod::pub_mod;
+//use pub_mod::pub_mod;
 // Include all tools via procedural macro. Expands to `pub mod pen; pub mod select; ...`
-pub_mod!("src/tools");
+//pub_mod!("src/tools");
+
+// TODO: reenable pub_mod! before this hits the main branch.
+pub mod measure;
+pub mod pan;
+pub mod pen;
+pub mod select;
+pub mod zoom;
+pub mod anchors;
+pub mod pap;
+pub mod grid;
+pub mod image;
+pub mod guidelines;
+pub mod prelude;
+pub mod console;
+pub mod shapes;
+pub mod vws;
 
 use self::prelude::*;
 use self::{
@@ -17,16 +33,21 @@ use self::{
     image::Image,
     guidelines::Guidelines,
 };
+
 use dyn_clone::DynClone;
 use imgui::Ui;
 use crate::user_interface::Interface;
-pub use self::zoom::{zoom_in_factor, zoom_out_factor};
+//pub use self::zoom::{zoom_in_factor, zoom_out_factor};
 
 use crate::command::{Command, CommandMod};
 use crate::editor::Editor;
 
-pub trait Tool: DynClone{
-    fn handle_event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent);
+pub trait Tool: DynClone {
+    fn event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent);
+
+    // We provide empty default implementations for these two because not every tool needs these hooks.
+    fn draw(&self, _v: &Editor, _i: &Interface, _canvas: &mut Canvas) {}
+    fn ui(&mut self, _v: &mut Editor, _i: &mut Interface, _ui: &mut Ui) {}
 }
 
 use enum_unitary::enum_unitary;
@@ -36,15 +57,15 @@ enum_unitary! {
         Pan,
         Pen,
         Select,
+        Grid,
+        Anchors,
         Zoom,
         Measure,
         VWS,
-        Anchors,
         Shapes,
-        PAP,
-        Grid,
         Image,
-        Guidelines,
+        PAP,
+        Guidelines
     }
 }
 
@@ -54,13 +75,13 @@ pub fn tool_enum_to_tool(tool: ToolEnum) -> Box<dyn Tool> {
         ToolEnum::Pen => {Box::new(Pen::new())}
         ToolEnum::Select => {Box::new(Select::new())}
         ToolEnum::Zoom => {Box::new(Zoom::new())}
-        ToolEnum::Measure => {Box::new(Measure::new())}
         ToolEnum::Anchors => {Box::new(Anchors::new())}
+        ToolEnum::Grid => {Box::new(GridTool::new())}
+        ToolEnum::Measure => {Box::new(Measure::new())}
         ToolEnum::Shapes => {Box::new(Shapes::new())} //FIXME: enable vws
         ToolEnum::VWS => {Box::new(VWS::new())} //FIXME: enable vws
-        ToolEnum::PAP => {Box::new(PAP::new())}
-        ToolEnum::Grid => {Box::new(GridTool::new())}
         ToolEnum::Image => {Box::new(Image::new())}
+        ToolEnum::PAP => {Box::new(PAP::new())}
         ToolEnum::Guidelines => {Box::new(Guidelines::new())}
     }
 }
@@ -72,10 +93,10 @@ pub enum MouseEventType {
     Moved
 }
 
-pub enum EditorEvent<'a, 'b, 'c, 'd> {
+pub enum EditorEvent<'a> {
     MouseEvent {
         event_type: MouseEventType,
-        meta: MouseInfo
+        mouse_info: MouseInfo
     },
 
     ToolCommand {
@@ -83,12 +104,4 @@ pub enum EditorEvent<'a, 'b, 'c, 'd> {
         command_mod: CommandMod,
         stop_after: &'a mut bool,
     },
-
-    Draw {
-        skia_canvas:  &'b mut Canvas
-    },
-
-    Ui {
-        ui: &'c mut Ui<'d>
-    }
 }

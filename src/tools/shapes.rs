@@ -8,21 +8,22 @@ use glifparser::{Outline, glif::MFEKContour, outline::skia::FromSkiaPath};
 
 
 impl Tool for Shapes {
-    fn handle_event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
+    fn event(&mut self, v: &mut Editor, _i: &mut Interface, event: EditorEvent) {
         match event {
-            EditorEvent::MouseEvent { event_type, meta } => {
+            EditorEvent::MouseEvent { event_type, mouse_info } => {
                 match event_type {
-                    MouseEventType::Moved => { self.mouse_moved(v, meta) }
-                    MouseEventType::Pressed => { self.mouse_pressed(v, meta) }
-                    MouseEventType::Released => { self.mouse_released(v, meta) }
+                    MouseEventType::Moved => { self.mouse_moved(v, mouse_info) }
+                    MouseEventType::Pressed => { self.mouse_pressed(v, mouse_info) }
+                    MouseEventType::Released => { self.mouse_released(v, mouse_info) }
                     _ => {}
                 }
             },
-            EditorEvent::Ui { ui } => {
-                self.shape_settings(i, ui);
-            },
             _ => {}
         }
+    }
+
+    fn ui(&mut self, _v: &mut Editor, i: &mut Interface, ui: &mut Ui) {
+        self.shape_settings(i, ui);
     }
 }
 
@@ -114,7 +115,7 @@ impl Shapes {
 }
 
 struct ShapeDrawer {
-    meta: MouseInfo,
+    mouse_info: MouseInfo,
     from: (f32, f32),
     sdata: ShapeData,
 }
@@ -128,8 +129,8 @@ fn shape_direction(cx: f32) -> PathDirection {
 impl ShapeDrawer {
     fn calculate_radius(&self) -> (f32, f32, f32) {
         let (cx, cy) = (
-            self.from.0 - calc_x(self.meta.position.0),
-            self.from.1 - calc_y(self.meta.position.1),
+            self.from.0 - calc_x(self.mouse_info.position.0),
+            self.from.1 - calc_y(self.mouse_info.position.1),
         );
         (cx, cy, ((cx).powf(2.) + (cy).powf(2.)).sqrt())
     }
@@ -206,7 +207,7 @@ impl ShapeDrawer {
     }
 
     fn draw_fits_in_rect(&self, stype: ShapeType) -> Outline<MFEKPointData> {
-        let rect = Rect::new(self.from.0, self.from.1, calc_x(self.meta.position.0), calc_y(self.meta.position.1));
+        let rect = Rect::new(self.from.0, self.from.1, calc_x(self.mouse_info.position.0), calc_y(self.mouse_info.position.1));
         let (cx, _, _) = self.calculate_radius();
         let path = match stype {
             ShapeType::Oval => Path::oval(rect, Some(shape_direction(-cx))),
@@ -222,14 +223,14 @@ impl ShapeDrawer {
 }
 
 impl Shapes {
-    fn mouse_pressed(&mut self, v: &mut Editor, meta: MouseInfo) {
+    fn mouse_pressed(&mut self, v: &mut Editor, mouse_info: MouseInfo) {
         if !v.is_modifying() {
             v.begin_layer_modification("Draw shape");
-            self.pressed_pos = Some((calc_x(meta.position.0), calc_y(meta.position.1)));
+            self.pressed_pos = Some((calc_x(mouse_info.position.0), calc_y(mouse_info.position.1)));
         }
     }
 
-    fn mouse_moved(&mut self, v: &mut Editor, meta: MouseInfo) {
+    fn mouse_moved(&mut self, v: &mut Editor, mouse_info: MouseInfo) {
         if let Some(pos) = self.pressed_pos {
             if self.dropped_shape {
                 v.with_active_layer_mut(|layer| {
@@ -238,7 +239,7 @@ impl Shapes {
             }
             
             v.with_active_layer_mut(|layer| {
-                let sd = ShapeDrawer { meta, from: pos, sdata: self.sdata };
+                let sd = ShapeDrawer { mouse_info, from: pos, sdata: self.sdata };
                 let o = match self.stype {
                     ShapeType::Circle => sd.draw_circle(),
                     ShapeType::Oval | ShapeType::Rectangle | ShapeType::RoundedRectangle => sd.draw_fits_in_rect(self.stype),
@@ -252,7 +253,7 @@ impl Shapes {
         }
     }
 
-    fn mouse_released(&mut self, v: &mut Editor, _meta: MouseInfo) {
+    fn mouse_released(&mut self, v: &mut Editor, _mouse_info: MouseInfo) {
         v.end_layer_modification();
         self.pressed_pos = None;
         self.dropped_shape = false;

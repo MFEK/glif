@@ -2,6 +2,7 @@ use crate::{HandleStyle, PointLabels, PreviewMode};
 
 use super::Interface;
 
+#[derive(Clone)]
 pub struct Viewport {
     pub winsize: (u32, u32),
     pub factor: f32,

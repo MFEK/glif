@@ -11,19 +11,20 @@ use super::prelude::*;
 pub struct PAP {}
 
 impl Tool for PAP {
-    fn handle_event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
+    fn event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
         match event {
-            EditorEvent::MouseEvent { event_type, meta } => {
+            EditorEvent::MouseEvent { event_type, mouse_info } => {
                 match event_type {
-                    MouseEventType::Moved => { self.mouse_moved(v, meta) }
-                    MouseEventType::Pressed => { self.mouse_pressed(v, i, meta) }
-                    //MouseEventType::Released => { self.mouse_released(v, meta) }
+                    MouseEventType::Pressed => { self.mouse_pressed(v, i, mouse_info) }
                     _ => {}
                 }
             }
-            EditorEvent::Ui { ui}=> { self.tool_dialog(v, i, ui) }
             _ => {}
         }
+    }
+
+    fn ui(&mut self, v: &mut Editor, i: &mut Interface, ui: &mut Ui) {
+        self.tool_dialog(v, i, ui)
     }
 }
 
@@ -32,11 +33,8 @@ impl PAP {
         Self {}
     }
 
-    fn mouse_moved(&mut self, _v: &mut Editor, _meta: MouseInfo) {
-    }
-
-    fn mouse_pressed(&mut self, v: &mut Editor, i: &mut Interface, meta: MouseInfo) {
-        if let Some((ci, pi, _wh)) = clicked_point_or_handle(v, i, meta.raw_position, None) {
+    fn mouse_pressed(&mut self, v: &mut Editor, i: &mut Interface, mouse_info: MouseInfo) {
+        if let Some((ci, pi, _wh)) = clicked_point_or_handle(v, i, mouse_info.raw_position, None) {
             let layer_op = v.with_active_layer(|layer| layer.outline[ci].operation.clone() );
             if let Some(_op) = layer_op {
                 

@@ -1,6 +1,6 @@
 //! Skia renderer.
 
-use crate::{tools::EditorEvent, editor::{PreviewMode, Editor}};
+use crate::editor::{PreviewMode, Editor};
 use crate::user_interface::Interface;
 use crate::CONSOLE;
 
@@ -21,7 +21,7 @@ use grid::draw_grid;
 use glifparser::Handle;
 use glifparser::matrix::ToSkiaMatrix as _;
 use log;
-use skulpin::skia_safe::{Canvas, Matrix, Paint};
+use skulpin::skia_safe::{Canvas, Matrix};
 
 
 #[derive(Clone, Copy, PartialEq)]
@@ -96,9 +96,8 @@ pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
             points::draw_directions(&i.viewport, path, canvas);
             anchors::draw_anchors(v, &i.viewport, canvas);
             //points::draw_selected(v, canvas);
-            v.dispatch_editor_event(i, EditorEvent::Draw {
-                skia_canvas: canvas,
-            });
+
+            v.dispatch_tool_draw(i, canvas);
         }
         PreviewMode::NoUnselectedPoints => {
             //points::draw_selected(v, canvas);

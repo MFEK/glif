@@ -43,7 +43,6 @@ pub fn draw_grid(canvas: &mut Canvas, grid: &Grid, viewport: &Viewport) {
 
     if let Some(slope) = grid.slope {
         if slope == 0. { return };
-        let slope_sign = f32::signum(slope);
         let slope_max = f32::max(f32::abs(slope), 1.);
 
         let viewx = viewport.winsize.0 as f32 / viewport.factor;

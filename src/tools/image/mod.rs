@@ -1,14 +1,12 @@
-use std::convert::TryInto;
-
 use crate::command::CommandMod;
 use crate::editor::Editor;
+use crate::tool_behaviors::move_image::MoveImage;
+use crate::tool_behaviors::rotate_image::RotateImage;
 use crate::user_interface::{Interface, MouseInfo};
 use super::prelude::*;
-use MFEKmath::{Vector};
 use glifparser::matrix::ToSkiaMatrix;
 use crate::filedialog;
 use skulpin::skia_safe::{Paint, Path, PaintStyle};
-use kurbo::Affine;
 
 mod dialog;
 
@@ -18,32 +16,39 @@ mod dialog;
 #[derive(Clone)]
 pub struct Image {
     selected_idx: Option<usize>,
-    last_pos: Option<(f32, f32)>,
     debug: MouseInfo,
-    pivot_point: Option<(f32, f32)>,
-    rotate_vector: Option<(f32, f32)>,
 }
 
 impl Tool for Image {
-    fn handle_event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
+    fn event(&mut self, v: &mut Editor, _i: &mut Interface, event: EditorEvent) {
         match event {
-            EditorEvent::MouseEvent { event_type, meta } => {
-                self.debug = meta;
+            EditorEvent::MouseEvent { event_type, mouse_info } => {
+                self.debug = mouse_info;
                 match event_type {
-                    MouseEventType::Moved => { self.mouse_moved(v, i, meta) }
-                    MouseEventType::Pressed => { self.mouse_pressed(v, meta) }
-                    MouseEventType::Released => { self.mouse_released(v) }
+                    MouseEventType::Pressed => { self.mouse_pressed(v, mouse_info) }
                     _ => {}
                 }
             }
-            EditorEvent::Draw { skia_canvas } => { 
-                self.draw_selected(v, i, skia_canvas);
-            }
-            EditorEvent::Ui { ui } => {
-                self.tool_dialog(v, i, ui);
-            }
             _ => {}
         }
+    }
+
+    fn draw(&self, v: &Editor, _i: &Interface, canvas: &mut Canvas) {
+        if let Some(selected) = self.selected_idx {
+            let mut selected_path = Path::new();
+            let img_rect = self.get_image_rect(v, selected);
+            selected_path.add_rect(img_rect, None);
+
+            let mut paint = Paint::default();
+            paint.set_style(PaintStyle::Stroke);
+            paint.set_color(SELECTED_STROKE);
+
+            canvas.draw_path(&selected_path, &paint);
+        }
+    }
+
+    fn ui(&mut self, v: &mut Editor, i: &mut Interface, ui: &mut Ui) {
+        self.tool_dialog(v, i, ui)
     }
 }
 
@@ -65,13 +70,10 @@ impl Image {
                     alt: false,
                 },
             },
-            last_pos: None,
-            rotate_vector: None,
-            pivot_point: None,
         }
     }
 
-    fn is_image_clicked(&self, v: &Editor, meta: MouseInfo) -> Option<usize> {
+    fn is_image_clicked(&self, v: &Editor, mouse_info: MouseInfo) -> Option<usize> {
         v.with_active_layer(|layer| {
             // we've got to take our current mouse position and translate that into 'image space' such that the mouse position
             // is relative to 0,0 and the image forms an axis aligned bounding box
@@ -88,7 +90,7 @@ impl Image {
                 let f_rect = SkRect::new(img_rect.left() as f32, img_rect.top() as f32, img_rect.right() as f32, img_rect.bottom() as f32);
                 let final_img_rect = origin_mat.map_rect(f_rect).0;
 
-                let local_mouse = SkPoint::new(meta.position.0, meta.position.1);
+                let local_mouse = SkPoint::new(mouse_info.position.0, mouse_info.position.1);
 
                 if final_img_rect.contains(local_mouse) {
                     return Some(idx);
@@ -129,90 +131,21 @@ impl Image {
         })
     }
 
-    fn mouse_moved(&mut self, v: &mut Editor, _i: &mut Interface, meta: MouseInfo) {
-        // when the user has their mouse down we should translate the image by the mouse delta
-        if meta.is_down {
-            if let Some(selected) = self.selected_idx {
-                if let Some(lp) = self.last_pos {
-                    if let Some(rot) = self.rotate_vector {
-                        let pivot = self.pivot_point.unwrap();
-                        let pivot_vector = Vector::from_components(pivot.0 as f64, pivot.1 as f64);
-                        let mouse_vector = Vector::from_components(meta.position.0 as f64, meta.position.1 as f64);
-                    
-                        let normal_from_pivot = (pivot_vector - mouse_vector).normalize();
-                
-                        let rot_vec = Vector::from_components(rot.0 as f64, rot.1 as f64);
-                        let rotation_angle = normal_from_pivot.angle(rot_vec);
-
-                        self.rotate_vector = Some(normal_from_pivot.to_tuple());
-                        
-                        v.with_active_layer_mut(|layer| {
-                            let affine = layer.images[selected].1.clone();
-                            let raw_affine: Vec<f32> = affine.as_coeffs().iter().map(|x| *x as f32).collect();
-    
-                            let sk_affine = Matrix::from_affine(&raw_affine.try_into().unwrap());
-                            let rotate_mat = Matrix::rotate_rad(-rotation_angle as f32);
-    
-                            let sk_affine = sk_affine * rotate_mat;
-    
-                            let translated_raw_affine = sk_affine.to_affine();
-    
-                            if let Some(tra) = translated_raw_affine {
-                                let tra: Vec<f64> = tra.iter().map(|x| *x as f64).collect();
-                                layer.images[selected].1 = Affine::new(tra.try_into().unwrap());
-                            }
-                        });
-
-                        return;
-                    }
-
-                    let dx = meta.position.0 - lp.0;
-                    let dy = meta.position.1 - lp.1;
-
-                    self.last_pos = Some(meta.position);
-    
-                    v.with_active_layer_mut(|layer| {
-                        let affine = layer.images[selected].1.clone();
-                        let raw_affine: Vec<f32> = affine.as_coeffs().iter().map(|x| *x as f32).collect();
-
-                        let sk_affine = Matrix::from_affine(&raw_affine.try_into().unwrap());
-                        let translate_mat = Matrix::translate((dx, dy));
-
-                        let sk_affine = translate_mat * sk_affine;
-
-                        let translated_raw_affine = sk_affine.to_affine();
-
-                        if let Some(tra) = translated_raw_affine {
-                            let tra: Vec<f64> = tra.iter().map(|x| *x as f64).collect();
-                            layer.images[selected].1 = Affine::new(tra.try_into().unwrap());
-                        }
-                    })
-                } else {
-                    self.last_pos = Some((meta.position.0, meta.position.1));
-                    v.begin_layer_modification("Translate image.");
-                }
-            }
-        }
-    }
-
-    // When the mouse is pressed we store the point.
-    fn mouse_pressed(&mut self, v: &mut Editor,  meta: MouseInfo) {
+    fn mouse_pressed(&mut self, v: &mut Editor,  mouse_info: MouseInfo) {
         // if we did click an image we're going to want to let the user translate/rotate that image
-        if let Some(img_idx) = self.is_image_clicked(v, meta) {
+        if let Some(img_idx) = self.is_image_clicked(v, mouse_info) {
             self.selected_idx = Some(img_idx);
 
-            if meta.modifiers.ctrl {
+            if mouse_info.modifiers.ctrl {
                 let pivot = self.get_image_pivot(v, img_idx);
-                let pivot_vector = Vector::from_components(pivot.0 as f64, pivot.1 as f64);
-                let mouse_vector = Vector::from_components(meta.position.0 as f64, meta.position.1 as f64);
-            
-                self.pivot_point = Some(pivot);
-                self.rotate_vector = Some((pivot_vector - mouse_vector).normalize().to_tuple());
+                v.set_behavior(Box::new(RotateImage::new(img_idx, pivot, mouse_info)));
+                return
             }
+
+            v.set_behavior(Box::new(MoveImage::new(img_idx, mouse_info)))
         } else {
             // we should clear the selected image here
             self.selected_idx = None;
-            self.rotate_vector = None;
 
             // if we didn't click an image we're going to open a prompt to select one from the file
             // system
@@ -226,31 +159,5 @@ impl Image {
             v.end_layer_modification();
             return;
         }
-
-        
-        // if the user held control then we want to allow them to rotate that image similar to how point rotation works
-
-    }
-
-    fn draw_selected(&mut self, v: &Editor, _i: &Interface, canvas: &mut Canvas) {
-        if let Some(selected) = self.selected_idx {
-            let mut selected_path = Path::new();
-            let img_rect = self.get_image_rect(v, selected);
-            selected_path.add_rect(img_rect, None);
-
-            let mut paint = Paint::default();
-            paint.set_style(PaintStyle::Stroke);
-            paint.set_color(SELECTED_STROKE);
-
-            canvas.draw_path(&selected_path, &paint);
-        }
-    }
-
-    // When it's released we set it to none.
-    fn mouse_released(&mut self, v: &mut Editor) {
-        self.last_pos = None;
-        self.rotate_vector = None;
-        self.pivot_point = None;
-        v.end_layer_modification();
     }
 }

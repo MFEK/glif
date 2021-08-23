@@ -1,10 +1,7 @@
 use super::prelude::*;
-
+use crate::tool_behaviors::pan::PanBehavior;
 use crate::user_interface::{InputPrompt, Interface};
-
 use crate::command::Command;
-
-use imgui;
 
 #[derive(Clone, Debug)]
 pub struct Anchors {
@@ -21,27 +18,29 @@ impl Anchors {
 }
 
 impl Tool for Anchors {
-    fn handle_event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
+    fn event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
         match event {
-            EditorEvent::MouseEvent { event_type, meta } => {
+            EditorEvent::MouseEvent { event_type, mouse_info } => {
                 match event_type {
-                    MouseEventType::Moved => { self.mouse_moved(v, meta) }
-                    MouseEventType::Pressed => { self.mouse_pressed(v, i, meta) }
-                    //MouseEventType::Released => { self.mouse_released(v, meta) }
+                    MouseEventType::Moved => { self.mouse_moved(v, mouse_info) }
+                    MouseEventType::Pressed => { self.mouse_pressed(v, i, mouse_info) }
+                    //MouseEventType::Released => { self.mouse_released(v, mouse_info) }
                     _ => {}
                 }
             },
             EditorEvent::ToolCommand { command: Command::DeleteSelection, .. } => {
                 self.delete_selection(v);
             },
-            EditorEvent::Ui { ui } => {
-                self.anchor_settings(v, i, ui);
-            },
-            EditorEvent::Draw { skia_canvas } => {
-                self.draw_selected(v, i, skia_canvas);
-            },
             _ => {}
         }
+    }
+
+    fn draw(&self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
+        self.draw_selected(v, i, canvas);
+    }
+
+    fn ui(&mut self, v: &mut Editor, i: &mut Interface, ui: &mut Ui) {
+        self.anchor_settings(v, i, ui);
     }
 }
 
@@ -142,7 +141,13 @@ use crate::editor::{Editor};
 use glifparser::Anchor as GlifAnchor;
 use skulpin::skia_safe::{Paint};
 impl Anchors {
-    fn mouse_pressed(&mut self, v: &mut Editor, i: &mut Interface, meta: MouseInfo) {
+    fn mouse_pressed(&mut self, v: &mut Editor, i: &mut Interface, mouse_info: MouseInfo) {
+        // if the user clicked middle mouse we initiate a pan behavior
+        if mouse_info.button == MouseButton::Middle {
+            v.set_behavior(Box::new(PanBehavior::new(i.viewport.clone(), mouse_info)));
+            return
+        }
+
         // Reset selected anchor
         self.anchor_idx = None;
 
@@ -156,7 +161,7 @@ impl Anchors {
                     calc_y(anchor.y as f32) - (size / 2.),
                 );
                 let anchor_rect = SkRect::from_point_and_size(anchor_tl, (size, size));
-                let sk_mpos = SkPoint::new(meta.position.0 as f32, meta.position.1 as f32);
+                let sk_mpos = SkPoint::new(mouse_info.position.0 as f32, mouse_info.position.1 as f32);
                 if anchor_rect.contains(sk_mpos) {
                     self.anchor_idx = Some(idx);
                     break;
@@ -183,14 +188,14 @@ impl Anchors {
         });
     }
 
-    fn mouse_moved(&mut self, v: &mut Editor, meta: MouseInfo) {
-        if !meta.is_down { return }
+    fn mouse_moved(&mut self, v: &mut Editor, mouse_info: MouseInfo) {
+        if !mouse_info.is_down { return }
 
         v.with_glyph_mut(|glif| {
             if let Some(idx) = self.anchor_idx {
                 // Anchors can't be non-integers in OT spec
-                glif.anchors[idx].x = f32::floor(calc_x(meta.position.0));
-                glif.anchors[idx].y = f32::floor(calc_y(meta.position.1));
+                glif.anchors[idx].x = f32::floor(calc_x(mouse_info.position.0));
+                glif.anchors[idx].y = f32::floor(calc_y(mouse_info.position.1));
             }
         });
     }
