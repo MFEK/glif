@@ -6,12 +6,11 @@ use std::{env, fs};
 
 use std::panic::set_hook;
 
+use crate::settings::CONFIG_PATH;
 use backtrace::Backtrace;
 use colored::Colorize;
 use lazy_static::lazy_static;
 use msgbox::IconType;
-use crate::settings::CONFIG_PATH;
-
 
 lazy_static! {
     pub static ref DEBUG_DUMP_GLYPH: bool = option_env!("DEBUG_DUMP_GLYPH").is_some();
@@ -60,10 +59,14 @@ pub fn set_panic_hook() {
             eprintln!("\n{}\n", info.to_string().bright_red());
         }
 
-        let err = msgbox::create("Uh oh! \u{2014} MFEKglif crashed", format!("{0}", info.to_string()).as_str(), IconType::Error);
+        let err = msgbox::create(
+            "Uh oh! \u{2014} MFEKglif crashed",
+            format!("{0}", info.to_string()).as_str(),
+            IconType::Error,
+        );
 
         match err {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(_) => eprintln!("Failed to create error box!"),
         }
 
@@ -71,15 +74,15 @@ pub fn set_panic_hook() {
             let mut bt = Backtrace::new();
             bt.resolve();
             eprintln!("Requested backtrace:\n{:?}", bt);
-            
+
             let mut pb = CONFIG_PATH.clone().to_path_buf();
             pb.push("error_log");
             pb.set_extension("txt");
-            
+
             let err = fs::write(pb.clone(), format!("{:?}", bt));
 
             match err {
-                Ok(_) => {},
+                Ok(_) => {}
                 Err(_) => eprintln!("Failed to write backtrace to file! {:?}", pb.clone()),
             }
         }
@@ -87,8 +90,15 @@ pub fn set_panic_hook() {
 }
 
 pub fn init_env_logger() {
-    if env::var("RUST_LOG").is_err() { env::set_var("RUST_LOG", "INFO,rafx_framework=off,rafx_api=off,skulpin=off") }
-    if *DEBUG_DUMP_GLYPH || *DEBUG_EVENTS { env::set_var("RUST_LOG", "DEBUG") }
+    if env::var("RUST_LOG").is_err() {
+        env::set_var(
+            "RUST_LOG",
+            "INFO,rafx_framework=off,rafx_api=off,skulpin=off",
+        )
+    }
+    if *DEBUG_DUMP_GLYPH || *DEBUG_EVENTS {
+        env::set_var("RUST_LOG", "DEBUG")
+    }
     env_logger::init();
 }
 

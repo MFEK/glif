@@ -9,7 +9,12 @@ pub fn draw_point_number(viewport: &Viewport, at: (f32, f32), number: isize, can
     uis.draw(viewport, at, canvas);
 }
 
-pub fn draw_point_location(viewport: &Viewport, at: (f32, f32), original: (f32, f32), canvas: &mut Canvas) {
+pub fn draw_point_location(
+    viewport: &Viewport,
+    at: (f32, f32),
+    original: (f32, f32),
+    canvas: &mut Canvas,
+) {
     let converted = format!("{}, {}", original.0, original.1);
     let uis = UiString::new(&converted).padding(10.);
     uis.draw(viewport, at, canvas);

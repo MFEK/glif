@@ -38,7 +38,6 @@ pub static SELECTED_TERTIARY: u32 = 0xff_e6830f;
 pub static SELECTED_OFFCURVE: u32 = 0xff_e6e6e6;
 pub static SELECTED_OFFCURVE_STROKE: u32 = 0xff_ffc829;
 
-
 pub static MEASURE_STROKE: u32 = 0xff_ff5050;
 
 pub static LBEARING_STROKE: u32 = 0xff_7d7d7d;

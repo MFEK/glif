@@ -1,3 +1,4 @@
+use crate::settings::CONFIG_PATH;
 use sdl2::keyboard::Keycode;
 use std::fs;
 use std::path::Path;
@@ -8,7 +9,6 @@ use std::{
 };
 use strum_macros::{Display, EnumString};
 use xmltree;
-use crate::settings::CONFIG_PATH;
 
 // a command file is put into the user's config directory upon first run
 // <command name="ToolPen" key = "A">
@@ -77,7 +77,11 @@ pub struct CommandMod {
 
 impl CommandMod {
     pub const fn none() -> Self {
-        Self { shift: false, ctrl: false, alt: false }
+        Self {
+            shift: false,
+            ctrl: false,
+            alt: false,
+        }
     }
 }
 
@@ -92,16 +96,41 @@ impl TryFrom<&str> for CommandMod {
     type Error = ();
     fn try_from(s: &str) -> Result<CommandMod, ()> {
         match s {
-            "CtrlMod" => Ok(CommandMod { ctrl: true, ..CommandMod::default() }),
-            "CtrlAltMod" | "AltCtrlMod" => Ok(CommandMod { alt: true, ctrl: true, ..CommandMod::default() }),
-            "CtrlShiftMod" | "ShiftCtrlMod" => Ok(CommandMod { ctrl: true, shift: true, ..CommandMod::default() }),
-            "CtrlShiftAltMod" | "ShiftCtrlAltMod" |
-                "AltCtrlShiftMod" | "AltShiftCtrlMod" |
-                "ShiftAltCtrlMod" | "CtrlAltShiftMod" => Ok(CommandMod { ctrl: true, shift: true, alt: true, ..CommandMod::default() }),
-            "ShiftMod" => Ok(CommandMod { shift: true, ..CommandMod::default() }),
-            "ShiftAltMod" | "AltShiftMod" => Ok(CommandMod { alt: true, shift: true, ..CommandMod::default() }),
-            "AltMod" => Ok(CommandMod { alt: true, ..CommandMod::default() }),
-            _ => Err(())
+            "CtrlMod" => Ok(CommandMod {
+                ctrl: true,
+                ..CommandMod::default()
+            }),
+            "CtrlAltMod" | "AltCtrlMod" => Ok(CommandMod {
+                alt: true,
+                ctrl: true,
+                ..CommandMod::default()
+            }),
+            "CtrlShiftMod" | "ShiftCtrlMod" => Ok(CommandMod {
+                ctrl: true,
+                shift: true,
+                ..CommandMod::default()
+            }),
+            "CtrlShiftAltMod" | "ShiftCtrlAltMod" | "AltCtrlShiftMod" | "AltShiftCtrlMod"
+            | "ShiftAltCtrlMod" | "CtrlAltShiftMod" => Ok(CommandMod {
+                ctrl: true,
+                shift: true,
+                alt: true,
+                ..CommandMod::default()
+            }),
+            "ShiftMod" => Ok(CommandMod {
+                shift: true,
+                ..CommandMod::default()
+            }),
+            "ShiftAltMod" | "AltShiftMod" => Ok(CommandMod {
+                alt: true,
+                shift: true,
+                ..CommandMod::default()
+            }),
+            "AltMod" => Ok(CommandMod {
+                alt: true,
+                ..CommandMod::default()
+            }),
+            _ => Err(()),
         }
     }
 }
@@ -127,12 +156,12 @@ pub fn initialize_keybinds() {
             .attributes
             .get("command")
             .expect("Binding does not have a command associated!");
-        let modifier = binding
-            .attributes
-            .get("mod");
+        let modifier = binding.attributes.get("mod");
 
         let command_mod: Option<CommandMod> = if let Some(m) = modifier {
-            CommandMod::try_from(m.as_str()).map(|m|Some(m)).unwrap_or(None)
+            CommandMod::try_from(m.as_str())
+                .map(|m| Some(m))
+                .unwrap_or(None)
         } else {
             None
         };
@@ -164,7 +193,11 @@ pub fn keys_down_to_mod(keys_down: &HashSet<Keycode>) -> Option<CommandMod> {
 
 pub fn keycode_to_command(keycode: &Keycode, keys_down: &HashSet<Keycode>) -> Option<CommandInfo> {
     let command_enum = KEYMAP.with(|v| {
-        if let Some(key) = v.borrow().keybindings.get(&(*keycode, keys_down_to_mod(keys_down))) {
+        if let Some(key) = v
+            .borrow()
+            .keybindings
+            .get(&(*keycode, keys_down_to_mod(keys_down)))
+        {
             return Some(*key);
         }
 
@@ -206,7 +239,10 @@ fn load_keybinding_xml() -> String {
     DEFAULT_KEYBINDINGS.to_owned()
 }
 
-const DEFAULT_KEYBINDINGS: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/resources/default_keymap.xml"));
+const DEFAULT_KEYBINDINGS: &str = include_str!(concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/resources/default_keymap.xml"
+));
 
 struct KeyData {
     keybindings: HashMap<(Keycode, Option<CommandMod>), Command>,

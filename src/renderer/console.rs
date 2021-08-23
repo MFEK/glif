@@ -4,8 +4,8 @@
 //! represent the Console itself, but rather just what we show the user on the screen. We output to
 //! the normal stdout as well, that's the persistent stdout.
 
-use lazy_static::lazy_static;
 use crate::user_interface::Interface;
+use lazy_static::lazy_static;
 
 pub struct Console {
     pub stdin: String,

@@ -3,32 +3,32 @@
 //! Apache 2.0 licensed. See AUTHORS.
 #![allow(non_snake_case)] // for our name MFEKglif
 
+use crate::tools::zoom::{zoom_in_factor, zoom_out_factor};
 use command::{Command, CommandInfo, CommandMod};
-use tools::{EditorEvent, MouseEventType, ToolEnum};
 use editor::{Editor, HandleStyle, PointLabels, PreviewMode, CONSOLE};
+use tools::{EditorEvent, MouseEventType, ToolEnum};
 use user_interface::{ImguiManager, Interface};
 use util::argparser::HeadlessMode;
-use crate::tools::zoom::{zoom_in_factor, zoom_out_factor};
 
-use sdl2::event::{Event, WindowEvent};
-pub use skulpin::{skia_safe, rafx::api as RafxApi};
 use enum_iterator::IntoEnumIterator as _;
+use sdl2::event::{Event, WindowEvent};
+pub use skulpin::{rafx::api as RafxApi, skia_safe};
 
 use crate::user_interface::mouse_input::MouseInfo;
 
-pub mod editor;
-mod tool_behaviors;
-mod filedialog;
-pub mod util;
-mod tools;
 mod command;
+mod contour_operations;
+pub mod editor;
+mod filedialog;
 mod io;
 mod ipc;
 mod renderer;
 pub mod settings;
 mod system_fonts;
+mod tool_behaviors;
+mod tools;
 mod user_interface;
-mod contour_operations;
+pub mod util;
 
 fn main() {
     util::init_env_logger();
@@ -57,7 +57,9 @@ fn main() {
     let mut event_pump = interface.get_event_pump();
     'main_loop: loop {
         // Quit from console
-        if editor.quit_requested { break 'main_loop }
+        if editor.quit_requested {
+            break 'main_loop;
+        }
 
         let keys_down = interface.get_pressed_keys(&event_pump);
         let keymod = command::keys_down_to_mod(&keys_down).unwrap_or(CommandMod::none());
@@ -71,8 +73,12 @@ fn main() {
                 _ => {}
             }
 
-            if imgui_manager.handle_imgui_event(&event) { continue; }
-            if interface.active_prompts() { continue; }
+            if imgui_manager.handle_imgui_event(&event) {
+                continue;
+            }
+            if interface.active_prompts() {
+                continue;
+            }
 
             // we're gonna handle console text input here as this should steal input from the command system
             match &event {
@@ -103,18 +109,24 @@ fn main() {
                     }
 
                     // check if we've got a command
-                    let command_info: CommandInfo = match command::keycode_to_command(&keycode, &keys_down) {
-                        Some(command) => command,
-                        None => continue
-                    };
+                    let command_info: CommandInfo =
+                        match command::keycode_to_command(&keycode, &keys_down) {
+                            Some(command) => command,
+                            None => continue,
+                        };
 
                     let mut delete_after = false;
-                    editor.dispatch_editor_event(&mut interface,EditorEvent::ToolCommand {
-                        command: command_info.command,
-                        command_mod: command_info.command_mod,
-                        stop_after: &mut delete_after,
-                    });
-                    if delete_after { continue; }
+                    editor.dispatch_editor_event(
+                        &mut interface,
+                        EditorEvent::ToolCommand {
+                            command: command_info.command,
+                            command_mod: command_info.command_mod,
+                            stop_after: &mut delete_after,
+                        },
+                    );
+                    if delete_after {
+                        continue;
+                    }
 
                     use crate::renderer::constants::OFFSET_FACTOR;
                     match command_info.command {
@@ -143,7 +155,7 @@ fn main() {
                         }
                         Command::ToolPan => {
                             editor.set_tool(ToolEnum::Pan);
-                        } 
+                        }
                         Command::ToolPen => {
                             editor.set_tool(ToolEnum::Pen);
                         }
@@ -153,7 +165,7 @@ fn main() {
                         Command::ToolZoom => {
                             editor.set_tool(ToolEnum::Zoom);
                         }
-                        /* 
+                        /*
                         Command::ToolVWS => {
                             editor.set_tool(ToolEnum::VWS);
                         }
@@ -220,12 +232,10 @@ fn main() {
                         Command::IOSave => {
                             drop(editor.save_glif(false));
                         }
-                        Command::IOSaveAs => {
-                            match editor.save_glif(true) {
-                                Ok(pb) => io::load_glif(&mut editor, &mut interface, &pb),
-                                Err(()) => {},
-                            }
-                        }
+                        Command::IOSaveAs => match editor.save_glif(true) {
+                            Ok(pb) => io::load_glif(&mut editor, &mut interface, &pb),
+                            Err(()) => {}
+                        },
                         Command::IOFlatten => {
                             editor.flatten_glif(true);
                         }
@@ -243,56 +253,77 @@ fn main() {
                         Command::SkiaDump => {
                             editor.skia_dump();
                         }
-                        #[allow(unreachable_patterns)] // This failsafe is here if you add a Command.
-                        cmd => unreachable!(
-                            "Command unimplemented: {:?}", cmd
-                        ),
+                        #[allow(unreachable_patterns)]
+                        // This failsafe is here if you add a Command.
+                        cmd => unreachable!("Command unimplemented: {:?}", cmd),
                     }
                 }
 
                 Event::MouseMotion { x, y, .. } => {
                     let position = (x as f32, y as f32);
                     let mouse_info = MouseInfo::new(&interface, None, position, None, keymod);
-                    editor.dispatch_editor_event(&mut interface, EditorEvent::MouseEvent{
-                        event_type: MouseEventType::Moved,
-                        mouse_info,
-
-                    });
-
-                    interface.mouse_info = mouse_info;
-                }
-
-                Event::MouseButtonDown { mouse_btn, x, y, clicks: 2, .. } => {
-                    
-                    let position = (x as f32, y as f32);
-                    let mouse_info = MouseInfo::new(&interface, Some(mouse_btn), position, Some(true), keymod);              
-                    editor.dispatch_editor_event(&mut interface,EditorEvent::MouseEvent{
-                        event_type: MouseEventType::DoubleClick,
-                        mouse_info,
-                    });
+                    editor.dispatch_editor_event(
+                        &mut interface,
+                        EditorEvent::MouseEvent {
+                            event_type: MouseEventType::Moved,
+                            mouse_info,
+                        },
+                    );
 
                     interface.mouse_info = mouse_info;
                 }
 
-                Event::MouseButtonDown { mouse_btn, x, y, .. } => {
-                    
+                Event::MouseButtonDown {
+                    mouse_btn,
+                    x,
+                    y,
+                    clicks: 2,
+                    ..
+                } => {
                     let position = (x as f32, y as f32);
-                    let mouse_info = MouseInfo::new(&interface, Some(mouse_btn), position, Some(true), keymod);              
-                    editor.dispatch_editor_event(&mut interface, EditorEvent::MouseEvent{
-                        event_type: MouseEventType::Pressed,
-                        mouse_info,
-                    });
+                    let mouse_info =
+                        MouseInfo::new(&interface, Some(mouse_btn), position, Some(true), keymod);
+                    editor.dispatch_editor_event(
+                        &mut interface,
+                        EditorEvent::MouseEvent {
+                            event_type: MouseEventType::DoubleClick,
+                            mouse_info,
+                        },
+                    );
 
                     interface.mouse_info = mouse_info;
                 }
 
-                Event::MouseButtonUp { mouse_btn, x, y, .. } => {
+                Event::MouseButtonDown {
+                    mouse_btn, x, y, ..
+                } => {
                     let position = (x as f32, y as f32);
-                    let mouse_info = MouseInfo::new(&interface, Some(mouse_btn), position, Some(false), keymod);
-                    editor.dispatch_editor_event(&mut interface, EditorEvent::MouseEvent{
-                        event_type: MouseEventType::Released,
-                        mouse_info,
-                    });
+                    let mouse_info =
+                        MouseInfo::new(&interface, Some(mouse_btn), position, Some(true), keymod);
+                    editor.dispatch_editor_event(
+                        &mut interface,
+                        EditorEvent::MouseEvent {
+                            event_type: MouseEventType::Pressed,
+                            mouse_info,
+                        },
+                    );
+
+                    interface.mouse_info = mouse_info;
+                }
+
+                Event::MouseButtonUp {
+                    mouse_btn, x, y, ..
+                } => {
+                    let position = (x as f32, y as f32);
+                    let mouse_info =
+                        MouseInfo::new(&interface, Some(mouse_btn), position, Some(false), keymod);
+                    editor.dispatch_editor_event(
+                        &mut interface,
+                        EditorEvent::MouseEvent {
+                            event_type: MouseEventType::Released,
+                            mouse_info,
+                        },
+                    );
 
                     interface.mouse_info = mouse_info;
                 }
@@ -318,7 +349,7 @@ fn main() {
             &mut imgui_manager.imgui_sdl2,
             &mut imgui_manager.imgui_renderer,
             &mut skulpin_renderer,
-            &event_pump.mouse_state()
+            &event_pump.mouse_state(),
         );
     }
 }

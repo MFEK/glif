@@ -8,7 +8,7 @@ use super::prelude::*;
 pub struct MoveImage {
     selected_idx: usize,
     mouse_info: MouseInfo,
-    last_position: (f32, f32)
+    last_position: (f32, f32),
 }
 
 impl MoveImage {
@@ -21,10 +21,10 @@ impl MoveImage {
     }
 
     pub fn mouse_moved(&mut self, v: &mut Editor, _i: &mut Interface, mouse_info: MouseInfo) {
-        if !v.is_modifying() { 
+        if !v.is_modifying() {
             v.begin_layer_modification("Move image.");
         }
-        
+
         let dx = mouse_info.position.0 - self.last_position.0;
         let dy = mouse_info.position.1 - self.last_position.1;
 
@@ -61,14 +61,15 @@ impl MoveImage {
 impl ToolBehavior for MoveImage {
     fn event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
         match event {
-            EditorEvent::MouseEvent { event_type, mouse_info } => {
-                match event_type {
-                    MouseEventType::Released => self.mouse_released(v, i, mouse_info),
-                    MouseEventType::Moved => self.mouse_moved(v, i, mouse_info),
-                    _ => {},
-                }
+            EditorEvent::MouseEvent {
+                event_type,
+                mouse_info,
+            } => match event_type {
+                MouseEventType::Released => self.mouse_released(v, i, mouse_info),
+                MouseEventType::Moved => self.mouse_moved(v, i, mouse_info),
+                _ => {}
             },
-            _ => {},
+            _ => {}
         }
     }
 }

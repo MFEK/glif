@@ -1,16 +1,16 @@
 use std::collections::HashSet;
 
 // Select
+use super::{prelude::*, EditorEvent, MouseEventType, Tool};
 use crate::command::Command;
 use crate::tool_behaviors::rotate_selection::RotateSelection;
-use super::{EditorEvent, MouseEventType, Tool, prelude::*};
 use crate::util::math::ReverseContours as _;
 
 use MFEKmath::Vector;
 
-use crate::tool_behaviors::pan::PanBehavior;
-use crate::tool_behaviors::move_point::MovePoint;
 use crate::tool_behaviors::move_handle::MoveHandle;
+use crate::tool_behaviors::move_point::MovePoint;
+use crate::tool_behaviors::pan::PanBehavior;
 use crate::tool_behaviors::selection_box::SelectionBox;
 
 mod dialog;
@@ -26,18 +26,27 @@ pub struct Select {
 impl Tool for Select {
     fn event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
         match event {
-            EditorEvent::MouseEvent { event_type, mouse_info } => {
-                match event_type {
-                    MouseEventType::Pressed => { self.mouse_pressed(v, i, mouse_info) }
-                    MouseEventType::DoubleClick => { self.mouse_double_pressed(v, i, mouse_info) }
-                    _ => {}
-                }
-            }
-            EditorEvent::ToolCommand { command: Command::SelectAll, stop_after, .. } => {
+            EditorEvent::MouseEvent {
+                event_type,
+                mouse_info,
+            } => match event_type {
+                MouseEventType::Pressed => self.mouse_pressed(v, i, mouse_info),
+                MouseEventType::DoubleClick => self.mouse_double_pressed(v, i, mouse_info),
+                _ => {}
+            },
+            EditorEvent::ToolCommand {
+                command: Command::SelectAll,
+                stop_after,
+                ..
+            } => {
                 *stop_after = true;
                 self.select_all(v);
             }
-            EditorEvent::ToolCommand { command: Command::ReverseContour, stop_after, .. } => {
+            EditorEvent::ToolCommand {
+                command: Command::ReverseContour,
+                stop_after,
+                ..
+            } => {
                 *stop_after = true;
                 self.reverse_selected(v);
             }
@@ -56,9 +65,7 @@ impl Tool for Select {
 
 impl Select {
     pub fn new() -> Self {
-        Self {
-            pivot_point: None,
-        }
+        Self { pivot_point: None }
     }
 
     fn select_all(&mut self, v: &mut Editor) {
@@ -78,7 +85,7 @@ impl Select {
         let ci = if let Some((ci, _)) = v.selected() {
             ci
         } else {
-            return
+            return;
         };
 
         v.begin_layer_modification("Reversing contours.");
@@ -107,19 +114,26 @@ impl Select {
         // if the user clicked middle mouse we initiate a pan behavior
         if mouse_info.button == MouseButton::Middle {
             v.set_behavior(Box::new(PanBehavior::new(i.viewport.clone(), mouse_info)));
-            return
+            return;
         }
 
         // if the user holds control we initiate a rotation of the current selection, either around the pivot point
         // or around the selection's bounding box's center
         if mouse_info.modifiers.ctrl && !v.selected.is_empty() {
-            let pivot = self.pivot_point.unwrap_or(v.get_selection_bounding_box_center());
+            let pivot = self
+                .pivot_point
+                .unwrap_or(v.get_selection_bounding_box_center());
             let pivot_calc = (calc_x(pivot.0), calc_y(pivot.1));
             let pivot_vector = Vector::from_components(pivot_calc.0 as f64, pivot_calc.1 as f64);
-            let mouse_vector = Vector::from_components(mouse_info.position.0 as f64, mouse_info.position.1 as f64);
+            let mouse_vector =
+                Vector::from_components(mouse_info.position.0 as f64, mouse_info.position.1 as f64);
             let normal_from_pivot = (pivot_vector - mouse_vector).normalize();
 
-            v.set_behavior(Box::new(RotateSelection::new(pivot, normal_from_pivot.to_tuple(), mouse_info)));
+            v.set_behavior(Box::new(RotateSelection::new(
+                pivot,
+                normal_from_pivot.to_tuple(),
+                mouse_info,
+            )));
             return;
         }
 
@@ -151,7 +165,7 @@ impl Select {
                     let follow = mouse_info.into();
                     v.set_behavior(Box::new(MoveHandle::new(wh, follow, mouse_info)));
                 }
-            },
+            }
             None => {
                 // if the user isn't holding shift we clear the current selection and the currently selected
                 // point
@@ -161,22 +175,24 @@ impl Select {
                     v.point_idx = None;
                 }
 
-                
                 // if they clicked right mouse we set the pivot point that will be used by rotate_points behavior.
                 if mouse_info.button == MouseButton::Right {
-                    self.pivot_point = Some((mouse_info.position.0, rcalc_y(mouse_info.position.1)));
-                } else if mouse_info.button == MouseButton::Left {         
+                    self.pivot_point =
+                        Some((mouse_info.position.0, rcalc_y(mouse_info.position.1)));
+                } else if mouse_info.button == MouseButton::Left {
                     v.set_behavior(Box::new(SelectionBox::new(mouse_info)));
                 }
-            },
+            }
         };
     }
 
     fn mouse_double_pressed(&mut self, v: &mut Editor, i: &Interface, mouse_info: MouseInfo) {
-        let ci = if let Some((ci, _pi, _wh)) = clicked_point_or_handle(v, i, mouse_info.raw_position, None) {
+        let ci = if let Some((ci, _pi, _wh)) =
+            clicked_point_or_handle(v, i, mouse_info.raw_position, None)
+        {
             ci
         } else {
-            return
+            return;
         };
 
         let contour_len = v.with_active_layer(|layer| get_contour_len!(layer, ci));
@@ -194,7 +210,7 @@ impl Select {
         if let Some(pivot) = self.pivot_point {
             let pivot = (calc_x(pivot.0), calc_y(pivot.1));
             let mut paint = Paint::default();
-    
+
             paint.set_color(OUTLINE_STROKE);
             paint.set_style(PaintStyle::Stroke);
             paint.set_stroke_width(OUTLINE_STROKE_THICKNESS * (1. / i.viewport.factor));
@@ -202,4 +218,3 @@ impl Select {
         }
     }
 }
-

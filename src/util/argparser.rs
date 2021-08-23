@@ -35,6 +35,9 @@ pub fn parse_args() -> Args {
         .get_matches();
     Args {
         filename: matches.value_of("GLIF").map(|s| s.to_string()),
-        headless_mode: matches.is_present("export").then(||HeadlessMode::Export).unwrap_or_else(||HeadlessMode::None),
+        headless_mode: matches
+            .is_present("export")
+            .then(|| HeadlessMode::Export)
+            .unwrap_or_else(|| HeadlessMode::None),
     }
 }

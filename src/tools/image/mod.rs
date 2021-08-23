@@ -1,12 +1,12 @@
+use super::prelude::*;
 use crate::command::CommandMod;
 use crate::editor::Editor;
+use crate::filedialog;
 use crate::tool_behaviors::move_image::MoveImage;
 use crate::tool_behaviors::rotate_image::RotateImage;
 use crate::user_interface::{Interface, MouseInfo};
-use super::prelude::*;
 use glifparser::matrix::ToSkiaMatrix;
-use crate::filedialog;
-use skulpin::skia_safe::{Paint, Path, PaintStyle};
+use skulpin::skia_safe::{Paint, PaintStyle, Path};
 
 mod dialog;
 
@@ -22,10 +22,13 @@ pub struct Image {
 impl Tool for Image {
     fn event(&mut self, v: &mut Editor, _i: &mut Interface, event: EditorEvent) {
         match event {
-            EditorEvent::MouseEvent { event_type, mouse_info } => {
+            EditorEvent::MouseEvent {
+                event_type,
+                mouse_info,
+            } => {
                 self.debug = mouse_info;
                 match event_type {
-                    MouseEventType::Pressed => { self.mouse_pressed(v, mouse_info) }
+                    MouseEventType::Pressed => self.mouse_pressed(v, mouse_info),
                     _ => {}
                 }
             }
@@ -52,19 +55,20 @@ impl Tool for Image {
     }
 }
 
-// Here you can implement behaviors for events. 
+// Here you can implement behaviors for events.
 impl Image {
     pub fn new() -> Self {
         Self {
             selected_idx: None,
-            debug: MouseInfo { // this really needs a default
+            debug: MouseInfo {
+                // this really needs a default
                 button: sdl2::mouse::MouseButton::Left,
                 position: (0., 0.),
                 raw_position: (0., 0.),
                 absolute_position: (0., 0.),
                 raw_absolute_position: (0., 0.),
                 is_down: (false),
-                modifiers: CommandMod{
+                modifiers: CommandMod {
                     shift: false,
                     ctrl: false,
                     alt: false,
@@ -87,7 +91,12 @@ impl Image {
                 let matrix3 = Matrix::translate((calc_x(0.), calc_y(0.)));
                 let origin_mat = matrix3 * i_matrix.to_skia_matrix() * origin_transform;
 
-                let f_rect = SkRect::new(img_rect.left() as f32, img_rect.top() as f32, img_rect.right() as f32, img_rect.bottom() as f32);
+                let f_rect = SkRect::new(
+                    img_rect.left() as f32,
+                    img_rect.top() as f32,
+                    img_rect.right() as f32,
+                    img_rect.bottom() as f32,
+                );
                 let final_img_rect = origin_mat.map_rect(f_rect).0;
 
                 let local_mouse = SkPoint::new(mouse_info.position.0, mouse_info.position.1);
@@ -104,9 +113,9 @@ impl Image {
     fn get_image_pivot(&self, v: &Editor, idx: usize) -> (f32, f32) {
         v.with_active_layer(|layer| {
             let image = &v.images[&layer.images[idx].0.filename];
-    
+
             let img_rect = image.img.bounds();
-    
+
             let origin_transform = Matrix::translate((0., 0. - image.img.height() as f32));
             let matrix3 = Matrix::translate((calc_x(0.), calc_y(0.)));
             let origin_mat = matrix3 * layer.images[idx].1.to_skia_matrix() * origin_transform;
@@ -126,12 +135,17 @@ impl Image {
             let matrix3 = Matrix::translate((calc_x(0.), calc_y(0.)));
             let origin_mat = matrix3 * layer.images[idx].1.to_skia_matrix() * origin_transform;
 
-            let f_rect = SkRect::new(img_rect.left() as f32, img_rect.top() as f32, img_rect.right() as f32, img_rect.bottom() as f32);
+            let f_rect = SkRect::new(
+                img_rect.left() as f32,
+                img_rect.top() as f32,
+                img_rect.right() as f32,
+                img_rect.bottom() as f32,
+            );
             origin_mat.map_rect(f_rect).0
         })
     }
 
-    fn mouse_pressed(&mut self, v: &mut Editor,  mouse_info: MouseInfo) {
+    fn mouse_pressed(&mut self, v: &mut Editor, mouse_info: MouseInfo) {
         // if we did click an image we're going to want to let the user translate/rotate that image
         if let Some(img_idx) = self.is_image_clicked(v, mouse_info) {
             self.selected_idx = Some(img_idx);
@@ -139,7 +153,7 @@ impl Image {
             if mouse_info.modifiers.ctrl {
                 let pivot = self.get_image_pivot(v, img_idx);
                 v.set_behavior(Box::new(RotateImage::new(img_idx, pivot, mouse_info)));
-                return
+                return;
             }
 
             v.set_behavior(Box::new(MoveImage::new(img_idx, mouse_info)))

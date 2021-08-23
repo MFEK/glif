@@ -1,17 +1,18 @@
-use MFEKmath::glif::PolarCoordinates;
 use glifparser::{Point, PointData, WhichHandle};
+use MFEKmath::glif::PolarCoordinates;
 
 pub fn imgui_decimal_text_field(label: &str, ui: &imgui::Ui, data: &mut f32) {
     let mut x = imgui::im_str!("{}", data);
     let label = imgui::ImString::new(label);
     let entered;
     {
-    let it = ui.input_text(&label, &mut x);
-    entered = it.enter_returns_true(true)
-        .chars_decimal(true)
-        .chars_noblank(true)
-        .auto_select_all(true)
-        .build();
+        let it = ui.input_text(&label, &mut x);
+        entered = it
+            .enter_returns_true(true)
+            .chars_decimal(true)
+            .chars_noblank(true)
+            .auto_select_all(true)
+            .build();
     }
     if entered {
         if x.to_str().len() > 0 {
@@ -21,30 +22,39 @@ pub fn imgui_decimal_text_field(label: &str, ui: &imgui::Ui, data: &mut f32) {
     }
 }
 
-pub fn imgui_radius_theta<PD: PointData>(label: &str, ui: &imgui::Ui, ar: f32, atheta: f32, wh: WhichHandle, point: &mut Point<PD>, ) {
+pub fn imgui_radius_theta<PD: PointData>(
+    label: &str,
+    ui: &imgui::Ui,
+    ar: f32,
+    atheta: f32,
+    wh: WhichHandle,
+    point: &mut Point<PD>,
+) {
     let r_label = imgui::im_str!("{}r", label);
     let theta_label = imgui::im_str!("{}θ", label);
     // Ar
     let mut ars = imgui::im_str!("{}", ar);
     let r_entered;
     {
-    let it = ui.input_text(&r_label, &mut ars);
-    r_entered = it.enter_returns_true(true)
-        .chars_decimal(true)
-        .chars_noblank(true)
-        .auto_select_all(true)
-        .build();
+        let it = ui.input_text(&r_label, &mut ars);
+        r_entered = it
+            .enter_returns_true(true)
+            .chars_decimal(true)
+            .chars_noblank(true)
+            .auto_select_all(true)
+            .build();
     }
     // AΘ
     let mut athetas = imgui::im_str!("{}", atheta);
     let theta_entered;
     {
-    let it = ui.input_text(&theta_label, &mut athetas);
-    theta_entered = it.enter_returns_true(true)
-        .chars_decimal(true)
-        .chars_noblank(true)
-        .auto_select_all(true)
-        .build();
+        let it = ui.input_text(&theta_label, &mut athetas);
+        theta_entered = it
+            .enter_returns_true(true)
+            .chars_decimal(true)
+            .chars_noblank(true)
+            .auto_select_all(true)
+            .build();
     }
     if r_entered || theta_entered {
         let mut new_r: f32 = f32::NAN;

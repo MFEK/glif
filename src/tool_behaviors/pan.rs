@@ -16,8 +16,10 @@ impl PanBehavior {
 
     pub fn mouse_moved(&mut self, _v: &mut Editor, i: &mut Interface, mouse_info: MouseInfo) {
         let mut new_offset = self.viewport.offset;
-        new_offset.0 += (mouse_info.raw_absolute_position.0 - self.mouse_info.raw_absolute_position.0).floor();
-        new_offset.1 += (mouse_info.raw_absolute_position.1 - self.mouse_info.raw_absolute_position.1).floor();
+        new_offset.0 +=
+            (mouse_info.raw_absolute_position.0 - self.mouse_info.raw_absolute_position.0).floor();
+        new_offset.1 +=
+            (mouse_info.raw_absolute_position.1 - self.mouse_info.raw_absolute_position.1).floor();
 
         i.viewport.offset = new_offset;
     }
@@ -32,14 +34,15 @@ impl PanBehavior {
 impl ToolBehavior for PanBehavior {
     fn event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
         match event {
-            EditorEvent::MouseEvent { event_type, mouse_info } => {
-                match event_type {
-                    MouseEventType::Released => self.mouse_released(v, i, mouse_info),
-                    MouseEventType::Moved => self.mouse_moved(v, i, mouse_info),
-                    _ => {},
-                }
+            EditorEvent::MouseEvent {
+                event_type,
+                mouse_info,
+            } => match event_type {
+                MouseEventType::Released => self.mouse_released(v, i, mouse_info),
+                MouseEventType::Moved => self.mouse_moved(v, i, mouse_info),
+                _ => {}
             },
-            _ => {},
+            _ => {}
         }
     }
 }

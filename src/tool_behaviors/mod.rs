@@ -1,14 +1,14 @@
-mod prelude;
-pub mod pan;
-pub mod move_handle;
-pub mod move_point;
-pub mod selection_box;
-pub mod rotate_selection;
 pub mod add_guideline;
 pub mod move_guideline;
+pub mod move_handle;
 pub mod move_image;
-pub mod rotate_image;
+pub mod move_point;
 pub mod move_vws_handle;
+pub mod pan;
+mod prelude;
+pub mod rotate_image;
+pub mod rotate_selection;
+pub mod selection_box;
 
 use self::prelude::*;
 use dyn_clone::DynClone;
@@ -23,4 +23,3 @@ pub trait ToolBehavior: DynClone {
     // Not every behavior draws so we provide an empty default implementation.
     fn draw(&self, _v: &Editor, _i: &Interface, _canvas: &mut Canvas) {}
 }
-

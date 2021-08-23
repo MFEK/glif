@@ -1,28 +1,27 @@
 //! Skia renderer.
 
-use crate::editor::{PreviewMode, Editor};
+use crate::editor::{Editor, PreviewMode};
 use crate::user_interface::Interface;
 use crate::CONSOLE;
 
 pub mod constants;
-use self::{constants::*};
+use self::constants::*;
 pub mod console;
 pub mod guidelines;
 pub mod points; // point drawing functions
                 // This imports calc_x, etc. which transforms coordinates between .glif and Skia
 pub use points::calc::{calc_x, calc_y};
-pub mod string;
 mod anchors;
 mod glyph;
-pub mod viewport;
 pub mod grid;
+pub mod string;
+pub mod viewport;
 
-use grid::draw_grid;
-use glifparser::Handle;
 use glifparser::matrix::ToSkiaMatrix as _;
+use glifparser::Handle;
+use grid::draw_grid;
 use log;
 use skulpin::skia_safe::{Canvas, Matrix};
-
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum UIPointType {
@@ -76,7 +75,7 @@ pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
     for dropee in dropped {
         v.with_glyph_mut(|glif| {
             for layer in glif.layers.iter_mut() {
-                layer.images.retain(|(gi, _)|gi.filename != dropee);
+                layer.images.retain(|(gi, _)| gi.filename != dropee);
             }
         });
     }
@@ -108,7 +107,7 @@ pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
     if let Some(grid) = &i.grid {
         draw_grid(canvas, grid, &i.viewport);
     }
-    
+
     // Reset transformation matrix
     canvas.restore();
 

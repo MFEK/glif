@@ -1,5 +1,8 @@
-use glifparser::{MFEKGlif, Outline, glif::{Layer, LayerOperation, MFEKPointData}};
 use glifparser::outline::skia::{FromSkiaPath, ToSkiaPaths};
+use glifparser::{
+    glif::{Layer, LayerOperation, MFEKPointData},
+    MFEKGlif, Outline,
+};
 use skulpin::skia_safe::{Path, PathOp};
 
 use crate::contour_operations;
@@ -7,13 +10,14 @@ use crate::contour_operations;
 use super::Editor;
 
 impl Editor {
-    pub fn mark_preview_dirty(&mut self)
-    {
+    pub fn mark_preview_dirty(&mut self) {
         self.preview_dirty = true;
     }
 
     pub fn rebuild(&mut self) {
-        if !self.preview_dirty {return};
+        if !self.preview_dirty {
+            return;
+        };
 
         if self.glyph.as_ref().unwrap().layers[0].operation.is_some() {
             self.glyph.as_mut().unwrap().layers[0].operation = None;
@@ -25,7 +29,10 @@ impl Editor {
             let mut preview_outline = Vec::new();
 
             for (_idx, glif_contour) in layer.outline.iter().enumerate() {
-                if glif_contour.inner.len() < 2 { preview_outline.push(glif_contour.clone()); continue; }
+                if glif_contour.inner.len() < 2 {
+                    preview_outline.push(glif_contour.clone());
+                    continue;
+                }
 
                 let build_result = contour_operations::build(glif_contour);
 
@@ -44,10 +51,9 @@ impl Editor {
         self.preview_dirty = false;
     }
 
-    pub fn prepare_export(&self) -> MFEKGlif<MFEKPointData>
-    {
+    pub fn prepare_export(&self) -> MFEKGlif<MFEKPointData> {
         let glif = self.preview.as_ref().unwrap();
-    
+
         // MFEKGlif always has a layer zero so this is safe. (No it isn't, it can be invisible. TODO: Fix this.)
         let mut last_combine_layer: Layer<MFEKPointData> = glif.layers[0].clone();
         let mut exported_layers: Vec<Layer<MFEKPointData>> = vec![];
@@ -55,27 +61,35 @@ impl Editor {
         let mut current_layer_group = new_combine_paths.unwrap_or(Path::new());
 
         for (layer_idx, layer) in glif.layers.iter().enumerate() {
-            if !layer.visible { continue; }
-            if layer_idx == 0 { continue; }
-    
+            if !layer.visible {
+                continue;
+            }
+            if layer_idx == 0 {
+                continue;
+            }
+
             let skpaths = layer.outline.to_skia_paths(None);
 
             match &layer.operation {
                 Some(op) => {
                     let pathop = match op {
-                        LayerOperation::Difference  => PathOp::Difference,
-                        LayerOperation::Union  => PathOp::Union,
+                        LayerOperation::Difference => PathOp::Difference,
+                        LayerOperation::Union => PathOp::Union,
                         LayerOperation::Intersect => PathOp::Intersect,
-                        LayerOperation::XOR => PathOp::XOR
+                        LayerOperation::XOR => PathOp::XOR,
                     };
-        
+
                     if let Some(closed) = skpaths.closed {
-                        if let Some(result) = current_layer_group.op(&closed, pathop).unwrap().as_winding() {
+                        if let Some(result) = current_layer_group
+                            .op(&closed, pathop)
+                            .unwrap()
+                            .as_winding()
+                        {
                             current_layer_group = result;
                         }
                     }
                 }
-                
+
                 None => {
                     let mut combined_layer = last_combine_layer.clone();
                     last_combine_layer = layer.clone();

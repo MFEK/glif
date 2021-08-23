@@ -3,40 +3,30 @@
 //pub_mod!("src/tools");
 
 // TODO: reenable pub_mod! before this hits the main branch.
+pub mod anchors;
+pub mod console;
+pub mod grid;
+pub mod guidelines;
+pub mod image;
 pub mod measure;
 pub mod pan;
-pub mod pen;
-pub mod select;
-pub mod zoom;
-pub mod anchors;
 pub mod pap;
-pub mod grid;
-pub mod image;
-pub mod guidelines;
+pub mod pen;
 pub mod prelude;
-pub mod console;
+pub mod select;
 pub mod shapes;
 pub mod vws;
+pub mod zoom;
 
 use self::prelude::*;
 use self::{
-    measure::Measure,
-    pan::Pan,
-    pen::Pen,
-    select::Select,
-    zoom::Zoom,
-    vws::VWS,
-    anchors::Anchors,
-    shapes::Shapes,
-    pap::PAP,
-    grid::GridTool,
-    image::Image,
-    guidelines::Guidelines,
+    anchors::Anchors, grid::GridTool, guidelines::Guidelines, image::Image, measure::Measure,
+    pan::Pan, pap::PAP, pen::Pen, select::Select, shapes::Shapes, vws::VWS, zoom::Zoom,
 };
 
+use crate::user_interface::Interface;
 use dyn_clone::DynClone;
 use imgui::Ui;
-use crate::user_interface::Interface;
 //pub use self::zoom::{zoom_in_factor, zoom_out_factor};
 
 use crate::command::{Command, CommandMod};
@@ -71,18 +61,18 @@ enum_unitary! {
 
 pub fn tool_enum_to_tool(tool: ToolEnum) -> Box<dyn Tool> {
     match tool {
-        ToolEnum::Pan => {Box::new(Pan::new())}
-        ToolEnum::Pen => {Box::new(Pen::new())}
-        ToolEnum::Select => {Box::new(Select::new())}
-        ToolEnum::Zoom => {Box::new(Zoom::new())}
-        ToolEnum::Anchors => {Box::new(Anchors::new())}
-        ToolEnum::Grid => {Box::new(GridTool::new())}
-        ToolEnum::Measure => {Box::new(Measure::new())}
-        ToolEnum::Shapes => {Box::new(Shapes::new())} //FIXME: enable vws
-        ToolEnum::VWS => {Box::new(VWS::new())} //FIXME: enable vws
-        ToolEnum::Image => {Box::new(Image::new())}
-        ToolEnum::PAP => {Box::new(PAP::new())}
-        ToolEnum::Guidelines => {Box::new(Guidelines::new())}
+        ToolEnum::Pan => Box::new(Pan::new()),
+        ToolEnum::Pen => Box::new(Pen::new()),
+        ToolEnum::Select => Box::new(Select::new()),
+        ToolEnum::Zoom => Box::new(Zoom::new()),
+        ToolEnum::Anchors => Box::new(Anchors::new()),
+        ToolEnum::Grid => Box::new(GridTool::new()),
+        ToolEnum::Measure => Box::new(Measure::new()),
+        ToolEnum::Shapes => Box::new(Shapes::new()), //FIXME: enable vws
+        ToolEnum::VWS => Box::new(VWS::new()),       //FIXME: enable vws
+        ToolEnum::Image => Box::new(Image::new()),
+        ToolEnum::PAP => Box::new(PAP::new()),
+        ToolEnum::Guidelines => Box::new(Guidelines::new()),
     }
 }
 
@@ -90,13 +80,13 @@ pub enum MouseEventType {
     Pressed,
     DoubleClick,
     Released,
-    Moved
+    Moved,
 }
 
 pub enum EditorEvent<'a> {
     MouseEvent {
         event_type: MouseEventType,
-        mouse_info: MouseInfo
+        mouse_info: MouseInfo,
     },
 
     ToolCommand {

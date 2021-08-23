@@ -7,7 +7,7 @@ use skulpin::skia_safe::dash_path_effect;
 pub struct SelectionBox {
     mouse_info: MouseInfo,
     corner: Option<(f32, f32)>,
-    selected: HashSet<(usize, usize)>
+    selected: HashSet<(usize, usize)>,
 }
 
 impl SelectionBox {
@@ -15,7 +15,7 @@ impl SelectionBox {
         SelectionBox {
             mouse_info,
             corner: None,
-            selected: HashSet::new()
+            selected: HashSet::new(),
         }
     }
 
@@ -31,12 +31,8 @@ impl SelectionBox {
                 (c1.0 as f32, c1.1 as f32),
                 ((c2.0 - c1.0) as f32, (c2.1 - c1.1) as f32),
             );
-            
-            build_box_selection(
-                last_selected.clone(),
-                rect,
-                &layer.outline,
-            )
+
+            build_box_selection(last_selected.clone(), rect, &layer.outline)
         });
 
         self.selected = selected
@@ -52,7 +48,7 @@ impl SelectionBox {
     pub fn draw_box(&self, i: &Interface, canvas: &mut Canvas) {
         let c1 = self.mouse_info.position;
         let c2 = self.corner.unwrap_or(self.mouse_info.position);
-    
+
         let mut path = Path::new();
         let mut paint = Paint::default();
         let rect = Rect::from_point_and_size(
@@ -78,30 +74,30 @@ impl SelectionBox {
                 draw_point(
                     v,
                     &i.viewport,
-                    (calc_x(point.x),calc_y(point.y)),
+                    (calc_x(point.x), calc_y(point.y)),
                     (point.x, point.y),
                     None,
                     UIPointType::Point((point.a, point.b)),
                     true,
-                    canvas
+                    canvas,
                 )
             });
         }
-
     }
 }
 
 impl ToolBehavior for SelectionBox {
     fn event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
         match event {
-            EditorEvent::MouseEvent { event_type, mouse_info } => {
-                match event_type {
-                    MouseEventType::Released => self.mouse_released(v, i, mouse_info),
-                    MouseEventType::Moved => self.mouse_moved(v, i, mouse_info),
-                    _ => {},
-                }
+            EditorEvent::MouseEvent {
+                event_type,
+                mouse_info,
+            } => match event_type {
+                MouseEventType::Released => self.mouse_released(v, i, mouse_info),
+                MouseEventType::Moved => self.mouse_moved(v, i, mouse_info),
+                _ => {}
             },
-            _ => {},
+            _ => {}
         }
     }
 

@@ -1,26 +1,31 @@
+use skulpin::skia_safe::{
+    dash_path_effect, AutoCanvasRestore, Canvas, Paint, Path, Point, TextBlob,
+};
 use MFEKmath::Vector;
-use skulpin::skia_safe::{AutoCanvasRestore, Canvas, Paint, Path, Point, TextBlob, dash_path_effect};
 
-use crate::user_interface::Interface;
-use crate::renderer::constants;
 use crate::editor::Editor;
+use crate::renderer::constants;
+use crate::user_interface::Interface;
 
 use super::prelude::*;
 
-use crate::renderer::string::{ POINTFONTS, POINTFONTSIZE, pointfont_from_size_and_factor};
+use crate::renderer::string::{pointfont_from_size_and_factor, POINTFONTS, POINTFONTSIZE};
 #[derive(Clone)]
 pub struct Measure {
-    measure_from: Option<(f32, f32)>
+    measure_from: Option<(f32, f32)>,
 }
 
 impl Tool for Measure {
     fn event(&mut self, v: &mut Editor, _i: &mut Interface, event: EditorEvent) {
         match event {
-            EditorEvent::MouseEvent { event_type, mouse_info } => {
+            EditorEvent::MouseEvent {
+                event_type,
+                mouse_info,
+            } => {
                 match event_type {
                     //MouseEventType::Moved => { self.mouse_moved(v, position, mouse_info) }
-                    MouseEventType::Pressed => { self.mouse_pressed(v, mouse_info) }
-                    MouseEventType::Released => { self.mouse_released(v, mouse_info) }
+                    MouseEventType::Pressed => self.mouse_pressed(v, mouse_info),
+                    MouseEventType::Released => self.mouse_released(v, mouse_info),
                     _ => {}
                 }
             }
@@ -35,12 +40,10 @@ impl Tool for Measure {
 
 impl Measure {
     pub fn new() -> Self {
-        Self {
-            measure_from: None
-        }
+        Self { measure_from: None }
     }
-    
-    fn mouse_pressed(&mut self, _v: &Editor ,mouse_info: MouseInfo) {
+
+    fn mouse_pressed(&mut self, _v: &Editor, mouse_info: MouseInfo) {
         self.measure_from = Some(mouse_info.position);
     }
 
@@ -52,11 +55,14 @@ impl Measure {
         let mut path = Path::new();
         let mut paint = Paint::default();
         let factor = i.viewport.factor;
-        
+
         if let Some(measure_from) = self.measure_from {
             let skpath_start = Point::new(measure_from.0 as f32, measure_from.1 as f32);
-            let skpath_end = Point::new(i.mouse_info.position.0 as f32, i.mouse_info.position.1 as f32);
-            
+            let skpath_end = Point::new(
+                i.mouse_info.position.0 as f32,
+                i.mouse_info.position.1 as f32,
+            );
+
             let start_vec = Vector::from_skia_point(&skpath_start);
             let end_vec = Vector::from_skia_point(&skpath_end);
             let halfway = start_vec.lerp(end_vec, 0.5);
@@ -74,13 +80,24 @@ impl Measure {
             paint.set_path_effect(dash_path_effect::new(&[dash_offset, dash_offset], 0.0));
             canvas.draw_path(&path, &paint);
 
-            draw_measure_string(i, (halfway.x as f32, halfway.y as f32), angle as f32, distance.to_string().as_str(), canvas);
+            draw_measure_string(
+                i,
+                (halfway.x as f32, halfway.y as f32),
+                angle as f32,
+                distance.to_string().as_str(),
+                canvas,
+            );
         }
     }
 }
 
-
-pub fn draw_measure_string(i: &Interface, at: (f32, f32), angle: f32, s: &str, canvas: &mut Canvas) {
+pub fn draw_measure_string(
+    i: &Interface,
+    at: (f32, f32),
+    angle: f32,
+    s: &str,
+    canvas: &mut Canvas,
+) {
     let mut arc = AutoCanvasRestore::guard(canvas, true);
     let factor = i.viewport.factor;
     let mut paint = Paint::default();
@@ -109,10 +126,7 @@ pub fn draw_measure_string(i: &Interface, at: (f32, f32), angle: f32, s: &str, c
         })
     };
 
-    let center_at = (
-        at.0 - rect.width() / 2.,
-        at.1 - rect.height() / 2.,
-    );
+    let center_at = (at.0 - rect.width() / 2., at.1 - rect.height() / 2.);
 
     arc.rotate(angle.to_degrees(), Some(at.into()));
     arc.draw_text_blob(&blob, center_at, &paint);

@@ -10,7 +10,7 @@ impl MoveGuideline {
     pub fn new(selected_idx: usize, mouse_info: MouseInfo) -> Self {
         MoveGuideline {
             mouse_info,
-            selected_idx
+            selected_idx,
         }
     }
 
@@ -37,14 +37,15 @@ impl MoveGuideline {
 impl ToolBehavior for MoveGuideline {
     fn event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
         match event {
-            EditorEvent::MouseEvent { event_type, mouse_info } => {
-                match event_type {
-                    MouseEventType::Released => self.mouse_released(v, i, mouse_info),
-                    MouseEventType::Moved => self.mouse_moved(v, i, mouse_info),
-                    _ => {},
-                }
+            EditorEvent::MouseEvent {
+                event_type,
+                mouse_info,
+            } => match event_type {
+                MouseEventType::Released => self.mouse_released(v, i, mouse_info),
+                MouseEventType::Moved => self.mouse_moved(v, i, mouse_info),
+                _ => {}
             },
-            _ => {},
+            _ => {}
         }
     }
 }

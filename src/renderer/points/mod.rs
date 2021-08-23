@@ -26,31 +26,30 @@ impl<T> SkiaFromGlyph<T> for Point {
 }
 
 fn get_fill_and_stroke(kind: UIPointType, selected: bool) -> (Color, Color) {
-    let (fill, stroke) = if selected {
-        match kind {
-            UIPointType::Handle => (SELECTED_OFFCURVE, SELECTED_OFFCURVE_STROKE),
-            UIPointType::Point((Handle::At(_, _), Handle::Colocated))
-            | UIPointType::Point((Handle::Colocated, Handle::At(_, _))) => {
-                (SELECTED_STROKE, SELECTED_TERTIARY)
+    let (fill, stroke) =
+        if selected {
+            match kind {
+                UIPointType::Handle => (SELECTED_OFFCURVE, SELECTED_OFFCURVE_STROKE),
+                UIPointType::Point((Handle::At(_, _), Handle::Colocated))
+                | UIPointType::Point((Handle::Colocated, Handle::At(_, _))) => {
+                    (SELECTED_STROKE, SELECTED_TERTIARY)
+                }
+                UIPointType::Point((Handle::Colocated, Handle::Colocated))
+                | UIPointType::Direction => (SELECTED_STROKE, SELECTED_TERTIARY),
+                _ => (SELECTED_FILL, SELECTED_STROKE),
             }
-            UIPointType::Point((Handle::Colocated, Handle::Colocated)) | UIPointType::Direction => {
-                (SELECTED_STROKE, SELECTED_TERTIARY)
+        } else {
+            match kind {
+                UIPointType::Handle => (HANDLE_FILL, HANDLE_STROKE),
+                UIPointType::Point((Handle::At(_, _), Handle::Colocated))
+                | UIPointType::Point((Handle::Colocated, Handle::At(_, _))) => {
+                    (POINT_ONE_FILL, POINT_ONE_STROKE)
+                }
+                UIPointType::Point((Handle::Colocated, Handle::Colocated))
+                | UIPointType::Direction => (POINT_SQUARE_FILL, POINT_SQUARE_STROKE),
+                _ => (POINT_TWO_FILL, POINT_TWO_STROKE),
             }
-            _ => (SELECTED_FILL, SELECTED_STROKE),
-        }
-    } else {
-        match kind {
-            UIPointType::Handle => (HANDLE_FILL, HANDLE_STROKE),
-            UIPointType::Point((Handle::At(_, _), Handle::Colocated))
-            | UIPointType::Point((Handle::Colocated, Handle::At(_, _))) => {
-                (POINT_ONE_FILL, POINT_ONE_STROKE)
-            }
-            UIPointType::Point((Handle::Colocated, Handle::Colocated)) | UIPointType::Direction => {
-                (POINT_SQUARE_FILL, POINT_SQUARE_STROKE)
-            }
-            _ => (POINT_TWO_FILL, POINT_TWO_STROKE),
-        }
-    };
+        };
     (fill, stroke)
 }
 
@@ -68,7 +67,13 @@ pub fn draw_directions(viewport: &Viewport, path: Path, canvas: &mut Canvas) {
 // is rotated at its center, such that they form an X. We elongate `path1` a bit so the final
 // triangle is not isoceles. We then move to the "point" (path2[1]), make a line to the second
 // point (on the base), finish that segment, and close the path.
-fn draw_triangle_point(viewport: &Viewport, at: Point, along: Vector, selected: bool, canvas: &mut Canvas) {
+fn draw_triangle_point(
+    viewport: &Viewport,
+    at: Point,
+    along: Vector,
+    selected: bool,
+    canvas: &mut Canvas,
+) {
     let (fill, stroke) = get_fill_and_stroke(UIPointType::Direction, selected);
     let factor = viewport.factor;
     let mut paint = Paint::default();
@@ -146,7 +151,7 @@ pub fn draw_square_point(
     selected: bool,
     canvas: &mut Canvas,
     paint: &mut Paint,
-    factor: f32
+    factor: f32,
 ) {
     let (fill, stroke) = get_fill_and_stroke(kind, selected);
     let radius = (POINT_RADIUS * (1. / factor)) * 2. * if selected { 1.75 } else { 1. };
@@ -217,7 +222,6 @@ pub fn draw_point(
 }
 
 fn draw_handle(v: &Editor, viewport: &Viewport, h: Handle, selected: bool, canvas: &mut Canvas) {
-
     match h {
         Handle::Colocated => {}
         Handle::At(x, y) => {
@@ -316,31 +320,39 @@ pub fn draw_all(v: &Editor, viewport: &Viewport, canvas: &mut Canvas) {
     let (vcidx, vpidx) = (v.contour_idx, v.point_idx);
     v.with_glyph(|glif| {
         for (lidx, layer) in glif.layers.iter().enumerate() {
-            if lidx != active_layer { continue };
+            if lidx != active_layer {
+                continue;
+            };
             if handle_style == HandleStyle::Handlebars {
-                for (cidx, contour) in layer.outline.iter().enumerate(){
+                for (cidx, contour) in layer.outline.iter().enumerate() {
                     let mut prevpoint = contour.inner.first().unwrap();
                     for (pidx, point) in contour.inner.iter().enumerate() {
-                        let selected = if  
-                            (lidx == active_layer && selected.contains(&(cidx, pidx))) ||
-                            (lidx == active_layer && vcidx == Some(cidx) && vpidx == Some(pidx))
-                        { true } else { false };
+                        let selected = if (lidx == active_layer && selected.contains(&(cidx, pidx)))
+                            || (lidx == active_layer && vcidx == Some(cidx) && vpidx == Some(pidx))
+                        {
+                            true
+                        } else {
+                            false
+                        };
                         draw_handlebars(viewport, Some(prevpoint), &point, selected, canvas);
                         prevpoint = &point;
                     }
                 }
             }
 
-            for (cidx, contour) in layer.outline.iter().enumerate(){
+            for (cidx, contour) in layer.outline.iter().enumerate() {
                 for (pidx, point) in contour.inner.iter().enumerate() {
                     if point.b != Handle::Colocated {
                         i += 1;
                     }
-                    let selected = if  
-                        (lidx == active_layer && selected.contains(&(cidx, pidx))) ||
-                        (lidx == active_layer && vcidx == Some(cidx) && vpidx == Some(pidx))
-                    { true } else { false };
-                
+                    let selected = if (lidx == active_layer && selected.contains(&(cidx, pidx)))
+                        || (lidx == active_layer && vcidx == Some(cidx) && vpidx == Some(pidx))
+                    {
+                        true
+                    } else {
+                        false
+                    };
+
                     draw_complete_point(v, viewport, &point, Some(i), selected, canvas);
                     if point.a != Handle::Colocated {
                         i += 1;

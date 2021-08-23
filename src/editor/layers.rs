@@ -1,5 +1,5 @@
-use glifparser::glif::{HistoryEntry, HistoryType, Layer, LayerOperation, MFEKOutline};
 use super::Editor;
+use glifparser::glif::{HistoryEntry, HistoryType, Layer, LayerOperation, MFEKOutline};
 
 impl Editor {
     /// Adds a new layer. This generates a HistoryEntry and sets the selection to point to the newly created
@@ -21,11 +21,11 @@ impl Editor {
             point_idx: self.point_idx,
             selected: Some(self.selected.clone()),
             layer: new_layer.clone(), // dummy
-            kind: HistoryType::LayerAdded
+            kind: HistoryType::LayerAdded,
         });
 
         self.glyph.as_mut().unwrap().layers.push(new_layer);
-        
+
         self.end_layer_modification();
 
         self.layer_idx = Some(self.glyph.as_mut().unwrap().layers.len() - 1);
@@ -37,14 +37,16 @@ impl Editor {
 
     /// Deletes a layer. Generates a history entry and sets the user's selection to the layer above.
     pub fn delete_layer(&mut self, idx: usize, add_history: bool) {
-        if self.with_glyph(|glif| {glif.layers.len()}) == 1 { return }
+        if self.with_glyph(|glif| glif.layers.len()) == 1 {
+            return;
+        }
 
         self.end_layer_modification();
 
         let deleted = self.glyph.as_mut().unwrap().layers.remove(idx);
 
         let mut below_operation: Option<LayerOperation> = None;
-        let layer_below = self.glyph.as_mut().unwrap().layers.get(idx+1);
+        let layer_below = self.glyph.as_mut().unwrap().layers.get(idx + 1);
 
         if let Some(below) = layer_below {
             below_operation = below.operation.clone();
@@ -93,15 +95,14 @@ impl Editor {
     pub fn get_active_layer(&self) -> usize {
         return self.layer_idx.unwrap();
     }
-    
+
     pub fn swap_layers(&mut self, src: usize, dest: usize, add_history: bool) {
         let mut below_operation: Option<LayerOperation> = None;
-        let layer_below = self.glyph.as_mut().unwrap().layers.get(src+1);
+        let layer_below = self.glyph.as_mut().unwrap().layers.get(src + 1);
 
         if let Some(below) = layer_below {
             below_operation = below.operation.clone();
         }
-
 
         if add_history {
             self.history.add_undo_entry(HistoryEntry {
@@ -111,16 +112,23 @@ impl Editor {
                 point_idx: self.point_idx,
                 selected: Some(self.selected.clone()),
                 layer: self.glyph.as_ref().unwrap().layers[self.layer_idx.unwrap()].clone(),
-                kind: HistoryType::LayerMoved { to: dest, from: src, layer_operation: below_operation }
+                kind: HistoryType::LayerMoved {
+                    to: dest,
+                    from: src,
+                    layer_operation: below_operation,
+                },
             });
-    
         }
 
         let src_copy = self.glyph.as_mut().unwrap().layers[src].clone();
         let dest_copy = self.glyph.as_mut().unwrap().layers[dest].clone();
 
-        if self.layer_idx == Some(dest) { self.layer_idx = Some(src) };
-        if self.layer_idx == Some(src) { self.layer_idx = Some(dest) };
+        if self.layer_idx == Some(dest) {
+            self.layer_idx = Some(src)
+        };
+        if self.layer_idx == Some(src) {
+            self.layer_idx = Some(dest)
+        };
 
         self.glyph.as_mut().unwrap().layers[dest] = src_copy;
         self.glyph.as_mut().unwrap().layers[src] = dest_copy;
@@ -131,7 +139,7 @@ impl Editor {
 
         self.mark_preview_dirty();
     }
-    
+
     pub fn get_layer_count(&self) -> usize {
         return self.glyph.as_ref().unwrap().layers.len();
     }

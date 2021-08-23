@@ -14,7 +14,7 @@ pub struct Viewport {
 }
 
 impl Default for Viewport {
-    fn default() -> Self { 
+    fn default() -> Self {
         Viewport {
             winsize: (0, 0),
             factor: 1.,
@@ -27,12 +27,15 @@ impl Default for Viewport {
     }
 }
 
-impl Interface {  
+impl Interface {
     // this gets called by tools so it accepts &mut State
     pub fn update_viewport(&mut self, offset: Option<(f32, f32)>, scale: Option<f32>) {
         let offset = match offset {
             None => self.viewport.offset,
-            Some(offset) => (self.viewport.offset.0 + offset.0, self.viewport.offset.1 + offset.1),
+            Some(offset) => (
+                self.viewport.offset.0 + offset.0,
+                self.viewport.offset.1 + offset.1,
+            ),
         };
         let scale = match scale {
             None => self.viewport.factor,

@@ -6,7 +6,7 @@ use crate::editor::Editor;
 use crate::user_interface::viewport::Viewport;
 
 use glifparser::Anchor;
-use skulpin::skia_safe::{Canvas, Path as SkPath, Paint, PaintStyle};
+use skulpin::skia_safe::{Canvas, Paint, PaintStyle, Path as SkPath};
 
 pub fn draw_anchors(v: &mut Editor, viewport: &Viewport, canvas: &mut Canvas) {
     v.with_glyph(|glif| {
@@ -35,6 +35,7 @@ fn draw_anchor(anchor: &Anchor, viewport: &Viewport, canvas: &mut Canvas) {
     paint.set_color(ANCHOR_STROKE);
     paint.set_stroke_width(ANCHOR_STROKE_THICKNESS * (1. / viewport.factor));
     canvas.draw_path(&path, &paint);
-    let uis = UiString::centered_with_colors(&anchor.class, ANCHOR_NAME_COLOR, Some(ANCHOR_NAME_BGCOLOR));
+    let uis =
+        UiString::centered_with_colors(&anchor.class, ANCHOR_NAME_COLOR, Some(ANCHOR_NAME_BGCOLOR));
     uis.draw(viewport, (x, y - (radius * 1.3)), canvas);
 }

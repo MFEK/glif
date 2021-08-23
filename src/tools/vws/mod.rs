@@ -1,28 +1,28 @@
 mod dialog;
 pub mod util;
 
-use MFEKmath::{Piecewise, Evaluate};
+use crate::{tool_behaviors::move_vws_handle::MoveVWSHandle, user_interface::Interface};
 use sdl2::mouse::MouseButton;
 use skulpin::skia_safe::{Canvas, Paint, PaintStyle, Path as SkiaPath};
-use crate::{tool_behaviors::move_vws_handle::MoveVWSHandle, user_interface::Interface};
+use MFEKmath::{Evaluate, Piecewise};
 
 use self::util::{clicked_handle, get_vws_handle_pos};
 
 use super::prelude::*;
 
 #[derive(Clone)]
-pub struct VWS {
-}
+pub struct VWS {}
 
 impl Tool for VWS {
     fn event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
         match event {
-            EditorEvent::MouseEvent { event_type, mouse_info } => {
-                match event_type {
-                    super::MouseEventType::Pressed => { self.mouse_pressed(v, i, mouse_info) }
-                    _ => {}
-                }
-            }
+            EditorEvent::MouseEvent {
+                event_type,
+                mouse_info,
+            } => match event_type {
+                super::MouseEventType::Pressed => self.mouse_pressed(v, i, mouse_info),
+                _ => {}
+            },
             _ => {}
         }
     }
@@ -38,33 +38,30 @@ impl Tool for VWS {
 
 impl VWS {
     pub fn new() -> Self {
-        VWS {
-        }
+        VWS {}
     }
 
-    fn mouse_pressed(&mut self, v: &mut Editor, i: &Interface, mouse_info: MouseInfo){
+    fn mouse_pressed(&mut self, v: &mut Editor, i: &Interface, mouse_info: MouseInfo) {
         match clicked_handle(v, i, mouse_info) {
             Some((ci, pi, wh)) => {
                 v.contour_idx = Some(ci);
                 v.point_idx = Some(pi);
                 v.selected.clear();
-                
-                v.set_behavior(Box::new(
-                    MoveVWSHandle::new(
-                        mouse_info.button == MouseButton::Left,
-                        mouse_info.modifiers.ctrl, 
-                        mouse_info.modifiers.shift,
-                        wh,
-                        mouse_info
-                    ))
-                );
-            },
+
+                v.set_behavior(Box::new(MoveVWSHandle::new(
+                    mouse_info.button == MouseButton::Left,
+                    mouse_info.modifiers.ctrl,
+                    mouse_info.modifiers.shift,
+                    wh,
+                    mouse_info,
+                )));
+            }
             _ => {}
         };
     }
 
     pub fn draw_handles(&self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
-        v.with_active_layer( |layer | {
+        v.with_active_layer(|layer| {
             let factor = i.viewport.factor;
 
             for (contour_idx, contour) in layer.outline.iter().enumerate() {
@@ -99,7 +96,9 @@ impl VWS {
                 }
 
                 if contour.inner.first().unwrap().ptype == glifparser::PointType::Move {
-                    if contour_pw.segs.len() < 2 { continue };
+                    if contour_pw.segs.len() < 2 {
+                        continue;
+                    };
                     let vws_handle_idx = contour_pw.segs.len();
                     let bezier = contour_pw.segs.last().unwrap();
                     let start_point = bezier.end_point();

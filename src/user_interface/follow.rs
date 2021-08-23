@@ -1,6 +1,5 @@
-use derive_more::Display;
 pub use crate::user_interface::MouseInfo;
-
+use derive_more::Display;
 
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq)]
 /// Point following behavior when using the select tool

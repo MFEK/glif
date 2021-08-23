@@ -1,20 +1,19 @@
-use std::{rc::Rc};
+use std::rc::Rc;
 
-use imgui::{self, Context};
 use crate::user_interface::gui::build_imgui_ui;
+use ::skulpin::rafx::api::RafxExtents2D;
+use ::skulpin::Renderer;
+use imgui::{self, Context};
 use imgui_sdl2::ImguiSdl2;
 use sdl2::mouse::MouseState;
-use ::skulpin::Renderer;
-use ::skulpin::rafx::api::RafxExtents2D;
 
-
-use crate::renderer;
 use crate::editor::Editor;
+use crate::renderer;
 use crate::renderer::constants::HEIGHT;
 use crate::renderer::constants::WIDTH;
 pub use crate::user_interface::mouse_input::MouseInfo;
 use glifparser::glif::{Layer, MFEKPointData};
-use sdl2::{Sdl, video::Window};
+use sdl2::{video::Window, Sdl};
 
 use self::grid::Grid;
 pub use self::gui::ImguiManager;
@@ -24,15 +23,15 @@ use self::gui::TOOLBOX_OFFSET_X;
 use self::gui::TOOLBOX_OFFSET_Y;
 use self::viewport::Viewport;
 
-pub mod icons;
-pub mod sdl;
-pub mod gui;
-pub mod viewport;
-pub mod skulpin;
-pub mod mouse_input;
-pub mod grid;
 pub mod follow;
+pub mod grid;
+pub mod gui;
+pub mod icons;
+pub mod mouse_input;
+pub mod sdl;
+pub mod skulpin;
 pub mod util;
+pub mod viewport;
 
 pub struct Interface {
     prompts: Vec<InputPrompt>,
@@ -70,7 +69,7 @@ impl Interface {
     pub fn peek_prompt(&self) -> &InputPrompt {
         return &self.prompts.first().unwrap();
     }
-    
+
     pub fn pop_prompt(&mut self) {
         self.prompts.pop();
     }
@@ -84,7 +83,15 @@ impl Interface {
         )
     }
 
-    pub fn render(&mut self, v: &mut Editor, imgui: &mut Context, imsdl2: &mut ImguiSdl2, imgui_renderer: &mut imgui_skia_renderer::Renderer, skulpin: &mut Renderer, mouse_state: &MouseState) {
+    pub fn render(
+        &mut self,
+        v: &mut Editor,
+        imgui: &mut Context,
+        imsdl2: &mut ImguiSdl2,
+        imgui_renderer: &mut imgui_skia_renderer::Renderer,
+        skulpin: &mut Renderer,
+        mouse_state: &MouseState,
+    ) {
         // build and render imgui
         let dd = build_imgui_ui(imgui, imsdl2, v, self, &mouse_state);
 
@@ -115,15 +122,15 @@ pub enum InputPrompt {
     Text {
         label: String,
         default: String,
-        func: Rc<dyn Fn(&mut Editor, String)>
+        func: Rc<dyn Fn(&mut Editor, String)>,
     },
     Color {
         label: String,
         default: [f32; 4],
-        func: Rc<dyn Fn(&mut Editor, Option<[f32; 4]>)>
+        func: Rc<dyn Fn(&mut Editor, Option<[f32; 4]>)>,
     },
     Layer {
         label: String,
-        func: Rc<dyn Fn(&mut Editor, Layer<MFEKPointData>)>
-    }
+        func: Rc<dyn Fn(&mut Editor, Layer<MFEKPointData>)>,
+    },
 }

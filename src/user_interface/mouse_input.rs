@@ -1,5 +1,5 @@
-use sdl2::mouse::MouseButton;
 use crate::renderer::points::calc::*;
+use sdl2::mouse::MouseButton;
 
 use crate::{command::CommandMod, user_interface::Interface};
 
@@ -18,7 +18,7 @@ pub struct MouseInfo {
 }
 
 impl Default for MouseInfo {
-    fn default() -> Self { 
+    fn default() -> Self {
         MouseInfo {
             button: sdl2::mouse::MouseButton::Unknown,
             position: (0., 0.),
@@ -42,7 +42,7 @@ impl MouseInfo {
         let factor = 1. / i.viewport.factor;
         let uoffset = i.viewport.offset;
         let offset = (uoffset.0, uoffset.1);
-    
+
         let absolute_mposition = ((position.0).floor(), (position.1).floor());
         let mut mposition = (
             ((position.0).floor() - offset.0) * factor,
@@ -62,35 +62,36 @@ impl MouseInfo {
                 calc_y((mpos.1 / grid.spacing + grid.offset).round() * grid.spacing),
             );
 
-            let dist = f32::sqrt(f32::powi(standard_snap.0 - mpos.0, 2) + f32::powi(standard_snap.1 - mposition.1, 2));
+            let dist = f32::sqrt(
+                f32::powi(standard_snap.0 - mpos.0, 2)
+                    + f32::powi(standard_snap.1 - mposition.1, 2),
+            );
 
-            candidates.push((
-                dist,
-                standard_snap
-            ));
+            candidates.push((dist, standard_snap));
 
             if let Some(slope) = &grid.slope {
                 let slope_max = f32::min(f32::abs(*slope), 1.);
-                let x = mpos.0 - mpos.1/slope;
-                let s = (grid.spacing/slope_max).abs();
-                let c = (x/s + 0.5).floor() * s;
+                let x = mpos.0 - mpos.1 / slope;
+                let s = (grid.spacing / slope_max).abs();
+                let c = (x / s + 0.5).floor() * s;
                 let c2 = c * -slope;
 
-                let horizontal_candidate = ((rcalc_y(standard_snap.1) - c2)/slope, standard_snap.1);
-                let dist = f32::sqrt(f32::powi(horizontal_candidate.0 - mpos.0, 2) + f32::powi(horizontal_candidate.1 - mposition.1, 2));
+                let horizontal_candidate =
+                    ((rcalc_y(standard_snap.1) - c2) / slope, standard_snap.1);
+                let dist = f32::sqrt(
+                    f32::powi(horizontal_candidate.0 - mpos.0, 2)
+                        + f32::powi(horizontal_candidate.1 - mposition.1, 2),
+                );
 
-                candidates.push((
-                    dist,
-                    horizontal_candidate
-                ));
+                candidates.push((dist, horizontal_candidate));
 
-                let vertical_candidate = (standard_snap.0, rcalc_y(slope*standard_snap.0+c2));
-                let dist = f32::sqrt(f32::powi(vertical_candidate.0 - mpos.0, 2) + f32::powi(vertical_candidate.1 - mposition.1, 2));
+                let vertical_candidate = (standard_snap.0, rcalc_y(slope * standard_snap.0 + c2));
+                let dist = f32::sqrt(
+                    f32::powi(vertical_candidate.0 - mpos.0, 2)
+                        + f32::powi(vertical_candidate.1 - mposition.1, 2),
+                );
 
-                candidates.push((
-                    dist,
-                    vertical_candidate
-                ));
+                candidates.push((dist, vertical_candidate));
             }
 
             candidates.sort_unstable_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
@@ -110,16 +111,17 @@ impl MouseInfo {
 }
 
 impl Interface {
-        // Generic events
+    // Generic events
     pub fn center_cursor(&mut self) {
         let mut center = self.sdl_window.drawable_size();
         center.0 /= 2;
         center.1 /= 2;
         self.mouse_info.absolute_position = (center.0 as f32, center.1 as f32);
 
-        self.sdl_context
-            .mouse()
-            .warp_mouse_in_window(&self.sdl_window, center.0 as i32, center.1 as i32);
+        self.sdl_context.mouse().warp_mouse_in_window(
+            &self.sdl_window,
+            center.0 as i32,
+            center.1 as i32,
+        );
     }
-
 }

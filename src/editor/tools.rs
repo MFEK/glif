@@ -1,13 +1,17 @@
 use imgui::Ui;
 use skulpin::skia_safe::Canvas;
 
-use crate::{tool_behaviors::ToolBehavior, tools::{EditorEvent, Tool, ToolEnum, tool_enum_to_tool}, user_interface::Interface};
 use super::Editor;
+use crate::{
+    tool_behaviors::ToolBehavior,
+    tools::{tool_enum_to_tool, EditorEvent, Tool, ToolEnum},
+    user_interface::Interface,
+};
 
 impl Editor {
     /// This is the function that powers the editor. Tools recieve events from the Editor and then use them to modify state.
     /// Adding new events is as simple as adding a new anonymous struct to EditorEvent and a call to this function in the appropriate
-    /// place.Tools can then implement behavior for that event in their handle_event implementation. 
+    /// place.Tools can then implement behavior for that event in their handle_event implementation.
     pub fn dispatch_editor_event(&mut self, i: &mut Interface, event: EditorEvent) {
         self.behavior_finished = false;
         if let Some(behavior) = self.tool_behaviors.pop() {
@@ -43,18 +47,17 @@ impl Editor {
     }
 
     /// Get a mutable copy of the current tool as a boxed dyn Tool. This is used in event handling.
-    pub fn get_tool_mut(&mut self) -> &mut Box<dyn Tool>
-    {
+    pub fn get_tool_mut(&mut self) -> &mut Box<dyn Tool> {
         &mut self.active_tool
     }
 
     pub fn reset_tool(&mut self) {
         self.end_layer_modification();
         self.clear_behaviors();
-        self.active_tool = tool_enum_to_tool(self.active_tool_enum);       
+        self.active_tool = tool_enum_to_tool(self.active_tool_enum);
     }
 
-    /// Pops the current behavior off the behavior stack. ToolBehavior should call this when it has finished. 
+    /// Pops the current behavior off the behavior stack. ToolBehavior should call this when it has finished.
     pub fn pop_behavior(&mut self) {
         self.tool_behaviors.pop();
 
@@ -83,7 +86,9 @@ impl Editor {
 
     /// Set the active tool by enum. When adding your own tools make sure to add them to ToolEnum.
     pub fn set_tool(&mut self, tool: ToolEnum) {
-        if self.active_tool_enum == tool { return };
+        if self.active_tool_enum == tool {
+            return;
+        };
 
         self.end_layer_modification();
         self.active_tool_enum = tool;

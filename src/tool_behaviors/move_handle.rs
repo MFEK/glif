@@ -23,7 +23,7 @@ impl MoveHandle {
     }
 
     pub fn mouse_moved(&mut self, v: &mut Editor, _i: &mut Interface, mouse_info: MouseInfo) {
-        if !v.is_modifying() { 
+        if !v.is_modifying() {
             v.begin_layer_modification("Move handle.");
         }
 
@@ -31,7 +31,7 @@ impl MoveHandle {
         let y = calc_y(mouse_info.position.1 as f32);
 
         let (vci, vpi) = (v.contour_idx.unwrap(), v.point_idx.unwrap());
-        
+
         v.with_active_layer_mut(|layer| {
             let handle = match self.wh {
                 WhichHandle::A => get_point!(layer, vci, vpi).a,
@@ -51,7 +51,9 @@ impl MoveHandle {
                         match self.wh {
                             WhichHandle::A => get_point!(layer, vci, vpi).b = initialize_pos,
                             WhichHandle::B => get_point!(layer, vci, vpi).a = initialize_pos,
-                            WhichHandle::Neither => unreachable!("Should've been matched by above?!"),
+                            WhichHandle::Neither => {
+                                unreachable!("Should've been matched by above?!")
+                            }
                         }
                     }
                     point_pos
@@ -86,8 +88,12 @@ impl MoveHandle {
             }
 
             match self.wh {
-                WhichHandle::A => { move_mirror!(a, b); },
-                WhichHandle::B => { move_mirror!(b, a); },
+                WhichHandle::A => {
+                    move_mirror!(a, b);
+                }
+                WhichHandle::B => {
+                    move_mirror!(b, a);
+                }
                 WhichHandle::Neither => unreachable!("Should've been matched by above?!"),
             }
         });
@@ -104,14 +110,15 @@ impl MoveHandle {
 impl ToolBehavior for MoveHandle {
     fn event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
         match event {
-            EditorEvent::MouseEvent { event_type, mouse_info } => {
-                match event_type {
-                    MouseEventType::Released => self.mouse_released(v, i, mouse_info),
-                    MouseEventType::Moved => self.mouse_moved(v, i, mouse_info),
-                    _ => {},
-                }
+            EditorEvent::MouseEvent {
+                event_type,
+                mouse_info,
+            } => match event_type {
+                MouseEventType::Released => self.mouse_released(v, i, mouse_info),
+                MouseEventType::Moved => self.mouse_moved(v, i, mouse_info),
+                _ => {}
             },
-            _ => {},
+            _ => {}
         }
     }
 }

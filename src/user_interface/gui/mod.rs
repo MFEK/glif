@@ -1,8 +1,14 @@
 use std::cell::RefCell;
 
-use crate::{editor::Editor, tools::ToolEnum, user_interface::gui::{layer_list::build_and_check_layer_list, prompts::build_and_check_prompts}};
+use crate::{
+    editor::Editor,
+    tools::ToolEnum,
+    user_interface::gui::{
+        layer_list::build_and_check_layer_list, prompts::build_and_check_prompts,
+    },
+};
 
-use super::{Interface, icons};
+use super::{icons, Interface};
 
 // These are before transformation by STATE.dpi (glutin scale_factor)
 pub const TOOLBOX_OFFSET_X: f32 = 10.;
@@ -45,23 +51,23 @@ impl ImguiManager {
                 let w = 1.0 - (1.0 - col[3]).powf(2.2);
                 [x, y, z, w]
             }
-    
+
             let style = imgui.style_mut();
             for col in 0..style.colors.len() {
                 style.colors[col] = imgui_gamma_to_linear(style.colors[col]);
             }
         }
-    
+
         imgui.set_ini_filename(None);
         imgui.style_mut().use_light_colors();
-    
+
         // TODO: Implement proper DPI scaling
         let scale_factor = 1.;
         let font_size = (16.0 * scale_factor) as f32;
         let icon_font_size = (36.0 * scale_factor) as f32;
-    
+
         static ICON_FONT_TTF_DATA: &[u8] = include_bytes!("../../../resources/fonts/icons.ttf");
-    
+
         let id = imgui.fonts().add_font(&[
             imgui::FontSource::TtfData {
                 data: &crate::system_fonts::SYSTEMSANS.data,
@@ -92,8 +98,8 @@ impl ImguiManager {
                 }),
             },
         ]);
-    
-        let id1= imgui.fonts().add_font(&[
+
+        let id1 = imgui.fonts().add_font(&[
             imgui::FontSource::TtfData {
                 data: &crate::system_fonts::SYSTEMSANS.data,
                 size_pixels: font_size,
@@ -116,35 +122,33 @@ impl ImguiManager {
                 }),
             },
         ]);
-    
+
         FONT_IDS.with(|ids| {
             ids.borrow_mut().push(id);
             ids.borrow_mut().push(id1);
         });
-        PROMPT_STR.with(|prompt_str| {
-            prompt_str.borrow_mut().reserve(256)
-        });
-        
+        PROMPT_STR.with(|prompt_str| prompt_str.borrow_mut().reserve(256));
+
         let imgui_sdl2 = imgui_sdl2::ImguiSdl2::new(&mut imgui, &window);
         let imgui_renderer = Renderer::new(&mut imgui);
         return ImguiManager {
             imgui_context: imgui,
             imgui_renderer: imgui_renderer,
-            imgui_sdl2: imgui_sdl2
-        }
+            imgui_sdl2: imgui_sdl2,
+        };
     }
 
     pub fn handle_imgui_event(&mut self, sdl_event: &Event) -> bool {
-        self.imgui_sdl2.handle_event(&mut self.imgui_context, &sdl_event);
+        self.imgui_sdl2
+            .handle_event(&mut self.imgui_context, &sdl_event);
         if self.imgui_sdl2.ignore_event(sdl_event) {
             return true;
         };
-    
+
         false
     }
 }
 
-   
 pub fn build_and_check_button(v: &mut Editor, ui: &imgui::Ui, mode: ToolEnum, icon: &[u8]) {
     let mut pop_me = None;
     if v.get_tool() == mode {
@@ -163,14 +167,20 @@ pub fn build_and_check_button(v: &mut Editor, ui: &imgui::Ui, mode: ToolEnum, ic
     }
 }
 
-pub fn build_imgui_ui<'ui>(context: &'ui mut Context, imsdl2: &mut ImguiSdl2, v: &mut Editor, i: &mut Interface, mouse_state: &MouseState) -> &'ui DrawData {
+pub fn build_imgui_ui<'ui>(
+    context: &'ui mut Context,
+    imsdl2: &mut ImguiSdl2,
+    v: &mut Editor,
+    i: &mut Interface,
+    mouse_state: &MouseState,
+) -> &'ui DrawData {
     imsdl2.prepare_frame(context.io_mut(), &i.sdl_window, mouse_state);
     let mut ui = context.frame();
 
     imgui::Window::new(imgui::im_str!("Tools"))
         .bg_alpha(1.) // See comment on fn redraw_skia
         .flags(
-                    imgui::WindowFlags::NO_RESIZE
+            imgui::WindowFlags::NO_RESIZE
                 | imgui::WindowFlags::NO_MOVE
                 | imgui::WindowFlags::NO_COLLAPSE,
         )
@@ -178,7 +188,10 @@ pub fn build_imgui_ui<'ui>(context: &'ui mut Context, imsdl2: &mut ImguiSdl2, v:
             [TOOLBOX_OFFSET_X, TOOLBOX_OFFSET_Y],
             imgui::Condition::Always,
         )
-        .size([TOOLBOX_WIDTH, *TOOLBOX_HEIGHT+90.], imgui::Condition::Always)
+        .size(
+            [TOOLBOX_WIDTH, *TOOLBOX_HEIGHT + 90.],
+            imgui::Condition::Always,
+        )
         .build(&ui, || {
             build_and_check_button(v, &ui, ToolEnum::Pan, &icons::PAN);
             build_and_check_button(v, &ui, ToolEnum::Select, &icons::SELECT);
@@ -197,20 +210,24 @@ pub fn build_imgui_ui<'ui>(context: &'ui mut Context, imsdl2: &mut ImguiSdl2, v:
             build_and_check_button(v, &ui, ToolEnum::Guidelines, &icons::GUIDELINES);
         });
 
-    imgui::Window::new( imgui::im_str!("Layers"))
+    imgui::Window::new(imgui::im_str!("Layers"))
         .bg_alpha(1.)
         .flags(
-                    imgui::WindowFlags::NO_RESIZE
+            imgui::WindowFlags::NO_RESIZE
                 | imgui::WindowFlags::NO_MOVE
-                | imgui::WindowFlags::NO_COLLAPSE
+                | imgui::WindowFlags::NO_COLLAPSE,
         )
-        .position([i.viewport.winsize.0 as f32 - LAYERBOX_WIDTH - TOOLBOX_OFFSET_X , i.viewport.winsize.1 as f32 - TOOLBOX_OFFSET_Y - LAYERBOX_HEIGHT], imgui::Condition::Always)
+        .position(
+            [
+                i.viewport.winsize.0 as f32 - LAYERBOX_WIDTH - TOOLBOX_OFFSET_X,
+                i.viewport.winsize.1 as f32 - TOOLBOX_OFFSET_Y - LAYERBOX_HEIGHT,
+            ],
+            imgui::Condition::Always,
+        )
         .size([LAYERBOX_WIDTH, LAYERBOX_HEIGHT], imgui::Condition::Always)
-        .build(&ui, || {
-            build_and_check_layer_list(v, i, &ui)
-        });
+        .build(&ui, || build_and_check_layer_list(v, i, &ui));
 
-        build_and_check_prompts(v, i, &mut ui);
+    build_and_check_prompts(v, i, &mut ui);
 
     v.dispatch_tool_ui(i, &mut ui);
 

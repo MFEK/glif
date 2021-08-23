@@ -1,27 +1,27 @@
-
 use super::prelude::*;
+use crate::renderer::points::draw_point;
 use crate::tool_behaviors::move_handle::MoveHandle;
 use crate::tool_behaviors::pan::PanBehavior;
 use crate::user_interface::follow::Follow;
-use crate::{contour_operations, renderer::UIPointType};
-use crate::renderer::points::draw_point;
 use crate::user_interface::Interface;
+use crate::{contour_operations, renderer::UIPointType};
 
-use MFEKmath::{Bezier, evaluate::Primitive};
 use editor::util::get_contour_start_or_end;
 use sdl2::mouse::MouseButton;
+use MFEKmath::{evaluate::Primitive, Bezier};
 #[derive(Clone)]
 pub struct Pen {}
 
 impl Tool for Pen {
     fn event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
         match event {
-            EditorEvent::MouseEvent { event_type, mouse_info } => {
-                match event_type {
-                    super::MouseEventType::Pressed => { self.mouse_pressed(v, i, mouse_info) }
-                    _ => {}
-                }
-            }
+            EditorEvent::MouseEvent {
+                event_type,
+                mouse_info,
+            } => match event_type {
+                super::MouseEventType::Pressed => self.mouse_pressed(v, i, mouse_info),
+                _ => {}
+            },
             _ => {}
         }
     }
@@ -51,12 +51,16 @@ impl Pen {
             // we've clicked a point?
             if let Some(info) = clicked_point_or_handle(v, i, mouse_info.raw_position, None) {
                 // we have the end of one contour active and clicked the start of another?
-                let end_is_active = get_contour_start_or_end(v, c_idx, p_idx) == Some(SelectPointInfo::End);
-                let start_is_clicked = get_contour_start_or_end(v, info.0, info.1) == Some(SelectPointInfo::Start);
+                let end_is_active =
+                    get_contour_start_or_end(v, c_idx, p_idx) == Some(SelectPointInfo::End);
+                let start_is_clicked =
+                    get_contour_start_or_end(v, info.0, info.1) == Some(SelectPointInfo::Start);
 
                 // make sure these contours are open
-                let selected_open = v.with_active_layer(|layer| get_contour_type!(layer, c_idx)) == PointType::Move;
-                let target_open = v.with_active_layer(|layer| get_contour_type!(layer, info.0)) == PointType::Move;
+                let selected_open =
+                    v.with_active_layer(|layer| get_contour_type!(layer, c_idx)) == PointType::Move;
+                let target_open = v.with_active_layer(|layer| get_contour_type!(layer, info.0))
+                    == PointType::Move;
                 if end_is_active && start_is_clicked && selected_open && target_open {
                     v.with_active_layer_mut(|layer| {
                         let new_point = get_point!(layer, info.0, info.1).clone();
@@ -67,7 +71,6 @@ impl Pen {
                     return;
                 }
             }
-    
         }
 
         // Next we check if our mouse is over an existing curve. If so we add a point to the curve.
@@ -79,54 +82,59 @@ impl Pen {
                 let mut next_point = if info.seg_idx == contour.inner.len() {
                     second_idx_zero = true;
                     contour.inner.remove(0)
-                } else { 
-                    contour.inner.remove(info.seg_idx) 
+                } else {
+                    contour.inner.remove(info.seg_idx)
                 };
 
                 let bez = Bezier::from(&point, &next_point);
                 let subdivisions = bez.subdivide(info.t);
 
                 if let Some(subdivisions) = subdivisions {
-                    let (sub_a, sub_b) = (subdivisions.0.to_control_points(), subdivisions.1.to_control_points());
+                    let (sub_a, sub_b) = (
+                        subdivisions.0.to_control_points(),
+                        subdivisions.1.to_control_points(),
+                    );
                     point.a = sub_a[1].to_handle();
                     next_point.b = sub_b[2].to_handle();
 
-                    if second_idx_zero { 
+                    if second_idx_zero {
                         contour.inner.insert(0, next_point);
                     } else {
                         contour.inner.insert(info.seg_idx, next_point);
                     }
 
                     let (x, y) = (sub_a[3].x, sub_a[3].y);
-                    contour.inner.insert(info.seg_idx, Point{
-                        x: x as f32,
-                        y: y as f32,
-                        a: sub_b[1].to_handle(),
-                        b: sub_a[2].to_handle(),
-                        name: None,
-                        ptype: PointType::Curve,
-                        data: None,
-
-                    });
+                    contour.inner.insert(
+                        info.seg_idx,
+                        Point {
+                            x: x as f32,
+                            y: y as f32,
+                            a: sub_b[1].to_handle(),
+                            b: sub_a[2].to_handle(),
+                            name: None,
+                            ptype: PointType::Curve,
+                            data: None,
+                        },
+                    );
                     contour.operation = contour_operations::insert(contour, info.seg_idx);
                     contour.inner.insert(info.seg_idx, point);
-
                 }
             });
         }
         // If we've got the end of a contour selected we'll continue drawing that contour.
         else if let Some(contour_idx) = v.contour_idx {
             let mouse_pos = mouse_info.position;
-            let contour_len = v.with_active_layer(|layer| {get_contour_len!(layer, contour_idx)});
+            let contour_len = v.with_active_layer(|layer| get_contour_len!(layer, contour_idx));
 
             if v.point_idx.unwrap() == contour_len - 1 {
                 v.point_idx = v.with_active_layer_mut(|layer| {
                     get_contour!(layer, contour_idx).push(Point::from_x_y_type(
-                    (calc_x(mouse_pos.0 as f32), calc_y(mouse_pos.1 as f32)),
-                    PointType::Curve,
+                        (calc_x(mouse_pos.0 as f32), calc_y(mouse_pos.1 as f32)),
+                        PointType::Curve,
                     ));
-    
-                    layer.outline[contour_idx].operation = contour_operations::insert(&layer.outline[contour_idx], contour_len);
+
+                    layer.outline[contour_idx].operation =
+                        contour_operations::insert(&layer.outline[contour_idx], contour_len);
                     Some(get_contour_len!(layer, contour_idx) - 1)
                 });
             } else if v.point_idx.unwrap() == 0 {
@@ -136,15 +144,18 @@ impl Pen {
                     if get_point!(layer, contour_idx, 0).ptype == PointType::Move {
                         get_point!(layer, contour_idx, 0).ptype = PointType::Curve;
                     }
-                    get_contour!(layer, contour_idx).insert(0, Point::from_x_y_type(
-                    (calc_x(mouse_pos.0 as f32), calc_y(mouse_pos.1 as f32)),
-                    point_type,
-                    ));
-    
-                    layer.outline[contour_idx].operation = contour_operations::insert(&layer.outline[contour_idx], 0);
+                    get_contour!(layer, contour_idx).insert(
+                        0,
+                        Point::from_x_y_type(
+                            (calc_x(mouse_pos.0 as f32), calc_y(mouse_pos.1 as f32)),
+                            point_type,
+                        ),
+                    );
+
+                    layer.outline[contour_idx].operation =
+                        contour_operations::insert(&layer.outline[contour_idx], 0);
                 });
             }
-
         } else {
             // Lastly if we get here we create a new contour.
             let mouse_pos = mouse_info.position;
@@ -165,11 +176,17 @@ impl Pen {
             v.point_idx = Some(0);
         }
 
-        v.push_behavior(Box::new(MoveHandle::new(WhichHandle::A, Follow::Mirror, mouse_info)));
+        v.push_behavior(Box::new(MoveHandle::new(
+            WhichHandle::A,
+            Follow::Mirror,
+            mouse_info,
+        )));
     }
 
     fn draw_nearest_point(&self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
-        if i.mouse_info.is_down { return };
+        if i.mouse_info.is_down {
+            return;
+        };
         let info = nearest_point_on_curve(v, i, i.mouse_info.position);
 
         if let Some(info) = info {
@@ -179,9 +196,12 @@ impl Pen {
                 (calc_x(info.point.0), calc_y(info.point.1)),
                 info.point,
                 None,
-                UIPointType::Point((Handle::At(info.a.0, info.a.1), Handle::At(info.b.0, info.b.1))),
+                UIPointType::Point((
+                    Handle::At(info.a.0, info.a.1),
+                    Handle::At(info.b.0, info.b.1),
+                )),
                 true,
-                canvas
+                canvas,
             )
         }
     }
@@ -192,14 +212,19 @@ impl Pen {
             // we've clicked a handle?
             if let Some(info) = clicked_point_or_handle(v, i, i.mouse_info.raw_position, None) {
                 // we have the end of one contour active and clicked the start of another?
-                let end_is_active = get_contour_start_or_end(v, c_idx, p_idx) == Some(SelectPointInfo::End);
-                let start_is_clicked = get_contour_start_or_end(v, info.0, info.1) == Some(SelectPointInfo::Start);
+                let end_is_active =
+                    get_contour_start_or_end(v, c_idx, p_idx) == Some(SelectPointInfo::End);
+                let start_is_clicked =
+                    get_contour_start_or_end(v, info.0, info.1) == Some(SelectPointInfo::Start);
 
                 // make sure these contours are open
-                let selected_open = v.with_active_layer(|layer| get_contour_type!(layer, c_idx)) == PointType::Move;
-                let target_open = v.with_active_layer(|layer| get_contour_type!(layer, info.0)) == PointType::Move;
+                let selected_open =
+                    v.with_active_layer(|layer| get_contour_type!(layer, c_idx)) == PointType::Move;
+                let target_open = v.with_active_layer(|layer| get_contour_type!(layer, info.0))
+                    == PointType::Move;
                 if end_is_active && start_is_clicked && selected_open && target_open {
-                    let point = v.with_active_layer(|layer| get_contour!(layer, info.0)[info.1].clone());
+                    let point =
+                        v.with_active_layer(|layer| get_contour!(layer, info.0)[info.1].clone());
                     draw_point(
                         v,
                         &i.viewport,
@@ -208,7 +233,7 @@ impl Pen {
                         None,
                         UIPointType::Point((point.a, point.b)),
                         true,
-                        canvas
+                        canvas,
                     );
                 }
             }

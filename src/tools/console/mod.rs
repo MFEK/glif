@@ -1,6 +1,6 @@
 // Console
-use crate::{CONSOLE, editor::Editor, util};
 use crate::user_interface::Interface;
+use crate::{editor::Editor, util, CONSOLE};
 
 use clipboard::{ClipboardContext, ClipboardProvider};
 use lazy_static::lazy_static;
@@ -66,7 +66,8 @@ pub fn run_command(v: &mut Editor, i: &mut Interface, c: &mut RendererConsole) {
     let (command, args) = (&cmdline[0][1..], &cmdline[1..]);
 
     commands::MAP.with(|m| {
-        m.borrow_mut().get(command)
+        m.borrow_mut()
+            .get(command)
             .map(|(_, f)| f(v, i, args.to_vec().iter().map(|s| s.to_string()).collect()))
     });
 

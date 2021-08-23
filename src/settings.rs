@@ -12,7 +12,7 @@ lazy_static! {
         log::info!("Configuration directory is {:?}", &ret);
 
         fs::create_dir_all(ret.clone().to_path_buf());
-        
+
         ret
     };
 }

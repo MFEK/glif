@@ -1,15 +1,18 @@
 use std::collections::HashSet;
 
-use MFEKmath::{Bezier, Evaluate, Piecewise, Vector, evaluate::Primitive};
-use flo_curves::bezier::solve_curve_for_t;
-use glifparser::{Handle, WhichHandle, glif::{MFEKOutline, MFEKPointData}};
-use crate::{tools::prelude::math::FlipIfRequired, user_interface::Interface};
 use crate::get_contour_len;
 use crate::renderer::constants::*;
 use crate::renderer::points::calc::*;
+use crate::{tools::prelude::math::FlipIfRequired, user_interface::Interface};
+use flo_curves::bezier::solve_curve_for_t;
+use glifparser::{
+    glif::{MFEKOutline, MFEKPointData},
+    Handle, WhichHandle,
+};
+use skulpin::skia_safe::Contains;
 use skulpin::skia_safe::Point as SkPoint;
 use skulpin::skia_safe::Rect as SkRect;
-use skulpin::skia_safe::Contains;
+use MFEKmath::{evaluate::Primitive, Bezier, Evaluate, Piecewise, Vector};
 
 use super::Editor;
 
@@ -17,13 +20,18 @@ use super::Editor;
 #[derive(PartialEq, Clone, Copy)]
 pub enum SelectPointInfo {
     Start,
-    End
+    End,
 }
 // This file is mainly utilities that are common use cases for the editor, but don't necessarily need to be
 // in Editor.
 
 /// Utility function to quickly check which point or mouse is hovering. Optional mask parameter specifies a point to ignore.
-pub fn clicked_point_or_handle(v: &Editor, i: &Interface, position: (f32, f32), mask: Option<(usize, usize)>) -> Option<(usize, usize, WhichHandle)> {
+pub fn clicked_point_or_handle(
+    v: &Editor,
+    i: &Interface,
+    position: (f32, f32),
+    mask: Option<(usize, usize)>,
+) -> Option<(usize, usize, WhichHandle)> {
     let factor = i.viewport.factor;
     let _contour_idx = 0;
     let _point_idx = 0;
@@ -35,7 +43,11 @@ pub fn clicked_point_or_handle(v: &Editor, i: &Interface, position: (f32, f32), 
     v.with_active_layer(|layer| {
         for (contour_idx, contour) in layer.outline.iter().enumerate() {
             for (point_idx, point) in contour.inner.iter().enumerate() {
-                if let Some(mask) = mask { if contour_idx == mask.0 && point_idx == mask.1 { continue }};
+                if let Some(mask) = mask {
+                    if contour_idx == mask.0 && point_idx == mask.1 {
+                        continue;
+                    }
+                };
 
                 let size = ((POINT_RADIUS * 2.) + (POINT_STROKE_THICKNESS * 2.)) * (1. / factor);
                 // Topleft corner of point
@@ -52,10 +64,10 @@ pub fn clicked_point_or_handle(v: &Editor, i: &Interface, position: (f32, f32), 
                 let b = point.handle_or_colocated(WhichHandle::B, |f| f, |f| f);
                 let b_tl = SkPoint::new(calc_x(b.0) - (size / 2.), calc_y(b.1) - (size / 2.));
                 let b_rect = SkRect::from_point_and_size(b_tl, (size, size));
-    
+
                 // winit::PhysicalPosition as an SkPoint
                 let sk_mpos = SkPoint::new(position.0 as f32, position.1 as f32);
-    
+
                 if point_rect.contains(sk_mpos) {
                     return Some((contour_idx, point_idx, WhichHandle::Neither));
                 } else if a_rect.contains(sk_mpos) {
@@ -70,12 +82,21 @@ pub fn clicked_point_or_handle(v: &Editor, i: &Interface, position: (f32, f32), 
 }
 
 /// Checks if the active point is the active contour's start or end. Does not modify.
-pub fn get_contour_start_or_end(v: &Editor, contour_idx: usize, point_idx: usize) -> Option<SelectPointInfo>
-{
-    let contour_len = v.with_active_layer(|layer| {get_contour_len!(layer, contour_idx)} ) - 1;
+pub fn get_contour_start_or_end(
+    v: &Editor,
+    contour_idx: usize,
+    point_idx: usize,
+) -> Option<SelectPointInfo> {
+    let contour_len = v.with_active_layer(|layer| get_contour_len!(layer, contour_idx)) - 1;
     match point_idx {
         0 => Some(SelectPointInfo::Start),
-        idx => if idx == contour_len { Some(SelectPointInfo::End) } else { None },
+        idx => {
+            if idx == contour_len {
+                Some(SelectPointInfo::End)
+            } else {
+                None
+            }
+        }
     }
 }
 
@@ -88,11 +109,14 @@ pub struct HoveredPointInfo {
     pub b: (f32, f32),
 }
 
-pub fn nearest_point_on_curve(v: &Editor, i: &Interface, position: (f32, f32)) -> Option<HoveredPointInfo>
-{
+pub fn nearest_point_on_curve(
+    v: &Editor,
+    i: &Interface,
+    position: (f32, f32),
+) -> Option<HoveredPointInfo> {
     v.with_active_layer(|layer| {
         let pw: Piecewise<Piecewise<Bezier>> = (&layer.outline).into();
-        
+
         let mut distance = f64::INFINITY;
         let mut current = None;
         let mut h1 = None;
@@ -104,9 +128,12 @@ pub fn nearest_point_on_curve(v: &Editor, i: &Interface, position: (f32, f32)) -
 
         for (cx, contour) in pw.segs.iter().enumerate() {
             for (bx, bezier) in contour.segs.iter().enumerate() {
-                let mouse_vec = Vector::from_components(calc_x(position.0) as f64, calc_y(position.1 as f32) as f64);
+                let mouse_vec = Vector::from_components(
+                    calc_x(position.0) as f64,
+                    calc_y(position.1 as f32) as f64,
+                );
                 let ct = solve_curve_for_t(bezier, &mouse_vec, 3.5 / i.viewport.factor as f64);
-                
+
                 if let Some(ct) = ct {
                     let new_distance = bezier.at(ct).distance(mouse_vec);
                     if new_distance < distance {
@@ -120,17 +147,15 @@ pub fn nearest_point_on_curve(v: &Editor, i: &Interface, position: (f32, f32)) -
                         if let Some(subdivisions) = subdivisions {
                             h1 = Some(subdivisions.0.to_control_points()[2]);
                             h2 = Some(subdivisions.1.to_control_points()[1]);
-                        }
-                        else
-                        {
-                            return None
+                        } else {
+                            return None;
                         }
                     }
                 }
             }
         }
 
-        if let Some(current) = current { 
+        if let Some(current) = current {
             let (h1, h2) = (h1.unwrap(), h2.unwrap());
             Some(HoveredPointInfo {
                 t: t.unwrap(),
@@ -140,7 +165,9 @@ pub fn nearest_point_on_curve(v: &Editor, i: &Interface, position: (f32, f32)) -
                 a: (h1.x as f32, h1.y as f32),
                 b: (h2.x as f32, h2.y as f32),
             })
-        } else { None }
+        } else {
+            None
+        }
     })
 }
 
@@ -173,26 +200,32 @@ pub fn move_point(outline: &mut MFEKOutline<MFEKPointData>, ci: usize, pi: usize
     let a = outline[ci].inner[pi].a;
     let b = outline[ci].inner[pi].b;
     match a {
-        Handle::At(hx, hy) => {
-            outline[ci].inner[pi].a = Handle::At(hx - dx, hy - dy)
-        }
+        Handle::At(hx, hy) => outline[ci].inner[pi].a = Handle::At(hx - dx, hy - dy),
         Handle::Colocated => (),
     }
     match b {
-        Handle::At(hx, hy) => {
-            outline[ci].inner[pi].b = Handle::At(hx - dx, hy - dy)
-        }
+        Handle::At(hx, hy) => outline[ci].inner[pi].b = Handle::At(hx - dx, hy - dy),
         Handle::Colocated => (),
     }
-
 }
 
-pub fn move_point_without_handles(outline: &mut MFEKOutline<MFEKPointData>, ci: usize, pi: usize, x: f32, y: f32) {
+pub fn move_point_without_handles(
+    outline: &mut MFEKOutline<MFEKPointData>,
+    ci: usize,
+    pi: usize,
+    x: f32,
+    y: f32,
+) {
     outline[ci].inner[pi].x = x;
     outline[ci].inner[pi].y = y;
 }
 
-pub fn get_handle_pos(outline: &mut MFEKOutline<MFEKPointData>, ci: usize, pi: usize, handle: WhichHandle) -> Option<(f32, f32)> {
+pub fn get_handle_pos(
+    outline: &mut MFEKOutline<MFEKPointData>,
+    ci: usize,
+    pi: usize,
+    handle: WhichHandle,
+) -> Option<(f32, f32)> {
     let ret_handle = match handle {
         WhichHandle::Neither => panic!("This function should be called with a proper handle!"),
         WhichHandle::A => outline[ci].inner[pi].a,
@@ -204,27 +237,26 @@ pub fn get_handle_pos(outline: &mut MFEKOutline<MFEKPointData>, ci: usize, pi: u
             return Some((hx, hy));
         }
         Handle::Colocated => None,
-    }
+    };
 }
 
-pub fn move_handle(outline: &mut MFEKOutline<MFEKPointData>, ci: usize, pi: usize, handle: WhichHandle, x: f32, y: f32)  {
+pub fn move_handle(
+    outline: &mut MFEKOutline<MFEKPointData>,
+    ci: usize,
+    pi: usize,
+    handle: WhichHandle,
+    x: f32,
+    y: f32,
+) {
     match handle {
         WhichHandle::Neither => panic!("This function should be called with a proper handle!"),
-        WhichHandle::A => {
-            match outline[ci].inner[pi].a {
-                Handle::At(_hx, _hy) => {
-                    outline[ci].inner[pi].a = Handle::At(x, y)
-                }
-                Handle::Colocated => (),
-            }
+        WhichHandle::A => match outline[ci].inner[pi].a {
+            Handle::At(_hx, _hy) => outline[ci].inner[pi].a = Handle::At(x, y),
+            Handle::Colocated => (),
         },
-        WhichHandle::B => {
-            match outline[ci].inner[pi].b {
-                Handle::At(_hx, _hy) => {
-                    outline[ci].inner[pi].b = Handle::At(x, y)
-                }
-                Handle::Colocated => (),
-            }
+        WhichHandle::B => match outline[ci].inner[pi].b {
+            Handle::At(_hx, _hy) => outline[ci].inner[pi].b = Handle::At(x, y),
+            Handle::Colocated => (),
         },
     };
 }
