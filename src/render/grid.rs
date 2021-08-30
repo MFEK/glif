@@ -1,13 +1,14 @@
+use glifrenderer::calc_x;
+use glifrenderer::calc_y;
+use glifrenderer::constants::GUIDELINE_THICKNESS;
+use glifrenderer::viewport::Viewport;
+use skulpin::skia_safe::Canvas;
 use skulpin::skia_safe::Color4f;
 use skulpin::skia_safe::Paint;
 use skulpin::skia_safe::PaintStyle;
 use skulpin::skia_safe::Path;
 
-use crate::renderer::constants::GUIDELINE_THICKNESS;
-use crate::renderer::points::calc::*;
-use crate::renderer::Canvas;
 use crate::user_interface::grid::Grid;
-use crate::user_interface::viewport::Viewport;
 
 pub fn draw_grid(canvas: &mut Canvas, grid: &Grid, viewport: &Viewport) {
     let mut grid_path = Path::new();

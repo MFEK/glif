@@ -1,4 +1,4 @@
-use crate::renderer::points::calc::*;
+use glifrenderer::points::calc::*;
 use sdl2::mouse::MouseButton;
 
 use crate::{command::CommandMod, user_interface::Interface};

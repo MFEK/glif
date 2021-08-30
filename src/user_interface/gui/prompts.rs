@@ -40,8 +40,8 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ui: &mut imgui
                 .position_pivot([0.5, 0.5])
                 .position(
                     [
-                        (i.viewport.winsize.0 / 2) as f32,
-                        (i.viewport.winsize.1 / 2) as f32,
+                        (i.viewport.winsize.0 / 2.),
+                        (i.viewport.winsize.1 / 2.),
                     ],
                     imgui::Condition::Always,
                 )
@@ -82,8 +82,8 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ui: &mut imgui
                 .position_pivot([0.5, 0.5])
                 .position(
                     [
-                        (i.viewport.winsize.0 / 2) as f32,
-                        (i.viewport.winsize.1 / 2) as f32,
+                        (i.viewport.winsize.0 / 2.),
+                        (i.viewport.winsize.1 / 2.),
                     ],
                     imgui::Condition::Always,
                 )
@@ -120,8 +120,8 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ui: &mut imgui
                 .position_pivot([0.5, 0.5])
                 .position(
                     [
-                        (i.viewport.winsize.0 / 2) as f32,
-                        (i.viewport.winsize.1 / 2) as f32,
+                        (i.viewport.winsize.0 / 2.),
+                        (i.viewport.winsize.1 / 2.),
                     ],
                     imgui::Condition::Always,
                 )

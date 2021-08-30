@@ -1,6 +1,5 @@
 use glifparser::{Guideline, GuidelinePoint, IntegerOrFloat};
-
-use crate::renderer::guidelines::draw_guideline;
+use glifrenderer::guidelines::draw_guideline;
 
 use super::prelude::*;
 

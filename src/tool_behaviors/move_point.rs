@@ -139,7 +139,6 @@ impl ToolBehavior for MovePoint {
                         let merge =
                             v.with_active_layer(|layer| get_contour!(layer, ci)[pi].clone());
                         draw_point(
-                            v,
                             &i.viewport,
                             (calc_x(merge.x), calc_y(merge.y)),
                             (merge.x, merge.y),

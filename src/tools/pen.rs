@@ -1,12 +1,13 @@
 use super::prelude::*;
-use crate::renderer::points::draw_point;
+use crate::contour_operations;
 use crate::tool_behaviors::move_handle::MoveHandle;
 use crate::tool_behaviors::pan::PanBehavior;
 use crate::user_interface::follow::Follow;
 use crate::user_interface::Interface;
-use crate::{contour_operations, renderer::UIPointType};
+use glifrenderer::points::draw_point;
 
 use editor::util::get_contour_start_or_end;
+use glifrenderer::points::UIPointType;
 use sdl2::mouse::MouseButton;
 use MFEKmath::{evaluate::Primitive, Bezier};
 #[derive(Clone)]
@@ -191,7 +192,6 @@ impl Pen {
 
         if let Some(info) = info {
             draw_point(
-                v,
                 &i.viewport,
                 (calc_x(info.point.0), calc_y(info.point.1)),
                 info.point,
@@ -226,7 +226,6 @@ impl Pen {
                     let point =
                         v.with_active_layer(|layer| get_contour!(layer, info.0)[info.1].clone());
                     draw_point(
-                        v,
                         &i.viewport,
                         (calc_x(point.x), calc_y(point.y)),
                         (point.x, point.y),

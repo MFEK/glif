@@ -2,14 +2,13 @@
 pub use super::{EditorEvent, MouseEventType, Tool};
 
 // Renderer
-pub use crate::renderer::constants::*;
-pub use crate::renderer::points::calc::*;
+pub use glifrenderer::constants::*;
+pub use glifrenderer::points::calc::*;
 
 //Editor
 pub use crate::editor;
 pub use crate::editor::util::*;
 pub use crate::editor::Editor;
-pub use crate::editor::CONSOLE;
 
 // Util + Macros
 pub use crate::util::*;

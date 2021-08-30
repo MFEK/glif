@@ -1,4 +1,3 @@
-pub use crate::renderer::console::Console as RendererConsole;
 use crate::{
     tool_behaviors::ToolBehavior,
     tools::{pan::Pan, Tool, ToolEnum},
@@ -11,16 +10,10 @@ use glifparser::{
 pub use skulpin::skia_safe::Contains as _;
 pub use skulpin::skia_safe::{Canvas, Matrix, Path as SkPath, Point as SkPoint, Rect as SkRect};
 
-pub use crate::renderer::points::calc::*;
-
-use std::cell::RefCell;
 use std::collections::HashSet;
 
 use crate::editor::history::History;
 use crate::get_contour_mut;
-
-mod toggles;
-pub use self::toggles::*;
 
 pub mod debug;
 pub mod export;
@@ -229,4 +222,5 @@ impl Editor {
     }
 }
 
-thread_local!(pub static CONSOLE: RefCell<RendererConsole> = RefCell::new(RendererConsole::default()));
+// TODO: Reenable console.
+//thread_local!(pub static CONSOLE: RefCell<RendererConsole> = RefCell::new(RendererConsole::default()));

@@ -1,9 +1,10 @@
+use std::f32::consts::PI;
+
 use super::Select;
 
 use crate::editor::Editor;
 use crate::editor::macros::{get_contour_len, get_contour_type, get_point};
 use crate::user_interface::Interface;
-use crate::renderer::constants::PI;
 use crate::user_interface::util::{imgui_decimal_text_field, imgui_radius_theta};
 
 use glifparser::{Handle, Point, PointData, PointType, WhichHandle};

@@ -7,9 +7,11 @@ pub use crate::editor::Editor;
 pub use crate::tools::EditorEvent;
 
 // Renderer
-pub use crate::renderer::constants::*;
-pub use crate::renderer::points::calc::*;
-pub use crate::renderer::{points::draw_point, UIPointType};
+pub use glifrenderer::constants::*;
+pub use glifrenderer::points::calc::*;
+pub use glifrenderer::points::draw_point;
+pub use glifrenderer::viewport::Viewport;
+pub use glifrenderer::points::UIPointType;
 
 // Input
 pub use sdl2::mouse::MouseButton;
@@ -29,6 +31,5 @@ pub use glifparser::{Contour, Handle, Outline, Point, PointType, WhichHandle};
 
 //User interface
 pub use crate::tools::MouseEventType;
-pub use crate::user_interface::viewport::Viewport;
 pub use crate::user_interface::{Interface, MouseInfo};
 pub use skulpin::skia_safe::{Paint, PaintStyle, Path, Rect};

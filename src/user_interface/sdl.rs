@@ -6,9 +6,7 @@ use sdl2::keyboard::Keycode;
 use sdl2::EventPump;
 use sdl2::{pixels::PixelFormatEnum, surface::Surface, video::Window, Sdl};
 use skulpin::LogicalSize;
-
-use crate::renderer::constants::*;
-use crate::user_interface::Interface;
+use crate::user_interface::{HEIGHT, Interface, WIDTH};
 
 impl Interface {
     pub fn initialize_sdl(filename: &str) -> (Sdl, Window) {

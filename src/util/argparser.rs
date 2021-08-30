@@ -1,4 +1,5 @@
 // Argument parser
+#[macro_use]
 use git_version::git_version;
 
 use clap; //argparse lib

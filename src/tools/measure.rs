@@ -1,15 +1,15 @@
+use glifrenderer::constants::{self, OUTLINE_STROKE_THICKNESS};
+use glifrenderer::string::{POINTFONTS, POINTFONTSIZE, pointfont_from_size_and_factor};
 use skulpin::skia_safe::{
     dash_path_effect, AutoCanvasRestore, Canvas, Paint, Path, Point, TextBlob,
 };
 use MFEKmath::Vector;
 
 use crate::editor::Editor;
-use crate::renderer::constants;
 use crate::user_interface::Interface;
 
 use super::prelude::*;
 
-use crate::renderer::string::{pointfont_from_size_and_factor, POINTFONTS, POINTFONTSIZE};
 #[derive(Clone)]
 pub struct Measure {
     measure_from: Option<(f32, f32)>,

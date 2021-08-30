@@ -4,7 +4,7 @@ use glifparser::{
     MFEKGlif, Outline,
 };
 use skulpin::skia_safe::{Path, PathOp};
-
+use glifparser::FlattenedGlif;
 use crate::contour_operations;
 
 use super::Editor;
@@ -45,6 +45,16 @@ impl Editor {
             new_layer.outline = preview_outline;
             preview_layers.push(new_layer);
         }
+
+        let mut rects = Some(vec![]);
+        let flattened = self.glyph.as_mut().unwrap().flattened(&mut rects);
+        flattened
+            .map(|f| {
+                self.glyph.as_mut().unwrap().flattened = f.flattened;
+                self.glyph.as_mut().unwrap().component_rects = rects;
+                }
+            ).unwrap_or_else(|e| log::error!("Failed to draw components: {:?}", e));
+
 
         self.preview = Some(self.glyph.as_ref().unwrap().clone());
         self.preview.as_mut().unwrap().layers = preview_layers;

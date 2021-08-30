@@ -3,32 +3,35 @@
 //! Apache 2.0 licensed. See AUTHORS.
 #![allow(non_snake_case)] // for our name MFEKglif
 
-use crate::tools::zoom::{zoom_in_factor, zoom_out_factor};
+use crate::{constants::OFFSET_FACTOR, tools::zoom::{zoom_in_factor, zoom_out_factor}};
 use command::{Command, CommandInfo, CommandMod};
-use editor::{Editor, HandleStyle, PointLabels, PreviewMode, CONSOLE};
+use editor::{Editor};
+use glifrenderer::toggles::{PointLabels, PreviewMode};
 use tools::{EditorEvent, MouseEventType, ToolEnum};
 use user_interface::{ImguiManager, Interface};
 use util::argparser::HeadlessMode;
 
-use enum_iterator::IntoEnumIterator as _;
 use sdl2::event::{Event, WindowEvent};
 pub use skulpin::{rafx::api as RafxApi, skia_safe};
 
 use crate::user_interface::mouse_input::MouseInfo;
 
+use enum_unitary::IntoEnumIterator;
+
 mod command;
+pub mod constants;
 mod contour_operations;
 pub mod editor;
 mod filedialog;
 mod io;
 mod ipc;
-mod renderer;
 pub mod settings;
 mod system_fonts;
 mod tool_behaviors;
 mod tools;
 mod user_interface;
 pub mod util;
+mod render;
 
 fn main() {
     util::init_env_logger();
@@ -52,7 +55,7 @@ fn main() {
     io::load_glif(&mut editor, &mut interface, &filename);
 
     command::initialize_keybinds();
-    tools::console::initialize_console_commands();
+    // TODO: Replace console! tools::console::initialize_console_commands();
 
     let mut event_pump = interface.get_event_pump();
     'main_loop: loop {
@@ -81,6 +84,7 @@ fn main() {
             }
 
             // we're gonna handle console text input here as this should steal input from the command system
+            /* TODO: Replace console!
             match &event {
                 Event::TextInput { text, .. } => {
                     if CONSOLE.with(|c| return c.borrow_mut().active) {
@@ -92,6 +96,7 @@ fn main() {
                 }
                 _ => {}
             }
+            */
 
             match event {
                 Event::KeyDown {
@@ -103,10 +108,11 @@ fn main() {
                     }
                     let keycode = keycode.unwrap();
 
+                    /* TODO: Replace console!
                     tools::console::set_state(&mut editor, &mut interface, keycode, keymod);
                     if CONSOLE.with(|c| c.borrow_mut().active) {
                         continue;
-                    }
+                    } */
 
                     // check if we've got a command
                     let command_info: CommandInfo =
@@ -128,7 +134,6 @@ fn main() {
                         continue;
                     }
 
-                    use crate::renderer::constants::OFFSET_FACTOR;
                     match command_info.command {
                         Command::ResetScale => {
                             interface.update_viewport(None, Some(1.));
@@ -197,11 +202,12 @@ fn main() {
                                 !command_info.command_mod.shift
                             );
                         }
+                        /* TODO: Replace console!
                         Command::ToggleConsole => {
                             CONSOLE.with(|c| {
                                 c.borrow_mut().active = true;
                             });
-                        }
+                        }*/
                         Command::DeleteSelection => {
                             editor.delete_selection();
                         }
@@ -330,10 +336,10 @@ fn main() {
 
                 Event::Window { win_event, .. } => match win_event {
                     WindowEvent::SizeChanged(x, y) => {
-                        interface.viewport.winsize = (x as u32, y as u32);
+                        interface.viewport.winsize = (x as f32, y as f32);
                     }
                     WindowEvent::Resized(x, y) => {
-                        interface.viewport.winsize = (x as u32, y as u32);
+                        interface.viewport.winsize = (x as f32, y as f32);
                     }
 
                     _ => {}

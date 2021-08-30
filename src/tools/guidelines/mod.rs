@@ -1,9 +1,9 @@
 use flo_curves::bezier::solve_curve_for_t;
 use MFEKmath::{Bezier, Vector};
+use glifrenderer::guidelines::draw_guideline;
 
 use super::prelude::*;
 use crate::editor::Editor;
-use crate::renderer::guidelines::draw_guideline;
 use crate::tool_behaviors::move_guideline::MoveGuideline;
 use crate::user_interface::Interface;
 

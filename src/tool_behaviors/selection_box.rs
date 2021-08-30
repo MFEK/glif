@@ -1,6 +1,7 @@
 use std::collections::HashSet;
 
 use super::prelude::*;
+use glifrenderer::{calc_x, calc_y, constants::{OUTLINE_STROKE, OUTLINE_STROKE_THICKNESS}, points::draw_point};
 use skulpin::skia_safe::dash_path_effect;
 
 #[derive(Clone)]
@@ -72,7 +73,6 @@ impl SelectionBox {
             v.with_active_layer(|layer| {
                 let point = &get_point!(layer, ci, pi);
                 draw_point(
-                    v,
                     &i.viewport,
                     (calc_x(point.x), calc_y(point.y)),
                     (point.x, point.y),

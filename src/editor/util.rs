@@ -1,14 +1,14 @@
 use std::collections::HashSet;
 
 use crate::get_contour_len;
-use crate::renderer::constants::*;
-use crate::renderer::points::calc::*;
 use crate::{tools::prelude::math::FlipIfRequired, user_interface::Interface};
 use flo_curves::bezier::solve_curve_for_t;
 use glifparser::{
     glif::{MFEKOutline, MFEKPointData},
     Handle, WhichHandle,
 };
+use glifrenderer::constants::{POINT_RADIUS, POINT_STROKE_THICKNESS};
+use glifrenderer::{calc_x, calc_y};
 use skulpin::skia_safe::Contains;
 use skulpin::skia_safe::Point as SkPoint;
 use skulpin::skia_safe::Rect as SkRect;

@@ -1,4 +1,6 @@
 // Console
+
+/* TODO: Replace console!
 use crate::user_interface::Interface;
 use crate::{editor::Editor, util, CONSOLE};
 
@@ -30,7 +32,6 @@ pub fn set_state(v: &mut Editor, i: &mut Interface, vk: Keycode, _m: Mod) {
 
 const CHAR_BACKSPACE: char = '\x08';
 
-use crate::editor::RendererConsole;
 impl RendererConsole {
     ///! Handle chars which will not trigger events (so, not :, Escape or Return)
     pub fn handle_ch(&mut self, ch: char) {
@@ -74,3 +75,4 @@ pub fn run_command(v: &mut Editor, i: &mut Interface, c: &mut RendererConsole) {
     debug!("Command requested to be run: {:?}", (command, args));
     c.stdin.clear()
 }
+*/
