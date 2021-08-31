@@ -1,6 +1,7 @@
 use super::super::prelude::*;
 use super::PAP;
 use crate::user_interface::Interface;
+use glifparser::glif::PatternStretch;
 use glifparser::glif::{ContourOperations, PatternCopies, PatternSubdivide};
 use imgui::Ui;
 
@@ -38,6 +39,25 @@ fn idx_to_repeat_type(idx: usize) -> PatternCopies {
         0 => PatternCopies::Single,
         1 => PatternCopies::Repeated,
         _ => unreachable!(),
+    }
+}
+
+fn idx_to_stretch_type(idx: usize) -> PatternStretch {
+    match idx {
+        0 => PatternStretch::Off,
+        1 => PatternStretch::On,
+        2 => PatternStretch::Spacing,
+        _ => unreachable!()
+    }
+}
+
+
+fn stretch_type_to_idx(idx: PatternStretch) -> usize {
+    match idx {
+        PatternStretch::Off => 0,
+        PatternStretch::On => 1,
+        PatternStretch::Spacing => 2,
+        _ => unreachable!()
     }
 }
 
@@ -141,9 +161,21 @@ impl PAP {
                             v.end_layer_modification();
                         }
 
+                        let options = [
+                            imgui::im_str!("Off"),
+                            imgui::im_str!("On"),
+                            imgui::im_str!("Spacing"),
+                        ];
+            
+                        let mut current_selection = stretch_type_to_idx(data.stretch);
+                        imgui::ComboBox::new(imgui::im_str!("Stretch")).build_simple_string(
+                            ui,
+                            &mut current_selection,
+                            &options,
+                        );
+
                         let old_stretch = data.stretch;
-                        let mut new_stretch = old_stretch;
-                        ui.checkbox(imgui::im_str!("Stretch"), &mut new_stretch);
+                        let new_stretch = idx_to_stretch_type(current_selection);
                         if old_stretch != new_stretch {
                             let mut new_data = data.clone();
                             new_data.stretch = new_stretch;

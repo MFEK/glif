@@ -177,6 +177,8 @@ impl Pen {
             v.point_idx = Some(0);
         }
 
+        // No matter how you move the point we want you to be able to manipulate it so we push the MoveHandle
+        // vehavior onto the editor's behavior stack.
         v.push_behavior(Box::new(MoveHandle::new(
             WhichHandle::A,
             Follow::Mirror,

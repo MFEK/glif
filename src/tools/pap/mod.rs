@@ -2,7 +2,7 @@ mod dialog;
 
 use std::rc::Rc;
 
-use glifparser::glif::{ContourOperations, PAPContour, PatternCopies, PatternSubdivide};
+use glifparser::glif::{ContourOperations, PAPContour, PatternCopies, PatternStretch, PatternSubdivide};
 
 use super::prelude::*;
 use crate::{editor::Editor, user_interface::InputPrompt};
@@ -54,7 +54,7 @@ impl PAP {
                                         copies: PatternCopies::Repeated,
                                         subdivide: PatternSubdivide::Off,
                                         is_vertical: false,
-                                        stretch: false,
+                                        stretch: PatternStretch::On,
                                         spacing: 4.,
                                         simplify: false,
                                         normal_offset: 0.,
