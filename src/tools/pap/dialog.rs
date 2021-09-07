@@ -188,6 +188,38 @@ impl PAP {
                             v.end_layer_modification();
                         }
 
+                        let mut overdraw = data.prevent_overdraw;
+                        imgui::Slider::new(imgui::im_str!("Prevent Overdraw"))
+                            .range(0. ..= 1.)
+                            .build(ui, &mut overdraw);
+
+                        if overdraw != data.prevent_overdraw {
+                            let mut new_data = data.clone();
+                            new_data.prevent_overdraw = overdraw;
+                            let new_op = ContourOperations::PatternAlongPath { data: new_data };
+
+                            v.begin_layer_modification("PAP dialog modification.");
+                            v.with_active_layer_mut(|layer| {
+                                layer.outline[contour_idx].operation = Some(new_op.clone())
+                            });
+                            v.end_layer_modification();
+                        }
+                        
+                        let old_twopass = data.two_pass_culling;
+                        let mut new_twopass = old_twopass;
+                        ui.checkbox(imgui::im_str!("Two-pass Culling"), &mut new_twopass);
+                        if old_twopass != new_twopass {
+                            let mut new_data = data.clone();
+                            new_data.two_pass_culling = new_twopass;
+                            let new_op = ContourOperations::PatternAlongPath { data: new_data };
+
+                            v.begin_layer_modification("PAP dialog modification.");
+                            v.with_active_layer_mut(|layer| {
+                                layer.outline[contour_idx].operation = Some(new_op.clone())
+                            });
+                            v.end_layer_modification();
+                        }
+
                         let old_simplify = data.simplify;
                         let mut new_simplify = old_simplify;
                         ui.checkbox(imgui::im_str!("Simplify"), &mut new_simplify);

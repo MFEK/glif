@@ -61,6 +61,8 @@ impl PAP {
                                         tangent_offset: 0.,
                                         pattern_scale: (1., 1.),
                                         center_pattern: true,
+                                        prevent_overdraw: 0.15,
+                                        two_pass_culling: true,
                                     },
                                 })
                         });
