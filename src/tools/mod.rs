@@ -39,7 +39,6 @@ pub trait Tool: DynClone {
     fn ui(&mut self, _v: &mut Editor, _i: &mut Interface, _ui: &mut Ui) {}
 }
 
-#[macro_use]
 use enum_unitary::enum_unitary;
 enum_unitary! {
     #[derive(Debug, Copy, PartialEq)]

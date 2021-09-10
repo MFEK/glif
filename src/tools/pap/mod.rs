@@ -49,6 +49,7 @@ impl PAP {
                         editor.with_active_layer_mut(|layer| {
                             layer.outline[ci].operation =
                                 Some(ContourOperations::PatternAlongPath {
+                                    // TODO: Default() implementation for many of our structs.
                                     data: PAPContour {
                                         pattern: source_layer.outline.clone(),
                                         copies: PatternCopies::Repeated,
@@ -61,8 +62,10 @@ impl PAP {
                                         tangent_offset: 0.,
                                         pattern_scale: (1., 1.),
                                         center_pattern: true,
-                                        prevent_overdraw: 0.15,
-                                        two_pass_culling: true,
+                                        prevent_overdraw: 0.,
+                                        two_pass_culling: false,
+                                        reverse_path: false,
+                                        reverse_culling: false,
                                     },
                                 })
                         });

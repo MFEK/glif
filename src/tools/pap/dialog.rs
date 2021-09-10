@@ -57,7 +57,6 @@ fn stretch_type_to_idx(idx: PatternStretch) -> usize {
         PatternStretch::Off => 0,
         PatternStretch::On => 1,
         PatternStretch::Spacing => 2,
-        _ => unreachable!()
     }
 }
 
@@ -84,6 +83,8 @@ impl PAP {
                     v.with_active_layer(|layer| layer.outline[contour_idx].operation.clone());
 
                 match operation {
+                    // TODO: Clean this up. I could reduce the number of lines here by a lot if I make a few changes to how the function works,
+                    // and add imgui utility functions for sliders and checkboxes.
                     Some(ContourOperations::PatternAlongPath { data }) => {
                         let old_repeat = repeat_type_to_idx(data.copies.clone());
                         let mut new_repeat = old_repeat;
@@ -188,38 +189,6 @@ impl PAP {
                             v.end_layer_modification();
                         }
 
-                        let mut overdraw = data.prevent_overdraw;
-                        imgui::Slider::new(imgui::im_str!("Prevent Overdraw"))
-                            .range(0. ..= 1.)
-                            .build(ui, &mut overdraw);
-
-                        if overdraw != data.prevent_overdraw {
-                            let mut new_data = data.clone();
-                            new_data.prevent_overdraw = overdraw;
-                            let new_op = ContourOperations::PatternAlongPath { data: new_data };
-
-                            v.begin_layer_modification("PAP dialog modification.");
-                            v.with_active_layer_mut(|layer| {
-                                layer.outline[contour_idx].operation = Some(new_op.clone())
-                            });
-                            v.end_layer_modification();
-                        }
-                        
-                        let old_twopass = data.two_pass_culling;
-                        let mut new_twopass = old_twopass;
-                        ui.checkbox(imgui::im_str!("Two-pass Culling"), &mut new_twopass);
-                        if old_twopass != new_twopass {
-                            let mut new_data = data.clone();
-                            new_data.two_pass_culling = new_twopass;
-                            let new_op = ContourOperations::PatternAlongPath { data: new_data };
-
-                            v.begin_layer_modification("PAP dialog modification.");
-                            v.with_active_layer_mut(|layer| {
-                                layer.outline[contour_idx].operation = Some(new_op.clone())
-                            });
-                            v.end_layer_modification();
-                        }
-
                         let old_simplify = data.simplify;
                         let mut new_simplify = old_simplify;
                         ui.checkbox(imgui::im_str!("Simplify"), &mut new_simplify);
@@ -297,6 +266,68 @@ impl PAP {
                             });
                             v.end_layer_modification();
                         }
+
+                        let mut overdraw = data.prevent_overdraw;
+                        imgui::Slider::new(imgui::im_str!("Prevent Overdraw"))
+                            .range(0. ..= 1.)
+                            .build(ui, &mut overdraw);
+
+                        if overdraw != data.prevent_overdraw {
+                            let mut new_data = data.clone();
+                            new_data.prevent_overdraw = overdraw;
+                            let new_op = ContourOperations::PatternAlongPath { data: new_data };
+
+                            v.begin_layer_modification("PAP dialog modification.");
+                            v.with_active_layer_mut(|layer| {
+                                layer.outline[contour_idx].operation = Some(new_op.clone())
+                            });
+                            v.end_layer_modification();
+                        }
+                        
+                        let old_twopass = data.two_pass_culling;
+                        let mut new_twopass = old_twopass;
+                        ui.checkbox(imgui::im_str!("Two-pass Culling"), &mut new_twopass);
+                        if old_twopass != new_twopass {
+                            let mut new_data = data.clone();
+                            new_data.two_pass_culling = new_twopass;
+                            let new_op = ContourOperations::PatternAlongPath { data: new_data };
+
+                            v.begin_layer_modification("PAP dialog modification.");
+                            v.with_active_layer_mut(|layer| {
+                                layer.outline[contour_idx].operation = Some(new_op.clone())
+                            });
+                            v.end_layer_modification();
+                        }
+
+                        let mut reverse_culling = data.reverse_culling;
+                        ui.checkbox(imgui::im_str!("Reverse Culling"), &mut reverse_culling);
+                        if reverse_culling != data.reverse_culling {
+                            let mut new_data = data.clone();
+                            new_data.reverse_culling = reverse_culling;
+                            let new_op = ContourOperations::PatternAlongPath { data: new_data };
+
+                            v.begin_layer_modification("PAP dialog modification.");
+                            v.with_active_layer_mut(|layer| {
+                                layer.outline[contour_idx].operation = Some(new_op.clone())
+                            });
+                            v.end_layer_modification();
+                        }
+
+                        let mut reverse_path = data.reverse_path;
+                        ui.checkbox(imgui::im_str!("Reverse"), &mut reverse_path);
+
+                        if reverse_path != data.reverse_path {
+                            let mut new_data = data.clone();
+                            new_data.reverse_path = reverse_path;
+                            let new_op = ContourOperations::PatternAlongPath { data: new_data };
+
+                            v.begin_layer_modification("PAP dialog modification.");
+                            v.with_active_layer_mut(|layer| {
+                                layer.outline[contour_idx].operation = Some(new_op.clone())
+                            });
+                            v.end_layer_modification();
+                        }
+                        
                     }
                     _ => {}
                 }

@@ -100,7 +100,7 @@ fn main() {
 
             match event {
                 Event::KeyDown {
-                    keycode, keymod, ..
+                    keycode, ..
                 } => {
                     // we don't care about keydown events that have no keycode
                     if !keycode.is_some() {

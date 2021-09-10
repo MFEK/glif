@@ -16,7 +16,6 @@ use glifrenderer::toggles::*;
 use skulpin::skia_safe::Canvas;
 use skulpin::skia_safe::Matrix;
 
-use glifparser::FlattenedGlif;
 use crate::user_interface::PAPER_DRAW_GUIDELINES;
 use crate::{editor::Editor, user_interface::Interface};
 

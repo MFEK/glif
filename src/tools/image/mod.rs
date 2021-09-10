@@ -1,5 +1,4 @@
 use super::prelude::*;
-use crate::command::CommandMod;
 use crate::editor::Editor;
 use crate::filedialog;
 use crate::tool_behaviors::move_image::MoveImage;

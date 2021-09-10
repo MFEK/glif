@@ -12,8 +12,6 @@ use colored::Colorize;
 use lazy_static::lazy_static;
 use msgbox::IconType;
 
-use enum_unitary::IntoEnumIterator;
-
 lazy_static! {
     pub static ref DEBUG_DUMP_GLYPH: bool = option_env!("DEBUG_DUMP_GLYPH").is_some();
     pub static ref DEBUG_EVENTS: bool = option_env!("DEBUG_EVENTS").is_some();
