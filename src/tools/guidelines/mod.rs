@@ -52,31 +52,24 @@ impl Guidelines {
         let vp = &i.viewport;
         v.with_glyph(|glyph| {
             for (idx, guide) in glyph.guidelines.iter().enumerate() {
-                let angle = guide.angle;
-                let at2 = Vector::from_components(
-                    (guide.at.x + ((1000. * vp.winsize.0 as f32) * f32::from(angle).cos())) as f64,
-                    (guide.at.y + ((1000. * vp.winsize.1 as f32) * f32::from(angle).sin())) as f64,
-                );
-                let at3 = Vector::from_components(
-                    (guide.at.x + ((-(1000. * vp.winsize.0 as f32)) * f32::from(angle).cos()))
-                        as f64,
-                    (guide.at.y + ((-(1000. * vp.winsize.1 as f32)) * f32::from(angle).sin()))
-                        as f64,
-                );
-
+                let angle = f32::from(guide.angle);
                 let position = i.mouse_info.position.clone();
-                let mouse_vec = Vector::from_components(
-                    calc_x(position.0) as f64,
-                    calc_y(position.1 as f32) as f64,
-                );
-                let line_bez = Bezier::from_points(at2, at2, at3, at3);
 
-                if let Some(_point_info) =
-                    solve_curve_for_t(&line_bez, &mouse_vec, 100000. / i.viewport.factor as f64)
-                {
+                // x offset from mouse_pos to the guideline's pos
+                let dx = guide.at.x - position.0;
+
+                // now we calculate where the the y coordinate of the line should be at the mouse's xpos
+                let pos_y = guide.at.y - dx * angle.to_radians().tan();
+
+                println!("{} {}", pos_y, calc_y(position.1));
+
+                if (pos_y - calc_y(position.1)).abs() < 5. / i.viewport.factor {
                     self.selected_idx = Some(idx);
+                    return;
                 }
             }
+
+            self.selected_idx = None;
         });
 
         if let Some(selected) = self.selected_idx {
