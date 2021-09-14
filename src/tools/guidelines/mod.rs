@@ -61,8 +61,6 @@ impl Guidelines {
                 // now we calculate where the the y coordinate of the line should be at the mouse's xpos
                 let pos_y = guide.at.y - dx * angle.to_radians().tan();
 
-                println!("{} {}", pos_y, calc_y(position.1));
-
                 if (pos_y - calc_y(position.1)).abs() < 5. / i.viewport.factor {
                     self.selected_idx = Some(idx);
                     return;
