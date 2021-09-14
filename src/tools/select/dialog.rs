@@ -6,6 +6,7 @@ use crate::editor::Editor;
 use crate::editor::macros::{get_contour_len, get_contour_type, get_point};
 use crate::user_interface::Interface;
 use crate::user_interface::util::{imgui_decimal_text_field, imgui_radius_theta};
+use crate::get_contour;
 
 use glifparser::{Handle, Point, PointData, PointType, WhichHandle};
 use glifparser::glif::MFEKPointData;
@@ -30,6 +31,7 @@ impl Select {
         let mut orig_point: Point<_> = Point::new();
         let mut point: Point<MFEKPointData> = Point::new();
         let mut should_make_next_point_curve: bool = false;
+        let mut should_clear_contour_op = false;
         let on_open_contour = v.with_active_layer(|l| get_contour_type!(l, ci) == PointType::Move);
         let contour_len = v.with_active_layer(|l| get_contour_len!(l, ci));
         v.with_active_layer(|layer| {
@@ -124,9 +126,22 @@ impl Select {
                         }
                         imgui_radius_theta("B", ui, br, btheta, WhichHandle::B, &mut point);
                     }
+                    
+                    if v.with_active_layer(|layer| {layer.outline[ci].operation.is_some()}) {
+                        ui.button(imgui::im_str!("Reset Contour Operation"), [0., 0.]);
+                        if ui.is_item_clicked(imgui::MouseButton::Left) {
+                            should_clear_contour_op = true;
+                        }
+                    }
                 });
         });
 
+        if should_clear_contour_op {
+            v.begin_layer_modification("Reset contour op.");
+            v.with_active_layer_mut(|layer| layer.outline[ci].operation = None);
+            v.end_layer_modification();
+        }
+        
         if orig_point.x != point.x || orig_point.y != point.y || orig_point.a != point.a || orig_point.b != point.b || orig_point.ptype != point.ptype {
             v.begin_layer_modification("Point properties changed (dialog)");
             v.with_active_layer_mut(|layer| {
