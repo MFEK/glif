@@ -60,6 +60,7 @@ impl Guidelines {
                     );
                     if ui.is_item_clicked(imgui::MouseButton::Left) {
                         v.with_glyph_mut(|glyph| {
+                            self.selected_idx = None;
                             glyph.guidelines.remove(selected);
                         });
                     }

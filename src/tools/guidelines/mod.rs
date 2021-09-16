@@ -1,5 +1,3 @@
-use flo_curves::bezier::solve_curve_for_t;
-use MFEKmath::{Bezier, Vector};
 use glifrenderer::guidelines::draw_guideline;
 
 use super::prelude::*;
