@@ -3,7 +3,7 @@ use crate::{
     tools::{pan::Pan, Tool, ToolEnum},
 };
 use glifparser::{
-    glif::{HistoryEntry, HistoryType, Layer, MFEKPointData},
+    glif::{HistoryEntry, Layer, MFEKPointData},
     Guideline, MFEKGlif,
 };
 
@@ -104,8 +104,7 @@ impl Editor {
             contour_idx: self.contour_idx,
             point_idx: self.point_idx,
             selected: Some(self.selected.clone()),
-            layer: self.glyph.as_ref().unwrap().layers[self.layer_idx.unwrap()].clone(),
-            kind: HistoryType::LayerModified,
+            glyph: self.glyph.as_ref().unwrap().clone(),
         });
 
         self.modifying = true;

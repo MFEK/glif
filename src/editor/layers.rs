@@ -1,5 +1,5 @@
 use super::Editor;
-use glifparser::glif::{HistoryEntry, HistoryType, Layer, LayerOperation, MFEKOutline};
+use glifparser::glif::{HistoryEntry, Layer, LayerOperation, MFEKOutline};
 
 impl Editor {
     /// Adds a new layer. This generates a HistoryEntry and sets the selection to point to the newly created
@@ -20,8 +20,7 @@ impl Editor {
             contour_idx: self.contour_idx,
             point_idx: self.point_idx,
             selected: Some(self.selected.clone()),
-            layer: new_layer.clone(), // dummy
-            kind: HistoryType::LayerAdded,
+            glyph: self.glyph.as_ref().unwrap().clone(),
         });
 
         self.glyph.as_mut().unwrap().layers.push(new_layer);
@@ -59,10 +58,7 @@ impl Editor {
                 contour_idx: self.contour_idx,
                 point_idx: self.point_idx,
                 selected: Some(self.selected.clone()),
-                layer: deleted.clone(), // dummy
-                kind: HistoryType::LayerDeleted {
-                    layer_operation: below_operation,
-                },
+                glyph: self.glyph.as_ref().unwrap().clone(),
             });
         }
 
@@ -111,12 +107,7 @@ impl Editor {
                 contour_idx: self.contour_idx,
                 point_idx: self.point_idx,
                 selected: Some(self.selected.clone()),
-                layer: self.glyph.as_ref().unwrap().layers[self.layer_idx.unwrap()].clone(),
-                kind: HistoryType::LayerMoved {
-                    to: dest,
-                    from: src,
-                    layer_operation: below_operation,
-                },
+                glyph: self.glyph.as_ref().unwrap().clone(),
             });
         }
 
