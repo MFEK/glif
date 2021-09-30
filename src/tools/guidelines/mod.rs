@@ -47,7 +47,6 @@ impl Guidelines {
     fn mouse_pressed(&mut self, v: &mut Editor, i: &mut Interface, mouse_info: MouseInfo) {
         self.selected_idx = None;
 
-        let vp = &i.viewport;
         v.with_glyph(|glyph| {
             for (idx, guide) in glyph.guidelines.iter().enumerate() {
                 let angle = f32::from(guide.angle);

@@ -1,5 +1,5 @@
 use super::Editor;
-use glifparser::glif::{HistoryEntry, Layer, LayerOperation, MFEKOutline};
+use glifparser::glif::{HistoryEntry, Layer, MFEKOutline};
 
 impl Editor {
     /// Adds a new layer. This generates a HistoryEntry and sets the selection to point to the newly created
@@ -82,13 +82,6 @@ impl Editor {
     }
 
     pub fn swap_layers(&mut self, src: usize, dest: usize, add_history: bool) {
-        let mut below_operation: Option<LayerOperation> = None;
-        let layer_below = self.glyph.as_mut().unwrap().layers.get(src + 1);
-
-        if let Some(below) = layer_below {
-            below_operation = below.operation.clone();
-        }
-
         if add_history {
             self.history.add_undo_entry(HistoryEntry {
                 description: "Layer moved.".to_owned(),
