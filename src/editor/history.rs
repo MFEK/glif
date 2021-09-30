@@ -78,4 +78,25 @@ impl Editor {
             self.mark_preview_dirty();
         }    
     }
+
+    /// This function combines entries on the top of the undo stack that share a description.
+    pub fn collapse_history_entries(&mut self) {
+        let top_entry = self.history.undo_stack.pop();
+
+        if let Some(entry) = top_entry {
+            loop {
+                let next_entry = self.history.undo_stack.pop();
+                if let Some(next_entry) = next_entry {
+                    if next_entry.description != entry.description {
+                        self.history.undo_stack.push(next_entry);
+                        break;
+                    }
+                } else {
+                    break;
+                }
+            }
+
+            self.history.undo_stack.push(entry);
+        }
+    }
 }

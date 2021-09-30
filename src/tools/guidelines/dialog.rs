@@ -128,7 +128,7 @@ impl Guidelines {
 
         if let Some(selected) = self.selected_idx {
             imgui::Window::new(&imgui::ImString::new("Guideline Inspector"))
-                .bg_alpha(1.) // See comment on fn redraw_skia
+                .bg_alpha(1.) 
                 .flags(
                     imgui::WindowFlags::NO_RESIZE
                         | imgui::WindowFlags::NO_MOVE
@@ -137,20 +137,29 @@ impl Guidelines {
                 .position([tx, ty - th - 12.], imgui::Condition::Always)
                 .size([tw, th], imgui::Condition::Always)
                 .build(ui, || {
-                    v.with_glyph_mut(|glyph| {
-                        let mut at = glyph.guidelines[selected].at.clone();
-                        let mut angle = match glyph.guidelines[selected].angle {
+                    let (mut at, mut angle) = v.with_glyph(|glyph| {
+                        let at = glyph.guidelines[selected].at.clone();
+                        let angle = match glyph.guidelines[selected].angle {
                             glifparser::IntegerOrFloat::Integer(n) => n as f32,
                             glifparser::IntegerOrFloat::Float(n) => n,
                         };
 
-                        imgui_decimal_text_field("X", ui, &mut at.x);
-                        imgui_decimal_text_field("Y", ui, &mut at.y);
-                        imgui_decimal_text_field("Angle", ui, &mut angle);
-
-                        glyph.guidelines[selected].at = at;
-                        glyph.guidelines[selected].angle = IntegerOrFloat::Float(angle);
+                        (at, angle)
                     });
+
+                    let (old_at, old_angle) = (at.clone(), angle.clone());
+                    imgui_decimal_text_field("X", ui, &mut at.x);
+                    imgui_decimal_text_field("Y", ui, &mut at.y);
+                    imgui_decimal_text_field("Angle", ui, &mut angle);
+
+                    if at != old_at || angle != old_angle {
+                        v.begin_modification("Modify guideline.");
+                        v.with_glyph_mut(|glyph| {
+                            glyph.guidelines[selected].at = at;
+                            glyph.guidelines[selected].angle = IntegerOrFloat::Float(angle);
+                        });
+                        v.end_modification();
+                    }
                 });
         }
     }

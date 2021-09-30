@@ -25,6 +25,7 @@ impl Tool for Anchors {
                 match event_type {
                     MouseEventType::Moved => self.mouse_moved(v, mouse_info),
                     MouseEventType::Pressed => self.mouse_pressed(v, i, mouse_info),
+                    MouseEventType::Released => self.mouse_released(v),
                     //MouseEventType::Released => { self.mouse_released(v, mouse_info) }
                     _ => {}
                 }
@@ -77,60 +78,71 @@ impl Anchors {
             .size([tw, th], imgui::Condition::Always)
             .build(ui, || {
                 if let Some(idx) = self.anchor_idx {
-                    v.with_glyph_mut(|glif| {
-                        // X
-                        let mut x = imgui::im_str!("{}", glif.anchors[idx].x);
-                        let entered;
-                        {
-                            let it = ui.input_text(imgui::im_str!("X"), &mut x);
-                            entered = it
-                                .enter_returns_true(true)
-                                .chars_decimal(true)
-                                .chars_noblank(true)
-                                .auto_select_all(true)
-                                .build();
-                        }
-                        if entered {
-                            if x.to_str().len() > 0 {
-                                let new_x: f32 = x.to_str().parse().unwrap();
+                    let glif_copy = v.with_glyph(|glif| {glif.clone()});
+                    // X
+                    let mut x = imgui::im_str!("{}", glif_copy.anchors[idx].x);
+                    let entered;
+                    {
+                        let it = ui.input_text(imgui::im_str!("X"), &mut x);
+                        entered = it
+                            .enter_returns_true(true)
+                            .chars_decimal(true)
+                            .chars_noblank(true)
+                            .auto_select_all(true)
+                            .build();
+                    }
+                    if entered {
+                        if x.to_str().len() > 0 {
+                            let new_x: f32 = x.to_str().parse().unwrap();
+                            v.begin_modification("Move anchor.");
+                            v.with_glyph_mut(|glif| {
                                 glif.anchors[idx].x = new_x;
-                            }
+                            });
+                            v.end_modification();
                         }
-                        // Y
-                        let mut y = imgui::im_str!("{}", glif.anchors[idx].y);
-                        let entered;
-                        {
-                            let it = ui.input_text(imgui::im_str!("Y"), &mut y);
-                            entered = it
-                                .enter_returns_true(true)
-                                .chars_decimal(true)
-                                .chars_noblank(true)
-                                .auto_select_all(true)
-                                .build();
-                        }
-                        if entered {
-                            if y.to_str().len() > 0 {
-                                let new_y: f32 = y.to_str().parse().unwrap();
+                    }
+                    // Y
+                    let mut y = imgui::im_str!("{}", glif_copy.anchors[idx].y);
+                    let entered;
+                    {
+                        let it = ui.input_text(imgui::im_str!("Y"), &mut y);
+                        entered = it
+                            .enter_returns_true(true)
+                            .chars_decimal(true)
+                            .chars_noblank(true)
+                            .auto_select_all(true)
+                            .build();
+                    }
+                    if entered {
+                        if y.to_str().len() > 0 {
+                            let new_y: f32 = y.to_str().parse().unwrap();
+                            v.begin_modification("Move anchor.");
+                            v.with_glyph_mut(|glif| {
                                 glif.anchors[idx].y = new_y;
-                            }
+                            });
+                            v.end_modification();
                         }
-                        // Class
-                        let mut class = imgui::im_str!("{}", &glif.anchors[idx].class);
-                        let entered;
-                        {
-                            let it = ui.input_text(imgui::im_str!("Class"), &mut class);
-                            entered = it
-                                .enter_returns_true(true)
-                                .chars_noblank(true)
-                                .auto_select_all(true)
-                                .build();
-                        }
-                        if entered {
-                            if class.to_str().len() > 0 {
+                    }
+                    // Class
+                    let mut class = imgui::im_str!("{}", &glif_copy.anchors[idx].class);
+                    let entered;
+                    {
+                        let it = ui.input_text(imgui::im_str!("Class"), &mut class);
+                        entered = it
+                            .enter_returns_true(true)
+                            .chars_noblank(true)
+                            .auto_select_all(true)
+                            .build();
+                    }
+                    if entered {
+                        if class.to_str().len() > 0 {
+                            v.begin_modification("Move anchor.");
+                            v.with_glyph_mut(|glif| {
                                 glif.anchors[idx].class = class.to_str().to_string();
-                            }
+                            });
+                            v.end_modification();
                         }
-                    });
+                    }
                 }
             });
     }
@@ -182,6 +194,7 @@ impl Anchors {
             label: "Anchor name:".to_string(),
             default: "".to_string(),
             func: Rc::new(move |v, string| {
+                v.begin_modification("Add anchor.");
                 v.with_glyph_mut(|glif| {
                     let mut anchor = GlifAnchor::new();
                     anchor.x = f32::floor(calc_x(position.0));
@@ -189,6 +202,7 @@ impl Anchors {
                     anchor.class = string.clone();
                     glif.anchors.push(anchor);
                 });
+                v.end_modification();
             }),
         });
     }
@@ -198,6 +212,9 @@ impl Anchors {
             return;
         }
 
+        if !v.is_modifying() {
+            v.begin_modification("Move anchor.");
+        }
         v.with_glyph_mut(|glif| {
             if let Some(idx) = self.anchor_idx {
                 // Anchors can't be non-integers in OT spec
@@ -206,15 +223,21 @@ impl Anchors {
             }
         });
     }
-}
+
+    fn mouse_released(&mut self, v: &mut Editor ) {
+        v.end_modification();
+    }
+} 
 
 // Keyed
 impl Anchors {
     fn delete_selection(&mut self, v: &mut Editor) {
         if let Some(idx) = self.anchor_idx {
+            v.begin_modification("Delete anchor.");
             v.with_glyph_mut(|glif| {
                 glif.anchors.remove(idx);
             });
+            v.end_modification();
         }
         self.anchor_idx = None;
     }

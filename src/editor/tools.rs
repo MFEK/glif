@@ -52,7 +52,7 @@ impl Editor {
     }
 
     pub fn reset_tool(&mut self) {
-        self.end_layer_modification();
+        self.end_modification();
         self.clear_behaviors();
         self.active_tool = tool_enum_to_tool(self.active_tool_enum);
     }
@@ -90,7 +90,7 @@ impl Editor {
             return;
         };
 
-        self.end_layer_modification();
+        self.end_modification();
         self.active_tool_enum = tool;
         self.active_tool = tool_enum_to_tool(tool);
     }

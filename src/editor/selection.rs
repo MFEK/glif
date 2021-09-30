@@ -66,7 +66,7 @@ impl Editor {
     }
 
     pub fn paste_selection(&mut self, _position: (f32, f32)) {
-        self.begin_layer_modification("Paste clipboard.");
+        self.begin_modification("Paste clipboard.");
         if let Some(clipboard) = &self.clipboard {
             self.contour_idx = None;
             self.point_idx = None;
@@ -81,11 +81,11 @@ impl Editor {
                 layer.outline.push(contour.clone());
             }
         }
-        self.end_layer_modification();
+        self.end_modification();
     }
 
     pub fn delete_selection(&mut self) {
-        self.begin_layer_modification("Delete selection.");
+        self.begin_modification("Delete selection.");
 
         let layer = &self.glyph.as_ref().unwrap().layers[self.layer_idx.unwrap()];
         let mut new_outline: Vec<MFEKContour<MFEKPointData>> = Vec::new();
@@ -134,7 +134,7 @@ impl Editor {
 
         self.glyph.as_mut().unwrap().layers[self.layer_idx.unwrap()].outline = new_outline;
 
-        self.end_layer_modification();
+        self.end_modification();
 
         self.contour_idx = None;
         self.point_idx = None;

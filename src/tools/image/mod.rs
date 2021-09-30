@@ -151,9 +151,9 @@ impl Image {
                 None => return,
             };
 
-            v.begin_layer_modification("Add image to layer.");
+            v.begin_modification("Add image to layer.");
             v.add_image_to_active_layer(filename);
-            v.end_layer_modification();
+            v.end_modification();
             return;
         }
     }

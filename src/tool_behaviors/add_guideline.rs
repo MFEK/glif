@@ -37,9 +37,11 @@ impl AddGuideline {
                 identifier: None,
             };
 
+            v.begin_modification("Add guideline.");
             v.with_glyph_mut(|glif| {
                 glif.guidelines.push(prev_guide.clone());
             });
+            v.end_modification();
         } else {
             let prev_point = GuidelinePoint {
                 x: i.mouse_info.position.0,
@@ -54,9 +56,11 @@ impl AddGuideline {
                 identifier: None,
             };
 
+            v.begin_modification("Add guideline.");
             v.with_glyph_mut(|glif| {
                 glif.guidelines.push(prev_guide.clone());
             });
+            v.end_modification();
         }
 
         v.pop_behavior();

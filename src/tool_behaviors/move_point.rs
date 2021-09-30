@@ -25,7 +25,7 @@ impl MovePoint {
 
         let (vci, vpi) = (v.contour_idx.unwrap(), v.point_idx.unwrap());
         if !v.is_modifying() {
-            v.begin_layer_modification("Move point.");
+            v.begin_modification("Move point.");
         }
 
         let reference_point = v.with_active_layer(|layer| get_point!(layer, vci, vpi).clone());
@@ -87,7 +87,7 @@ impl MovePoint {
                 }
             }
 
-            v.end_layer_modification();
+            v.end_modification();
             v.pop_behavior();
         }
     }

@@ -9,7 +9,7 @@ pub struct MouseInfo {
     pub button: MouseButton,
 
     pub position: (f32, f32),
-    pub raw_position: (f32, f32),
+    pub raw_position: (f32, f32), 
     pub absolute_position: (f32, f32),
     pub raw_absolute_position: (f32, f32),
 

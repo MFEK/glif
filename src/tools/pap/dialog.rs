@@ -105,11 +105,11 @@ impl PAP {
                             new_data.copies = repeat_selection;
                             let new_op = ContourOperations::PatternAlongPath { data: new_data };
 
-                            v.begin_layer_modification("PAP dialog modification.");
+                            v.begin_modification("PAP dialog modification.");
                             v.with_active_layer_mut(|layer| {
                                 layer.outline[contour_idx].operation = Some(new_op.clone())
                             });
-                            v.end_layer_modification();
+                            v.end_modification();
                         }
 
                         let options = [
@@ -141,11 +141,11 @@ impl PAP {
                             };
                             let new_op = ContourOperations::PatternAlongPath { data: new_data };
 
-                            v.begin_layer_modification("PAP dialog modification.");
+                            v.begin_modification("PAP dialog modification.");
                             v.with_active_layer_mut(|layer| {
                                 layer.outline[contour_idx].operation = Some(new_op.clone())
                             });
-                            v.end_layer_modification();
+                            v.end_modification();
                         }
 
                         let mut new_center = data.center_pattern;
@@ -155,11 +155,11 @@ impl PAP {
                             new_data.center_pattern = new_center;
                             let new_op = ContourOperations::PatternAlongPath { data: new_data };
 
-                            v.begin_layer_modification("PAP dialog modification.");
+                            v.begin_modification("PAP dialog modification.");
                             v.with_active_layer_mut(|layer| {
                                 layer.outline[contour_idx].operation = Some(new_op.clone())
                             });
-                            v.end_layer_modification();
+                            v.end_modification();
                         }
 
                         let options = [
@@ -182,11 +182,11 @@ impl PAP {
                             new_data.stretch = new_stretch;
                             let new_op = ContourOperations::PatternAlongPath { data: new_data };
 
-                            v.begin_layer_modification("PAP dialog modification.");
+                            v.begin_modification("PAP dialog modification.");
                             v.with_active_layer_mut(|layer| {
                                 layer.outline[contour_idx].operation = Some(new_op.clone())
                             });
-                            v.end_layer_modification();
+                            v.end_modification();
                         }
 
                         let old_simplify = data.simplify;
@@ -197,11 +197,11 @@ impl PAP {
                             new_data.simplify = new_simplify;
                             let new_op = ContourOperations::PatternAlongPath { data: new_data };
 
-                            v.begin_layer_modification("PAP dialog modification.");
+                            v.begin_modification("PAP dialog modification.");
                             v.with_active_layer_mut(|layer| {
                                 layer.outline[contour_idx].operation = Some(new_op.clone())
                             });
-                            v.end_layer_modification();
+                            v.end_modification();
                         }
 
                         let mut new_spacing = data.spacing as f32;
@@ -212,11 +212,11 @@ impl PAP {
                             new_data.spacing = new_spacing as f64;
                             let new_op = ContourOperations::PatternAlongPath { data: new_data };
 
-                            v.begin_layer_modification("PAP dialog modification.");
+                            v.begin_modification("PAP dialog modification.");
                             v.with_active_layer_mut(|layer| {
                                 layer.outline[contour_idx].operation = Some(new_op.clone())
                             });
-                            v.end_layer_modification();
+                            v.end_modification();
                         }
 
                         let mut new_normal = data.normal_offset as f32;
@@ -227,11 +227,11 @@ impl PAP {
                             new_data.normal_offset = new_normal as f64;
                             let new_op = ContourOperations::PatternAlongPath { data: new_data };
 
-                            v.begin_layer_modification("PAP dialog modification.");
+                            v.begin_modification("PAP dialog modification.");
                             v.with_active_layer_mut(|layer| {
                                 layer.outline[contour_idx].operation = Some(new_op.clone())
                             });
-                            v.end_layer_modification();
+                            v.end_modification();
                         }
 
                         let mut new_tangent = data.tangent_offset as f32;
@@ -242,11 +242,11 @@ impl PAP {
                             new_data.tangent_offset = new_tangent as f64;
                             let new_op = ContourOperations::PatternAlongPath { data: new_data };
 
-                            v.begin_layer_modification("PAP dialog modification.");
+                            v.begin_modification("PAP dialog modification.");
                             v.with_active_layer_mut(|layer| {
                                 layer.outline[contour_idx].operation = Some(new_op.clone())
                             });
-                            v.end_layer_modification();
+                            v.end_modification();
                         }
 
                         let mut new_x_scale = data.pattern_scale.0 as f32;
@@ -260,11 +260,11 @@ impl PAP {
                             new_data.pattern_scale = (new_x_scale as f64, new_y_scale as f64);
                             let new_op = ContourOperations::PatternAlongPath { data: new_data };
 
-                            v.begin_layer_modification("PAP dialog modification.");
+                            v.begin_modification("PAP dialog modification.");
                             v.with_active_layer_mut(|layer| {
                                 layer.outline[contour_idx].operation = Some(new_op.clone())
                             });
-                            v.end_layer_modification();
+                            v.end_modification();
                         }
 
                         let mut overdraw = data.prevent_overdraw;
@@ -277,11 +277,12 @@ impl PAP {
                             new_data.prevent_overdraw = overdraw;
                             let new_op = ContourOperations::PatternAlongPath { data: new_data };
 
-                            v.begin_layer_modification("PAP dialog modification.");
+                            v.begin_modification("PAP overdraw changed.");
                             v.with_active_layer_mut(|layer| {
                                 layer.outline[contour_idx].operation = Some(new_op.clone())
                             });
-                            v.end_layer_modification();
+                            v.end_modification();
+                            v.collapse_history_entries();
                         }
                         
                         let old_twopass = data.two_pass_culling;
@@ -292,11 +293,11 @@ impl PAP {
                             new_data.two_pass_culling = new_twopass;
                             let new_op = ContourOperations::PatternAlongPath { data: new_data };
 
-                            v.begin_layer_modification("PAP dialog modification.");
+                            v.begin_modification("PAP dialog modification.");
                             v.with_active_layer_mut(|layer| {
                                 layer.outline[contour_idx].operation = Some(new_op.clone())
                             });
-                            v.end_layer_modification();
+                            v.end_modification();
                         }
 
                         let mut reverse_culling = data.reverse_culling;
@@ -306,11 +307,11 @@ impl PAP {
                             new_data.reverse_culling = reverse_culling;
                             let new_op = ContourOperations::PatternAlongPath { data: new_data };
 
-                            v.begin_layer_modification("PAP dialog modification.");
+                            v.begin_modification("PAP dialog modification.");
                             v.with_active_layer_mut(|layer| {
                                 layer.outline[contour_idx].operation = Some(new_op.clone())
                             });
-                            v.end_layer_modification();
+                            v.end_modification();
                         }
 
                         let mut reverse_path = data.reverse_path;
@@ -321,11 +322,11 @@ impl PAP {
                             new_data.reverse_path = reverse_path;
                             let new_op = ContourOperations::PatternAlongPath { data: new_data };
 
-                            v.begin_layer_modification("PAP dialog modification.");
+                            v.begin_modification("PAP dialog modification.");
                             v.with_active_layer_mut(|layer| {
                                 layer.outline[contour_idx].operation = Some(new_op.clone())
                             });
-                            v.end_layer_modification();
+                            v.end_modification();
                         }
                         
                     }

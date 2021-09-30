@@ -35,7 +35,7 @@ pub struct Editor {
     glyph: Option<MFEKGlif<MFEKPointData>>,
     modifying: bool, // a flag that is set when the active layer is currently being modified
 
-    layer_dirty: bool, // Internal flag the editor uses to check for empty modifications. If this flag is false when
+    dirty: bool, // Internal flag the editor uses to check for empty modifications.
     // end_layer_modification is called we simply discard the last history entry.
     history: History, // holds a history of previous states the glyph has been in
     active_tool: Box<dyn Tool>,
@@ -66,7 +66,7 @@ impl Editor {
         Editor {
             glyph: None,
             modifying: false,
-            layer_dirty: false,
+            dirty: false,
             history: History::new(),
 
             active_tool: Box::new(Pan::new()),
@@ -93,7 +93,7 @@ impl Editor {
 
     /// This function MUST be called before calling with_active_<layer/glif>_mut or it will panic.
     /// Pushes a clone of the current layer onto the history stack and puts the editor in a modifying state.
-    pub fn begin_layer_modification(&mut self, description: &str) {
+    pub fn begin_modification(&mut self, description: &str) {
         if self.modifying == true {
             panic!("Began a new modification with one in progress!")
         }
@@ -111,12 +111,12 @@ impl Editor {
     }
 
     /// This ends an ongoing modification and calls the proper events.
-    pub fn end_layer_modification(&mut self) {
+    pub fn end_modification(&mut self) {
         if self.modifying == false {
             return;
         };
 
-        if !self.layer_dirty {
+        if !self.dirty {
             self.history.undo_stack.pop();
         }
 
@@ -193,10 +193,11 @@ impl Editor {
     where
         F: FnMut(&mut Layer<MFEKPointData>) -> R,
     {
-        self.layer_dirty = true;
         if self.modifying == false {
             panic!("A modification is not in progress!")
         }
+
+        self.dirty = true;
         let glyph = self.glyph.as_mut().unwrap();
         let ret = closure(&mut glyph.layers[self.layer_idx.unwrap()]);
 
@@ -212,8 +213,22 @@ impl Editor {
         closure(&self.glyph.as_ref().unwrap())
     }
 
-    /// This function should not be called in tools or contour operations. TODO: Remove.
+    /// This function should be used to modify anchors, guidelines, and other glyph-level data. Do not use this to modify the active layer.
     pub fn with_glyph_mut<F, R>(&mut self, mut closure: F) -> R
+    where
+        F: FnMut(&mut MFEKGlif<MFEKPointData>) -> R,
+    {
+        if self.modifying == false {
+            panic!("A modification is not in progress!")
+        }
+
+        self.dirty = true;
+        self.mark_preview_dirty();
+        let ret = closure(&mut self.glyph.as_mut().unwrap());
+        ret
+    }
+
+    pub fn with_glyph_mut_no_history<F, R>(&mut self, mut closure: F) -> R
     where
         F: FnMut(&mut MFEKGlif<MFEKPointData>) -> R,
     {

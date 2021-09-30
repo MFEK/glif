@@ -45,7 +45,7 @@ impl PAP {
                         editor.contour_idx = Some(ci);
                         editor.point_idx = Some(pi);
 
-                        editor.begin_layer_modification("Added PAP contour.");
+                        editor.begin_modification("Added PAP contour.");
                         editor.with_active_layer_mut(|layer| {
                             layer.outline[ci].operation =
                                 Some(ContourOperations::PatternAlongPath {
@@ -69,7 +69,7 @@ impl PAP {
                                     },
                                 })
                         });
-                        editor.end_layer_modification();
+                        editor.end_modification();
                     }),
                 });
             }

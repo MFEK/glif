@@ -28,7 +28,7 @@ pub fn build_and_check_layer_list(v: &mut Editor, i: &mut Interface, ui: &imgui:
     );
     ui.push_item_width(-0.5);
     if ui.is_item_clicked(imgui::MouseButton::Left) {
-        v.delete_layer(active_layer, true);
+        v.delete_layer();
     }
 
     ui.same_line(0.);
@@ -96,9 +96,9 @@ pub fn build_and_check_layer_list(v: &mut Editor, i: &mut Interface, ui: &imgui:
             let active_layer = v.get_active_layer();
             v.set_active_layer(layer);
 
-            v.begin_layer_modification("Toggled layer visibility.");
+            v.begin_modification("Toggled layer visibility.");
             v.with_active_layer_mut(|layer| layer.visible = !layer.visible);
-            v.end_layer_modification();
+            v.end_modification();
 
             v.set_active_layer(active_layer);
         }
@@ -116,9 +116,9 @@ pub fn build_and_check_layer_list(v: &mut Editor, i: &mut Interface, ui: &imgui:
                     let active_layer = editor.get_active_layer();
                     editor.set_active_layer(layer);
 
-                    editor.begin_layer_modification("Renamed layer.");
+                    editor.begin_modification("Renamed layer.");
                     editor.with_active_layer_mut(|layer| layer.name = string.clone());
-                    editor.end_layer_modification();
+                    editor.end_modification();
 
                     editor.set_active_layer(active_layer);
                 }),
@@ -143,11 +143,11 @@ pub fn build_and_check_layer_list(v: &mut Editor, i: &mut Interface, ui: &imgui:
         if ui.is_item_clicked(imgui::MouseButton::Right) {
             let active_layer = v.get_active_layer();
             v.set_active_layer(layer);
-            v.begin_layer_modification("Changed layer operation.");
+            v.begin_modification("Changed layer operation.");
             v.with_active_layer_mut(|layer| {
                 layer.operation = None;
             });
-            v.end_layer_modification();
+            v.end_modification();
             v.set_active_layer(active_layer);
         }
         if ui.is_item_clicked(imgui::MouseButton::Left) {
@@ -163,11 +163,11 @@ pub fn build_and_check_layer_list(v: &mut Editor, i: &mut Interface, ui: &imgui:
 
             let active_layer = v.get_active_layer();
             v.set_active_layer(layer);
-            v.begin_layer_modification("Changed layer operation.");
+            v.begin_modification("Changed layer operation.");
             v.with_active_layer_mut(|layer| {
                 layer.operation = new_operation.clone();
             });
-            v.end_layer_modification();
+            v.end_modification();
             v.set_active_layer(active_layer);
         }
 
@@ -191,9 +191,9 @@ pub fn build_and_check_layer_list(v: &mut Editor, i: &mut Interface, ui: &imgui:
                         let active_layer = editor.get_active_layer();
                         editor.set_active_layer(layer);
 
-                        editor.begin_layer_modification("Changed layer color.");
+                        editor.begin_modification("Changed layer color.");
                         editor.with_active_layer_mut(|layer| layer.color = color.map(|c| c.into()));
-                        editor.end_layer_modification();
+                        editor.end_modification();
 
                         editor.set_active_layer(active_layer);
                     }),

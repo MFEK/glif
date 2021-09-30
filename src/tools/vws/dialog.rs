@@ -81,11 +81,11 @@ impl VWS {
 
                 let new_op = ContourOperations::VariableWidthStroke { data: new_data };
 
-                v.begin_layer_modification("VWS dialog modification.");
+                v.begin_modification("VWS dialog modification.");
                 v.with_active_layer_mut(|layer| {
                     layer.outline[contour_idx].operation = Some(new_op.clone())
                 });
-                v.end_layer_modification();
+                v.end_modification();
             }
         }
     }
@@ -116,11 +116,11 @@ impl VWS {
                 new_data.join_type = new_selection;
                 let new_op = ContourOperations::VariableWidthStroke { data: new_data };
 
-                v.begin_layer_modification("VWS dialog modification.");
+                v.begin_modification("VWS dialog modification.");
                 v.with_active_layer_mut(|layer| {
                     layer.outline[contour_idx].operation = Some(new_op.clone())
                 });
-                v.end_layer_modification();
+                v.end_modification();
             }
         }
     }

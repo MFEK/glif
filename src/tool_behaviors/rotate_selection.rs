@@ -20,7 +20,7 @@ impl RotateSelection {
 
     pub fn mouse_moved(&mut self, v: &mut Editor, _i: &mut Interface, mouse_info: MouseInfo) {
         if !v.is_modifying() {
-            v.begin_layer_modification("Rotate selection.");
+            v.begin_modification("Rotate selection.");
         }
 
         let rot = self.rotate_vector;
@@ -84,7 +84,7 @@ impl RotateSelection {
 
     pub fn mouse_released(&mut self, v: &mut Editor, _i: &mut Interface, mouse_info: MouseInfo) {
         if mouse_info.button == self.mouse_info.button {
-            v.end_layer_modification();
+            v.end_modification();
             v.pop_behavior();
         }
     }

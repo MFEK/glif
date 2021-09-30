@@ -262,7 +262,7 @@ impl ShapeDrawer {
 impl Shapes {
     fn mouse_pressed(&mut self, v: &mut Editor, mouse_info: MouseInfo) {
         if !v.is_modifying() {
-            v.begin_layer_modification("Draw shape");
+            v.begin_modification("Draw shape");
             self.pressed_pos = Some((calc_x(mouse_info.position.0), calc_y(mouse_info.position.1)));
         }
     }
@@ -297,7 +297,7 @@ impl Shapes {
     }
 
     fn mouse_released(&mut self, v: &mut Editor, _mouse_info: MouseInfo) {
-        v.end_layer_modification();
+        v.end_modification();
         self.pressed_pos = None;
         self.dropped_shape = false;
     }

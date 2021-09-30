@@ -19,6 +19,10 @@ impl MoveGuideline {
         let delta = (mp.0 - mouse_info.position.0, mp.1 - mouse_info.position.1);
         let selected = self.selected_idx;
 
+        if !v.is_modifying() {
+            v.begin_modification("Move guideline.");
+        }
+
         v.with_glyph_mut(|glyph| {
             glyph.guidelines[selected].at.x -= delta.0;
             glyph.guidelines[selected].at.y += delta.1;
@@ -29,6 +33,7 @@ impl MoveGuideline {
 
     pub fn mouse_released(&mut self, v: &mut Editor, _i: &mut Interface, mouse_info: MouseInfo) {
         if mouse_info.button == self.mouse_info.button {
+            v.end_modification();
             v.pop_behavior();
         }
     }

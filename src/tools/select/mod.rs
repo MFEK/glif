@@ -88,7 +88,7 @@ impl Select {
             return;
         };
 
-        v.begin_layer_modification("Reversing contours.");
+        v.begin_modification("Reversing contours.");
         let point_idx = v.point_idx;
         v.point_idx = v.with_active_layer_mut(|layer| {
             let contour_len = layer.outline[ci].inner.len();
@@ -107,7 +107,7 @@ impl Select {
                 None
             }
         });
-        v.end_layer_modification();
+        v.end_modification();
     }
 
     fn mouse_pressed(&mut self, v: &mut Editor, i: &Interface, mouse_info: MouseInfo) {

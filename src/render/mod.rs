@@ -60,7 +60,7 @@ pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
     });
 
     for dropee in dropped {
-        v.with_glyph_mut(|glif| {
+        v.with_glyph_mut_no_history(|glif| {
             for layer in glif.layers.iter_mut() {
                 layer.images.retain(|(gi, _)| gi.filename != dropee);
             }

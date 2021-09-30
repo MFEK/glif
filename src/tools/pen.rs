@@ -44,7 +44,7 @@ impl Pen {
             return;
         };
 
-        v.begin_layer_modification("Add point.");
+        v.begin_modification("Add point.");
 
         // We check if we have a point selected and are clicking on the beginning of another contour.
         // If that is the case we merge them

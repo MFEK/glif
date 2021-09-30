@@ -137,13 +137,13 @@ impl Select {
         });
 
         if should_clear_contour_op {
-            v.begin_layer_modification("Reset contour op.");
+            v.begin_modification("Reset contour op.");
             v.with_active_layer_mut(|layer| layer.outline[ci].operation = None);
-            v.end_layer_modification();
+            v.end_modification();
         }
         
         if orig_point.x != point.x || orig_point.y != point.y || orig_point.a != point.a || orig_point.b != point.b || orig_point.ptype != point.ptype {
-            v.begin_layer_modification("Point properties changed (dialog)");
+            v.begin_modification("Point properties changed (dialog)");
             v.with_active_layer_mut(|layer| {
                 if get_point!(layer, ci, pi).ptype == PointType::Move {
                     point.ptype = PointType::Move;
@@ -156,7 +156,7 @@ impl Select {
                 }
                 get_point!(layer, ci, pi) = point.clone();
             });
-            v.end_layer_modification();
+            v.end_modification();
         }
     }
 }

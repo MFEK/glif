@@ -24,7 +24,7 @@ impl MoveHandle {
 
     pub fn mouse_moved(&mut self, v: &mut Editor, _i: &mut Interface, mouse_info: MouseInfo) {
         if !v.is_modifying() {
-            v.begin_layer_modification("Move handle.");
+            v.begin_modification("Move handle.");
         }
 
         let x = calc_x(mouse_info.position.0 as f32);
@@ -101,7 +101,7 @@ impl MoveHandle {
 
     pub fn mouse_released(&mut self, v: &mut Editor, _i: &mut Interface, mouse_info: MouseInfo) {
         if mouse_info.button == self.mouse_info.button {
-            v.end_layer_modification();
+            v.end_modification();
             v.pop_behavior();
         }
     }
