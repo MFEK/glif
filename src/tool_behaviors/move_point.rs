@@ -134,8 +134,6 @@ impl ToolBehavior for MovePoint {
                         && target_type == PointType::Move
                         && target_info != info
                     {
-                        // start and end seem flipped because we're talking about contours now the contour with the end point
-                        // is actually the start
                         let merge =
                             v.with_active_layer(|layer| get_contour!(layer, ci)[pi].clone());
                         draw_point(

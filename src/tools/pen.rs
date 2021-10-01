@@ -68,7 +68,7 @@ impl Pen {
                         get_contour_mut!(layer, c_idx).push(new_point);
                     });
                     v.merge_contours(info.0, c_idx);
-
+                    v.end_modification();
                     return;
                 }
             }
@@ -121,6 +121,7 @@ impl Pen {
                     contour.inner.insert(info.seg_idx, point);
                 }
             });
+            v.end_modification();
         }
         // If we've got the end of a contour selected we'll continue drawing that contour.
         else if let Some(contour_idx) = v.contour_idx {
@@ -156,6 +157,7 @@ impl Pen {
                     layer.outline[contour_idx].operation =
                         contour_operations::insert(&layer.outline[contour_idx], 0);
                 });
+                v.end_modification();
             }
         } else {
             // Lastly if we get here we create a new contour.
@@ -174,6 +176,7 @@ impl Pen {
                 layer.outline.push(new_contour.into());
                 Some(layer.outline.len() - 1)
             });
+            v.end_modification();
             v.point_idx = Some(0);
         }
 

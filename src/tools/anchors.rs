@@ -208,20 +208,19 @@ impl Anchors {
     }
 
     fn mouse_moved(&mut self, v: &mut Editor, mouse_info: MouseInfo) {
-        if !mouse_info.is_down {
-            return;
-        }
+        if let Some(idx) = self.anchor_idx {
+            if !mouse_info.is_down { return; }
 
-        if !v.is_modifying() {
-            v.begin_modification("Move anchor.");
-        }
-        v.with_glyph_mut(|glif| {
-            if let Some(idx) = self.anchor_idx {
-                // Anchors can't be non-integers in OT spec
-                glif.anchors[idx].x = f32::floor(calc_x(mouse_info.position.0));
-                glif.anchors[idx].y = f32::floor(calc_y(mouse_info.position.1));
+            if !v.is_modifying() {
+                v.begin_modification("Move anchor.");
             }
-        });
+
+            v.with_glyph_mut(|glif| {
+                    // Anchors can't be non-integers in OT spec
+                    glif.anchors[idx].x = f32::floor(calc_x(mouse_info.position.0));
+                    glif.anchors[idx].y = f32::floor(calc_y(mouse_info.position.1));
+            });
+        }
     }
 
     fn mouse_released(&mut self, v: &mut Editor ) {
