@@ -1,79 +1,49 @@
-use crate::user_interface::grid::Grid;
-use super::ToolEnum;
-
 use super::prelude::*;
+use crate::tool_behaviors::pan::PanBehavior;
+use crate::user_interface::grid::Grid;
+use crate::user_interface::util::imgui_decimal_text_field;
 
 #[derive(Clone)]
-pub struct GridTool {
-}
-
+pub struct GridTool {}
 
 impl Tool for GridTool {
-    fn handle_event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
+    fn event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
         match event {
-            EditorEvent::MouseEvent { event_type, meta: _} => {
-                match event_type {
-                    MouseEventType::Pressed => { self.mouse_pressed(v) }
-                    _ => {}
+            EditorEvent::MouseEvent {
+                event_type,
+                mouse_info,
+            } => match event_type {
+                MouseEventType::Pressed => {
+                    v.set_behavior(Box::new(PanBehavior::new(i.viewport.clone(), mouse_info)));
                 }
-            }
-            EditorEvent::Ui { ui } => {
-                self.grid_settings(i, ui);
-            }
+                _ => {}
+            },
             _ => {}
         }
     }
+
+    fn ui(&mut self, _v: &mut Editor, i: &mut Interface, ui: &mut Ui) {
+        self.grid_settings(i, ui);
+    }
 }
 
-fn imgui_decimal_text_field(label: &str, ui: &imgui::Ui, data: &mut f32) {
-    let mut x = imgui::im_str!("{}", data);
-    let label = imgui::ImString::new(label);
-    let entered;
-    {
-    let it = ui.input_text(&label, &mut x);
-    entered = it.enter_returns_true(true)
-        .chars_decimal(true)
-        .chars_noblank(true)
-        .auto_select_all(true)
-        .build();
-    }
-    if entered {
-        if x.to_str().len() > 0 {
-            let new_x: f32 = x.to_str().parse().unwrap();
-            *data = new_x;
-        }
-    }
-}
- 
 impl GridTool {
     pub fn new() -> Self {
-        Self { }
-    }
-
-    pub fn mouse_pressed(&mut self, v: &mut Editor) {
-        v.set_tool(ToolEnum::Pan);
+        Self {}
     }
 
     pub fn grid_settings(&mut self, i: &mut Interface, ui: &imgui::Ui) {
         let (tx, ty, tw, th) = i.get_tools_dialog_rect();
 
-        imgui::Window::new(
-                &imgui::ImString::new("Grid")
-            )
+        imgui::Window::new(&imgui::ImString::new("Grid"))
             .bg_alpha(1.) // See comment on fn redraw_skia
             .flags(
-                    imgui::WindowFlags::NO_RESIZE
+                imgui::WindowFlags::NO_RESIZE
                     | imgui::WindowFlags::NO_MOVE
                     | imgui::WindowFlags::NO_COLLAPSE,
             )
-            .position(
-                [tx, ty],
-                imgui::Condition::Always,
-            )
-            .size(
-                [tw, th],
-                imgui::Condition::Always,
-            )
+            .position([tx, ty], imgui::Condition::Always)
+            .size([tw, th], imgui::Condition::Always)
             .build(ui, || {
                 let old_active = i.grid.is_some();
                 let mut active = old_active;
@@ -82,7 +52,7 @@ impl GridTool {
 
                 if !active {
                     i.grid = None;
-                } else if !old_active && active { 
+                } else if !old_active && active {
                     i.grid = Some(Grid {
                         offset: 0.,
                         spacing: 30.,

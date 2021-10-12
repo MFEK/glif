@@ -88,7 +88,11 @@ impl<PD: PointData> ReverseContours for Contour<PD> {
             let b = p.b;
             new_p.a = b;
             new_p.b = a;
-            new_p.ptype = if a != Handle::Colocated { PointType::Curve } else { PointType::Line };
+            new_p.ptype = if a != Handle::Colocated {
+                PointType::Curve
+            } else {
+                PointType::Line
+            };
             new_c.push(new_p);
         }
 
@@ -96,8 +100,11 @@ impl<PD: PointData> ReverseContours for Contour<PD> {
         if open_contour {
             new_c[0].ptype = PointType::Move;
             let c_len = new_c.len();
-            let ptype = match new_c[c_len-2].a { Handle::At(_, _) => { PointType::Curve }, Handle::Colocated => { PointType::Line }};
-            new_c[c_len-1].ptype = ptype;
+            let ptype = match new_c[c_len - 2].a {
+                Handle::At(_, _) => PointType::Curve,
+                Handle::Colocated => PointType::Line,
+            };
+            new_c[c_len - 1].ptype = ptype;
         }
 
         new_c

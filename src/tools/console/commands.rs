@@ -13,23 +13,45 @@ where
 
 pub fn initialize_console_commands() {
     MAP.with(|h| {
-        h.borrow_mut().insert("vpoffset", ("Set viewport origin", callback(|_v, i, s| {
-            if s.len() != 2 { return; } // FIXME: Tell user about errors!
-            if let (Ok(ox), Ok(oy)) = (s[0].parse(), s[1].parse()) {
-                i.update_viewport(Some((ox, oy)), None);
-            }
-        })));
-    
-        h.borrow_mut().insert("vpfactor", ("Set viewport zoom factor", callback(|_v, i, s| {
-            if s.len() != 1 { return; } // FIXME: Tell user about errors!
-            if let Ok(factor) = s[0].parse() {
-                i.update_viewport(None, Some(factor));
-            }
-        })));
-    
-        h.borrow_mut().insert("q", ("Quit", callback(|v, _i, _s| {
-            v.quit_requested = true;
-        })));
+        h.borrow_mut().insert(
+            "vpoffset",
+            (
+                "Set viewport origin",
+                callback(|_v, i, s| {
+                    if s.len() != 2 {
+                        return;
+                    } // FIXME: Tell user about errors!
+                    if let (Ok(ox), Ok(oy)) = (s[0].parse(), s[1].parse()) {
+                        i.update_viewport(Some((ox, oy)), None);
+                    }
+                }),
+            ),
+        );
+
+        h.borrow_mut().insert(
+            "vpfactor",
+            (
+                "Set viewport zoom factor",
+                callback(|_v, i, s| {
+                    if s.len() != 1 {
+                        return;
+                    } // FIXME: Tell user about errors!
+                    if let Ok(factor) = s[0].parse() {
+                        i.update_viewport(None, Some(factor));
+                    }
+                }),
+            ),
+        );
+
+        h.borrow_mut().insert(
+            "q",
+            (
+                "Quit",
+                callback(|v, _i, _s| {
+                    v.quit_requested = true;
+                }),
+            ),
+        );
     })
 }
 

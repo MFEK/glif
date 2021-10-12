@@ -1,6 +1,6 @@
 use lazy_static::lazy_static;
 
-use crate::renderer::constants::CONSOLE_FONTS;
+use crate::constants::CONSOLE_FONTS;
 
 use font_kit::{
     family_name::FamilyName as FKFamilyName, handle::Handle as FKHandle, properties::Properties,

@@ -1,10 +1,10 @@
-use glifparser::glif::{HistoryType, HistoryEntry, MFEKPointData};
+use glifparser::glif::HistoryEntry;
 
 use super::Editor;
 
 pub struct History {
-    undo_stack: Vec<HistoryEntry<MFEKPointData>>,
-    pub redo_stack: Vec<HistoryEntry<MFEKPointData>>,
+    pub undo_stack: Vec<HistoryEntry>,
+    pub redo_stack: Vec<HistoryEntry>,
 }
 
 impl History {
@@ -17,7 +17,7 @@ impl History {
 }
 
 impl History {
-    pub fn add_undo_entry(&mut self, entry: HistoryEntry<MFEKPointData> ) {
+    pub fn add_undo_entry(&mut self, entry: HistoryEntry ) {
         log::debug!("Added undo entry: {0}", entry.description);
         self.undo_stack.push(entry);
         self.redo_stack.clear();
@@ -31,37 +31,16 @@ impl Editor {
         let entry = self.history.undo_stack.pop();
         
         if let Some(undo_entry) = entry {
-            self.history.redo_stack.push(HistoryEntry {
+            self.history.redo_stack.push( HistoryEntry {
                 description: "Undo".to_owned(),
                 layer_idx: self.layer_idx,
                 contour_idx: self.contour_idx,
                 point_idx: self.point_idx,
                 selected: Some(self.selected.clone()),
-                layer: undo_entry.layer.clone(),
-                kind: undo_entry.kind.clone()
+                glyph: self.glyph.as_ref().unwrap().clone(),
             });
     
-            match undo_entry.kind {
-                HistoryType::LayerModified => {
-                    self.glyph.as_mut().unwrap().layers[undo_entry.layer_idx.unwrap()] = undo_entry.layer;
-                }
-                HistoryType::LayerAdded => {
-                    self.glyph.as_mut().unwrap().layers.pop();
-                }
-                HistoryType::LayerDeleted { layer_operation } => {
-                    self.glyph.as_mut().unwrap().layers.insert(undo_entry.layer_idx.unwrap(), undo_entry.layer);
-                    if let Some(layerop) = layer_operation {
-                        self.glyph.as_mut().unwrap().layers[self.layer_idx.unwrap()+1].operation = Some(layerop);
-                    }
-                }
-                HistoryType::LayerMoved { to, from, layer_operation} => {
-                    self.swap_layers(to, from, false);
-                    if let Some(layerop) = layer_operation {
-                        self.glyph.as_mut().unwrap().layers[self.layer_idx.unwrap()+1].operation = Some(layerop);
-                    }
-                }
-            }
-
+            self.glyph = Some(undo_entry.glyph.clone());
             self.layer_idx = undo_entry.layer_idx;
             self.contour_idx = undo_entry.contour_idx;
             self.point_idx = undo_entry.point_idx;
@@ -84,26 +63,11 @@ impl Editor {
                 contour_idx: self.contour_idx,
                 point_idx: self.point_idx,
                 selected: Some(self.selected.clone()),
-                layer: self.glyph.as_ref().unwrap().layers[self.layer_idx.unwrap()].clone(),
-                kind: redo_entry.kind.clone()
+                glyph: self.glyph.as_ref().unwrap().clone(),
             });
     
 
-            match redo_entry.kind {
-                HistoryType::LayerModified => {
-                    self.glyph.as_mut().unwrap().layers[redo_entry.layer_idx.unwrap()] = redo_entry.layer;
-                }
-                HistoryType::LayerAdded => {
-                    self.glyph.as_mut().unwrap().layers.push(redo_entry.layer);
-                }
-                HistoryType::LayerDeleted { .. } => {
-                    self.glyph.as_mut().unwrap().layers.remove(redo_entry.layer_idx.unwrap());
-                }
-                HistoryType::LayerMoved { to, from, .. } => {
-                    self.swap_layers(from, to, false)
-                }
-            }
-
+            self.glyph = Some(redo_entry.glyph.clone());
             self.layer_idx = redo_entry.layer_idx;
             self.contour_idx = redo_entry.contour_idx;
             self.point_idx = redo_entry.point_idx;
@@ -113,5 +77,26 @@ impl Editor {
 
             self.mark_preview_dirty();
         }    
+    }
+
+    /// This function combines entries on the top of the undo stack that share a description.
+    pub fn collapse_history_entries(&mut self) {
+        let top_entry = self.history.undo_stack.pop();
+
+        if let Some(entry) = top_entry {
+            loop {
+                let next_entry = self.history.undo_stack.pop();
+                if let Some(next_entry) = next_entry {
+                    if next_entry.description != entry.description {
+                        self.history.undo_stack.push(next_entry);
+                        break;
+                    }
+                } else {
+                    break;
+                }
+            }
+
+            self.history.undo_stack.push(entry);
+        }
     }
 }

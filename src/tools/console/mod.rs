@@ -1,6 +1,8 @@
 // Console
-use crate::{CONSOLE, editor::Editor, util};
+
+/* TODO: Replace console!
 use crate::user_interface::Interface;
+use crate::{editor::Editor, util, CONSOLE};
 
 use clipboard::{ClipboardContext, ClipboardProvider};
 use lazy_static::lazy_static;
@@ -30,7 +32,6 @@ pub fn set_state(v: &mut Editor, i: &mut Interface, vk: Keycode, _m: Mod) {
 
 const CHAR_BACKSPACE: char = '\x08';
 
-use crate::editor::RendererConsole;
 impl RendererConsole {
     ///! Handle chars which will not trigger events (so, not :, Escape or Return)
     pub fn handle_ch(&mut self, ch: char) {
@@ -66,10 +67,12 @@ pub fn run_command(v: &mut Editor, i: &mut Interface, c: &mut RendererConsole) {
     let (command, args) = (&cmdline[0][1..], &cmdline[1..]);
 
     commands::MAP.with(|m| {
-        m.borrow_mut().get(command)
+        m.borrow_mut()
+            .get(command)
             .map(|(_, f)| f(v, i, args.to_vec().iter().map(|s| s.to_string()).collect()))
     });
 
     debug!("Command requested to be run: {:?}", (command, args));
     c.stdin.clear()
 }
+*/

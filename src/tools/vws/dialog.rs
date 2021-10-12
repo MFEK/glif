@@ -1,7 +1,10 @@
-use crate::user_interface::Interface;
-use glifparser::glif::{CapType, ContourOperations, JoinType};
-use super::VWS;
 use super::super::prelude::*;
+use super::util::*;
+use super::VWS;
+use crate::user_interface::Interface;
+use crate::user_interface::util::imgui_decimal_text_field;
+use crate::user_interface::util::imgui_decimal_text_field_f64;
+use glifparser::glif::{CapType, ContourOperations, JoinType};
 
 fn join_type_to_idx(jt: JoinType) -> usize {
     match jt {
@@ -43,7 +46,7 @@ impl VWS {
     fn build_and_check_vws_cap_combo(&self, v: &mut Editor, ui: &imgui::Ui) {
         let contour_idx = v.contour_idx.unwrap();
 
-        let _vws_contour = self.get_vws_contour(v, contour_idx);
+        let _vws_contour = get_vws_contour(v, contour_idx);
 
         if let Some(vws_contour) = _vws_contour {
             let old_s = cap_type_to_idx(vws_contour.cap_start_type);
@@ -80,17 +83,19 @@ impl VWS {
 
                 let new_op = ContourOperations::VariableWidthStroke { data: new_data };
 
-                v.begin_layer_modification("VWS dialog modification.");
-                v.with_active_layer_mut(|layer| layer.outline[contour_idx].operation = Some(new_op.clone()) );
-                v.end_layer_modification();
+                v.begin_modification("VWS dialog modification.");
+                v.with_active_layer_mut(|layer| {
+                    layer.outline[contour_idx].operation = Some(new_op.clone())
+                });
+                v.end_modification();
             }
         }
     }
 
-    fn build_and_check_vws_join_combo(&self, v: &mut Editor,  ui: &imgui::Ui) {
+    fn build_and_check_vws_join_combo(&self, v: &mut Editor, ui: &imgui::Ui) {
         let contour_idx = v.contour_idx.unwrap();
 
-        let _vws_contour = self.get_vws_contour(v, contour_idx);
+        let _vws_contour = get_vws_contour(v, contour_idx);
 
         if let Some(vws_contour) = _vws_contour {
             let mut current_selection = join_type_to_idx(vws_contour.join_type);
@@ -108,14 +113,16 @@ impl VWS {
             );
 
             let new_selection = idx_to_join_type(current_selection);
-            if new_selection != vws_contour.join_type{
+            if new_selection != vws_contour.join_type {
                 let mut new_data = vws_contour.clone();
                 new_data.join_type = new_selection;
                 let new_op = ContourOperations::VariableWidthStroke { data: new_data };
 
-                v.begin_layer_modification("VWS dialog modification.");
-                v.with_active_layer_mut(|layer| layer.outline[contour_idx].operation = Some(new_op.clone()) );
-                v.end_layer_modification();
+                v.begin_modification("VWS dialog modification.");
+                v.with_active_layer_mut(|layer| {
+                    layer.outline[contour_idx].operation = Some(new_op.clone())
+                });
+                v.end_modification();
             }
         }
     }
@@ -137,17 +144,42 @@ impl VWS {
                     | imgui::WindowFlags::NO_MOVE
                     | imgui::WindowFlags::NO_COLLAPSE,
             )
-            .position(
-                [tx, ty],
-                imgui::Condition::Always,
-            )
-            .size(
-                [tw, th],
-                imgui::Condition::Always,
-            )
+            .position([tx, ty], imgui::Condition::Always)
+            .size([tw, th], imgui::Condition::Always)
             .build(ui, || {
                 self.build_and_check_vws_cap_combo(v, ui);
                 self.build_and_check_vws_join_combo(v, ui);
+                ui.separator();
+
+                if let Some(pidx) = v.point_idx {
+                    let cidx = v.contour_idx.unwrap();
+                    let vws_contour_option = v.with_glyph(|glif| {
+                        get_vws_contour(v, cidx)
+                    });
+
+                    if let Some(vws_contour) = vws_contour_option {
+                        let mut working_vws_contour = vws_contour.clone();
+
+                        let mut constant_width = 0.;
+                        imgui_decimal_text_field("Constant Width", ui, &mut constant_width);
+                        
+                        if constant_width != 0. {
+                            v.begin_modification("VWS dialog modification.");
+                            set_all_vws_handles(v, WhichHandle::A, true, constant_width as f64);
+                            v.end_modification();
+                        }
+
+                        imgui_decimal_text_field_f64("Left Offset", ui, &mut working_vws_contour.handles[pidx].left_offset);
+                        imgui_decimal_text_field_f64("Right Offset", ui, &mut working_vws_contour.handles[pidx].right_offset);
+
+                        if working_vws_contour != vws_contour {
+                            v.begin_modification("VWS dialog modification.");
+                            set_vws_contour(v, cidx, working_vws_contour);
+                            v.end_modification();
+                        }
+                    }
+                }  
+
             });
     }
 }

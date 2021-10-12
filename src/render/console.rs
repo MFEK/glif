@@ -4,8 +4,8 @@
 //! represent the Console itself, but rather just what we show the user on the screen. We output to
 //! the normal stdout as well, that's the persistent stdout.
 
+use crate::{constants::CONSOLE_PADDING_Y_BOTTOM, user_interface::Interface};
 use lazy_static::lazy_static;
-use crate::user_interface::Interface;
 
 pub struct Console {
     pub stdin: String,
@@ -55,7 +55,6 @@ lazy_static! {
     };
 }
 
-use super::constants::*;
 use skulpin::skia_safe::{Canvas, Paint, PaintStyle, Path, Rect, TextBlob};
 impl Console {
     pub fn draw(&mut self, i: &Interface, canvas: &mut Canvas) {

@@ -1,19 +1,27 @@
-use std::{rc::Rc};
+pub mod follow;
+pub mod grid;
+pub mod gui;
+pub mod icons;
+pub mod mouse_input;
+pub mod sdl;
+pub mod skulpin;
+pub mod util;
 
+use std::rc::Rc;
+
+use crate::render;
+use crate::user_interface::gui::build_imgui_ui;
+use glifrenderer::viewport::Viewport;
+use ::skulpin::rafx::api::RafxExtents2D;
+use ::skulpin::Renderer;
 use imgui::{self, Context};
 use imgui_sdl2::ImguiSdl2;
 use sdl2::mouse::MouseState;
-use ::skulpin::Renderer;
-use ::skulpin::rafx::api::RafxExtents2D;
 
-
-use crate::renderer;
 use crate::editor::Editor;
-use crate::renderer::constants::HEIGHT;
-use crate::renderer::constants::WIDTH;
 pub use crate::user_interface::mouse_input::MouseInfo;
 use glifparser::glif::{Layer, MFEKPointData};
-use sdl2::{Sdl, video::Window};
+use sdl2::{video::Window, Sdl};
 
 use self::grid::Grid;
 pub use self::gui::ImguiManager;
@@ -21,15 +29,11 @@ use self::gui::LAYERBOX_HEIGHT;
 use self::gui::LAYERBOX_WIDTH;
 use self::gui::TOOLBOX_OFFSET_X;
 use self::gui::TOOLBOX_OFFSET_Y;
-use self::viewport::Viewport;
 
-pub mod icons;
-pub mod sdl;
-pub mod gui;
-pub mod viewport;
-pub mod skulpin;
-pub mod mouse_input;
-pub mod grid;
+/* Window */
+pub const HEIGHT: u32 = 800;
+pub const WIDTH: u32 = HEIGHT;
+pub const PAPER_DRAW_GUIDELINES: bool = false;
 
 pub struct Interface {
     prompts: Vec<InputPrompt>,
@@ -55,7 +59,7 @@ impl Interface {
             viewport: Viewport::default(),
         };
 
-        ret.viewport.winsize = (WIDTH as u32, HEIGHT as u32);
+        ret.viewport.winsize = (WIDTH as f32, HEIGHT as f32);
 
         return ret;
     }
@@ -67,7 +71,7 @@ impl Interface {
     pub fn peek_prompt(&self) -> &InputPrompt {
         return &self.prompts.first().unwrap();
     }
-    
+
     pub fn pop_prompt(&mut self) {
         self.prompts.pop();
     }
@@ -81,9 +85,17 @@ impl Interface {
         )
     }
 
-    pub fn render(&mut self, v: &mut Editor, imgui: &mut Context, imsdl2: &mut ImguiSdl2, imgui_renderer: &mut imgui_skia_renderer::Renderer, skulpin: &mut Renderer, mouse_state: &MouseState) {
+    pub fn render(
+        &mut self,
+        v: &mut Editor,
+        imgui: &mut Context,
+        imsdl2: &mut ImguiSdl2,
+        imgui_renderer: &mut imgui_skia_renderer::Renderer,
+        skulpin: &mut Renderer,
+        mouse_state: &MouseState,
+    ) {
         // build and render imgui
-        let dd = ImguiManager::build_imgui_ui(imgui, imsdl2, v, self, &mouse_state);
+        let dd = build_imgui_ui(imgui, imsdl2, v, self, &mouse_state);
 
         // draw glyph preview and imgui with skia
         let (window_width, window_height) = self.sdl_window.vulkan_drawable_size();
@@ -93,7 +105,7 @@ impl Interface {
         };
 
         let drew = skulpin.draw(extents, 1.0, |canvas, _coordinate_system_helper| {
-            renderer::render_frame(v, self, canvas);
+            render::render_frame(v, self, canvas);
             imgui_renderer.render_imgui(canvas, dd);
         });
 
@@ -105,6 +117,24 @@ impl Interface {
     pub fn push_prompt(&mut self, prompt: InputPrompt) {
         self.prompts.push(prompt);
     }
+
+    // this gets called by tools so it accepts &mut State
+    pub fn update_viewport(&mut self, offset: Option<(f32, f32)>, scale: Option<f32>) {
+        let offset = match offset {
+            None => self.viewport.offset,
+            Some(offset) => (
+                self.viewport.offset.0 + offset.0,
+                self.viewport.offset.1 + offset.1,
+            ),
+        };
+        let scale = match scale {
+            None => self.viewport.factor,
+            Some(scale) => scale,
+        };
+
+        self.viewport.factor = scale;
+        self.viewport.offset = offset;
+    }
 }
 
 #[derive(Clone)]
@@ -112,15 +142,15 @@ pub enum InputPrompt {
     Text {
         label: String,
         default: String,
-        func: Rc<dyn Fn(&mut Editor, String)>
+        func: Rc<dyn Fn(&mut Editor, String)>,
     },
     Color {
         label: String,
         default: [f32; 4],
-        func: Rc<dyn Fn(&mut Editor, Option<[f32; 4]>)>
+        func: Rc<dyn Fn(&mut Editor, Option<[f32; 4]>)>,
     },
     Layer {
         label: String,
-        func: Rc<dyn Fn(&mut Editor, Layer<MFEKPointData>)>
-    }
+        func: Rc<dyn Fn(&mut Editor, Layer<MFEKPointData>)>,
+    },
 }

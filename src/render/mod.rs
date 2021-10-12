@@ -1,37 +1,23 @@
-//! Skia renderer.
-
-use crate::{tools::EditorEvent, editor::{PreviewMode, Editor}};
-use crate::user_interface::Interface;
-use crate::CONSOLE;
-
-pub mod constants;
-use self::{constants::*};
-pub mod console;
-mod guidelines;
-pub mod points; // point drawing functions
-                // This imports calc_x, etc. which transforms coordinates between .glif and Skia
-pub use points::calc::{calc_x, calc_y};
-pub mod string;
-mod anchors;
-mod glyph;
-pub mod viewport;
 pub mod grid;
 
-use grid::draw_grid;
-use glifparser::Handle;
-use glifparser::matrix::ToSkiaMatrix as _;
-use log;
-use skulpin::skia_safe::{Canvas, Matrix, Paint};
+// TODO: Replace console! pub mod console;
 
+use glifparser::matrix::ToSkiaMatrix;
+use glifrenderer::anchors::draw_anchors;
+use glifrenderer::calc_x;
+use glifrenderer::calc_y;
+use glifrenderer::glyph::draw_components;
+use glifrenderer::guidelines;
+use glifrenderer::points;
+use glifrenderer::viewport;
+use glifrenderer::constants::*;
+use glifrenderer::toggles::*;
 
-#[derive(Clone, Copy, PartialEq)]
-pub enum UIPointType {
-    Point((Handle, Handle)),
-    Handle,
-    #[allow(unused)]
-    Anchor,
-    Direction,
-}
+use skulpin::skia_safe::Canvas;
+use skulpin::skia_safe::Matrix;
+
+use crate::user_interface::PAPER_DRAW_GUIDELINES;
+use crate::{editor::Editor, user_interface::Interface};
 
 pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
     canvas.save();
@@ -43,7 +29,7 @@ pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
     });
     // This will change the SkCanvas transformation matrix, and everything from here to
     // canvas.restore() will need to take that matrix into consideration.
-    viewport::redraw_viewport(i, canvas);
+    viewport::redraw_viewport(&i.viewport, canvas);
 
     let dropped = v.with_glyph(|glif| {
         let mut dropped = vec![];
@@ -74,31 +60,48 @@ pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
     });
 
     for dropee in dropped {
-        v.with_glyph_mut(|glif| {
+        v.with_glyph_mut_no_history(|glif| {
             for layer in glif.layers.iter_mut() {
-                layer.images.retain(|(gi, _)|gi.filename != dropee);
+                layer.images.retain(|(gi, _)| gi.filename != dropee);
             }
         });
     }
 
     if pm != PreviewMode::Paper || PAPER_DRAW_GUIDELINES {
-        guidelines::draw_all(v, &i.viewport, canvas);
+        v.with_glyph(|glif| {
+            guidelines::draw_all(glif, &i.viewport, canvas);
+        });
     }
 
     let active_layer = v.get_active_layer();
-    let path = glyph::draw(canvas, v, &i.viewport, active_layer);
+    let path = glifrenderer::glyph::draw(canvas, v.preview.as_ref().unwrap(), &i.viewport, active_layer);
+
+    v.with_glyph(|glyph| {
+        // Cache component rects and flattened outline on MFEKGlif
+        draw_components(glyph, &i.viewport, canvas);
+    });
+
 
     // TODO: let _path = glyph::draw_previews(v, canvas);
 
     match pm {
         PreviewMode::None => {
-            points::draw_all(v, &i.viewport, canvas);
-            points::draw_directions(&i.viewport, path, canvas);
-            anchors::draw_anchors(v, &i.viewport, canvas);
-            //points::draw_selected(v, canvas);
-            v.dispatch_editor_event(i, EditorEvent::Draw {
-                skia_canvas: canvas,
+            let active_layer = v.get_active_layer();
+            let cidx = v.contour_idx;
+            let pidx = v.point_idx;
+            let selected = v.selected.clone();
+
+            v.with_glyph(|glif| {
+                points::draw_all(glif, &i.viewport, active_layer, cidx, pidx, &selected, canvas);
             });
+            points::draw_directions(&i.viewport, path, canvas);
+            
+            v.with_glyph(|glif| {
+                draw_anchors(glif, &i.viewport, canvas);
+            });
+            //points::draw_selected(v, canvas);
+
+            v.dispatch_tool_draw(i, canvas);
         }
         PreviewMode::NoUnselectedPoints => {
             //points::draw_selected(v, canvas);
@@ -107,12 +110,12 @@ pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
     }
 
     if let Some(grid) = &i.grid {
-        draw_grid(canvas, grid, &i.viewport);
+        grid::draw_grid(canvas, grid, &i.viewport);
     }
-    
+
     // Reset transformation matrix
     canvas.restore();
 
     // Draw console
-    CONSOLE.with(|c| c.borrow_mut().draw(i, canvas));
+    // TODO: Replace console! CONSOLE.with(|c| c.borrow_mut().draw(i, canvas));
 }
