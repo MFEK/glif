@@ -22,7 +22,6 @@ impl SelectionBox {
 
     pub fn mouse_moved(&mut self, v: &mut Editor, _i: &mut Interface, mouse_info: MouseInfo) {
         self.corner = Some(mouse_info.position);
-        let last_selected = v.selected.clone();
         let selected = v.with_active_layer(|layer| {
             // we get out starting mouse position, and our current mouse position
             let c1 = self.mouse_info.position;
@@ -33,7 +32,7 @@ impl SelectionBox {
                 ((c2.0 - c1.0) as f32, (c2.1 - c1.1) as f32),
             );
 
-            build_box_selection(last_selected.clone(), rect, &layer.outline)
+            build_box_selection(rect, &layer.outline)
         });
 
         self.selected = selected
