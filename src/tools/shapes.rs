@@ -111,16 +111,13 @@ impl Shapes {
 
                 match self.stype {
                     ShapeType::RoundedRectangle => {
-                        imgui::Slider::new(imgui::im_str!("Roundness"))
-                            .range(1f32..=1000f32)
+                        imgui::Slider::new(imgui::im_str!("Roundness"), 1f32, 1000f32)
                             .build(ui, &mut self.sdata.rrect_radius);
                     }
                     ShapeType::Polygon => {
-                        imgui::Slider::new(imgui::im_str!("Sides"))
-                            .range(3u16..=50u16)
+                        imgui::Slider::new(imgui::im_str!("Sides"), 3u16, 50u16)
                             .build(ui, &mut self.sdata.polygon_sides);
-                        imgui::Slider::new(imgui::im_str!("Roundness"))
-                            .range(1f32..=1000f32)
+                        imgui::Slider::new(imgui::im_str!("Roundness"), 1f32, 1000f32)
                             .build(ui, &mut self.sdata.polygon_radius);
                         ui.checkbox(imgui::im_str!("Star?"), &mut self.sdata.polygon_evenodd);
                     }

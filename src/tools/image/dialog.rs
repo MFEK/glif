@@ -20,8 +20,8 @@ impl Image {
             .size([tw, th], imgui::Condition::Always)
             .build(ui, || {
                 if let Some(selected) = self.selected_idx {
-                    ui.button(imgui::im_str!("Color"), [0., 0.]);
-                    if ui.is_item_clicked(imgui::MouseButton::Left) {
+                    ui.button("Color");
+                    if ui.is_item_clicked() {
                         i.push_prompt(InputPrompt::Color {
                             label: "Layer color:".to_string(),
                             default: v
@@ -43,10 +43,10 @@ impl Image {
                             }),
                         });
                     }
-                    ui.same_line(0.);
+                    ui.same_line();
 
-                    ui.button(imgui::im_str!("Reset"), [0., 0.]);
-                    if ui.is_item_clicked(imgui::MouseButton::Left) {
+                    ui.button("Reset");
+                    if ui.is_item_clicked() {
                         let default_mat = kurbo::Affine::default();
                         v.begin_modification("Reset image transform.");
                         v.with_active_layer_mut(|layer| layer.images[selected].1 = default_mat);

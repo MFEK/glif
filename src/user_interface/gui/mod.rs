@@ -76,10 +76,10 @@ impl ImguiManager {
                     oversample_h: 3,
                     oversample_v: 3,
                     glyph_ranges: imgui::FontGlyphRanges::from_slice(&[
-                        0x0020 as u16,
-                        0x00FF as u16,
-                        0x03B8 as u16, // for Greek theta
-                        0x03B8 as u16, // for Greek theta
+                        0x0020 as u32,
+                        0x00FF as u32,
+                        0x03B8 as u32, // for Greek theta
+                        0x03B8 as u32, // for Greek theta
                         0,
                     ]),
                     ..Default::default()
@@ -90,8 +90,8 @@ impl ImguiManager {
                 size_pixels: icon_font_size,
                 config: Some(imgui::FontConfig {
                     glyph_ranges: imgui::FontGlyphRanges::from_slice(&[
-                        0xF000 as u16,
-                        0xF100 as u16,
+                        0xF000 as u32,
+                        0xF100 as u32,
                         0,
                     ]),
                     ..Default::default()
@@ -114,8 +114,8 @@ impl ImguiManager {
                 size_pixels: 28.,
                 config: Some(imgui::FontConfig {
                     glyph_ranges: imgui::FontGlyphRanges::from_slice(&[
-                        0xF000 as u16,
-                        0xF100 as u16,
+                        0xF000 as u32,
+                        0xF100 as u32,
                         0,
                     ]),
                     ..Default::default()
@@ -155,15 +155,15 @@ pub fn build_and_check_button(v: &mut Editor, ui: &imgui::Ui, mode: ToolEnum, ic
         pop_me = Some(ui.push_style_color(imgui::StyleColor::Button, [0., 0., 0., 0.2]));
     }
     // Icons are always constant so this is not really unsafe.
-    ui.button(
+    ui.button_with_size(
         unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icon) },
         [0., 30.],
     );
-    if ui.is_item_clicked(imgui::MouseButton::Left) {
+    if ui.is_item_clicked() {
         v.set_tool(mode);
     }
     if let Some(p) = pop_me {
-        p.pop(ui);
+        p.pop();
     }
 }
 
@@ -235,6 +235,6 @@ pub fn build_imgui_ui<'ui>(
     return ui.render();
 }
 
-thread_local! { pub static PROMPT_STR: RefCell<imgui::ImString> = RefCell::new(imgui::ImString::new("")); }
+thread_local! { pub static PROMPT_STR: RefCell<String> = RefCell::new(String::new()); }
 thread_local! { pub static PROMPT_CLR: RefCell<[f32; 4]> = RefCell::new([0., 0., 0., 1.]); }
 thread_local! { pub static FONT_IDS: RefCell<Vec<FontId>> = RefCell::new(vec!()); }

@@ -43,9 +43,9 @@ impl Select {
 
             imgui::Window::new(
                     &if multiple_points_selected {
-                        imgui::ImString::new("Points")
+                        String::from("Points")
                     } else {
-                        imgui::im_str!("Point ({}, {})", ci, pi)
+                        format!("Point ({}, {})", ci, pi)
                     }
                 )
                 .bg_alpha(1.) // See comment on fn redraw_skia
@@ -127,8 +127,8 @@ impl Select {
                     }
                     
                     if v.with_active_layer(|layer| {layer.outline[ci].operation.is_some()}) {
-                        ui.button(imgui::im_str!("Reset Contour Operation"), [0., 0.]);
-                        if ui.is_item_clicked(imgui::MouseButton::Left) {
+                        ui.button("Reset Contour Operation");
+                        if ui.is_item_clicked() {
                             should_clear_contour_op = true;
                         }
                     }

@@ -55,22 +55,13 @@ impl VWS {
             let mut e_current_selection = old_e;
 
             let options = [
-                imgui::im_str!("Round"),
-                imgui::im_str!("Square"),
-                imgui::im_str!("Custom"),
+                "Round",
+                "Square",
+                "Custom",
             ];
 
-            imgui::ComboBox::new(imgui::im_str!("Start")).build_simple_string(
-                ui,
-                &mut s_current_selection,
-                &options,
-            );
-
-            imgui::ComboBox::new(imgui::im_str!("End")).build_simple_string(
-                ui,
-                &mut e_current_selection,
-                &options,
-            );
+            ui.combo_simple_string("Start", &mut s_current_selection, &options);
+            ui.combo_simple_string("End", &mut e_current_selection, &options);
 
             let s_selection = idx_to_cap_type(s_current_selection);
             let e_selection = idx_to_cap_type(e_current_selection);
@@ -101,16 +92,12 @@ impl VWS {
             let mut current_selection = join_type_to_idx(vws_contour.join_type);
 
             let options = [
-                imgui::im_str!("Round"),
-                imgui::im_str!("Miter"),
-                imgui::im_str!("Bevel"),
+                "Round",
+                "Miter",
+                "Bevel",
             ];
 
-            imgui::ComboBox::new(imgui::im_str!("Joins")).build_simple_string(
-                ui,
-                &mut current_selection,
-                &options,
-            );
+            ui.combo_simple_string("Joins", &mut current_selection, &options);
 
             let new_selection = idx_to_join_type(current_selection);
             if new_selection != vws_contour.join_type {
@@ -137,7 +124,7 @@ impl VWS {
 
         let _contour_idx = v.contour_idx.unwrap();
 
-        imgui::Window::new(imgui::im_str!("VWS Settings"))
+        imgui::Window::new("VWS Settings")
             .bg_alpha(1.) // See comment on fn redraw_skia
             .flags(
                 imgui::WindowFlags::NO_RESIZE

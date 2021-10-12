@@ -6,8 +6,8 @@ use glifparser::glif::{ContourOperations, PatternCopies, PatternSubdivide};
 use imgui::Ui;
 
 fn imgui_decimal_text_field(label: &str, ui: &imgui::Ui, data: &mut f32) {
-    let mut x = imgui::im_str!("{}", data);
-    let label = imgui::ImString::new(label);
+    let mut x = format!("{}", data);
+    let label = String::from(label);
     let entered;
     {
         let it = ui.input_text(&label, &mut x);
@@ -19,8 +19,8 @@ fn imgui_decimal_text_field(label: &str, ui: &imgui::Ui, data: &mut f32) {
             .build();
     }
     if entered {
-        if x.to_str().len() > 0 {
-            let new_x: f32 = x.to_str().parse().unwrap();
+        if x.as_str().len() > 0 {
+            let new_x: f32 = x.as_str().parse().unwrap();
             *data = new_x;
         }
     }
@@ -91,11 +91,7 @@ impl PAP {
 
                         let options = [imgui::im_str!("Single"), imgui::im_str!("Repeated")];
 
-                        imgui::ComboBox::new(imgui::im_str!("Mode")).build_simple_string(
-                            ui,
-                            &mut new_repeat,
-                            &options,
-                        );
+                        ui.combo_simple_string("Mode", &mut new_repeat, &options);
 
                         let repeat_selection = idx_to_repeat_type(new_repeat);
 
@@ -126,11 +122,7 @@ impl PAP {
 
                         let mut new_subdivisions = cur_subdivisions;
 
-                        imgui::ComboBox::new(imgui::im_str!("Subdivisions")).build_simple_string(
-                            ui,
-                            &mut new_subdivisions,
-                            &options,
-                        );
+                        ui.combo_simple_string("Subdivisions", &mut new_subdivisions, &options);
 
                         if cur_subdivisions != new_subdivisions {
                             let mut new_data = data.clone();
@@ -169,11 +161,8 @@ impl PAP {
                         ];
             
                         let mut current_selection = stretch_type_to_idx(data.stretch);
-                        imgui::ComboBox::new(imgui::im_str!("Stretch")).build_simple_string(
-                            ui,
-                            &mut current_selection,
-                            &options,
-                        );
+                        
+                        ui.combo_simple_string("Stretch", &mut current_selection, &options);
 
                         let old_stretch = data.stretch;
                         let new_stretch = idx_to_stretch_type(current_selection);
@@ -252,7 +241,7 @@ impl PAP {
                         let mut new_x_scale = data.pattern_scale.0 as f32;
                         let mut new_y_scale = data.pattern_scale.1 as f32;
                         imgui_decimal_text_field("##", ui, &mut new_x_scale);
-                        ui.same_line(0.);
+                        ui.same_line();
                         imgui_decimal_text_field("Scale", ui, &mut new_y_scale);
 
                         if (new_x_scale as f64, new_y_scale as f64) != data.pattern_scale {
@@ -268,8 +257,7 @@ impl PAP {
                         }
 
                         let mut overdraw = data.prevent_overdraw;
-                        imgui::Slider::new(imgui::im_str!("Prevent Overdraw"))
-                            .range(0. ..= 1.)
+                        imgui::Slider::new(imgui::im_str!("Prevent Overdraw"), 0., 1.)
                             .build(ui, &mut overdraw);
 
                         if overdraw != data.prevent_overdraw {

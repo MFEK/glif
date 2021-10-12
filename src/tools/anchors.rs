@@ -67,7 +67,7 @@ impl Anchors {
 impl Anchors {
     fn anchor_settings(&mut self, v: &mut Editor, i: &Interface, ui: &imgui::Ui) {
         let (tx, ty, tw, th) = i.get_tools_dialog_rect();
-        imgui::Window::new(imgui::im_str!("Anchor Settings"))
+        imgui::Window::new(format!("Anchor Settings"))
             .bg_alpha(1.) // See comment on fn redraw_skia
             .flags(
                 imgui::WindowFlags::NO_RESIZE
@@ -80,10 +80,10 @@ impl Anchors {
                 if let Some(idx) = self.anchor_idx {
                     let glif_copy = v.with_glyph(|glif| {glif.clone()});
                     // X
-                    let mut x = imgui::im_str!("{}", glif_copy.anchors[idx].x);
+                    let mut x = format!("{}", glif_copy.anchors[idx].x);
                     let entered;
                     {
-                        let it = ui.input_text(imgui::im_str!("X"), &mut x);
+                        let it = ui.input_text(format!("X"), &mut x);
                         entered = it
                             .enter_returns_true(true)
                             .chars_decimal(true)
@@ -92,8 +92,8 @@ impl Anchors {
                             .build();
                     }
                     if entered {
-                        if x.to_str().len() > 0 {
-                            let new_x: f32 = x.to_str().parse().unwrap();
+                        if x.as_str().len() > 0 {
+                            let new_x: f32 = x.as_str().parse().unwrap();
                             v.begin_modification("Move anchor.");
                             v.with_glyph_mut(|glif| {
                                 glif.anchors[idx].x = new_x;
@@ -102,10 +102,10 @@ impl Anchors {
                         }
                     }
                     // Y
-                    let mut y = imgui::im_str!("{}", glif_copy.anchors[idx].y);
+                    let mut y = format!("{}", glif_copy.anchors[idx].y);
                     let entered;
                     {
-                        let it = ui.input_text(imgui::im_str!("Y"), &mut y);
+                        let it = ui.input_text(format!("Y"), &mut y);
                         entered = it
                             .enter_returns_true(true)
                             .chars_decimal(true)
@@ -114,8 +114,8 @@ impl Anchors {
                             .build();
                     }
                     if entered {
-                        if y.to_str().len() > 0 {
-                            let new_y: f32 = y.to_str().parse().unwrap();
+                        if y.as_str().len() > 0 {
+                            let new_y: f32 = y.as_str().parse().unwrap();
                             v.begin_modification("Move anchor.");
                             v.with_glyph_mut(|glif| {
                                 glif.anchors[idx].y = new_y;
@@ -124,10 +124,10 @@ impl Anchors {
                         }
                     }
                     // Class
-                    let mut class = imgui::im_str!("{}", &glif_copy.anchors[idx].class);
+                    let mut class = format!("{}", &glif_copy.anchors[idx].class);
                     let entered;
                     {
-                        let it = ui.input_text(imgui::im_str!("Class"), &mut class);
+                        let it = ui.input_text(format!("Class"), &mut class);
                         entered = it
                             .enter_returns_true(true)
                             .chars_noblank(true)
@@ -135,10 +135,10 @@ impl Anchors {
                             .build();
                     }
                     if entered {
-                        if class.to_str().len() > 0 {
+                        if class.as_str().len() > 0 {
                             v.begin_modification("Move anchor.");
                             v.with_glyph_mut(|glif| {
-                                glif.anchors[idx].class = class.to_str().to_string();
+                                glif.anchors[idx].class = class.as_str().to_string();
                             });
                             v.end_modification();
                         }

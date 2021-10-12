@@ -8,7 +8,7 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ui: &mut imgui
         return;
     };
 
-    imgui::Window::new(&imgui::im_str!("##"))
+    imgui::Window::new(format!("##"))
         .flags(
             imgui::WindowFlags::NO_RESIZE
                 | imgui::WindowFlags::NO_MOVE
@@ -22,8 +22,8 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ui: &mut imgui
             imgui::Condition::Always,
         )
         .build(ui, || {
-            ui.invisible_button(&imgui::im_str!("##"), [-1., -1.]);
-            if ui.is_item_clicked(imgui::MouseButton::Right) {
+            ui.invisible_button(format!("##"), [-1., -1.]);
+            if ui.is_item_clicked_with_button(imgui::MouseButton::Right) {
                 i.pop_prompt();
             }
         });
@@ -34,7 +34,7 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ui: &mut imgui
             default: _,
             func,
         } => {
-            imgui::Window::new(&imgui::im_str!("{}", label))
+            imgui::Window::new(format!("{}", label))
                 .bg_alpha(1.) // See comment on fn redraw_skia
                 .flags(imgui::WindowFlags::NO_RESIZE | imgui::WindowFlags::NO_COLLAPSE)
                 .position_pivot([0.5, 0.5])
@@ -54,12 +54,12 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ui: &mut imgui
                     PROMPT_STR.with(|prompt_str| {
                         ui.push_item_width(-1.);
                         prompt_str.borrow_mut().clear();
-                        ui.input_text(imgui::im_str!(""), &mut prompt_str.borrow_mut())
+                        ui.input_text("", &mut prompt_str.borrow_mut())
                             .build();
 
                         if ui.is_key_down(Key::Enter) {
                             let final_string = prompt_str.borrow().to_string();
-                            let mut new_string = imgui::ImString::new("");
+                            let mut new_string = String::new();
                             new_string.reserve(256);
                             prompt_str.replace(new_string);
                             func(v, final_string);
@@ -76,7 +76,7 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ui: &mut imgui
         } => {
             let mut color = PROMPT_CLR.with(|clr| clr.borrow_mut().clone());
 
-            imgui::Window::new(&imgui::im_str!("{}", label))
+            imgui::Window::new(format!("{}", label))
                 .bg_alpha(1.) // See comment on fn redraw_skia
                 .flags(imgui::WindowFlags::NO_RESIZE | imgui::WindowFlags::NO_COLLAPSE)
                 .position_pivot([0.5, 0.5])
@@ -94,7 +94,7 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ui: &mut imgui
                 .focused(true)
                 .build(ui, || {
                     PROMPT_CLR.with(|ui_color| {
-                        imgui::ColorPicker::new(&imgui::im_str!("{}", label), &mut color).build(ui);
+                        imgui::ColorPicker::new(format!("{}", label), &mut color).build(ui);
 
                         if ui.is_key_down(Key::Enter) {
                             ui_color.replace([0., 0., 0., 1.]);
@@ -102,8 +102,8 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ui: &mut imgui
                             i.pop_prompt();
                         }
 
-                        ui.button(imgui::im_str!("Automatic"), [0., 0.]);
-                        if ui.is_item_clicked(imgui::MouseButton::Left) {
+                        ui.button("Automatic");
+                        if ui.is_item_clicked() {
                             func(v, None);
                             i.pop_prompt();
                         }
@@ -114,7 +114,7 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ui: &mut imgui
         }
 
         InputPrompt::Layer { label, func } => {
-            imgui::Window::new(&imgui::im_str!("{}", label))
+            imgui::Window::new(format!("{}", label))
                 .bg_alpha(1.) // See comment on fn redraw_skia
                 .flags(imgui::WindowFlags::NO_RESIZE | imgui::WindowFlags::NO_COLLAPSE)
                 .position_pivot([0.5, 0.5])
@@ -134,17 +134,16 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ui: &mut imgui
                     let layer_count = v.with_glyph(|glif| glif.layers.len());
                     for layer in 0..layer_count {
                         let layer_op = v.with_glyph(|glif| glif.layers[layer].operation.clone());
-                        let layer_temp_name = imgui::im_str!(
+                        let im_str = format!(
                             "{0}",
                             v.with_glyph(|glif| { glif.layers[layer].name.clone() })
                         );
-                        let im_str = imgui::ImString::from(layer_temp_name);
 
                         let no_padding = ui.push_style_var(StyleVar::ItemSpacing([0., 0.]));
 
                         if layer_op.is_some() {
                             ui.dummy([28., 0.]);
-                            ui.same_line(0.);
+                            ui.same_line();
                         }
 
                         let mut pop_me = None;
@@ -153,15 +152,15 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ui: &mut imgui
                                 ui.push_style_color(imgui::StyleColor::Button, [0., 0., 0., 0.2]),
                             );
                         }
-                        ui.button(&im_str, [-1., 0.]);
-                        if ui.is_item_clicked(imgui::MouseButton::Left) {
+                        ui.button(&im_str);
+                        if ui.is_item_clicked() {
                             func(v, v.with_glyph(|glif| glif.layers[layer].clone()));
                             i.pop_prompt();
                         }
                         if let Some(p) = pop_me {
-                            p.pop(ui);
+                            p.pop();
                         }
-                        no_padding.pop(ui);
+                        no_padding.pop();
                     }
                 });
         }

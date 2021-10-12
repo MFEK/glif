@@ -6,10 +6,11 @@ use crate::user_interface::{icons, InputPrompt};
 use glifparser::IntegerOrFloat;
 use imgui::StyleColor;
 use std::rc::Rc;
+use std::str as stdstr;
 
 fn imgui_decimal_text_field(label: &str, ui: &imgui::Ui, data: &mut f32) {
-    let mut x = imgui::im_str!("{}", data);
-    let label = imgui::ImString::new(label);
+    let mut x = format!("{}", data);
+    let label = String::from(label);
     let entered;
     {
         let it = ui.input_text(&label, &mut x);
@@ -21,8 +22,8 @@ fn imgui_decimal_text_field(label: &str, ui: &imgui::Ui, data: &mut f32) {
             .build();
     }
     if entered {
-        if x.to_str().len() > 0 {
-            let new_x: f32 = x.to_str().parse().unwrap();
+        if x.as_str().len() > 0 {
+            let new_x: f32 = x.as_str().parse().unwrap();
             *data = new_x;
         }
     }
@@ -45,20 +46,18 @@ impl Guidelines {
                 let pop_me = ui.push_style_color(imgui::StyleColor::Button, [0., 0., 0., 0.2]);
 
                 ui.button(
-                    unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icons::PLUS) },
-                    [0., 0.],
+                    unsafe { stdstr::from_utf8_unchecked(icons::PLUS) },
                 );
-                if ui.is_item_clicked(imgui::MouseButton::Left) {
+                if ui.is_item_clicked() {
                     v.push_behavior(Box::new(AddGuideline::new()));
                 }
 
                 if let Some(selected) = self.selected_idx {
-                    ui.same_line(0.);
+                    ui.same_line();
                     ui.button(
-                        unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icons::MINUS) },
-                        [0., 0.],
+                        unsafe { stdstr::from_utf8_unchecked(icons::MINUS) },
                     );
-                    if ui.is_item_clicked(imgui::MouseButton::Left) {
+                    if ui.is_item_clicked() {
                         v.with_glyph_mut(|glyph| {
                             self.selected_idx = None;
                             glyph.guidelines.remove(selected);
@@ -66,19 +65,16 @@ impl Guidelines {
                     }
                 }
 
-                pop_me.pop(ui);
+                pop_me.pop();
 
                 ui.separator();
 
                 let guideline_count = v.with_glyph(|glif| glif.guidelines.len());
 
                 for guideline in 0..guideline_count {
-                    let guideline_name = v.with_glyph(|glif| {
+                    let im_str = v.with_glyph(|glif| {
                         { glif.guidelines[guideline].name.clone() }.unwrap_or("Unnamed".to_string())
                     });
-
-                    let guideline_display = imgui::im_str!("{0}", guideline_name);
-                    let im_str = imgui::ImString::from(guideline_display);
 
                     let font_token = ui.push_font(FONT_IDS.with(|ids| ids.borrow()[1]));
                     let custom_button_color = ui.push_style_color(
@@ -87,10 +83,9 @@ impl Guidelines {
                     );
 
                     ui.button(
-                        unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icons::RENAME) },
-                        [0., 0.],
+                        unsafe { stdstr::from_utf8_unchecked(icons::RENAME) },
                     );
-                    if ui.is_item_clicked(imgui::MouseButton::Left) {
+                    if ui.is_item_clicked() {
                         i.push_prompt(InputPrompt::Text {
                             label: "Guideline name:".to_string(),
                             default: v.with_glyph(|glyph| {
@@ -107,21 +102,21 @@ impl Guidelines {
                         });
                     }
 
-                    font_token.pop(ui);
-                    custom_button_color.pop(ui);
+                    font_token.pop();
+                    custom_button_color.pop();
 
-                    ui.same_line(0.);
+                    ui.same_line();
                     let mut pop_me = None;
                     if self.selected_idx != Some(guideline) {
                         pop_me =
                             Some(ui.push_style_color(imgui::StyleColor::Button, [0., 0., 0., 0.2]));
                     }
-                    ui.button(&im_str, [-1., 0.]);
-                    if ui.is_item_clicked(imgui::MouseButton::Left) {
+                    ui.button(&im_str);
+                    if ui.is_item_clicked() {
                         self.selected_idx = Some(guideline);
                     }
                     if let Some(p) = pop_me {
-                        p.pop(ui);
+                        p.pop();
                     }
                 }
             });

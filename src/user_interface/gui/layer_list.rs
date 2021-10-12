@@ -1,4 +1,5 @@
 use std::rc::Rc;
+use std::str as stdstr;
 
 use glifparser::glif::LayerOperation;
 use imgui::{ColorStackToken, StyleColor, StyleVar};
@@ -13,30 +14,27 @@ pub fn build_and_check_layer_list(v: &mut Editor, i: &mut Interface, ui: &imgui:
     let pop_me = ui.push_style_color(imgui::StyleColor::Button, [0., 0., 0., 0.2]);
 
     ui.button(
-        unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icons::PLUS) },
-        [0., 0.],
+        unsafe { stdstr::from_utf8_unchecked(icons::PLUS) },
     );
     //ui.push_item_width(-0.5);
-    if ui.is_item_clicked(imgui::MouseButton::Left) {
+    if ui.is_item_clicked() {
         v.new_layer();
     }
 
-    ui.same_line(0.);
+    ui.same_line();
     ui.button(
-        unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icons::MINUS) },
-        [0., 0.],
+        unsafe { stdstr::from_utf8_unchecked(icons::MINUS) },
     );
     ui.push_item_width(-0.5);
-    if ui.is_item_clicked(imgui::MouseButton::Left) {
+    if ui.is_item_clicked() {
         v.delete_layer();
     }
 
-    ui.same_line(0.);
+    ui.same_line();
     ui.button(
-        unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icons::ARROWUP) },
-        [0., 0.],
+        unsafe { stdstr::from_utf8_unchecked(icons::ARROWUP) },
     );
-    if ui.is_item_clicked(imgui::MouseButton::Left) {
+    if ui.is_item_clicked() {
         if active_layer != 0 {
             let _start_layer_type =
                 v.with_glyph(|glif| glif.layers[active_layer].operation.clone());
@@ -48,28 +46,26 @@ pub fn build_and_check_layer_list(v: &mut Editor, i: &mut Interface, ui: &imgui:
     }
 
     let layer_count = v.get_layer_count();
-    ui.same_line(0.);
+    ui.same_line();
     ui.button(
-        unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icons::ARROWDOWN) },
-        [0., 0.],
+        unsafe { stdstr::from_utf8_unchecked(icons::ARROWDOWN) },
     );
-    if ui.is_item_clicked(imgui::MouseButton::Left) {
+    if ui.is_item_clicked() {
         if active_layer != layer_count - 1 {
             v.swap_layers(active_layer, active_layer + 1, true);
         }
     }
 
-    pop_me.pop(ui);
+    pop_me.pop();
 
     ui.separator();
 
     for layer in 0..layer_count {
         let layer_op = v.with_glyph(|glif| glif.layers[layer].operation.clone());
-        let layer_temp_name = imgui::im_str!(
+        let im_str = format!(
             "{0}",
             v.with_glyph(|glif| { glif.layers[layer].name.clone() })
         );
-        let im_str = imgui::ImString::from(layer_temp_name);
 
         let font_token = ui.push_font(FONT_IDS.with(|ids| ids.borrow()[1]));
         let no_padding = ui.push_style_var(StyleVar::ItemSpacing([0., 0.]));
@@ -80,7 +76,7 @@ pub fn build_and_check_layer_list(v: &mut Editor, i: &mut Interface, ui: &imgui:
 
         if layer_op.is_some() {
             ui.dummy([28., 0.]);
-            ui.same_line(0.);
+            ui.same_line();
         }
         let layer_visible = v.with_glyph(|glif| glif.layers[layer].visible);
         let eye_con = if layer_visible {
@@ -89,10 +85,9 @@ pub fn build_and_check_layer_list(v: &mut Editor, i: &mut Interface, ui: &imgui:
             icons::CLOSEDEYE
         };
         ui.button(
-            unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(eye_con) },
-            [0., 0.],
+            unsafe { stdstr::from_utf8_unchecked(eye_con) },
         );
-        if ui.is_item_clicked(imgui::MouseButton::Left) {
+        if ui.is_item_clicked() {
             let active_layer = v.get_active_layer();
             v.set_active_layer(layer);
 
@@ -103,12 +98,11 @@ pub fn build_and_check_layer_list(v: &mut Editor, i: &mut Interface, ui: &imgui:
             v.set_active_layer(active_layer);
         }
 
-        ui.same_line(0.);
+        ui.same_line();
         ui.button(
-            unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icons::RENAME) },
-            [0., 0.],
+            unsafe { stdstr::from_utf8_unchecked(icons::RENAME) },
         );
-        if ui.is_item_clicked(imgui::MouseButton::Left) {
+        if ui.is_item_clicked() {
             i.push_prompt(InputPrompt::Text {
                 label: "Layer name:".to_string(),
                 default: v.with_glyph(|glif| glif.layers[layer].name.clone()),
@@ -124,7 +118,7 @@ pub fn build_and_check_layer_list(v: &mut Editor, i: &mut Interface, ui: &imgui:
                 }),
             });
         }
-        ui.same_line(0.);
+        ui.same_line();
 
         let current_operation = v.with_glyph(|glif| glif.layers[layer].operation.clone());
         let icon = match current_operation.as_ref() {
@@ -137,10 +131,9 @@ pub fn build_and_check_layer_list(v: &mut Editor, i: &mut Interface, ui: &imgui:
             None => icons::LAYERCOMBINE,
         };
         ui.button(
-            unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icon) },
-            [0., 0.],
+            unsafe { stdstr::from_utf8_unchecked(icon) },
         );
-        if ui.is_item_clicked(imgui::MouseButton::Right) {
+        if ui.is_item_clicked() {
             let active_layer = v.get_active_layer();
             v.set_active_layer(layer);
             v.begin_modification("Changed layer operation.");
@@ -150,7 +143,7 @@ pub fn build_and_check_layer_list(v: &mut Editor, i: &mut Interface, ui: &imgui:
             v.end_modification();
             v.set_active_layer(active_layer);
         }
-        if ui.is_item_clicked(imgui::MouseButton::Left) {
+        if ui.is_item_clicked() {
             let new_operation = match current_operation {
                 Some(op) => match op {
                     LayerOperation::Difference => Some(LayerOperation::Union),
@@ -172,14 +165,14 @@ pub fn build_and_check_layer_list(v: &mut Editor, i: &mut Interface, ui: &imgui:
         }
 
         if layer_op.is_none() {
-            ui.same_line(0.);
+            ui.same_line();
             let mut color_token: Option<ColorStackToken> = None;
             let _default_color: Option<[f32; 4]> = None;
             if let Some(color) = v.with_glyph(|glif| glif.layers[layer].color) {
                 color_token = Some(ui.push_style_color(imgui::StyleColor::Button, color.into()));
             }
-            ui.button(imgui::im_str!("##"), [0., 0.]);
-            if ui.is_item_clicked(imgui::MouseButton::Left) {
+            ui.button("##");
+            if ui.is_item_clicked() {
                 i.push_prompt(InputPrompt::Color {
                     label: "Layer color:".to_string(),
                     default: v
@@ -201,25 +194,25 @@ pub fn build_and_check_layer_list(v: &mut Editor, i: &mut Interface, ui: &imgui:
             }
 
             if let Some(token) = color_token {
-                token.pop(ui);
+                token.pop();
             }
         }
 
-        font_token.pop(ui);
-        custom_button_color.pop(ui);
+        font_token.pop();
+        custom_button_color.pop();
 
-        ui.same_line(0.);
+        ui.same_line();
         let mut pop_me = None;
         if active_layer != layer {
             pop_me = Some(ui.push_style_color(imgui::StyleColor::Button, [0., 0., 0., 0.2]));
         }
-        ui.button(&im_str, [-1., 0.]);
-        if ui.is_item_clicked(imgui::MouseButton::Left) {
+        ui.button(&im_str);
+        if ui.is_item_clicked() {
             v.set_active_layer(layer);
         }
         if let Some(p) = pop_me {
-            p.pop(ui);
+            p.pop();
         }
-        no_padding.pop(ui);
+        no_padding.pop();
     }
 }
