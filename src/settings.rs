@@ -11,7 +11,7 @@ lazy_static! {
         ret.push("glif");
         log::info!("Configuration directory is {:?}", &ret);
 
-        fs::create_dir_all(ret.clone().to_path_buf());
+        fs::create_dir_all(ret.clone().to_path_buf()).unwrap();
 
         ret
     };

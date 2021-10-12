@@ -153,7 +153,7 @@ impl VWS {
 
                 if let Some(pidx) = v.point_idx {
                     let cidx = v.contour_idx.unwrap();
-                    let vws_contour_option = v.with_glyph(|glif| {
+                    let vws_contour_option = v.with_glyph(|_| {
                         get_vws_contour(v, cidx)
                     });
 

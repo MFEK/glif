@@ -52,7 +52,7 @@ clipboard = "0.5"
 
 # Logging
 log = "0.4"
-env_logger = "0.8"
+env_logger = "0.9"
 
 # Gives us derive(Display)
 derive_more = "0.99"
@@ -86,11 +86,11 @@ xmltree = "0.10"
 dyn-clone = "1.0"
 
 #config file directory resolution
-directories = "3"
+directories = "4"
 
 #converting enums to strings
-strum = "0.21"
-strum_macros = "0.21"
+strum = "0.22"
+strum_macros = "0.22"
 
 #for logo, could be used in future for background images
 image = { version = "0.23", features = ["png"], default-features = false }
