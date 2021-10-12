@@ -68,7 +68,7 @@ On Ubuntu, these three packages provide the dependencies: `libgtk-3-dev` `libxcb
 
 * Download and install [`rustup`](https://rustup.rs/), selecting the `nightly` toolchain.
 * Pull this repository, and finally
-* Run the below command to get started.
+* Compile the project. An example command is in § Contributing; you may also find the provided `Makefile` helpful.
 
 ### Errors?
 
