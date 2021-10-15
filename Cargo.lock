@@ -1109,7 +1109,7 @@ dependencies = [
 [[package]]
 name = "glifparser"
 version = "1.0.0"
-source = "git+https://github.com/MFEK/glifparser.rlib?branch=master#eff8b3aff71e05c71c2845b62838e96b41454feb"
+source = "git+https://github.com/MFEK/glifparser.rlib?branch=master#7a89e234e2b1b4f555fe8b93ff7b15f4fbfb7f74"
 dependencies = [
  "image",
  "integer_or_float",
