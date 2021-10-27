@@ -64,7 +64,7 @@ impl Select {
                 )
                 .build(ui, || {
                     if multiple_points_selected {
-                        ui.text(imgui::im_str!("Multiple points selected"));
+                        ui.text("Multiple points selected");
                         return
                     }
                     
@@ -76,8 +76,8 @@ impl Select {
                     // A
                     let mut a_colocated = point.a == Handle::Colocated;
                     if !on_last_open_point {
-                        ui.text(imgui::im_str!("Next off-curve point"));
-                        ui.checkbox(imgui::im_str!("A Colocated"), &mut a_colocated);
+                        ui.text("Next off-curve point");
+                        ui.checkbox("A Colocated", &mut a_colocated);
                         // AX
                         let (mut ax, mut ay) = point.handle_or_colocated(WhichHandle::A, |f|f, |f|f);
                         let orig_axy = (ax, ay);
@@ -102,8 +102,8 @@ impl Select {
                     // B
                     let mut b_colocated = point.b == Handle::Colocated;
                     if !on_first_open_point {
-                        ui.text(imgui::im_str!("Previous off-curve point"));
-                        ui.checkbox(imgui::im_str!("B Colocated"), &mut b_colocated);
+                        ui.text("Previous off-curve point");
+                        ui.checkbox("B Colocated", &mut b_colocated);
                         // BX
                         let (mut bx, mut by) = point.handle_or_colocated(WhichHandle::B, |f|f, |f|f);
                         let orig_bxy = (bx, by);

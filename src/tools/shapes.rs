@@ -81,7 +81,7 @@ impl Shapes {
 
     fn shape_settings(&mut self, i: &mut Interface, ui: &imgui::Ui) {
         let (tx, ty, tw, th) = i.get_tools_dialog_rect();
-        imgui::Window::new(imgui::im_str!("Shape Settings"))
+        imgui::Window::new("Shape Settings")
             .bg_alpha(1.) // See comment on fn redraw_skia
             .flags(
                 imgui::WindowFlags::NO_RESIZE
@@ -91,35 +91,35 @@ impl Shapes {
             .position([tx, ty], imgui::Condition::Always)
             .size([tw, th], imgui::Condition::Always)
             .build(ui, || {
-                ui.radio_button(imgui::im_str!("Circle"), &mut self.stype, ShapeType::Circle);
-                ui.radio_button(imgui::im_str!("Oval"), &mut self.stype, ShapeType::Oval);
+                ui.radio_button("Circle", &mut self.stype, ShapeType::Circle);
+                ui.radio_button("Oval", &mut self.stype, ShapeType::Oval);
                 ui.radio_button(
-                    imgui::im_str!("Rectangle"),
+                    "Rectangle",
                     &mut self.stype,
                     ShapeType::Rectangle,
                 );
                 ui.radio_button(
-                    imgui::im_str!("Rounded Rectangle"),
+                    "Rounded Rectangle",
                     &mut self.stype,
                     ShapeType::RoundedRectangle,
                 );
                 ui.radio_button(
-                    imgui::im_str!("Polygon (Star)"),
+                    "Polygon (Star)",
                     &mut self.stype,
                     ShapeType::Polygon,
                 );
 
                 match self.stype {
                     ShapeType::RoundedRectangle => {
-                        imgui::Slider::new(imgui::im_str!("Roundness"), 1f32, 1000f32)
+                        imgui::Slider::new("Roundness", 1f32, 1000f32)
                             .build(ui, &mut self.sdata.rrect_radius);
                     }
                     ShapeType::Polygon => {
-                        imgui::Slider::new(imgui::im_str!("Sides"), 3u16, 50u16)
+                        imgui::Slider::new("Sides", 3u16, 50u16)
                             .build(ui, &mut self.sdata.polygon_sides);
-                        imgui::Slider::new(imgui::im_str!("Roundness"), 1f32, 1000f32)
+                        imgui::Slider::new("Roundness", 1f32, 1000f32)
                             .build(ui, &mut self.sdata.polygon_radius);
-                        ui.checkbox(imgui::im_str!("Star?"), &mut self.sdata.polygon_evenodd);
+                        ui.checkbox("Star?", &mut self.sdata.polygon_evenodd);
                     }
                     _ => (),
                 }

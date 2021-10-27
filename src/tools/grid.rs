@@ -48,7 +48,7 @@ impl GridTool {
                 let old_active = i.grid.is_some();
                 let mut active = old_active;
 
-                ui.checkbox(imgui::im_str!("Active"), &mut active);
+                ui.checkbox("Active", &mut active);
 
                 if !active {
                     i.grid = None;
@@ -66,7 +66,7 @@ impl GridTool {
 
                     let old_italic = grid.slope.is_some();
                     let mut italic = grid.slope.is_some();
-                    ui.checkbox(imgui::im_str!("Italic"), &mut italic);
+                    ui.checkbox("Italic", &mut italic);
                     if italic != old_italic && italic {
                         grid.slope = Some(0.5);
                     } else if italic != old_italic && !italic {

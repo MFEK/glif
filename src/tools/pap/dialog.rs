@@ -89,7 +89,7 @@ impl PAP {
                         let old_repeat = repeat_type_to_idx(data.copies.clone());
                         let mut new_repeat = old_repeat;
 
-                        let options = [imgui::im_str!("Single"), imgui::im_str!("Repeated")];
+                        let options = ["Single", "Repeated"];
 
                         ui.combo_simple_string("Mode", &mut new_repeat, &options);
 
@@ -109,10 +109,10 @@ impl PAP {
                         }
 
                         let options = [
-                            imgui::im_str!("0"),
-                            imgui::im_str!("1"),
-                            imgui::im_str!("2"),
-                            imgui::im_str!("3"),
+                            "0",
+                            "1",
+                            "2",
+                            "3",
                         ];
 
                         let cur_subdivisions = match data.subdivide {
@@ -141,7 +141,7 @@ impl PAP {
                         }
 
                         let mut new_center = data.center_pattern;
-                        ui.checkbox(imgui::im_str!("Center"), &mut new_center);
+                        ui.checkbox("Center", &mut new_center);
                         if new_center != data.center_pattern {
                             let mut new_data = data.clone();
                             new_data.center_pattern = new_center;
@@ -155,9 +155,9 @@ impl PAP {
                         }
 
                         let options = [
-                            imgui::im_str!("Off"),
-                            imgui::im_str!("On"),
-                            imgui::im_str!("Spacing"),
+                            "Off",
+                            "On",
+                            "Spacing",
                         ];
             
                         let mut current_selection = stretch_type_to_idx(data.stretch);
@@ -180,7 +180,7 @@ impl PAP {
 
                         let old_simplify = data.simplify;
                         let mut new_simplify = old_simplify;
-                        ui.checkbox(imgui::im_str!("Simplify"), &mut new_simplify);
+                        ui.checkbox("Simplify", &mut new_simplify);
                         if old_simplify != new_simplify {
                             let mut new_data = data.clone();
                             new_data.simplify = new_simplify;
@@ -257,7 +257,7 @@ impl PAP {
                         }
 
                         let mut overdraw = data.prevent_overdraw;
-                        imgui::Slider::new(imgui::im_str!("Prevent Overdraw"), 0., 1.)
+                        imgui::Slider::new("Prevent Overdraw", 0., 1.)
                             .build(ui, &mut overdraw);
 
                         if overdraw != data.prevent_overdraw {
@@ -275,7 +275,7 @@ impl PAP {
                         
                         let old_twopass = data.two_pass_culling;
                         let mut new_twopass = old_twopass;
-                        ui.checkbox(imgui::im_str!("Two-pass Culling"), &mut new_twopass);
+                        ui.checkbox("Two-pass Culling", &mut new_twopass);
                         if old_twopass != new_twopass {
                             let mut new_data = data.clone();
                             new_data.two_pass_culling = new_twopass;
@@ -289,7 +289,7 @@ impl PAP {
                         }
 
                         let mut reverse_culling = data.reverse_culling;
-                        ui.checkbox(imgui::im_str!("Reverse Culling"), &mut reverse_culling);
+                        ui.checkbox("Reverse Culling", &mut reverse_culling);
                         if reverse_culling != data.reverse_culling {
                             let mut new_data = data.clone();
                             new_data.reverse_culling = reverse_culling;
@@ -303,7 +303,7 @@ impl PAP {
                         }
 
                         let mut reverse_path = data.reverse_path;
-                        ui.checkbox(imgui::im_str!("Reverse"), &mut reverse_path);
+                        ui.checkbox("Reverse", &mut reverse_path);
 
                         if reverse_path != data.reverse_path {
                             let mut new_data = data.clone();

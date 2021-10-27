@@ -177,7 +177,7 @@ pub fn build_imgui_ui<'ui>(
     imsdl2.prepare_frame(context.io_mut(), &i.sdl_window, mouse_state);
     let mut ui = context.frame();
 
-    imgui::Window::new(imgui::im_str!("Tools"))
+    imgui::Window::new("Tools")
         .bg_alpha(1.) // See comment on fn redraw_skia
         .flags(
             imgui::WindowFlags::NO_RESIZE
@@ -210,7 +210,7 @@ pub fn build_imgui_ui<'ui>(
             build_and_check_button(v, &ui, ToolEnum::Guidelines, &icons::GUIDELINES);
         });
 
-    imgui::Window::new(imgui::im_str!("Layers"))
+    imgui::Window::new("Layers")
         .bg_alpha(1.)
         .flags(
             imgui::WindowFlags::NO_RESIZE
