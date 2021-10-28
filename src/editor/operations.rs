@@ -55,7 +55,6 @@ impl Editor {
                 }
             ).unwrap_or_else(|e| log::error!("Failed to draw components: {:?}", e));
 
-
         self.preview = Some(self.glyph.as_ref().unwrap().clone());
         self.preview.as_mut().unwrap().layers = preview_layers;
         self.preview_dirty = false;
@@ -67,8 +66,7 @@ impl Editor {
         // MFEKGlif always has a layer zero so this is safe. (No it isn't, it can be invisible. TODO: Fix this.)
         let mut last_combine_layer: Layer<MFEKPointData> = glif.layers[0].clone();
         let mut exported_layers: Vec<Layer<MFEKPointData>> = vec![];
-        let new_combine_paths = last_combine_layer.outline.to_skia_paths(None).closed;
-        let mut current_layer_group = new_combine_paths.unwrap_or(Path::new());
+        let mut current_layer_group = last_combine_layer.outline.to_skia_paths(None).combined();
 
         for (layer_idx, layer) in glif.layers.iter().enumerate() {
             if !layer.visible {
@@ -89,14 +87,12 @@ impl Editor {
                         LayerOperation::XOR => PathOp::XOR,
                     };
 
-                    if let Some(closed) = skpaths.closed {
-                        if let Some(result) = current_layer_group
-                            .op(&closed, pathop)
-                            .unwrap()
-                            .as_winding()
-                        {
-                            current_layer_group = result;
-                        }
+                    if let Some(result) = current_layer_group
+                        .op(&(skpaths.combined()), pathop)
+                        .unwrap()
+                        .as_winding()
+                    {
+                        current_layer_group = result;
                     }
                 }
 
@@ -109,8 +105,7 @@ impl Editor {
                     combined_layer.outline = mfek_outline;
                     exported_layers.push(combined_layer);
 
-                    let new_combine_paths = layer.outline.to_skia_paths(None).closed;
-                    current_layer_group = new_combine_paths.unwrap_or(Path::new());
+                    current_layer_group = layer.outline.to_skia_paths(None).combined();
                 }
             }
         }
