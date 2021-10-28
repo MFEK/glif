@@ -47,13 +47,12 @@ dependencies = [
 [[package]]
 name = "MFEKmath"
 version = "0.1.0"
-source = "git+https://github.com/MFEK/math.rlib?branch=main#73ea0251b25bbac1619ac764427797fd244754b8"
+source = "git+https://github.com/MFEK/math.rlib?branch=main#b10df16d3438392ec267ef7efb9a3a4eba97fb47"
 dependencies = [
  "flo_curves",
  "glifparser",
  "skia-safe",
  "xmltree",
- "xmlwriter",
 ]
 
 [[package]]
@@ -1133,8 +1132,8 @@ dependencies = [
 
 [[package]]
 name = "glifparser"
-version = "1.0.0"
-source = "git+https://github.com/MFEK/glifparser.rlib?branch=master#d0dc8d27b76af9e83de1103e3e11e797d7bde593"
+version = "1.1.0"
+source = "git+https://github.com/MFEK/glifparser.rlib?branch=master#2cb06a7f2b4ecadc4cfb08ed7768acd293ac84ea"
 dependencies = [
  "image",
  "integer_or_float",
@@ -1151,7 +1150,7 @@ dependencies = [
 [[package]]
 name = "glifrenderer"
 version = "0.1.0"
-source = "git+https://github.com/MFEK/glifrenderer.rlib#8fedda8c21531a2b0548455d61ece19268e8426d"
+source = "git+https://github.com/MFEK/glifrenderer.rlib#39a33ff35b2e61b1dc60157c2526f702a4467488"
 dependencies = [
  "derive_more",
  "enum-iterator",
@@ -1359,7 +1358,7 @@ dependencies = [
 [[package]]
 name = "integer_or_float"
 version = "0.1.0"
-source = "git+https://github.com/MFEK/integer_or_float.rlib?branch=main#5fd0511db06cf71aa304023365eee3fd3dfcd823"
+source = "git+https://github.com/MFEK/integer_or_float.rlib?branch=main#d9461928836901f6a6bfe91de16a997e8ebc7136"
 dependencies = [
  "serde",
 ]
@@ -2749,9 +2748,3 @@ checksum = "d7d8a75eaf6557bb84a65ace8609883db44a29951042ada9b393151532e41fcb"
 dependencies = [
  "xml-rs",
 ]
-
-[[package]]
-name = "xmlwriter"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ec7a2a501ed189703dba8b08142f057e887dfc4b2cc4db2d343ac6376ba3e0b9"
