@@ -3,7 +3,7 @@ use glifparser::{
     glif::{Layer, LayerOperation, MFEKPointData},
     MFEKGlif, Outline,
 };
-use skulpin::skia_safe::{Path, PathOp};
+use skulpin::skia_safe::PathOp;
 use glifparser::FlattenedGlif;
 use crate::contour_operations;
 

@@ -10,7 +10,6 @@ mod dialog;
 #[derive(Clone)]
 pub struct Guidelines {
     selected_idx: Option<usize>,
-    move_position: Option<(f32, f32)>,
 }
 
 impl Tool for Guidelines {
@@ -40,7 +39,6 @@ impl Guidelines {
     pub fn new() -> Self {
         Self {
             selected_idx: None,
-            move_position: None,
         }
     }
 

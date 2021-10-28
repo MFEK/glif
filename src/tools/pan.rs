@@ -8,6 +8,7 @@ use crate::user_interface::Interface;
 // mouse position and set the camera accordingly.
 #[derive(Clone)]
 pub struct Pan {
+    #[allow(unused)]
     last_position: Option<(f32, f32)>,
 }
 
