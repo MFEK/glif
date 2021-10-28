@@ -245,6 +245,9 @@ fn main() {
                         Command::IOFlatten => {
                             editor.flatten_glif(true);
                         }
+                        Command::IOSaveFlatten => {
+                            editor.flatten_glif(false);
+                        }
                         Command::IOExport => {
                             editor.export_glif();
                         }

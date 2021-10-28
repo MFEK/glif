@@ -50,6 +50,7 @@ pub enum Command {
     IOOpen,
     IOSave,
     IOSaveAs,
+    IOSaveFlatten,
     IOFlatten,
     IOExport,
 
