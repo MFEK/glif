@@ -74,6 +74,10 @@ On Ubuntu, these three packages provide the dependencies: `libgtk-3-dev` `libxcb
 
 If you previously pulled the repository and get errors related to `glifparser`, `mfek-ipc`, or another local unstable dependency, try running `cargo update` to force Cargo to pull the latest versions from GitHub.
 
+### Note on system SDL2
+
+By default, MFEKglif compiles and statically links to SDL2. If you have SDL2 installed, or find compiling it difficult for some reason and wish to link to a binary SDL2, you should provide the flag `--no-default-features` to `cargo build`. This will disable the features `sdl2/bundled` and `sdl2/static-link`, and your system will attempt to link to a dynamic [libSDL2](https://www.libsdl.org/).
+
 ## Contributing
 
 I typically build and run MFEKglif like this:

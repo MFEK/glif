@@ -104,6 +104,8 @@ plist = "1"
 # we use this for affine matrices in some of our data types
 kurbo = {version = "0.8", features = ["serde"]}
 
+[features]
+default = ["sdl2/bundled", "sdl2/static-link"]
 
 # See src/util/mod.rs::set_codepage_utf8
 [target.'cfg(windows)'.dependencies]
