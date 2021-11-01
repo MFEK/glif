@@ -17,7 +17,7 @@ dependencies = [
  "enum-iterator",
  "enum-unitary",
  "env_logger 0.9.0",
- "flo_curves",
+ "flo_curves 0.4.2",
  "font-kit",
  "git-version",
  "glifparser",
@@ -47,9 +47,9 @@ dependencies = [
 [[package]]
 name = "MFEKmath"
 version = "0.1.0"
-source = "git+https://github.com/MFEK/math.rlib?branch=main#c59812ccee746fb4f993bec8d682bce0daa49228"
+source = "git+https://github.com/MFEK/math.rlib?branch=main#9619a7954912dc59c7fc4e1645d0c18112779cb4"
 dependencies = [
- "flo_curves",
+ "flo_curves 0.5.3",
  "glifparser",
  "skia-safe",
  "xmltree",
@@ -758,7 +758,17 @@ name = "flo_curves"
 version = "0.4.2"
 source = "git+https://github.com/MFEK/flo_curves?branch=master#c2f457dbf40bd3bf503b04208fca8f0cc000484f"
 dependencies = [
- "itertools",
+ "itertools 0.9.0",
+ "roots",
+ "smallvec",
+]
+
+[[package]]
+name = "flo_curves"
+version = "0.5.3"
+source = "git+https://github.com/MFEK/flo_curves?branch=new_master#4024a4b705c6a706355b1e83ea6230c31a1d07d8"
+dependencies = [
+ "itertools 0.10.1",
  "roots",
  "smallvec",
 ]
@@ -1121,7 +1131,7 @@ checksum = "41486a26d1366a8032b160b59065a59fb528530a46a49f627e7048fb8c064039"
 dependencies = [
  "anyhow",
  "heck",
- "itertools",
+ "itertools 0.9.0",
  "proc-macro-crate",
  "proc-macro-error",
  "proc-macro2",
@@ -1142,7 +1152,7 @@ dependencies = [
 [[package]]
 name = "glifparser"
 version = "1.1.0"
-source = "git+https://github.com/MFEK/glifparser.rlib?branch=master#2cb06a7f2b4ecadc4cfb08ed7768acd293ac84ea"
+source = "git+https://github.com/MFEK/glifparser.rlib?branch=master#b52b121064f5394acd1a34436280fcc9b0061439"
 dependencies = [
  "image",
  "integer_or_float",
@@ -1377,6 +1387,15 @@ name = "itertools"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "284f18f85651fe11e8a991b2adb42cb078325c996ed026d994719efcfca1d54b"
+dependencies = [
+ "either",
+]
+
+[[package]]
+name = "itertools"
+version = "0.10.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "69ddb889f9d0d08a67338271fa9b62996bc788c7796a5c18cf057420aaed5eaf"
 dependencies = [
  "either",
 ]
