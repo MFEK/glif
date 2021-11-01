@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use crate::get_contour_len;
 use crate::{tools::prelude::math::FlipIfRequired, user_interface::Interface};
-use flo_curves::bezier::solve_curve_for_t;
+use flo_curves::bezier::solve_curve_for_t_within;
 use glifparser::{
     glif::{MFEKOutline, MFEKPointData},
     Handle, WhichHandle,
@@ -132,7 +132,7 @@ pub fn nearest_point_on_curve(
                     calc_x(position.0) as f64,
                     calc_y(position.1 as f32) as f64,
                 );
-                let ct = solve_curve_for_t(bezier, &mouse_vec, 3.5 / i.viewport.factor as f64);
+                let ct = solve_curve_for_t_within(bezier, &mouse_vec, Some(3.5 / i.viewport.factor as f64));
 
                 if let Some(ct) = ct {
                     let new_distance = bezier.at(ct).distance(mouse_vec);

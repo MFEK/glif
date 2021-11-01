@@ -74,9 +74,10 @@ MFEKmath = { git = "https://github.com/MFEK/math.rlib", branch = "main" }
 pub-mod = { git = "https://github.com/MFEK/pub_mod.rlib" }
 
 mfek-ipc = { git = "https://github.com/MFEK/ipc.rlib" }
-#mfek-ipc = { path = "../ipc.rlib" }
+#mfek-ipc = { path = "../ipc.rlib" } # for development
 
 glifrenderer = { git = "https://github.com/MFEK/glifrenderer.rlib" }
+#glifrenderer = { path = "../glifrenderer.rlib" } # for development
 
 
 #xml parsing
@@ -96,10 +97,10 @@ strum_macros = "0.22"
 image = { version = "0.23", features = ["png"], default-features = false }
 
 # for certain Bézier curve manipulation functions
-flo_curves = { git = "https://github.com/MFEK/flo_curves", branch = "master" }
+flo_curves = { git = "https://github.com/MFEK/flo_curves", branch = "new_master" }
 
 # for exporting UFO .glif files to layers
-plist = "1"
+plist = { git = "https://github.com/ebarnard/rust-plist" }
 
 # we use this for affine matrices in some of our data types
 kurbo = {version = "0.8", features = ["serde"]}

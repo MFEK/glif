@@ -170,22 +170,18 @@ fn main() {
                         Command::ToolZoom => {
                             editor.set_tool(ToolEnum::Zoom);
                         }
-                        /*
                         Command::ToolVWS => {
                             editor.set_tool(ToolEnum::VWS);
                         }
                         Command::ToolMeasure => {
                             editor.set_tool(ToolEnum::Measure);
                         }
-                        */
                         Command::ToolAnchors => {
                             editor.set_tool(ToolEnum::Anchors);
                         }
-                        /*
                         Command::ToolShapes => {
                             editor.set_tool(ToolEnum::Shapes);
                         }
-                        */
                         Command::TogglePointLabels => {
                             trigger_toggle_on!(
                                 interface,
