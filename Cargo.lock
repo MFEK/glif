@@ -1501,7 +1501,7 @@ checksum = "308cc39be01b73d0d18f82a0e7b2a3df85245f84af96fdddc5d202d27e47b86a"
 [[package]]
 name = "mfek-ipc"
 version = "0.0.0"
-source = "git+https://github.com/MFEK/ipc.rlib#d6434a94c8f4192a9728454e68ba69bc4e0a5f52"
+source = "git+https://github.com/MFEK/ipc.rlib#822a931c3b9c4559acf4771a1587a14a25ad6a17"
 dependencies = [
  "csv",
  "log",
