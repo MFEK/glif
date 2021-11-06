@@ -14,16 +14,20 @@ I wrote it after, hopefully, learning from the mistakes made by George Williams 
 
 MFEKglif is the flagship program of the Modular Font Editor K project, which aims to create a full font editor by making many small programs that all work together, fulfilling the Unix adage that each program should have one task and do that task well. MFEKglif aims to do the task of creating and editing glyphs well.
 
-To make this as easy as possible to build, and cross-platform without hassle, resources are compiled into the binary via the Rust `include_str!` macro, and MFEKglif is statically compiled.
+To make this as easy as possible to build, and cross-platform without hassle, resources are compiled into the binary via the Rust `include_str!` macro, and MFEKglif is statically compiled by default to its C dependencies.
 
 ## Keys
 
 Note: This is a basic list to get you started. A complete list can be found in `resources/default_keymap.xml`. You may copy this file to e.g. `$HOME/.config/MFEK/glif/keybindings.xml` on Linux and modify it.
 
 ### I/O
-* <kbd>Ctrl</kbd><kbd>O</kbd> &mdash; Open user-specified .glif file
-* <kbd>Ctrl</kbd><kbd>S</kbd> &mdash; Save current glyph in a multi-layered .glif
+<sup><sub>For more information, see § “I/O Help”.</sub></sup>
+
+* <kbd>Ctrl</kbd><kbd>O</kbd> &mdash; Open user-specified .glif or .glifjson file
+* <kbd>Ctrl</kbd><kbd>S</kbd> &mdash; Save current glyph in a multi-layered .glifjson file
+* <kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>S</kbd> &mdash; Save current glyph in a multi-layered user-specified .glifjson file
 * <kbd>Ctrl</kbd><kbd>U</kbd> &mdash; Flatten the topmost layer, and write it to a user-specified .glif file
+* <kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>U</kbd> &mdash; Flatten the topmost layer, and overwrite current .glif with it
 * <kbd>Ctrl</kbd><kbd>E</kbd> &mdash; Export the multi-layered .glif to different `glyphs/` directories for each layer, with `layerinfo.plist` and update `layercontents.plist` for each.
 
 ### Tools
@@ -77,6 +81,14 @@ If you previously pulled the repository and get errors related to `glifparser`, 
 ### Note on system SDL2
 
 By default, MFEKglif compiles and statically links to SDL2. If you have SDL2 installed, or find compiling it difficult for some reason and wish to link to a binary SDL2, you should provide the flag `--no-default-features` to `cargo build`. This will disable the features `sdl2/bundled` and `sdl2/static-link`, and your system will attempt to link to a dynamic [libSDL2](https://www.libsdl.org/).
+
+## I/O Help
+
+It's worth taking a moment to explain MFEKglif's I/O. Before November 6, 2021, a complex system was used to save private MFEKglif UFO .glif extensions to the standard .glif format. This became too confusing, both for users and developers, and was removed.
+
+MFEKglif considers UFO .glif as an **import** format, and its own native format is **.glifjson**, which is just a JSON file with keys and values it understands. This is because MFEKglif supports multi-layered glyphs, variable-width stroking, pattern-along-path, and many other features that are of course not in standard .glif; others, such as Spiro and Hyperbézier curves, are planned.
+
+So, when you save (Ctrl+S), MFEKglif will write a file named `a.glifjson` if you had open `a.glif`. To get back out UFO .glif output, you have to do one of the several export abilities MFEKglif has. If you instead save with Ctrl+U, you'll be given a dialog asking you a name for your output .glif file. If you save with Ctrl+Shift+U, MFEKglif will overwrite whatever the current filename is as a `.glif`, so if you've opened `a.glif`, it'll overwrite that; if you've opened `a.glifjson`, it'll write to `a.glif`. This flattens all layers, so you may instead want MFEKglif's most complex (and therefore potentially buggy! please open any issue you find) mode of saving: exporting—Ctrl+E. This will create a new directory for every layer in your glyph and save the layer into it, flattening layer groups.
 
 ## Contributing
 

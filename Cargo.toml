@@ -63,6 +63,8 @@ nfd = { git = "https://github.com/raphlinus/nfd-rs", rev = "5e09b79bf511e3a91ae8
 # Command parsing for console
 regex = "1"
 
+serde_json = { version = "1.0" }
+
 ## Our crates
 # parses .glif files and gives us a place to put arbitrary data
 glifparser = { git = "https://github.com/MFEK/glifparser.rlib", branch = "master", features=["skia", "mfek"] }

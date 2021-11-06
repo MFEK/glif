@@ -2,6 +2,8 @@
 
 use skulpin::skia_safe as sk;
 
+use glifparser::{Contour, Handle, Outline, Point, PointData, PointType};
+
 /// Skia Contains trait doesn't recognize a point as being contained if the rectangle is drawn
 /// backwards or upside-down. This corrects for that.
 pub trait FlipIfRequired {
@@ -37,9 +39,7 @@ impl RoundFloat for f32 {
     }
 }
 
-use glifparser::{Contour, Handle, Outline, Point, PointData, PointType};
-
-trait FromHandle<P> {
+trait FromHandle<P: PointData> {
     fn from_handle(h: Handle) -> Point<P>;
 }
 

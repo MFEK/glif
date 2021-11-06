@@ -36,6 +36,7 @@ dependencies = [
  "pub-mod",
  "regex",
  "sdl2",
+ "serde_json",
  "skulpin",
  "skulpin-renderer",
  "strum 0.22.0",
@@ -47,7 +48,7 @@ dependencies = [
 [[package]]
 name = "MFEKmath"
 version = "0.1.0"
-source = "git+https://github.com/MFEK/math.rlib?branch=main#26e0073c57d75e9eb963177614332bb567907692"
+source = "git+https://github.com/MFEK/math.rlib?branch=main#792a64d5606839127fecb2bb135dc8128147e8f6"
 dependencies = [
  "flo_curves",
  "glifparser",
@@ -1133,7 +1134,7 @@ dependencies = [
 [[package]]
 name = "glifparser"
 version = "1.1.0"
-source = "git+https://github.com/MFEK/glifparser.rlib?branch=master#a33af77f7b5be45f2919c9c43a998c69d9a545c1"
+source = "git+https://github.com/MFEK/glifparser.rlib?branch=master#495eec7fb0be2894f7fa84fa3353948bd9a3585d"
 dependencies = [
  "image",
  "integer_or_float",
@@ -1141,7 +1142,6 @@ dependencies = [
  "log",
  "plist",
  "serde",
- "serde_json",
  "skia-safe",
  "trees",
  "xmltree",
@@ -1150,7 +1150,7 @@ dependencies = [
 [[package]]
 name = "glifrenderer"
 version = "0.1.0"
-source = "git+https://github.com/MFEK/glifrenderer.rlib#39a33ff35b2e61b1dc60157c2526f702a4467488"
+source = "git+https://github.com/MFEK/glifrenderer.rlib#6c7cd79c90d68f6ed82c3ac25ff566b395657e70"
 dependencies = [
  "derive_more",
  "enum-iterator",
@@ -1357,8 +1357,8 @@ dependencies = [
 
 [[package]]
 name = "integer_or_float"
-version = "0.1.0"
-source = "git+https://github.com/MFEK/integer_or_float.rlib?branch=main#d9461928836901f6a6bfe91de16a997e8ebc7136"
+version = "0.1.1"
+source = "git+https://github.com/MFEK/integer_or_float.rlib?branch=main#df82d3066b3bb57b49f40db0434bd3cc297fbd08"
 dependencies = [
  "serde",
 ]

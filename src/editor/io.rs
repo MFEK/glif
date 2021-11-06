@@ -8,28 +8,66 @@ use glifparser::Glif;
 use log;
 use plist::{self, Value as PlistValue};
 
-use std::{fs, io, path};
+use std::{fs, io, path::{self, Path as FsPath}};
 
 use crate::filedialog;
+use crate::ipc;
+use crate::user_interface::Interface;
+use crate::util::DEBUG_DUMP_GLYPH;
 
 impl Editor {
+    pub fn load_glif<F: AsRef<FsPath> + Clone>(&mut self, i: &mut Interface, filename: F) {
+        i.set_window_title(&format!(
+            "MFEKglif — {}",
+            filename.as_ref().to_str().unwrap()
+        ))
+        .expect("Failed to set SDL2 window title");
+        self.load_glif_headless(filename);
+    }
+
+    pub fn load_glif_headless<F: AsRef<FsPath> + Clone>(&mut self, filename: F) {
+        // TODO: Actually handle errors now that we have them.
+        let glif: MFEKGlif<MFEKPointData> = match filename.as_ref().file_name().expect("No filename").to_string_lossy().ends_with(".glifjson") {
+            true => serde_json::from_str(&fs::read_to_string(filename).expect("Could not open file")).expect("Could not deserialize JSON MFEKGlif"),
+            false => glifparser::read_from_filename(&filename)
+                .expect("Invalid glif!")
+                .into()
+        };
+
+        if *DEBUG_DUMP_GLYPH {
+            log::debug!("{:#?}", &glif.clone());
+        }
+
+        self.set_glyph(glif);
+
+        ipc::fetch_metrics(self);
+    }
+
     pub fn save_glif(&mut self, rename: bool) -> Result<path::PathBuf, ()> {
-        self.with_glyph(|glyph| {
+        self.begin_modification("Saved glyph");
+        let res = self.with_glyph_mut(|glyph| {
             let filename: path::PathBuf = if rename {
-                match filedialog::save_filename(Some("glif"), None) {
+                match filedialog::save_filename(Some("glifjson"), None) {
                     Some(f) => f,
                     None => return Err(()),
                 }
             } else {
-                glyph.filename.clone().unwrap()
+                let mut temp = glyph.filename.clone().unwrap();
+                if temp.extension().unwrap() == "glif" {
+                    temp.set_extension("glifjson");
+                } else if temp.extension().unwrap() != "glifjson" {
+                    panic!("Unhandled file extension");
+                }
+                temp
             };
 
-            let glif_struct = glyph.clone().into();
-            glif::write_to_filename(&glif_struct, &filename)
-                .map(|()| log::info!("Requested save to {:?}", &filename))
-                .unwrap_or_else(|e| panic!("Failed to write glif: {:?}", e));
+            glyph.filename = Some(filename.clone());
+            log::info!("Requested save to {:?}", &filename);
+            fs::write(&filename, serde_json::to_vec_pretty(&glyph).unwrap()).expect("Write failed");
             Ok(filename)
-        })
+        });
+        self.end_modification();
+        res
     }
 
     pub fn flatten_glif(&mut self, rename: bool) {
@@ -44,7 +82,7 @@ impl Editor {
         let glif_struct = self.glyph.as_ref().unwrap().to_exported(&layer);
 
         self.with_glyph(|glyph| {
-            let filename: std::path::PathBuf = if rename {
+            let mut filename: std::path::PathBuf = if rename {
                 match filedialog::save_filename(Some("glif"), None) {
                     Some(f) => f,
                     None => return,
@@ -52,6 +90,8 @@ impl Editor {
             } else {
                 glyph.filename.clone().unwrap()
             };
+
+            filename.set_extension("glif");
 
             glif::write_to_filename(&glif_struct, &filename)
                 .map(|()| log::info!("Requested flatten to {:?}", &filename))
@@ -62,8 +102,11 @@ impl Editor {
     pub fn export_glif(&mut self) {
         self.mark_preview_dirty();
         self.rebuild();
-        let glif_fn =
-            self.with_glyph(|g| g.filename.as_ref().unwrap().file_name().unwrap().to_owned());
+        let glif_fn = {
+            let mut temp = self.with_glyph(|g| g.filename.as_ref().unwrap().clone());
+            temp.set_extension("glif");
+            temp.file_name().unwrap().to_owned()
+        };
         let glif_name = self.with_glyph(|g| g.name.clone());
         let ipc_info = self.ipc_info.clone().expect("Cannot export w/o IPC data");
 
@@ -115,10 +158,10 @@ impl Editor {
                         Ok(()) => (),
                     }
                     target.push(&glif_fn);
-                    log::info!("Targeting {:?} to write {}", &target, &layer.name);
                 }
-                None => (),
+                None => {target.set_file_name(&glif_fn)},
             }
+            log::info!("Targeting {:?} to write {}", &target, &layer.name);
 
             let glif_struct = self.glyph.as_ref().unwrap().to_exported(&layer);
             glif::write_to_filename(&glif_struct, &target)

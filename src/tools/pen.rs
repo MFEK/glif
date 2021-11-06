@@ -107,15 +107,7 @@ impl Pen {
                     let (x, y) = (sub_a[3].x, sub_a[3].y);
                     contour.inner.insert(
                         info.seg_idx,
-                        Point {
-                            x: x as f32,
-                            y: y as f32,
-                            a: sub_b[1].to_handle(),
-                            b: sub_a[2].to_handle(),
-                            name: None,
-                            ptype: PointType::Curve,
-                            data: None,
-                        },
+                        Point::from_x_y_a_b_type((x as f32, y as f32), (sub_b[1].to_handle(), sub_a[2].to_handle()), PointType::Curve)
                     );
                     contour.operation = contour_operations::insert(contour, info.seg_idx);
                     contour.inner.insert(info.seg_idx, point);

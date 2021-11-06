@@ -23,7 +23,6 @@ pub mod constants;
 mod contour_operations;
 pub mod editor;
 mod filedialog;
-mod io;
 mod ipc;
 pub mod settings;
 mod system_fonts;
@@ -52,7 +51,7 @@ fn main() {
     let mut skulpin_renderer = Interface::initialize_skulpin_renderer(&interface.sdl_window);
 
     // Makes glyph available to on_load_glif events
-    io::load_glif(&mut editor, &mut interface, &filename);
+    editor.load_glif(&mut interface, &filename);
 
     command::initialize_keybinds();
     // TODO: Replace console! tools::console::initialize_console_commands();
@@ -225,17 +224,17 @@ fn main() {
                             editor.redo();
                         }
                         Command::IOOpen => {
-                            let filename = match filedialog::open_filename(Some("glif"), None) {
+                            let filename = match filedialog::open_filename(Some("glif,glifjson"), None) {
                                 Some(f) => f,
                                 None => continue,
                             };
-                            io::load_glif(&mut editor, &mut interface, &filename);
+                            editor.load_glif(&mut interface, &filename);
                         }
                         Command::IOSave => {
                             drop(editor.save_glif(false));
                         }
                         Command::IOSaveAs => match editor.save_glif(true) {
-                            Ok(pb) => io::load_glif(&mut editor, &mut interface, &pb),
+                            Ok(pb) => editor.load_glif(&mut interface, &pb),
                             Err(()) => {}
                         },
                         Command::IOFlatten => {
