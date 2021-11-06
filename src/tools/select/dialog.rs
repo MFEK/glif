@@ -9,7 +9,7 @@ use crate::user_interface::util::{imgui_decimal_text_field, imgui_radius_theta};
 
 use glifparser::{Handle, Point, PointData, PointType, WhichHandle};
 use glifparser::glif::MFEKPointData;
-use MFEKmath::glif::PolarCoordinates;
+use MFEKmath::polar::PolarCoordinates;
 
 use imgui;
 

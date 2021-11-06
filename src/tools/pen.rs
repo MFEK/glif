@@ -9,7 +9,7 @@ use glifrenderer::points::draw_point;
 use editor::util::get_contour_start_or_end;
 use glifrenderer::points::UIPointType;
 use sdl2::mouse::MouseButton;
-use MFEKmath::{evaluate::Primitive, Bezier};
+use MFEKmath::{Bezier, Primitive};
 #[derive(Clone)]
 pub struct Pen {}
 

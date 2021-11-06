@@ -12,7 +12,7 @@ use glifrenderer::{calc_x, calc_y};
 use skulpin::skia_safe::Contains;
 use skulpin::skia_safe::Point as SkPoint;
 use skulpin::skia_safe::Rect as SkRect;
-use MFEKmath::{evaluate::Primitive, Bezier, Evaluate, Piecewise, Vector};
+use MFEKmath::{Bezier, Evaluate, Piecewise, Primitive, Vector};
 
 use super::Editor;
 

@@ -1,5 +1,5 @@
 use glifparser::{Point, PointData, WhichHandle};
-use MFEKmath::glif::PolarCoordinates;
+use MFEKmath::polar::PolarCoordinates;
 
 pub fn imgui_decimal_text_field(label: &str, ui: &imgui::Ui, data: &mut f32) {
     let mut x = imgui::im_str!("{}",(*data * 1000.).round()/1000.);
