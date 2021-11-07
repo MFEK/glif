@@ -35,7 +35,7 @@ impl GridTool {
     pub fn grid_settings(&mut self, i: &mut Interface, ui: &imgui::Ui) {
         let (tx, ty, tw, th) = i.get_tools_dialog_rect();
 
-        imgui::Window::new(&ui, &imgui::ImString::new("Grid"))
+        imgui::Window::new(&ui, "Grid")
             .bg_alpha(1.) // See comment on fn redraw_skia
             .flags(
                 imgui::WindowFlags::NO_RESIZE

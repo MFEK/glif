@@ -33,7 +33,7 @@ impl Guidelines {
     pub fn tool_dialog(&mut self, v: &mut Editor, i: &mut Interface, ui: &imgui::Ui) {
         let (tx, ty, tw, th) = i.get_tools_dialog_rect();
 
-        imgui::Window::new(&ui, &imgui::ImString::new("Guidelines"))
+        imgui::Window::new(&ui, "Guidelines")
             .bg_alpha(1.) // See comment on fn redraw_skia
             .flags(
                 imgui::WindowFlags::NO_RESIZE
@@ -122,7 +122,7 @@ impl Guidelines {
             });
 
         if let Some(selected) = self.selected_idx {
-            imgui::Window::new(&ui, &imgui::ImString::new("Guideline Inspector"))
+            imgui::Window::new(&ui, "Guideline Inspector")
                 .bg_alpha(1.) 
                 .flags(
                     imgui::WindowFlags::NO_RESIZE

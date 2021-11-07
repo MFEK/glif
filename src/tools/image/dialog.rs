@@ -9,7 +9,7 @@ impl Image {
     pub fn tool_dialog(&mut self, v: &mut Editor, i: &mut Interface, ui: &Ui) {
         let (tx, ty, tw, th) = i.get_tools_dialog_rect();
 
-        imgui::Window::new(&ui, &imgui::ImString::new("Image"))
+        imgui::Window::new(&ui, "Image")
             .bg_alpha(1.) // See comment on fn redraw_skia
             .flags(
                 imgui::WindowFlags::NO_RESIZE
