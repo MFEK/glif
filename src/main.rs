@@ -64,7 +64,7 @@ fn main() {
         }
 
         let keys_down = interface.get_pressed_keys(&event_pump);
-        let keymod = command::keys_down_to_mod(&keys_down).unwrap_or(CommandMod::none());
+        let keymod = CommandMod::from_keys_down(&keys_down);
 
         // sdl event handling
         for event in event_pump.poll_iter() {

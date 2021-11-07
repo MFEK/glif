@@ -69,71 +69,43 @@ pub enum Command {
     SkiaDump,
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Hash)]
 pub struct CommandMod {
     pub shift: bool,
     pub ctrl: bool,
     pub alt: bool,
+    pub meta: bool, // ``Windows'' key
 }
 
 impl CommandMod {
-    pub const fn none() -> Self {
-        Self {
-            shift: false,
-            ctrl: false,
-            alt: false,
-        }
+    pub fn none() -> Self {
+        Self::default()
     }
 }
 
-impl Default for CommandMod {
-    fn default() -> Self {
-        Self::none()
+impl From<&str> for CommandMod {
+    fn from(s: &str) -> CommandMod {
+        let mut cm = CommandMod::none();
+        // for "CtrlShiftMod", vec![0, 4, 9]
+        let mod_caps: Vec<usize> = s.match_indices(|c:char| c.is_uppercase()).map(|(i, _)|i).collect();
+        // for "CtrlShiftMod", vec!["Ctrl", "Shift"]
+        let mod_strs: Vec<&str> = mod_caps.as_slice().windows(2).map(|sl| &s[sl[0]..sl[1]]).collect();
+        for m in mod_strs {
+            match m {
+                "Ctrl" | "Control" => {cm.ctrl = true;}
+                "Shift" => {cm.shift = true;}
+                "Alt" => {cm.alt = true;}
+                "Meta" | "Super" | "Windows" | "Gui" => {cm.meta = true;}
+                _ => ()
+            }
+        }
+        cm
     }
 }
 
-use std::convert::TryFrom;
-impl TryFrom<&str> for CommandMod {
-    type Error = ();
-    fn try_from(s: &str) -> Result<CommandMod, ()> {
-        match s {
-            "CtrlMod" => Ok(CommandMod {
-                ctrl: true,
-                ..CommandMod::default()
-            }),
-            "CtrlAltMod" | "AltCtrlMod" => Ok(CommandMod {
-                alt: true,
-                ctrl: true,
-                ..CommandMod::default()
-            }),
-            "CtrlShiftMod" | "ShiftCtrlMod" => Ok(CommandMod {
-                ctrl: true,
-                shift: true,
-                ..CommandMod::default()
-            }),
-            "CtrlShiftAltMod" | "ShiftCtrlAltMod" | "AltCtrlShiftMod" | "AltShiftCtrlMod"
-            | "ShiftAltCtrlMod" | "CtrlAltShiftMod" => Ok(CommandMod {
-                ctrl: true,
-                shift: true,
-                alt: true,
-                ..CommandMod::default()
-            }),
-            "ShiftMod" => Ok(CommandMod {
-                shift: true,
-                ..CommandMod::default()
-            }),
-            "ShiftAltMod" | "AltShiftMod" => Ok(CommandMod {
-                alt: true,
-                shift: true,
-                ..CommandMod::default()
-            }),
-            "AltMod" => Ok(CommandMod {
-                alt: true,
-                ..CommandMod::default()
-            }),
-            _ => Err(()),
-        }
-    }
+#[test]
+fn command_mod_test() {
+    assert_eq!(CommandMod::from("CtrlShiftMod"), CommandMod { ctrl: true, shift: true, ..CommandMod::default() });
 }
 
 pub struct CommandInfo {
@@ -146,7 +118,7 @@ pub fn initialize_keybinds() {
     let mut config =
         xmltree::Element::parse(binding_xml.as_bytes()).expect("Invalid keybinding XML!");
 
-    let mut hm: HashMap<(Keycode, Option<CommandMod>), Command> = HashMap::new();
+    let mut hm: HashMap<(Keycode, CommandMod), Command> = HashMap::new();
 
     while let Some(binding) = config.take_child("binding") {
         let keycode = binding
@@ -159,13 +131,7 @@ pub fn initialize_keybinds() {
             .expect("Binding does not have a command associated!");
         let modifier = binding.attributes.get("mod");
 
-        let command_mod: Option<CommandMod> = if let Some(m) = modifier {
-            CommandMod::try_from(m.as_str())
-                .map(|m| Some(m))
-                .unwrap_or(None)
-        } else {
-            None
-        };
+        let command_mod = modifier.map(|m|m.as_str()).unwrap_or("").into();
 
         let command_enum = Command::from_str(command).expect("Invalid command string!");
         let keycode_enum =
@@ -179,16 +145,14 @@ pub fn initialize_keybinds() {
     })
 }
 
-pub fn keys_down_to_mod(keys_down: &HashSet<Keycode>) -> Option<CommandMod> {
-    let ret = CommandMod {
-        ctrl: keys_down.contains(&Keycode::LCtrl) || keys_down.contains(&Keycode::RCtrl),
-        shift: keys_down.contains(&Keycode::LShift) || keys_down.contains(&Keycode::RShift),
-        alt: keys_down.contains(&Keycode::LAlt) || keys_down.contains(&Keycode::RAlt),
-    };
-    if !ret.ctrl && !ret.shift && !ret.alt {
-        None
-    } else {
-        Some(ret)
+impl CommandMod {
+    pub fn from_keys_down(keys_down: &HashSet<Keycode>) -> CommandMod {
+        CommandMod {
+            ctrl: keys_down.contains(&Keycode::LCtrl) || keys_down.contains(&Keycode::RCtrl),
+            shift: keys_down.contains(&Keycode::LShift) || keys_down.contains(&Keycode::RShift),
+            alt: keys_down.contains(&Keycode::LAlt) || keys_down.contains(&Keycode::RAlt),
+            meta: keys_down.contains(&Keycode::LGui) || keys_down.contains(&Keycode::RGui),
+        }
     }
 }
 
@@ -197,7 +161,7 @@ pub fn keycode_to_command(keycode: &Keycode, keys_down: &HashSet<Keycode>) -> Op
         if let Some(key) = v
             .borrow()
             .keybindings
-            .get(&(*keycode, keys_down_to_mod(keys_down)))
+            .get(&(*keycode, CommandMod::from_keys_down(keys_down)))
         {
             return Some(*key);
         }
@@ -246,7 +210,7 @@ const DEFAULT_KEYBINDINGS: &str = include_str!(concat!(
 ));
 
 struct KeyData {
-    keybindings: HashMap<(Keycode, Option<CommandMod>), Command>,
+    keybindings: HashMap<(Keycode, CommandMod), Command>,
 }
 
 thread_local! {
