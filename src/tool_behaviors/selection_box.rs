@@ -40,7 +40,11 @@ impl SelectionBox {
 
     pub fn mouse_released(&mut self, v: &mut Editor, _i: &mut Interface, mouse_info: MouseInfo) {
         if mouse_info.button == self.mouse_info.button {
-            v.selected = self.selected.clone();
+            if mouse_info.modifiers.shift {
+                v.selected = &v.selected ^ &self.selected;
+            } else {
+                v.selected = self.selected.clone();
+            }
             v.pop_behavior();
         }
     }
