@@ -1334,7 +1334,7 @@ dependencies = [
 [[package]]
 name = "imgui-skia-renderer"
 version = "0.1.1"
-source = "git+https://github.com/MFEK/imgui-skia-renderer.rlib?branch=imgui0.8#a48ded14df18eab2dbee189cd9a6eb98faeeb046"
+source = "git+https://github.com/MFEK/imgui-skia-renderer.rlib?branch=main#d3a8c4247f6b13f93303a19a25cb9aec982514fe"
 dependencies = [
  "imgui",
  "skia-safe",

@@ -10,8 +10,7 @@ edition = "2018"
 # For display
 # We might need to vendorize these some day. See aclysma/skulpin#66:
 # https://github.com/aclysma/skulpin/issues/66#issuecomment-689244118
-# Commented versions I occasionally use in development to stick extra debug!'s in Skulpin.
-#skulpin = { version = "0.10.0", default-features = false, features = ["skia_complete", "skulpin_winit"] }
+# Commented version I occasionally use in development to stick extra debug!'s in Skulpin.
 #skulpin = { path = "../skulpin", default-features = false, features = ["skia_complete", "skulpin_winit"] }
 skulpin = { git = "https://github.com/MFEK/skulpin" }
 skulpin-renderer = {git = "https://github.com/MFEK/skulpin/"}
@@ -31,9 +30,6 @@ lazy_static = "1.4"
 # For immediate mode GUI
 imgui = { version = "0.8", features = ["freetype"] }
 imgui-sdl2 = {git = "https://github.com/MFEK/imgui-sdl2.rlib", branch = "master"} # private version of outdated upstream
-#imgui-sdl2 = { path = "../imgui-sdl2.rlib", features = ["freetype"] }
-imgui-skia-renderer = {git = "https://github.com/MFEK/imgui-skia-renderer.rlib", branch = "imgui0.8"}
-#imgui-skia-renderer = { path = "../imgui-skia-renderer.rlib" }
 
 # For argument parsing
 clap = "2.33"
@@ -65,22 +61,6 @@ regex = "1"
 
 serde_json = { version = "1.0" }
 
-## Our crates
-# parses .glif files and gives us a place to put arbitrary data
-glifparser = { git = "https://github.com/MFEK/glifparser.rlib", branch = "master", features=["skia", "mfek"] }
-#glifparser = { path = "../glifparser.rlib", features=["skia", "mfek"] } # for development
-
-MFEKmath = { git = "https://github.com/MFEK/math.rlib", branch = "main" }
-#MFEKmath = { path = "../math.rlib" } # for development
-
-pub-mod = { git = "https://github.com/MFEK/pub_mod.rlib" }
-
-mfek-ipc = { git = "https://github.com/MFEK/ipc.rlib" }
-#mfek-ipc = { path = "../ipc.rlib" } # for development
-
-glifrenderer = { git = "https://github.com/MFEK/glifrenderer.rlib" }
-#glifrenderer = { path = "../glifrenderer.rlib" } # for development
-
 #xml parsing
 xmltree = "0.10"
 
@@ -105,6 +85,26 @@ plist = { git = "https://github.com/ebarnard/rust-plist" }
 
 # we use this for affine matrices in some of our data types
 kurbo = {version = "0.8", features = ["serde"]}
+
+## Our crates
+# parses .glif files and gives us a place to put arbitrary data
+glifparser = { git = "https://github.com/MFEK/glifparser.rlib", branch = "master", features=["skia", "mfek"] }
+#glifparser = { path = "../glifparser.rlib", features=["skia", "mfek"] } # for development
+
+MFEKmath = { git = "https://github.com/MFEK/math.rlib", branch = "main" }
+#MFEKmath = { path = "../math.rlib" } # for development
+
+pub-mod = { git = "https://github.com/MFEK/pub_mod.rlib" }
+#pub-mod = { path = "../pub-mod.rlib" }
+
+mfek-ipc = { git = "https://github.com/MFEK/ipc.rlib" }
+#mfek-ipc = { path = "../ipc.rlib" } # for development
+
+glifrenderer = { git = "https://github.com/MFEK/glifrenderer.rlib" }
+#glifrenderer = { path = "../glifrenderer.rlib" } # for development
+
+imgui-skia-renderer = {git = "https://github.com/MFEK/imgui-skia-renderer.rlib", branch = "main"}
+#imgui-skia-renderer = { path = "../imgui-skia-renderer.rlib" }
 
 [features]
 default = ["sdl2/bundled", "sdl2/static-link"]
