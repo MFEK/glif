@@ -27,10 +27,6 @@ msgbox = "0.6.1"
 # For global state
 lazy_static = "1.4"
 
-# For immediate mode GUI
-imgui = { git = "https://github.com/imgui-rs/imgui-rs", features = ["freetype"] }
-imgui-sdl2 = {git = "https://github.com/MFEK/imgui-sdl2.rlib", branch = "imgui-git"} # private version of outdated upstream
-
 # For argument parsing
 clap = "2.33"
 git-version = "0.3"
@@ -109,9 +105,16 @@ imgui-skia-renderer = {git = "https://github.com/MFEK/imgui-skia-renderer.rlib",
 [features]
 default = ["sdl2/bundled", "sdl2/static-link"]
 
-# See src/util/mod.rs::set_codepage_utf8
 [target.'cfg(windows)'.dependencies]
+# See src/util/mod.rs::set_codepage_utf8
 winapi = "0.3"
+# For immediate mode GUI
+imgui = { git = "https://github.com/imgui-rs/imgui-rs" }
+imgui-sdl2 = {git = "https://github.com/MFEK/imgui-sdl2.rlib", branch = "imgui-git"} # private version of outdated upstream
+
+[target.'cfg(not(windows))'.dependencies]
+imgui = { git = "https://github.com/imgui-rs/imgui-rs", features=["freetype"] }
+imgui-sdl2 = {git = "https://github.com/MFEK/imgui-sdl2.rlib", branch = "imgui-git"} # private version of outdated upstream
 
 [profile.release]
 opt-level = 'z'
