@@ -32,7 +32,7 @@ lazy_static = "1.4"
 # For immediate mode GUI
 imgui = "0.7"
 imgui-sdl2 = "0.14"
-imgui-skia-renderer = {git = "https://github.com/MFEK/imgui-skia-renderer.rlib", branch = "main"}
+imgui-skia-renderer = {git = "https://github.com/MFEK/imgui-skia-renderer.rlib", rev = "eaf584b"}
 
 # For argument parsing
 clap = "2.33"
