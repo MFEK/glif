@@ -33,7 +33,7 @@ impl Guidelines {
     pub fn tool_dialog(&mut self, v: &mut Editor, i: &mut Interface, ui: &imgui::Ui) {
         let (tx, ty, tw, th) = i.get_tools_dialog_rect();
 
-        imgui::Window::new(&imgui::ImString::new("Guidelines"))
+        imgui::Window::new(&ui, &imgui::ImString::new("Guidelines"))
             .bg_alpha(1.) // See comment on fn redraw_skia
             .flags(
                 imgui::WindowFlags::NO_RESIZE
@@ -42,7 +42,7 @@ impl Guidelines {
             )
             .position([tx, ty], imgui::Condition::Always)
             .size([tw, th], imgui::Condition::Always)
-            .build(ui, || {
+            .build(|| {
                 let pop_me = ui.push_style_color(imgui::StyleColor::Button, [0., 0., 0., 0.2]);
 
                 ui.button(
@@ -122,7 +122,7 @@ impl Guidelines {
             });
 
         if let Some(selected) = self.selected_idx {
-            imgui::Window::new(&imgui::ImString::new("Guideline Inspector"))
+            imgui::Window::new(&ui, &imgui::ImString::new("Guideline Inspector"))
                 .bg_alpha(1.) 
                 .flags(
                     imgui::WindowFlags::NO_RESIZE
@@ -131,7 +131,7 @@ impl Guidelines {
                 )
                 .position([tx, ty - th - 12.], imgui::Condition::Always)
                 .size([tw, th], imgui::Condition::Always)
-                .build(ui, || {
+                .build(|| {
                     let (mut at, mut angle) = v.with_glyph(|glyph| {
                         let at = glyph.guidelines[selected].at.clone();
                         let angle = match glyph.guidelines[selected].angle {

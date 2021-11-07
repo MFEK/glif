@@ -28,8 +28,8 @@ msgbox = "0.6.1"
 lazy_static = "1.4"
 
 # For immediate mode GUI
-imgui = { version = "0.8", features = ["freetype"] }
-imgui-sdl2 = {git = "https://github.com/MFEK/imgui-sdl2.rlib", branch = "master"} # private version of outdated upstream
+imgui = { git = "https://github.com/imgui-rs/imgui-rs", features = ["freetype"] }
+imgui-sdl2 = {git = "https://github.com/MFEK/imgui-sdl2.rlib", branch = "imgui-git"} # private version of outdated upstream
 
 # For argument parsing
 clap = "2.33"
@@ -103,7 +103,7 @@ mfek-ipc = { git = "https://github.com/MFEK/ipc.rlib" }
 glifrenderer = { git = "https://github.com/MFEK/glifrenderer.rlib" }
 #glifrenderer = { path = "../glifrenderer.rlib" } # for development
 
-imgui-skia-renderer = {git = "https://github.com/MFEK/imgui-skia-renderer.rlib", branch = "main"}
+imgui-skia-renderer = {git = "https://github.com/MFEK/imgui-skia-renderer.rlib", branch = "imgui0.8-git"}
 #imgui-skia-renderer = { path = "../imgui-skia-renderer.rlib" }
 
 [features]

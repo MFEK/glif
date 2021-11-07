@@ -1313,19 +1313,19 @@ dependencies = [
 
 [[package]]
 name = "imgui"
-version = "0.8.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4edc4023dc7b1161e25ec9bcee478173f97d6f618a1d04eced2d559ce03119b4"
+version = "0.8.1-alpha.0"
+source = "git+https://github.com/imgui-rs/imgui-rs#6faa7f090a34ef16b5c3880d988caa95babb1aba"
 dependencies = [
  "bitflags",
  "imgui-sys",
+ "mint",
  "parking_lot",
 ]
 
 [[package]]
 name = "imgui-sdl2"
 version = "0.15.0"
-source = "git+https://github.com/MFEK/imgui-sdl2.rlib?branch=master#7ce849fd5df90ccf4a278334b492349fc828ae40"
+source = "git+https://github.com/MFEK/imgui-sdl2.rlib?branch=imgui-git#055ef01776c9d02079f1ad17426b80a9f27d678e"
 dependencies = [
  "imgui",
  "sdl2",
@@ -1334,7 +1334,7 @@ dependencies = [
 [[package]]
 name = "imgui-skia-renderer"
 version = "0.1.1"
-source = "git+https://github.com/MFEK/imgui-skia-renderer.rlib?branch=main#d3a8c4247f6b13f93303a19a25cb9aec982514fe"
+source = "git+https://github.com/MFEK/imgui-skia-renderer.rlib?branch=imgui0.8-git#6321fffca58ad0cb75367a9041599195742a1021"
 dependencies = [
  "imgui",
  "skia-safe",
@@ -1342,12 +1342,12 @@ dependencies = [
 
 [[package]]
 name = "imgui-sys"
-version = "0.8.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0914d5ebaec1086300b970defc7ed71edc2cf102bdc3dd75fd51179549d4455b"
+version = "0.8.1-alpha.0"
+source = "git+https://github.com/imgui-rs/imgui-rs#6faa7f090a34ef16b5c3880d988caa95babb1aba"
 dependencies = [
  "cc",
  "chlorine",
+ "mint",
  "pkg-config",
 ]
 
@@ -1543,6 +1543,12 @@ dependencies = [
  "adler",
  "autocfg",
 ]
+
+[[package]]
+name = "mint"
+version = "0.5.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "162e591484b4b8fe9e1ca16ebf07ab584fdc3334508d76a788cd54d89cfc20dc"
 
 [[package]]
 name = "msgbox"

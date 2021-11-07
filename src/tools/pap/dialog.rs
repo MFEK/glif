@@ -64,7 +64,7 @@ impl PAP {
     pub fn tool_dialog(&mut self, v: &mut Editor, i: &Interface, ui: &Ui) {
         let (tx, ty, tw, th) = i.get_tools_dialog_rect();
 
-        imgui::Window::new(&imgui::ImString::new("Pattern Along Path"))
+        imgui::Window::new(&ui, &imgui::ImString::new("Pattern Along Path"))
             .bg_alpha(1.) // See comment on fn redraw_skia
             .flags(
                 imgui::WindowFlags::NO_RESIZE
@@ -73,7 +73,7 @@ impl PAP {
             )
             .position([tx, ty], imgui::Condition::Always)
             .size([tw, th], imgui::Condition::Always)
-            .build(ui, || {
+            .build(|| {
                 if v.contour_idx.is_none() {
                     return;
                 };

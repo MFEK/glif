@@ -81,7 +81,7 @@ impl Shapes {
 
     fn shape_settings(&mut self, i: &mut Interface, ui: &imgui::Ui) {
         let (tx, ty, tw, th) = i.get_tools_dialog_rect();
-        imgui::Window::new("Shape Settings")
+        imgui::Window::new(&ui, "Shape Settings")
             .bg_alpha(1.) // See comment on fn redraw_skia
             .flags(
                 imgui::WindowFlags::NO_RESIZE
@@ -90,7 +90,7 @@ impl Shapes {
             )
             .position([tx, ty], imgui::Condition::Always)
             .size([tw, th], imgui::Condition::Always)
-            .build(ui, || {
+            .build(|| {
                 ui.radio_button("Circle", &mut self.stype, ShapeType::Circle);
                 ui.radio_button("Oval", &mut self.stype, ShapeType::Oval);
                 ui.radio_button(

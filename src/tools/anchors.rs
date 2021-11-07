@@ -67,7 +67,7 @@ impl Anchors {
 impl Anchors {
     fn anchor_settings(&mut self, v: &mut Editor, i: &Interface, ui: &imgui::Ui) {
         let (tx, ty, tw, th) = i.get_tools_dialog_rect();
-        imgui::Window::new(format!("Anchor Settings"))
+        imgui::Window::new(&ui, format!("Anchor Settings"))
             .bg_alpha(1.) // See comment on fn redraw_skia
             .flags(
                 imgui::WindowFlags::NO_RESIZE
@@ -76,7 +76,7 @@ impl Anchors {
             )
             .position([tx, ty], imgui::Condition::Always)
             .size([tw, th], imgui::Condition::Always)
-            .build(ui, || {
+            .build(|| {
                 if let Some(idx) = self.anchor_idx {
                     let glif_copy = v.with_glyph(|glif| {glif.clone()});
                     // X

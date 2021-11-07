@@ -41,7 +41,7 @@ impl Select {
             let on_last_open_point: bool = pi == contour_len-1 && on_open_contour;
             let on_first_open_point: bool = pi == 0 && on_open_contour;
 
-            imgui::Window::new(
+            imgui::Window::new(&ui,
                     &if multiple_points_selected {
                         String::from("Points")
                     } else {
@@ -62,7 +62,7 @@ impl Select {
                     [tw, th + DIALOG_ADDITIONAL_HEIGHT],
                     imgui::Condition::Always,
                 )
-                .build(ui, || {
+                .build(|| {
                     if multiple_points_selected {
                         ui.text("Multiple points selected");
                         return

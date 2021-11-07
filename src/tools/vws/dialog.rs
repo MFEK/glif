@@ -124,7 +124,7 @@ impl VWS {
 
         let _contour_idx = v.contour_idx.unwrap();
 
-        imgui::Window::new("VWS Settings")
+        imgui::Window::new(&ui, "VWS Settings")
             .bg_alpha(1.) // See comment on fn redraw_skia
             .flags(
                 imgui::WindowFlags::NO_RESIZE
@@ -133,7 +133,7 @@ impl VWS {
             )
             .position([tx, ty], imgui::Condition::Always)
             .size([tw, th], imgui::Condition::Always)
-            .build(ui, || {
+            .build(|| {
                 self.build_and_check_vws_cap_combo(v, ui);
                 self.build_and_check_vws_join_combo(v, ui);
                 ui.separator();

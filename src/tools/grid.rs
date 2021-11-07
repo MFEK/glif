@@ -35,7 +35,7 @@ impl GridTool {
     pub fn grid_settings(&mut self, i: &mut Interface, ui: &imgui::Ui) {
         let (tx, ty, tw, th) = i.get_tools_dialog_rect();
 
-        imgui::Window::new(&imgui::ImString::new("Grid"))
+        imgui::Window::new(&ui, &imgui::ImString::new("Grid"))
             .bg_alpha(1.) // See comment on fn redraw_skia
             .flags(
                 imgui::WindowFlags::NO_RESIZE
@@ -44,7 +44,7 @@ impl GridTool {
             )
             .position([tx, ty], imgui::Condition::Always)
             .size([tw, th], imgui::Condition::Always)
-            .build(ui, || {
+            .build(|| {
                 let old_active = i.grid.is_some();
                 let mut active = old_active;
 

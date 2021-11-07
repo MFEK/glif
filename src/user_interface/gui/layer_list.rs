@@ -25,7 +25,7 @@ pub fn build_and_check_layer_list(v: &mut Editor, i: &mut Interface, ui: &imgui:
     ui.button(
         unsafe { stdstr::from_utf8_unchecked(icons::MINUS) },
     );
-    ui.push_item_width(-0.5);
+    let _tok = ui.push_item_width(-0.5); // unused `ItemWidthStackToken` that must be used
     if ui.is_item_clicked() {
         v.delete_layer();
     }
@@ -169,7 +169,7 @@ pub fn build_and_check_layer_list(v: &mut Editor, i: &mut Interface, ui: &imgui:
             let mut color_token: Option<ColorStackToken> = None;
             let _default_color: Option<[f32; 4]> = None;
             if let Some(color) = v.with_glyph(|glif| glif.layers[layer].color) {
-                color_token = Some(ui.push_style_color(imgui::StyleColor::Button, color.into()));
+                color_token = Some(ui.push_style_color(imgui::StyleColor::Button, <glifparser::Color as Into<[f32; 4]>>::into(color)));
             }
             ui.button("##");
             if ui.is_item_clicked() {

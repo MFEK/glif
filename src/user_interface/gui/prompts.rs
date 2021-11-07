@@ -8,7 +8,7 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ui: &mut imgui
         return;
     };
 
-    imgui::Window::new(format!("##"))
+    imgui::Window::new(&ui, format!("##"))
         .flags(
             imgui::WindowFlags::NO_RESIZE
                 | imgui::WindowFlags::NO_MOVE
@@ -21,7 +21,7 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ui: &mut imgui
             [i.viewport.winsize.0 as f32, i.viewport.winsize.1 as f32],
             imgui::Condition::Always,
         )
-        .build(ui, || {
+        .build(|| {
             ui.invisible_button(format!("##"), [-1., -1.]);
             if ui.is_item_clicked_with_button(imgui::MouseButton::Right) {
                 i.pop_prompt();
@@ -34,7 +34,7 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ui: &mut imgui
             default: _,
             func,
         } => {
-            imgui::Window::new(format!("{}", label))
+            imgui::Window::new(&ui, format!("{}", label))
                 .bg_alpha(1.) // See comment on fn redraw_skia
                 .flags(imgui::WindowFlags::NO_RESIZE | imgui::WindowFlags::NO_COLLAPSE)
                 .position_pivot([0.5, 0.5])
@@ -50,9 +50,9 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ui: &mut imgui
                     imgui::Condition::Always,
                 )
                 .focused(true)
-                .build(ui, || {
+                .build(|| {
                     PROMPT_STR.with(|prompt_str| {
-                        ui.push_item_width(-1.);
+                        let _tok = ui.push_item_width(-1.);
                         prompt_str.borrow_mut().clear();
                         ui.input_text("", &mut prompt_str.borrow_mut())
                             .build();
@@ -76,7 +76,7 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ui: &mut imgui
         } => {
             let mut color = PROMPT_CLR.with(|clr| clr.borrow_mut().clone());
 
-            imgui::Window::new(format!("{}", label))
+            imgui::Window::new(&ui, format!("{}", label))
                 .bg_alpha(1.) // See comment on fn redraw_skia
                 .flags(imgui::WindowFlags::NO_RESIZE | imgui::WindowFlags::NO_COLLAPSE)
                 .position_pivot([0.5, 0.5])
@@ -92,9 +92,9 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ui: &mut imgui
                     imgui::Condition::Always,
                 )
                 .focused(true)
-                .build(ui, || {
+                .build(|| {
                     PROMPT_CLR.with(|ui_color| {
-                        imgui::ColorPicker::new(format!("{}", label), &mut color).build(ui);
+                        imgui::ColorPicker4::new(format!("{}", label), &mut color).build(ui);
 
                         if ui.is_key_down(Key::Enter) {
                             ui_color.replace([0., 0., 0., 1.]);
@@ -114,7 +114,7 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ui: &mut imgui
         }
 
         InputPrompt::Layer { label, func } => {
-            imgui::Window::new(format!("{}", label))
+            imgui::Window::new(&ui, format!("{}", label))
                 .bg_alpha(1.) // See comment on fn redraw_skia
                 .flags(imgui::WindowFlags::NO_RESIZE | imgui::WindowFlags::NO_COLLAPSE)
                 .position_pivot([0.5, 0.5])
@@ -130,7 +130,7 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ui: &mut imgui
                     imgui::Condition::Always,
                 )
                 .focused(true)
-                .build(ui, || {
+                .build(|| {
                     let layer_count = v.with_glyph(|glif| glif.layers.len());
                     for layer in 0..layer_count {
                         let layer_op = v.with_glyph(|glif| glif.layers[layer].operation.clone());

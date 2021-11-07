@@ -9,7 +9,7 @@ impl Image {
     pub fn tool_dialog(&mut self, v: &mut Editor, i: &mut Interface, ui: &Ui) {
         let (tx, ty, tw, th) = i.get_tools_dialog_rect();
 
-        imgui::Window::new(&imgui::ImString::new("Image"))
+        imgui::Window::new(&ui, &imgui::ImString::new("Image"))
             .bg_alpha(1.) // See comment on fn redraw_skia
             .flags(
                 imgui::WindowFlags::NO_RESIZE
@@ -18,7 +18,7 @@ impl Image {
             )
             .position([tx, ty], imgui::Condition::Always)
             .size([tw, th], imgui::Condition::Always)
-            .build(ui, || {
+            .build(|| {
                 if let Some(selected) = self.selected_idx {
                     ui.button("Color");
                     if ui.is_item_clicked() {

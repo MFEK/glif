@@ -177,7 +177,7 @@ pub fn build_imgui_ui<'ui>(
     imsdl2.prepare_frame(context.io_mut(), &i.sdl_window, mouse_state);
     let mut ui = context.frame();
 
-    imgui::Window::new("Tools")
+    imgui::Window::new(&ui, "Tools")
         .bg_alpha(1.) // See comment on fn redraw_skia
         .flags(
             imgui::WindowFlags::NO_RESIZE
@@ -192,7 +192,7 @@ pub fn build_imgui_ui<'ui>(
             [TOOLBOX_WIDTH, *TOOLBOX_HEIGHT + 90.],
             imgui::Condition::Always,
         )
-        .build(&ui, || {
+        .build(|| {
             build_and_check_button(v, &ui, ToolEnum::Pan, &icons::PAN);
             build_and_check_button(v, &ui, ToolEnum::Select, &icons::SELECT);
             ui.separator();
@@ -210,7 +210,7 @@ pub fn build_imgui_ui<'ui>(
             build_and_check_button(v, &ui, ToolEnum::Guidelines, &icons::GUIDELINES);
         });
 
-    imgui::Window::new("Layers")
+    imgui::Window::new(&ui, "Layers")
         .bg_alpha(1.)
         .flags(
             imgui::WindowFlags::NO_RESIZE
@@ -225,14 +225,14 @@ pub fn build_imgui_ui<'ui>(
             imgui::Condition::Always,
         )
         .size([LAYERBOX_WIDTH, LAYERBOX_HEIGHT], imgui::Condition::Always)
-        .build(&ui, || build_and_check_layer_list(v, i, &ui));
+        .build(|| build_and_check_layer_list(v, i, &ui));
 
     build_and_check_prompts(v, i, &mut ui);
 
     v.dispatch_tool_ui(i, &mut ui);
 
     imsdl2.prepare_render(&ui, &i.sdl_window);
-    return ui.render();
+    context.render()
 }
 
 thread_local! { pub static PROMPT_STR: RefCell<String> = RefCell::new(String::new()); }
