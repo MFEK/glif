@@ -45,12 +45,16 @@ jobs:
             ~/.cargo/git
             target/debug
           key: cargo-${{ matrix.platform }}-${{ hashFiles('**/Cargo.lock') }}
+      - if: matrix.platform != 'windows'
+        name: Only run locked on non-Windows
+        run: |
+          echo "locked=--locked" >> $GITHUB_ENV
       - name: Run cargo build
         run: |
-          cargo build --locked
+          cargo build "${{ env.locked }}"
       - name: Run cargo test
         run: |
-          cargo test --locked
+          cargo test "${{ env.locked }}"
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
