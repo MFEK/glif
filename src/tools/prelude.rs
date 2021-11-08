@@ -1,5 +1,5 @@
 // Our stuff
-pub use super::{EditorEvent, MouseEventType, Tool};
+pub use super::Tool;
 
 // Renderer
 pub use glifrenderer::constants::*;
@@ -9,6 +9,7 @@ pub use glifrenderer::points::calc::*;
 pub use crate::editor;
 pub use crate::editor::util::*;
 pub use crate::editor::Editor;
+pub use crate::editor::events::*;
 
 // Util + Macros
 pub use crate::util::*;

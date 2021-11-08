@@ -24,13 +24,12 @@ use self::{
     pan::Pan, pap::PAP, pen::Pen, select::Select, shapes::Shapes, vws::VWS, zoom::Zoom,
 };
 
-use crate::user_interface::Interface;
 use dyn_clone::DynClone;
 use imgui::Ui;
-//pub use self::zoom::{zoom_in_factor, zoom_out_factor};
 
-use crate::command::{Command, CommandMod};
 use crate::editor::Editor;
+use crate::user_interface::Interface;
+
 pub trait Tool: DynClone {
     fn event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent);
 
@@ -73,24 +72,4 @@ pub fn tool_enum_to_tool(tool: ToolEnum) -> Box<dyn Tool> {
         ToolEnum::PAP => Box::new(PAP::new()),
         ToolEnum::Guidelines => Box::new(Guidelines::new()),
     }
-}
-
-pub enum MouseEventType {
-    Pressed,
-    DoubleClick,
-    Released,
-    Moved,
-}
-
-pub enum EditorEvent<'a> {
-    MouseEvent {
-        event_type: MouseEventType,
-        mouse_info: MouseInfo,
-    },
-
-    ToolCommand {
-        command: Command,
-        command_mod: CommandMod,
-        stop_after: &'a mut bool,
-    },
 }

@@ -5,9 +5,9 @@
 
 use crate::{constants::OFFSET_FACTOR, tools::zoom::{zoom_in_factor, zoom_out_factor}};
 use command::{Command, CommandInfo, CommandMod};
-use editor::{Editor};
+use editor::{Editor, events::{EditorEvent, MouseEventType}};
 use glifrenderer::toggles::{PointLabels, PreviewMode};
-use tools::{EditorEvent, MouseEventType, ToolEnum};
+use tools::ToolEnum;
 use user_interface::{ImguiManager, Interface};
 use util::argparser::HeadlessMode;
 
@@ -252,7 +252,7 @@ fn main() {
                         // TODO: More elegantly deal with Command's meant for consumption by a
                         // single tool?
                         Command::ReverseContour => {
-                            log::warn!("Tried to reverse contour outside Select tool");
+                            log::debug!("Tried to reverse contour outside Select tool");
                         }
                         Command::SkiaDump => {
                             editor.skia_dump();

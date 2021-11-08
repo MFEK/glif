@@ -4,7 +4,7 @@ pub use super::ToolBehavior;
 pub use crate::editor;
 pub use crate::editor::util::*;
 pub use crate::editor::Editor;
-pub use crate::tools::EditorEvent;
+pub use crate::editor::events::*;
 
 // Renderer
 pub use glifrenderer::constants::*;
@@ -30,6 +30,5 @@ pub use glifparser::glif::MFEKPointData;
 pub use glifparser::{Contour, Handle, Outline, Point, PointType, WhichHandle};
 
 //User interface
-pub use crate::tools::MouseEventType;
 pub use crate::user_interface::{Interface, MouseInfo};
 pub use skulpin::skia_safe::{Paint, PaintStyle, Path, Rect};

@@ -16,6 +16,7 @@ use crate::editor::history::History;
 use crate::get_contour_mut;
 
 pub mod debug;
+pub mod events;
 pub mod io;
 pub mod headless;
 pub mod history;
