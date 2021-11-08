@@ -17,7 +17,7 @@ dependencies = [
  "enum-iterator",
  "enum-unitary",
  "env_logger 0.9.0",
- "flo_curves",
+ "flo_curves 0.5.3",
  "font-kit",
  "git-version",
  "glifparser",
@@ -48,9 +48,9 @@ dependencies = [
 [[package]]
 name = "MFEKmath"
 version = "0.1.0"
-source = "git+https://github.com/MFEK/math.rlib?branch=main#792a64d5606839127fecb2bb135dc8128147e8f6"
+source = "git+https://github.com/MFEK/math.rlib?branch=main#0cde4ce07c446ec912e9f52f88b0ac5dbf512ddf"
 dependencies = [
- "flo_curves",
+ "flo_curves 0.6.0",
  "glifparser",
  "plist",
  "skia-safe",
@@ -327,9 +327,9 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "chlorine"
-version = "1.0.7"
+version = "1.0.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bd650552110e39b7c5058986cf177decd3365841836578ac50a286094eac0be6"
+checksum = "11ec8446a392659397e36a823f11c4800eb451d045bb4f37761fbf457d972769"
 
 [[package]]
 name = "chunked_transfer"
@@ -756,6 +756,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "flo_curves"
+version = "0.6.0"
+source = "git+https://github.com/Logicalshift/flo_curves?branch=v0.6#fdf2190af9a5574d1d8391f3ce687ad3865e35ec"
+dependencies = [
+ "itertools 0.10.1",
+ "roots",
+ "smallvec",
+]
+
+[[package]]
 name = "float-ord"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1134,7 +1144,7 @@ dependencies = [
 [[package]]
 name = "glifparser"
 version = "1.1.0"
-source = "git+https://github.com/MFEK/glifparser.rlib?branch=master#495eec7fb0be2894f7fa84fa3353948bd9a3585d"
+source = "git+https://github.com/MFEK/glifparser.rlib?branch=master#f59d86a6bebda618be7f6da5ac5afc2b0c89f4a2"
 dependencies = [
  "image",
  "integer_or_float",
@@ -1420,9 +1430,9 @@ checksum = "830d08ce1d1d941e6b30645f1a0eb5643013d835ce3779a5fc208261dbe10f55"
 
 [[package]]
 name = "libc"
-version = "0.2.106"
+version = "0.2.107"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a60553f9a9e039a333b4e9b20573b9e9b9c0bb3a11e201ccc48ef4283456d673"
+checksum = "fbe5e23404da5b4f555ef85ebed98fb4083e55a00c317800bc2a50ede9f3d219"
 
 [[package]]
 name = "libloading"
@@ -1501,7 +1511,7 @@ checksum = "308cc39be01b73d0d18f82a0e7b2a3df85245f84af96fdddc5d202d27e47b86a"
 [[package]]
 name = "mfek-ipc"
 version = "0.0.0"
-source = "git+https://github.com/MFEK/ipc.rlib#822a931c3b9c4559acf4771a1587a14a25ad6a17"
+source = "git+https://github.com/MFEK/ipc.rlib#8524225634bb7a5b84fd7a9a68332554c05f32dd"
 dependencies = [
  "csv",
  "log",
@@ -1854,8 +1864,8 @@ dependencies = [
 
 [[package]]
 name = "pub-mod"
-version = "0.1.0"
-source = "git+https://github.com/MFEK/pub_mod.rlib#a3c4c51f0f488748a92721fe835e7d63eaf9cfe5"
+version = "0.1.1"
+source = "git+https://github.com/MFEK/pub_mod.rlib#511b208ed772999d7fd63b250385dfab439794b9"
 dependencies = [
  "syn",
 ]

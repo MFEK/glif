@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use crate::get_contour_len;
 use crate::{tools::prelude::math::FlipIfRequired, user_interface::Interface};
-use flo_curves::bezier::solve_curve_for_t_within;
+use flo_curves::{bezier::{Curve as FloCurve, solve_curve_for_t_within}, geo::Coord2};
 use glifparser::{
     glif::{MFEKOutline, MFEKPointData},
     Handle, WhichHandle,
@@ -127,23 +127,27 @@ pub fn nearest_point_on_curve(
         let mut seg_idx = None;
 
         for (cx, contour) in pw.segs.iter().enumerate() {
-            for (bx, bezier) in contour.segs.iter().enumerate() {
-                let mouse_vec = Vector::from_components(
+            for (bx, mbezier) in contour.segs.iter().enumerate() {
+                use flo_curves::BezierCurveFactory as _;
+                let bezier = FloCurve::from_points(Coord2(mbezier.w1.x, mbezier.w1.y), (Coord2(mbezier.w2.x, mbezier.w2.y), Coord2(mbezier.w3.x, mbezier.w3.y)), Coord2(mbezier.w4.x, mbezier.w4.y));
+                let mouse_vec = Coord2(
                     calc_x(position.0) as f64,
                     calc_y(position.1 as f32) as f64,
                 );
-                let ct = solve_curve_for_t_within(bezier, &mouse_vec, Some(3.5 / i.viewport.factor as f64));
+                let ct = solve_curve_for_t_within(&bezier, &mouse_vec, Some(3.5 / i.viewport.factor as f64));
 
                 if let Some(ct) = ct {
-                    let new_distance = bezier.at(ct).distance(mouse_vec);
+                    use flo_curves::BezierCurve as _;
+                    use flo_curves::Coordinate as _;
+                    let new_distance = bezier.point_at_pos(ct).distance_to(&mouse_vec);
                     if new_distance < distance {
                         distance = new_distance;
-                        current = Some(bezier.at(ct));
+                        current = Some(bezier.point_at_pos(ct));
                         t = Some(ct);
                         contour_idx = Some(cx);
                         seg_idx = Some(bx);
 
-                        let subdivisions = bezier.subdivide(ct);
+                        let subdivisions = mbezier.subdivide(ct);
                         if let Some(subdivisions) = subdivisions {
                             h1 = Some(subdivisions.0.to_control_points()[2]);
                             h2 = Some(subdivisions.1.to_control_points()[1]);
@@ -161,7 +165,7 @@ pub fn nearest_point_on_curve(
                 t: t.unwrap(),
                 contour_idx: contour_idx.unwrap(),
                 seg_idx: seg_idx.unwrap(),
-                point: (current.x as f32, current.y as f32),
+                point: (current.0 as f32, current.1 as f32),
                 a: (h1.x as f32, h1.y as f32),
                 b: (h2.x as f32, h2.y as f32),
             })
