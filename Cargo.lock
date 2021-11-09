@@ -4,7 +4,7 @@ version = 3
 
 [[package]]
 name = "MFEKglif"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "MFEKmath",
  "backtrace",

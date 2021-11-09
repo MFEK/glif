@@ -1,6 +1,6 @@
 [package]
 name = "MFEKglif"
-version = "1.0.0"
+version = "1.0.1"
 authors = ["Fredrick Brennan <copypaste@kittens.ph>", "Matthew Blanchard <matthewrblanchard@gmail.com>"] # + MFEK authors
 edition = "2018"
 
