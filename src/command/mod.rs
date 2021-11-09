@@ -14,7 +14,7 @@ use xmltree;
 
 // a command file is put into the user's config directory upon first run
 // <command name="ToolPen" key = "A">
-#[derive(Copy, Clone, EnumString, Display, Debug, PartialEq)]
+#[derive(Copy, Clone, EnumString, Hash, Display, Debug, PartialEq, Eq)]
 pub enum Command {
     // zoom
     ResetScale,
@@ -120,7 +120,7 @@ const DEFAULT_KEYBINDINGS: &str = include_str!(concat!(
     "/resources/default_keymap.xml"
 ));
 
-fn load_keybinding_xml(ignore_local: bool) -> String {
+fn load_keybinding_xml(ignore_local: bool, write: bool) -> String {
     // check for a keybinding file in our local directory first
     let config_path = Path::new("./keybindings.xml");
     let config_string = fs::read_to_string(&config_path);
@@ -137,11 +137,11 @@ fn load_keybinding_xml(ignore_local: bool) -> String {
     let path = pb.as_path();
     let config_string = fs::read_to_string(path);
 
-    if let (Ok(config_string), true) = (config_string, ignore_local) {
+    if let (Ok(config_string), false) = (config_string, ignore_local) {
         return config_string;
     }
 
-    if env::var("NO_WRITE_DEFAULT_KEYBINDS").is_err() {
+    if env::var("NO_WRITE_DEFAULT_KEYBINDS").is_err() && write {
         static NO_WRITE_DEFAULT_KEYBINDS: &str = "To disable this write set environment variable NO_WRITE_DEFAULT_KEYBINDS.";
         match fs::write(&path, DEFAULT_KEYBINDINGS.to_owned().into_bytes()) {
             Ok(_) => log::info!("Wrote default keybinds to `{}`. {}", path.display(), NO_WRITE_DEFAULT_KEYBINDS),
@@ -153,16 +153,7 @@ fn load_keybinding_xml(ignore_local: bool) -> String {
     DEFAULT_KEYBINDINGS.to_owned()
 }
 
-pub fn initialize_keybinds() {
-    let mut binding_xml = load_keybinding_xml(false);
-    let config_res = xmltree::Element::parse(binding_xml.as_bytes());
-    let mut config = if let Ok(el) = config_res {
-        el
-    } else {
-        binding_xml = load_keybinding_xml(true);
-        xmltree::Element::parse(binding_xml.as_bytes()).expect("Invalid default keybinding XML‽")
-    };
-
+fn parse_keybinds(mut config: xmltree::Element) -> HashMap<(Keycode, CommandMod), Command> {
     let mut hm: HashMap<(Keycode, CommandMod), Command> = HashMap::new();
 
     while let Some(binding) = config.take_child("binding") {
@@ -185,8 +176,33 @@ pub fn initialize_keybinds() {
         hm.insert((keycode_enum, command_mod), command_enum);
     }
 
+    hm
+}
+
+pub fn initialize_keybinds() {
+    let mut binding_xml = load_keybinding_xml(false, true);
+    let default_xml = load_keybinding_xml(true, false);
+    let config_res = xmltree::Element::parse(binding_xml.as_bytes());
+    let default_res = xmltree::Element::parse(default_xml.as_bytes()).unwrap();
+    let config = if let Ok(el) = config_res {
+        el
+    } else {
+        binding_xml = default_xml;
+        xmltree::Element::parse(binding_xml.as_bytes()).expect("Invalid default keybinding XML‽")
+    };
+
+    let mut keybinds = parse_keybinds(config);
+    let default_keybinds = parse_keybinds(default_res);
+    let commands: HashSet<_> = keybinds.clone().into_values().into_iter().collect();
+    let default_commands: HashSet<_> = default_keybinds.clone().into_values().into_iter().collect();
+
+    if commands != default_commands {
+        keybinds = default_keybinds;
+        log::warn!("Your keybinds are incomplete, missing {:?}; using defaults for all", &default_commands - &commands);
+    }
+
     KEYMAP.with(|v| {
-        v.borrow_mut().keybindings = hm;
+        v.borrow_mut().keybindings = keybinds;
     })
 }
 
