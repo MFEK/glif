@@ -18,7 +18,7 @@ pub struct Args {
 
 pub fn parse_args() -> Args {
     let matches = clap::App::new("MFEKglif")
-        .version(&*format!("{}-alpha", git_version!(fallback=env!("CARGO_PKG_VERSION"))))
+        .version(git_version!(fallback=env!("CARGO_PKG_VERSION")))
         .author("Fredrick R. Brennan, Matthew Blanchard, MFEK Authors")
         .about("Glyph editor, Modular Font Editor K Project")
         .arg(
