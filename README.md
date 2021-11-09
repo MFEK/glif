@@ -46,10 +46,6 @@ Note: This is a basic list to get you started. A complete list can be found in `
 
 MFEKglif is still alpha-quality software, and a numbered release hasn't been made yet. Before 1.0 is out, though, you can test it out with the artifacts function in GitHub. Go to [«Actions»](https://github.com/MFEK/glif/actions), choose a commit, and download the artifact for your OS. Three are uploaded: MFEKglif-linux, MFEKglif-windows, and MFEKglif-macos (not notarized).
 
-### Note for Windows users
-
-MFEKglif currently does not have the ability to write errors or warnings to the screen through dialog boxes or its GUI, which most Windows applications do and are expected to do. We write them to `stderr`, as Unix applications do. We will eventually use MFEKglif's built in console (which appears when you press <kbd>:</kbd>), but for now for best results, and to see the error if you get a crash or MFEKglif does not open, please run MFEKglif through `MSYS2` or `Cmder`.
-
 ## Building
 
 ### Mac users
