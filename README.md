@@ -64,7 +64,7 @@ On Ubuntu, these three packages provide the dependencies: `libgtk-3-dev` `libxcb
 
 ### For everyone
 
-* Download and install [`rustup`](https://rustup.rs/), selecting either the `nightly` or `stable` toolchain. MFEKglif builds on both as of 11 November 2021.
+* Download and install [`rustup`](https://rustup.rs/), selecting either the `nightly` or `stable` toolchain. MFEKglif builds on both as of 7 November 2021.
 * Pull this repository, and finally…
 * Compile the project. An example command is in § Contributing; you may also find the provided `Makefile` helpful.
 
