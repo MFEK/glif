@@ -1,579 +1,19 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<glyph format="2" name="Q">
-  <advance width="780" />
-  <unicode hex="51" />
-  <anchor name="mark_top" x="444" y="848" />
-  <outline>
-    <contour>
-      <point type="curve" y="-30" x="375" />
-      <point x="578" y="-30" />
-      <point y="176" x="749" />
-      <point type="curve" y="422" x="749" />
-      <point x="749" y="583" />
-      <point x="666" y="706" />
-      <point x="518" type="curve" y="765" />
-      <point x="163" type="line" y="611" />
-      <point type="line" x="163" y="579" />
-      <point type="line" x="405" y="684" />
-      <point x="551" y="609" />
-      <point x="645" y="468" />
-      <point x="645" y="322" type="curve" />
-      <point y="183" x="645" />
-      <point y="82" x="563" />
-      <point x="450" y="82" type="curve" />
-      <point y="82" x="303" />
-      <point x="179" y="249" />
-      <point x="179" y="446" type="curve" />
-      <point x="179" y="579" />
-      <point x="235" y="689" />
-      <point y="768" type="curve" x="341" />
-      <point type="line" x="327" y="786" />
-      <point x="165" y="717" />
-      <point x="56" y="536" />
-      <point y="335" type="curve" x="56" />
-      <point x="56" y="125" />
-      <point x="192" y="-30" />
-    </contour>
-    <contour>
-      <point x="214" y="225" type="line" />
-      <point y="248" x="333" />
-      <point y="311" x="396" />
-      <point x="396" y="405" type="curve" />
-      <point type="line" x="396" y="695" />
-      <point y="641" x="267" type="line" />
-      <point x="267" type="line" y="395" />
-      <point y="324" x="267" />
-      <point y="285" x="249" />
-      <point y="254" x="201" type="curve" />
-    </contour>
-    <contour>
-      <point x="682" type="curve" y="-106" />
-      <point x="832" type="line" y="12" />
-      <point type="line" x="813" y="33" />
-      <point y="0" x="772" type="line" />
-      <point x="716" y="29" />
-      <point x="668" y="76" />
-      <point y="140" x="628" type="curve" />
-      <point type="line" x="527" y="44" />
-      <point x="575" y="-26" />
-      <point y="-77" x="628" />
-    </contour>
-    <contour>
-      <point x="450" y="59" type="line" />
-      <point type="line" x="480" y="59" />
-      <point x="480" y="678" type="line" />
-      <point type="line" y="678" x="450" />
-    </contour>
-    <contour>
-      <point x="463" y="374" type="line" />
-      <point y="459" x="633" type="line" />
-      <point type="line" y="490" x="633" />
-      <point y="406" x="463" type="line" />
-    </contour>
-    <contour>
-      <point y="269" x="463" type="line" />
-      <point x="667" y="372" type="line" />
-      <point type="line" x="667" y="403" />
-      <point x="463" type="line" y="301" />
-    </contour>
-  </outline>
-  <guideline x="0" y="650" angle="0" name="ascender" />
-  <guideline x="0" angle="0" y="-350" name="descender" />
-  <guideline y="650" name="ascender" x="0" angle="0" />
-  <guideline x="0" y="-350" name="descender" angle="0" />
-  <guideline x="0" y="650" angle="0" name="ascender" />
-  <guideline y="-350" x="0" name="descender" angle="0" />
-  <!-- !!MFEK!!{
+{
   "layers": [
     {
       "name": "Layer 0",
-      "visible": false,
+      "visible": true,
       "color": null,
-      "outline": [
-        {
-          "inner": [
-            {
-              "x": 375.0,
-              "y": -30.0,
-              "a": {
-                "At": [
-                  578.0,
-                  -30.0
-                ]
-              },
-              "b": {
-                "At": [
-                  192.0,
-                  -30.0
-                ]
-              },
-              "name": null,
-              "ptype": "Curve",
-              "data": null
-            },
-            {
-              "x": 749.0,
-              "y": 422.0,
-              "a": {
-                "At": [
-                  749.0,
-                  583.0
-                ]
-              },
-              "b": {
-                "At": [
-                  749.0,
-                  176.0
-                ]
-              },
-              "name": null,
-              "ptype": "Curve",
-              "data": null
-            },
-            {
-              "x": 518.0,
-              "y": 765.0,
-              "a": "Colocated",
-              "b": {
-                "At": [
-                  666.0,
-                  706.0
-                ]
-              },
-              "name": null,
-              "ptype": "Curve",
-              "data": null
-            },
-            {
-              "x": 163.0,
-              "y": 611.0,
-              "a": "Colocated",
-              "b": "Colocated",
-              "name": null,
-              "ptype": "Line",
-              "data": null
-            },
-            {
-              "x": 163.0,
-              "y": 579.0,
-              "a": "Colocated",
-              "b": "Colocated",
-              "name": null,
-              "ptype": "Line",
-              "data": null
-            },
-            {
-              "x": 405.0,
-              "y": 684.0,
-              "a": {
-                "At": [
-                  551.0,
-                  609.0
-                ]
-              },
-              "b": "Colocated",
-              "name": null,
-              "ptype": "Line",
-              "data": null
-            },
-            {
-              "x": 645.0,
-              "y": 322.0,
-              "a": {
-                "At": [
-                  645.0,
-                  183.0
-                ]
-              },
-              "b": {
-                "At": [
-                  645.0,
-                  468.0
-                ]
-              },
-              "name": null,
-              "ptype": "Curve",
-              "data": null
-            },
-            {
-              "x": 450.0,
-              "y": 82.0,
-              "a": {
-                "At": [
-                  303.0,
-                  82.0
-                ]
-              },
-              "b": {
-                "At": [
-                  563.0,
-                  82.0
-                ]
-              },
-              "name": null,
-              "ptype": "Curve",
-              "data": null
-            },
-            {
-              "x": 179.0,
-              "y": 446.0,
-              "a": {
-                "At": [
-                  179.0,
-                  579.0
-                ]
-              },
-              "b": {
-                "At": [
-                  179.0,
-                  249.0
-                ]
-              },
-              "name": null,
-              "ptype": "Curve",
-              "data": null
-            },
-            {
-              "x": 341.0,
-              "y": 768.0,
-              "a": "Colocated",
-              "b": {
-                "At": [
-                  235.0,
-                  689.0
-                ]
-              },
-              "name": null,
-              "ptype": "Curve",
-              "data": null
-            },
-            {
-              "x": 327.0,
-              "y": 786.0,
-              "a": {
-                "At": [
-                  165.0,
-                  717.0
-                ]
-              },
-              "b": "Colocated",
-              "name": null,
-              "ptype": "Line",
-              "data": null
-            },
-            {
-              "x": 56.0,
-              "y": 335.0,
-              "a": {
-                "At": [
-                  56.0,
-                  125.0
-                ]
-              },
-              "b": {
-                "At": [
-                  56.0,
-                  536.0
-                ]
-              },
-              "name": null,
-              "ptype": "Curve",
-              "data": null
-            }
-          ],
-          "operation": null
-        },
-        {
-          "inner": [
-            {
-              "x": 214.0,
-              "y": 225.0,
-              "a": {
-                "At": [
-                  333.0,
-                  248.0
-                ]
-              },
-              "b": "Colocated",
-              "name": null,
-              "ptype": "Line",
-              "data": null
-            },
-            {
-              "x": 396.0,
-              "y": 405.0,
-              "a": "Colocated",
-              "b": {
-                "At": [
-                  396.0,
-                  311.0
-                ]
-              },
-              "name": null,
-              "ptype": "Curve",
-              "data": null
-            },
-            {
-              "x": 396.0,
-              "y": 695.0,
-              "a": "Colocated",
-              "b": "Colocated",
-              "name": null,
-              "ptype": "Line",
-              "data": null
-            },
-            {
-              "x": 267.0,
-              "y": 641.0,
-              "a": "Colocated",
-              "b": "Colocated",
-              "name": null,
-              "ptype": "Line",
-              "data": null
-            },
-            {
-              "x": 267.0,
-              "y": 395.0,
-              "a": {
-                "At": [
-                  267.0,
-                  324.0
-                ]
-              },
-              "b": "Colocated",
-              "name": null,
-              "ptype": "Line",
-              "data": null
-            },
-            {
-              "x": 201.0,
-              "y": 254.0,
-              "a": "Colocated",
-              "b": {
-                "At": [
-                  249.0,
-                  285.0
-                ]
-              },
-              "name": null,
-              "ptype": "Curve",
-              "data": null
-            }
-          ],
-          "operation": null
-        },
-        {
-          "inner": [
-            {
-              "x": 682.0,
-              "y": -106.0,
-              "a": "Colocated",
-              "b": {
-                "At": [
-                  628.0,
-                  -77.0
-                ]
-              },
-              "name": null,
-              "ptype": "Curve",
-              "data": null
-            },
-            {
-              "x": 832.0,
-              "y": 12.0,
-              "a": "Colocated",
-              "b": "Colocated",
-              "name": null,
-              "ptype": "Line",
-              "data": null
-            },
-            {
-              "x": 813.0,
-              "y": 33.0,
-              "a": "Colocated",
-              "b": "Colocated",
-              "name": null,
-              "ptype": "Line",
-              "data": null
-            },
-            {
-              "x": 772.0,
-              "y": 0.0,
-              "a": {
-                "At": [
-                  716.0,
-                  29.0
-                ]
-              },
-              "b": "Colocated",
-              "name": null,
-              "ptype": "Line",
-              "data": null
-            },
-            {
-              "x": 628.0,
-              "y": 140.0,
-              "a": "Colocated",
-              "b": {
-                "At": [
-                  668.0,
-                  76.0
-                ]
-              },
-              "name": null,
-              "ptype": "Curve",
-              "data": null
-            },
-            {
-              "x": 527.0,
-              "y": 44.0,
-              "a": {
-                "At": [
-                  575.0,
-                  -26.0
-                ]
-              },
-              "b": "Colocated",
-              "name": null,
-              "ptype": "Line",
-              "data": null
-            }
-          ],
-          "operation": null
-        },
-        {
-          "inner": [
-            {
-              "x": 450.0,
-              "y": 59.0,
-              "a": "Colocated",
-              "b": "Colocated",
-              "name": null,
-              "ptype": "Line",
-              "data": null
-            },
-            {
-              "x": 480.0,
-              "y": 59.0,
-              "a": "Colocated",
-              "b": "Colocated",
-              "name": null,
-              "ptype": "Line",
-              "data": null
-            },
-            {
-              "x": 480.0,
-              "y": 678.0,
-              "a": "Colocated",
-              "b": "Colocated",
-              "name": null,
-              "ptype": "Line",
-              "data": null
-            },
-            {
-              "x": 450.0,
-              "y": 678.0,
-              "a": "Colocated",
-              "b": "Colocated",
-              "name": null,
-              "ptype": "Line",
-              "data": null
-            }
-          ],
-          "operation": null
-        },
-        {
-          "inner": [
-            {
-              "x": 463.0,
-              "y": 374.0,
-              "a": "Colocated",
-              "b": "Colocated",
-              "name": null,
-              "ptype": "Line",
-              "data": null
-            },
-            {
-              "x": 633.0,
-              "y": 459.0,
-              "a": "Colocated",
-              "b": "Colocated",
-              "name": null,
-              "ptype": "Line",
-              "data": null
-            },
-            {
-              "x": 633.0,
-              "y": 490.0,
-              "a": "Colocated",
-              "b": "Colocated",
-              "name": null,
-              "ptype": "Line",
-              "data": null
-            },
-            {
-              "x": 463.0,
-              "y": 406.0,
-              "a": "Colocated",
-              "b": "Colocated",
-              "name": null,
-              "ptype": "Line",
-              "data": null
-            }
-          ],
-          "operation": null
-        },
-        {
-          "inner": [
-            {
-              "x": 463.0,
-              "y": 269.0,
-              "a": "Colocated",
-              "b": "Colocated",
-              "name": null,
-              "ptype": "Line",
-              "data": null
-            },
-            {
-              "x": 667.0,
-              "y": 372.0,
-              "a": "Colocated",
-              "b": "Colocated",
-              "name": null,
-              "ptype": "Line",
-              "data": null
-            },
-            {
-              "x": 667.0,
-              "y": 403.0,
-              "a": "Colocated",
-              "b": "Colocated",
-              "name": null,
-              "ptype": "Line",
-              "data": null
-            },
-            {
-              "x": 463.0,
-              "y": 301.0,
-              "a": "Colocated",
-              "b": "Colocated",
-              "name": null,
-              "ptype": "Line",
-              "data": null
-            }
-          ],
-          "operation": null
-        }
-      ],
+      "outline": [],
       "operation": null,
       "images": []
     },
     {
-      "name": "Loops",
+      "name": "2",
       "visible": true,
       "color": {
         "r": {
-          "Float": 0.6130952
+          "Float": 0.6666666
         },
         "g": {
           "Float": 0.0
@@ -1219,130 +659,17 @@
       "images": []
     },
     {
-      "name": "GREEN",
+      "name": "1",
       "visible": true,
       "color": {
         "r": {
-          "Float": 0.40625
-        },
-        "g": {
-          "Float": 0.875
-        },
-        "b": {
           "Float": 0.0
         },
-        "a": {
+        "g": {
+          "Float": 0.13725491
+        },
+        "b": {
           "Float": 1.0
-        }
-      },
-      "outline": [
-        {
-          "inner": [
-            {
-              "x": 98.00003,
-              "y": -222.00021,
-              "a": "Colocated",
-              "b": "Colocated",
-              "name": null,
-              "ptype": "Curve",
-              "data": null
-            },
-            {
-              "x": 48.00001,
-              "y": 371.9999,
-              "a": "Colocated",
-              "b": "Colocated",
-              "name": null,
-              "ptype": "Curve",
-              "data": null
-            },
-            {
-              "x": 642.0001,
-              "y": 399.9999,
-              "a": "Colocated",
-              "b": "Colocated",
-              "name": null,
-              "ptype": "Curve",
-              "data": null
-            },
-            {
-              "x": 630.0001,
-              "y": -156.00021,
-              "a": "Colocated",
-              "b": "Colocated",
-              "name": null,
-              "ptype": "Curve",
-              "data": null
-            }
-          ],
-          "operation": null
-        }
-      ],
-      "operation": null,
-      "images": []
-    },
-    {
-      "name": "cutout",
-      "visible": true,
-      "color": null,
-      "outline": [
-        {
-          "inner": [
-            {
-              "x": 78.000015,
-              "y": 345.99988,
-              "a": "Colocated",
-              "b": "Colocated",
-              "name": null,
-              "ptype": "Curve",
-              "data": null
-            },
-            {
-              "x": 124.00003,
-              "y": -190.00024,
-              "a": "Colocated",
-              "b": "Colocated",
-              "name": null,
-              "ptype": "Curve",
-              "data": null
-            },
-            {
-              "x": 615.71436,
-              "y": -144.28583,
-              "a": "Colocated",
-              "b": "Colocated",
-              "name": null,
-              "ptype": "Curve",
-              "data": null
-            },
-            {
-              "x": 610.0001,
-              "y": 375.9999,
-              "a": "Colocated",
-              "b": "Colocated",
-              "name": null,
-              "ptype": "Curve",
-              "data": null
-            }
-          ],
-          "operation": null
-        }
-      ],
-      "operation": "Difference",
-      "images": []
-    },
-    {
-      "name": "4",
-      "visible": true,
-      "color": {
-        "r": {
-          "Float": 0.0
-        },
-        "g": {
-          "Float": 0.34509805
-        },
-        "b": {
-          "Float": 0.8745098
         },
         "a": {
           "Float": 0.6666667
@@ -1355,9 +682,14 @@
               "x": 706.00024,
               "y": 497.99997,
               "a": "Colocated",
-              "b": "Colocated",
+              "b": {
+                "At": [
+                  706.00024,
+                  497.99997
+                ]
+              },
               "name": null,
-              "ptype": "Line",
+              "ptype": "Curve",
               "data": null
             },
             {
@@ -1390,6 +722,115 @@
             {
               "x": 706.0002,
               "y": 497.99994,
+              "a": {
+                "At": [
+                  706.0002,
+                  497.99994
+                ]
+              },
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            }
+          ],
+          "operation": null
+        }
+      ],
+      "operation": null,
+      "images": []
+    },
+    {
+      "name": "3",
+      "visible": true,
+      "color": {
+        "r": {
+          "Float": 0.0
+        },
+        "g": {
+          "Float": 0.8518518
+        },
+        "b": {
+          "Float": 0.0
+        },
+        "a": {
+          "Float": 1.0
+        }
+      },
+      "outline": [
+        {
+          "inner": [
+            {
+              "x": 48.00001,
+              "y": 371.9999,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Line",
+              "data": null
+            },
+            {
+              "x": 98.00003,
+              "y": -222.00021,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Line",
+              "data": null
+            },
+            {
+              "x": 630.0001,
+              "y": -156.00021,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Line",
+              "data": null
+            },
+            {
+              "x": 642.0001,
+              "y": 399.9999,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Line",
+              "data": null
+            }
+          ],
+          "operation": null
+        },
+        {
+          "inner": [
+            {
+              "x": 124.00003,
+              "y": -190.00024,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Line",
+              "data": null
+            },
+            {
+              "x": 78.000015,
+              "y": 345.99988,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Line",
+              "data": null
+            },
+            {
+              "x": 610.0001,
+              "y": 375.9999,
+              "a": "Colocated",
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Line",
+              "data": null
+            },
+            {
+              "x": 615.71436,
+              "y": -144.28583,
               "a": "Colocated",
               "b": "Colocated",
               "name": null,
@@ -1415,92 +856,15 @@
     }
   ],
   "components": {
-    "root": "Q",
+    "root": "art",
     "vec": []
   },
-  "flattened": null,
-  "component_rects": null,
-  "guidelines": [
-    {
-      "at": {
-        "x": 0.0,
-        "y": 650.0
-      },
-      "angle": {
-        "Integer": 0
-      },
-      "name": "ascender",
-      "color": null,
-      "identifier": null
-    },
-    {
-      "at": {
-        "x": 0.0,
-        "y": -350.0
-      },
-      "angle": {
-        "Integer": 0
-      },
-      "name": "descender",
-      "color": null,
-      "identifier": null
-    },
-    {
-      "at": {
-        "x": 0.0,
-        "y": 650.0
-      },
-      "angle": {
-        "Float": 0.0
-      },
-      "name": "ascender",
-      "color": null,
-      "identifier": null
-    },
-    {
-      "at": {
-        "x": 0.0,
-        "y": -350.0
-      },
-      "angle": {
-        "Float": 0.0
-      },
-      "name": "descender",
-      "color": null,
-      "identifier": null
-    },
-    {
-      "at": {
-        "x": 0.0,
-        "y": 650.0
-      },
-      "angle": {
-        "Float": 0.0
-      },
-      "name": "ascender",
-      "color": null,
-      "identifier": null
-    },
-    {
-      "at": {
-        "x": 0.0,
-        "y": -350.0
-      },
-      "angle": {
-        "Float": 0.0
-      },
-      "name": "descender",
-      "color": null,
-      "identifier": null
-    }
-  ],
+  "flattened": [],
+  "component_rects": [],
+  "guidelines": [],
   "width": 780,
-  "unicode": [
-    "Q"
-  ],
-  "name": "Q",
+  "unicode": [],
+  "name": "art",
   "note": null,
-  "format": 2,
-  "filename": "examples/ExportTestUfo.ufo/glyphs.MFEK/art.glif"
-} -->
-</glyph>
+  "filename": "glyphs.MFEK/art.glifjson"
+}

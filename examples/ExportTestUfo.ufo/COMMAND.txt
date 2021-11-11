@@ -1,1 +1,0 @@
-RUST_BACKTRACE=1 RUST_LOG=debug cargo run -- ~/Workspace/ExportTestUfo.ufo/glyphs.MFEK/Q_wtf.glif --export
