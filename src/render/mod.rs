@@ -6,12 +6,12 @@ use glifparser::matrix::ToSkiaMatrix;
 use glifrenderer::anchors::draw_anchors;
 use glifrenderer::calc_x;
 use glifrenderer::calc_y;
+use glifrenderer::constants::*;
 use glifrenderer::glyph::draw_components;
 use glifrenderer::guidelines;
 use glifrenderer::points;
-use glifrenderer::viewport;
-use glifrenderer::constants::*;
 use glifrenderer::toggles::*;
+use glifrenderer::viewport;
 
 use skulpin::skia_safe::Canvas;
 use skulpin::skia_safe::Matrix;
@@ -74,13 +74,17 @@ pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
     }
 
     let active_layer = v.get_active_layer();
-    let path = glifrenderer::glyph::draw(canvas, v.preview.as_ref().unwrap(), &i.viewport, active_layer);
+    let path = glifrenderer::glyph::draw(
+        canvas,
+        v.preview.as_ref().unwrap(),
+        &i.viewport,
+        active_layer,
+    );
 
     v.with_glyph(|glyph| {
         // Cache component rects and flattened outline on MFEKGlif
         draw_components(glyph, &i.viewport, canvas);
     });
-
 
     // TODO: let _path = glyph::draw_previews(v, canvas);
 
@@ -92,10 +96,18 @@ pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
             let selected = v.selected.clone();
 
             v.with_glyph(|glif| {
-                points::draw_all(glif, &i.viewport, active_layer, cidx, pidx, &selected, canvas);
+                points::draw_all(
+                    glif,
+                    &i.viewport,
+                    active_layer,
+                    cidx,
+                    pidx,
+                    &selected,
+                    canvas,
+                );
             });
             points::draw_directions(&i.viewport, path, canvas);
-            
+
             v.with_glyph(|glif| {
                 draw_anchors(glif, &i.viewport, canvas);
             });

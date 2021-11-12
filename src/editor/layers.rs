@@ -37,7 +37,7 @@ impl Editor {
     /// Deletes a layer. Generates a history entry and sets the user's selection to the layer above.
     pub fn delete_layer(&mut self) {
         if self.with_glyph(|glif| glif.layers.len()) == 1 {
-            return
+            return;
         }
 
         self.end_modification();

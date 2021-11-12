@@ -34,9 +34,7 @@ impl Tool for Guidelines {
 
 impl Guidelines {
     pub fn new() -> Self {
-        Self {
-            selected_idx: None,
-        }
+        Self { selected_idx: None }
     }
 
     fn mouse_pressed(&mut self, v: &mut Editor, i: &mut Interface, mouse_info: MouseInfo) {

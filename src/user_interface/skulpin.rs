@@ -1,7 +1,7 @@
 use sdl2::video::Window;
 use skulpin::{rafx::api::RafxExtents2D, Renderer, RendererBuilder};
 
-use super::{HEIGHT, Interface, WIDTH};
+use super::{Interface, HEIGHT, WIDTH};
 
 impl Interface {
     pub fn initialize_skulpin_renderer(window: &Window) -> Renderer {

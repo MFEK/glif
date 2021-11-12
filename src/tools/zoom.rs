@@ -1,7 +1,7 @@
 use sdl2::mouse::MouseButton;
 
-use crate::{constants::SCALE_FACTOR, editor::Editor};
 use crate::user_interface::Interface;
+use crate::{constants::SCALE_FACTOR, editor::Editor};
 
 // Pan
 use super::{prelude::*, EditorEvent, MouseEventType, Tool};

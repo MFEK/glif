@@ -1,7 +1,7 @@
 use imgui::Ui;
 use skulpin::skia_safe::Canvas;
 
-use super::{Editor, events::EditorEvent};
+use super::{events::EditorEvent, Editor};
 use crate::{
     tool_behaviors::ToolBehavior,
     tools::{tool_enum_to_tool, Tool, ToolEnum},

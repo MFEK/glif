@@ -17,10 +17,10 @@ use crate::get_contour_mut;
 
 pub mod debug;
 pub mod events;
-pub mod io;
 pub mod headless;
 pub mod history;
 pub mod images;
+pub mod io;
 pub mod layers;
 pub mod operations;
 pub mod selection;
@@ -115,7 +115,7 @@ impl Editor {
     /// This ends an ongoing modification and calls the proper events.
     pub fn end_modification(&mut self) {
         if !self.modifying {
-            return
+            return;
         }
 
         if !self.dirty {

@@ -2,16 +2,16 @@ pub use super::ToolBehavior;
 
 //Editor
 pub use crate::editor;
+pub use crate::editor::events::*;
 pub use crate::editor::util::*;
 pub use crate::editor::Editor;
-pub use crate::editor::events::*;
 
 // Renderer
 pub use glifrenderer::constants::*;
 pub use glifrenderer::points::calc::*;
 pub use glifrenderer::points::draw_point;
-pub use glifrenderer::viewport::Viewport;
 pub use glifrenderer::points::UIPointType;
+pub use glifrenderer::viewport::Viewport;
 
 // Input
 pub use sdl2::mouse::MouseButton;

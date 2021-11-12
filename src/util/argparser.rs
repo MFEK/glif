@@ -54,6 +54,6 @@ pub fn parse_args() -> Args {
 
     Args {
         filename: matches.value_of("GLIF").map(|s| s.to_string()),
-        headless_mode: mode
+        headless_mode: mode,
     }
 }

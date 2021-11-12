@@ -53,7 +53,8 @@ impl Guidelines {
 
                 for guideline in 0..guideline_count {
                     let guideline_name = v.with_glyph(|glif| {
-                        { glif.guidelines[guideline].name.clone() }.unwrap_or_else(||"Unnamed".to_string())
+                        { glif.guidelines[guideline].name.clone() }
+                            .unwrap_or_else(|| "Unnamed".to_string())
                     });
 
                     let guideline_display = imgui::im_str!("{0}", guideline_name);
@@ -76,7 +77,7 @@ impl Guidelines {
                                 glyph.guidelines[guideline]
                                     .name
                                     .clone()
-                                    .unwrap_or_else(||"".to_string())
+                                    .unwrap_or_else(|| "".to_string())
                             }),
                             func: Rc::new(move |editor, string| {
                                 editor.with_glyph_mut(|glyph| {
@@ -107,7 +108,7 @@ impl Guidelines {
 
         if let Some(selected) = self.selected_idx {
             imgui::Window::new(&imgui::ImString::new("Guideline Inspector"))
-                .bg_alpha(1.) 
+                .bg_alpha(1.)
                 .flags(
                     imgui::WindowFlags::NO_RESIZE
                         | imgui::WindowFlags::NO_MOVE

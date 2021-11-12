@@ -60,7 +60,6 @@ jobs:
             target/debug/MFEKglif.exe
 
   rustfmt:
-    if: false
     strategy:
       fail-fast: false
     runs-on: ubuntu-20.04

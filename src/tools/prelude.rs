@@ -7,9 +7,9 @@ pub use glifrenderer::points::calc::*;
 
 //Editor
 pub use crate::editor;
+pub use crate::editor::events::*;
 pub use crate::editor::util::*;
 pub use crate::editor::Editor;
-pub use crate::editor::events::*;
 
 // Util + Macros
 pub use crate::util::*;

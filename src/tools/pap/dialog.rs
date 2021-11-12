@@ -197,7 +197,11 @@ impl PAP {
                     }
 
                     let mut new_normal = data.normal_offset as f32;
-                    user_interface::util::imgui_decimal_text_field("Normal Offset", ui, &mut new_normal);
+                    user_interface::util::imgui_decimal_text_field(
+                        "Normal Offset",
+                        ui,
+                        &mut new_normal,
+                    );
 
                     if new_normal != data.normal_offset as f32 {
                         let mut new_data = data.clone();
@@ -212,7 +216,11 @@ impl PAP {
                     }
 
                     let mut new_tangent = data.tangent_offset as f32;
-                    user_interface::util::imgui_decimal_text_field("Tangent Offset", ui, &mut new_tangent);
+                    user_interface::util::imgui_decimal_text_field(
+                        "Tangent Offset",
+                        ui,
+                        &mut new_tangent,
+                    );
 
                     if new_tangent != data.tangent_offset as f32 {
                         let mut new_data = data.clone();

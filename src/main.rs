@@ -3,9 +3,15 @@
 //! Apache 2.0 licensed. See AUTHORS.
 #![allow(non_snake_case)] // for our name MFEKglif
 
-use crate::{constants::OFFSET_FACTOR, tools::zoom::{zoom_in_factor, zoom_out_factor}};
+use crate::{
+    constants::OFFSET_FACTOR,
+    tools::zoom::{zoom_in_factor, zoom_out_factor},
+};
 use command::{Command, CommandInfo, CommandMod};
-use editor::{Editor, events::{EditorEvent, MouseEventType}};
+use editor::{
+    events::{EditorEvent, MouseEventType},
+    Editor,
+};
 use glifrenderer::toggles::{PointLabels, PreviewMode};
 use tools::ToolEnum;
 use user_interface::{ImguiManager, Interface};
@@ -26,13 +32,13 @@ mod filedialog;
 mod ipc;
 #[macro_use]
 extern crate pub_mod;
+mod render;
 pub mod settings;
 mod system_fonts;
 mod tool_behaviors;
 mod tools;
 mod user_interface;
 pub mod util;
-mod render;
 
 fn main() {
     util::init_env_logger();
@@ -73,14 +79,14 @@ fn main() {
             util::debug_event!("Got event: {:?}", &event);
 
             if let Event::Quit { .. } = &event {
-                break 'main_loop
+                break 'main_loop;
             }
 
             if imgui_manager.handle_imgui_event(&event) {
-                continue
+                continue;
             }
             if interface.active_prompts() {
-                continue
+                continue;
             }
 
             // we're gonna handle console text input here as this should steal input from the command system
@@ -99,9 +105,7 @@ fn main() {
             */
 
             match event {
-                Event::KeyDown {
-                    keycode, ..
-                } => {
+                Event::KeyDown { keycode, .. } => {
                     // we don't care about keydown events that have no keycode
                     if keycode.is_none() {
                         continue;
@@ -225,10 +229,11 @@ fn main() {
                             editor.redo();
                         }
                         Command::IOOpen => {
-                            let filename = match filedialog::open_filename(Some("glif,glifjson"), None) {
-                                Some(f) => f,
-                                None => continue,
-                            };
+                            let filename =
+                                match filedialog::open_filename(Some("glif,glifjson"), None) {
+                                    Some(f) => f,
+                                    None => continue,
+                                };
                             editor.load_glif(&mut interface, &filename);
                         }
                         Command::IOSave => {

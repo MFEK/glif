@@ -15,7 +15,11 @@ pub struct Pen {}
 
 impl Tool for Pen {
     fn event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
-        if let EditorEvent::MouseEvent { mouse_info, event_type } = event {
+        if let EditorEvent::MouseEvent {
+            mouse_info,
+            event_type,
+        } = event
+        {
             match event_type {
                 MouseEventType::Pressed => self.mouse_pressed(v, i, mouse_info),
                 _ => (),
@@ -103,7 +107,11 @@ impl Pen {
                     let (x, y) = (sub_a[3].x, sub_a[3].y);
                     contour.inner.insert(
                         info.seg_idx,
-                        Point::from_x_y_a_b_type((x as f32, y as f32), (sub_b[1].to_handle(), sub_a[2].to_handle()), PointType::Curve)
+                        Point::from_x_y_a_b_type(
+                            (x as f32, y as f32),
+                            (sub_b[1].to_handle(), sub_a[2].to_handle()),
+                            PointType::Curve,
+                        ),
                     );
                     contour.operation = contour_operations::insert(contour, info.seg_idx);
                     contour.inner.insert(info.seg_idx, point);

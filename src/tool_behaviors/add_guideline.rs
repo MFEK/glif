@@ -70,10 +70,13 @@ impl AddGuideline {
 impl ToolBehavior for AddGuideline {
     fn event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
         match event {
-            EditorEvent::MouseEvent { event_type: MouseEventType::Released, mouse_info } => {
+            EditorEvent::MouseEvent {
+                event_type: MouseEventType::Released,
+                mouse_info,
+            } => {
                 self.mouse_released(v, i, mouse_info);
             }
-            _ => ()
+            _ => (),
         }
     }
 

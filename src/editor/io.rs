@@ -8,7 +8,10 @@ use glifparser::Glif;
 use log;
 use plist::{self, Value as PlistValue};
 
-use std::{fs, io, path::{self, Path as FsPath}};
+use std::{
+    fs, io,
+    path::{self, Path as FsPath},
+};
 
 use crate::filedialog;
 use crate::ipc;
@@ -27,11 +30,20 @@ impl Editor {
 
     pub fn load_glif_headless<F: AsRef<FsPath> + Clone>(&mut self, filename: F) {
         // TODO: Actually handle errors now that we have them.
-        let glif: MFEKGlif<MFEKPointData> = match filename.as_ref().file_name().expect("No filename").to_string_lossy().ends_with(".glifjson") {
-            true => serde_json::from_str(&fs::read_to_string(filename).expect("Could not open file")).expect("Could not deserialize JSON MFEKGlif"),
+        let glif: MFEKGlif<MFEKPointData> = match filename
+            .as_ref()
+            .file_name()
+            .expect("No filename")
+            .to_string_lossy()
+            .ends_with(".glifjson")
+        {
+            true => {
+                serde_json::from_str(&fs::read_to_string(filename).expect("Could not open file"))
+                    .expect("Could not deserialize JSON MFEKGlif")
+            }
             false => glifparser::read_from_filename(&filename)
                 .expect("Invalid glif!")
-                .into()
+                .into(),
         };
 
         if *DEBUG_DUMP_GLYPH {
@@ -159,7 +171,7 @@ impl Editor {
                     }
                     target.push(&glif_fn);
                 }
-                None => {target.set_file_name(&glif_fn)},
+                None => target.set_file_name(&glif_fn),
             }
             log::info!("Targeting {:?} to write {}", &target, &layer.name);
 

@@ -2,7 +2,10 @@ use std::collections::HashSet;
 
 use crate::get_contour_len;
 use crate::{tools::prelude::math::FlipIfRequired, user_interface::Interface};
-use flo_curves::{bezier::{Curve as FloCurve, solve_curve_for_t_within}, geo::Coord2};
+use flo_curves::{
+    bezier::{solve_curve_for_t_within, Curve as FloCurve},
+    geo::Coord2,
+};
 use glifparser::{
     glif::{MFEKOutline, MFEKPointData},
     Handle, WhichHandle,
@@ -129,12 +132,20 @@ pub fn nearest_point_on_curve(
         for (cx, contour) in pw.segs.iter().enumerate() {
             for (bx, mbezier) in contour.segs.iter().enumerate() {
                 use flo_curves::BezierCurveFactory as _;
-                let bezier = FloCurve::from_points(Coord2(mbezier.w1.x, mbezier.w1.y), (Coord2(mbezier.w2.x, mbezier.w2.y), Coord2(mbezier.w3.x, mbezier.w3.y)), Coord2(mbezier.w4.x, mbezier.w4.y));
-                let mouse_vec = Coord2(
-                    calc_x(position.0) as f64,
-                    calc_y(position.1 as f32) as f64,
+                let bezier = FloCurve::from_points(
+                    Coord2(mbezier.w1.x, mbezier.w1.y),
+                    (
+                        Coord2(mbezier.w2.x, mbezier.w2.y),
+                        Coord2(mbezier.w3.x, mbezier.w3.y),
+                    ),
+                    Coord2(mbezier.w4.x, mbezier.w4.y),
                 );
-                let ct = solve_curve_for_t_within(&bezier, &mouse_vec, Some(3.5 / i.viewport.factor as f64));
+                let mouse_vec = Coord2(calc_x(position.0) as f64, calc_y(position.1 as f32) as f64);
+                let ct = solve_curve_for_t_within(
+                    &bezier,
+                    &mouse_vec,
+                    Some(3.5 / i.viewport.factor as f64),
+                );
 
                 if let Some(ct) = ct {
                     use flo_curves::BezierCurve as _;

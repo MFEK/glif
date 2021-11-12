@@ -1,11 +1,10 @@
-use MFEKmath::{Piecewise, pattern_along_path_mfek};
 use glifparser::glif::{MFEKContour, MFEKOutline, MFEKPointData, PAPContour};
+use MFEKmath::{pattern_along_path_mfek, Piecewise};
 
 use super::ContourOperation;
 
 impl ContourOperation for PAPContour {
-    fn build(&self, contour: &MFEKContour<MFEKPointData>) -> MFEKOutline<MFEKPointData>
-    {
+    fn build(&self, contour: &MFEKContour<MFEKPointData>) -> MFEKOutline<MFEKPointData> {
         let contour_pw = Piecewise::from(&contour.inner);
 
         let pap_output = pattern_along_path_mfek(&contour_pw, self);
@@ -22,7 +21,11 @@ impl ContourOperation for PAPContour {
         self.clone()
     }
 
-    fn append(&self, _contour: &MFEKContour<MFEKPointData>, _append: &MFEKContour<MFEKPointData>) -> Self {
+    fn append(
+        &self,
+        _contour: &MFEKContour<MFEKPointData>,
+        _append: &MFEKContour<MFEKPointData>,
+    ) -> Self {
         self.clone()
     }
 

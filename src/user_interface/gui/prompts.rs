@@ -39,10 +39,7 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ui: &mut imgui
                 .flags(imgui::WindowFlags::NO_RESIZE | imgui::WindowFlags::NO_COLLAPSE)
                 .position_pivot([0.5, 0.5])
                 .position(
-                    [
-                        (i.viewport.winsize.0 / 2.),
-                        (i.viewport.winsize.1 / 2.),
-                    ],
+                    [(i.viewport.winsize.0 / 2.), (i.viewport.winsize.1 / 2.)],
                     imgui::Condition::Always,
                 )
                 .size(
@@ -81,10 +78,7 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ui: &mut imgui
                 .flags(imgui::WindowFlags::NO_RESIZE | imgui::WindowFlags::NO_COLLAPSE)
                 .position_pivot([0.5, 0.5])
                 .position(
-                    [
-                        (i.viewport.winsize.0 / 2.),
-                        (i.viewport.winsize.1 / 2.),
-                    ],
+                    [(i.viewport.winsize.0 / 2.), (i.viewport.winsize.1 / 2.)],
                     imgui::Condition::Always,
                 )
                 .size(
@@ -119,10 +113,7 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ui: &mut imgui
                 .flags(imgui::WindowFlags::NO_RESIZE | imgui::WindowFlags::NO_COLLAPSE)
                 .position_pivot([0.5, 0.5])
                 .position(
-                    [
-                        (i.viewport.winsize.0 / 2.),
-                        (i.viewport.winsize.1 / 2.),
-                    ],
+                    [(i.viewport.winsize.0 / 2.), (i.viewport.winsize.1 / 2.)],
                     imgui::Condition::Always,
                 )
                 .size(

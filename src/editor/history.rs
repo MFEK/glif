@@ -9,7 +9,7 @@ pub struct History {
 }
 
 impl History {
-    pub fn add_undo_entry(&mut self, entry: HistoryEntry ) {
+    pub fn add_undo_entry(&mut self, entry: HistoryEntry) {
         log::debug!("Added undo entry: {0}", entry.description);
         self.undo_stack.push(entry);
         self.redo_stack.clear();
@@ -19,11 +19,13 @@ impl History {
 impl Editor {
     /// Pops a HistoryEntry off the layer stack and restores it.
     pub fn undo(&mut self) {
-        if self.modifying { return; }
+        if self.modifying {
+            return;
+        }
         let entry = self.history.undo_stack.pop();
-        
+
         if let Some(undo_entry) = entry {
-            self.history.redo_stack.push( HistoryEntry {
+            self.history.redo_stack.push(HistoryEntry {
                 description: "Undo".to_owned(),
                 layer_idx: self.layer_idx,
                 contour_idx: self.contour_idx,
@@ -31,7 +33,7 @@ impl Editor {
                 selected: Some(self.selected.clone()),
                 glyph: self.glyph.as_ref().unwrap().clone(),
             });
-    
+
             self.glyph = Some(undo_entry.glyph.clone());
             self.layer_idx = undo_entry.layer_idx;
             self.contour_idx = undo_entry.contour_idx;
@@ -45,9 +47,11 @@ impl Editor {
     }
 
     pub fn redo(&mut self) {
-        if self.modifying { return; }
+        if self.modifying {
+            return;
+        }
         let entry = self.history.redo_stack.pop();
-        
+
         if let Some(redo_entry) = entry {
             self.history.undo_stack.push(HistoryEntry {
                 description: "Redo".to_owned(),
@@ -57,7 +61,6 @@ impl Editor {
                 selected: Some(self.selected.clone()),
                 glyph: self.glyph.as_ref().unwrap().clone(),
             });
-    
 
             self.glyph = Some(redo_entry.glyph.clone());
             self.layer_idx = redo_entry.layer_idx;
@@ -68,7 +71,7 @@ impl Editor {
             }
 
             self.mark_preview_dirty();
-        }    
+        }
     }
 
     /// This function combines entries on the top of the undo stack that share a description.

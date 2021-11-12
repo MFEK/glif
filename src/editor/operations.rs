@@ -1,11 +1,11 @@
+use crate::contour_operations;
 use glifparser::outline::skia::{FromSkiaPath, ToSkiaPaths};
+use glifparser::FlattenedGlif;
 use glifparser::{
     glif::{Layer, LayerOperation, MFEKPointData},
     MFEKGlif, Outline,
 };
 use skulpin::skia_safe::PathOp;
-use glifparser::FlattenedGlif;
-use crate::contour_operations;
 
 use super::Editor;
 
@@ -52,8 +52,8 @@ impl Editor {
             .map(|f| {
                 self.glyph.as_mut().unwrap().flattened = f.flattened;
                 self.glyph.as_mut().unwrap().component_rects = rects;
-                }
-            ).unwrap_or_else(|e| log::error!("Failed to draw components: {:?}", e));
+            })
+            .unwrap_or_else(|e| log::error!("Failed to draw components: {:?}", e));
 
         self.preview = Some(self.glyph.as_ref().unwrap().clone());
         self.preview.as_mut().unwrap().layers = preview_layers;

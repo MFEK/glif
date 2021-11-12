@@ -2,7 +2,9 @@ mod dialog;
 
 use std::rc::Rc;
 
-use glifparser::glif::{ContourOperations, PAPContour, PatternCopies, PatternStretch, PatternSubdivide};
+use glifparser::glif::{
+    ContourOperations, PAPContour, PatternCopies, PatternStretch, PatternSubdivide,
+};
 
 use super::prelude::*;
 use crate::{editor::Editor, user_interface::InputPrompt};

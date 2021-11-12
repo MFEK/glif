@@ -1,12 +1,12 @@
 use crate::settings::CONFIG_PATH;
 use sdl2::keyboard::Keycode;
-use std::{env, fs};
 use std::path::Path;
 use std::{
     cell::RefCell,
     collections::{HashMap, HashSet},
     str::FromStr,
 };
+use std::{env, fs};
 
 use strum_macros::{Display, EnumString};
 
@@ -87,16 +87,31 @@ impl From<&str> for CommandMod {
     fn from(s: &str) -> CommandMod {
         let mut cm = CommandMod::none();
         // for "CtrlShiftMod", vec![0, 4, 9]
-        let mod_caps: Vec<usize> = s.match_indices(|c:char| c.is_uppercase()).map(|(i, _)|i).collect();
+        let mod_caps: Vec<usize> = s
+            .match_indices(|c: char| c.is_uppercase())
+            .map(|(i, _)| i)
+            .collect();
         // for "CtrlShiftMod", vec!["Ctrl", "Shift"]
-        let mod_strs: Vec<&str> = mod_caps.as_slice().windows(2).map(|sl| &s[sl[0]..sl[1]]).collect();
+        let mod_strs: Vec<&str> = mod_caps
+            .as_slice()
+            .windows(2)
+            .map(|sl| &s[sl[0]..sl[1]])
+            .collect();
         for m in mod_strs {
             match m {
-                "Ctrl" | "Control" => {cm.ctrl = true;}
-                "Shift" => {cm.shift = true;}
-                "Alt" => {cm.alt = true;}
-                "Meta" | "Super" | "Windows" | "Gui" => {cm.meta = true;}
-                _ => ()
+                "Ctrl" | "Control" => {
+                    cm.ctrl = true;
+                }
+                "Shift" => {
+                    cm.shift = true;
+                }
+                "Alt" => {
+                    cm.alt = true;
+                }
+                "Meta" | "Super" | "Windows" | "Gui" => {
+                    cm.meta = true;
+                }
+                _ => (),
             }
         }
         cm
@@ -105,7 +120,14 @@ impl From<&str> for CommandMod {
 
 #[test]
 fn command_mod_test() {
-    assert_eq!(CommandMod::from("CtrlShiftMod"), CommandMod { ctrl: true, shift: true, ..CommandMod::default() });
+    assert_eq!(
+        CommandMod::from("CtrlShiftMod"),
+        CommandMod {
+            ctrl: true,
+            shift: true,
+            ..CommandMod::default()
+        }
+    );
 }
 
 pub struct CommandInfo {
@@ -140,10 +162,19 @@ fn load_keybinding_xml(ignore_local: bool, write: bool) -> String {
     }
 
     if env::var("NO_WRITE_DEFAULT_KEYBINDS").is_err() && write {
-        static NO_WRITE_DEFAULT_KEYBINDS: &str = "To disable this write set environment variable NO_WRITE_DEFAULT_KEYBINDS.";
+        static NO_WRITE_DEFAULT_KEYBINDS: &str =
+            "To disable this write set environment variable NO_WRITE_DEFAULT_KEYBINDS.";
         match fs::write(&path, DEFAULT_KEYBINDINGS.to_owned().into_bytes()) {
-            Ok(_) => log::info!("Wrote default keybinds to `{}`. {}", path.display(), NO_WRITE_DEFAULT_KEYBINDS),
-            Err(_) => log::warn!("Could not write default keybinds to `{}`? {}", path.display(), NO_WRITE_DEFAULT_KEYBINDS),
+            Ok(_) => log::info!(
+                "Wrote default keybinds to `{}`. {}",
+                path.display(),
+                NO_WRITE_DEFAULT_KEYBINDS
+            ),
+            Err(_) => log::warn!(
+                "Could not write default keybinds to `{}`? {}",
+                path.display(),
+                NO_WRITE_DEFAULT_KEYBINDS
+            ),
         }
     }
 
@@ -165,7 +196,7 @@ fn parse_keybinds(mut config: xmltree::Element) -> HashMap<(Keycode, CommandMod)
             .expect("Binding does not have a command associated!");
         let modifier = binding.attributes.get("mod");
 
-        let command_mod = modifier.map(|m|m.as_str()).unwrap_or("").into();
+        let command_mod = modifier.map(|m| m.as_str()).unwrap_or("").into();
 
         let command_enum = Command::from_str(command).expect("Invalid command string!");
         let keycode_enum =
@@ -196,7 +227,10 @@ pub fn initialize_keybinds() {
 
     if commands != default_commands {
         keybinds = default_keybinds;
-        log::warn!("Your keybinds are incomplete, missing {:?}; using defaults for all", &default_commands - &commands);
+        log::warn!(
+            "Your keybinds are incomplete, missing {:?}; using defaults for all",
+            &default_commands - &commands
+        );
     }
 
     KEYMAP.with(|v| {

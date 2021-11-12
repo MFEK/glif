@@ -2,7 +2,7 @@ use glifparser::{Point, PointData, WhichHandle};
 use MFEKmath::polar::PolarCoordinates;
 
 pub fn imgui_decimal_text_field(label: &str, ui: &imgui::Ui, data: &mut f32) {
-    let mut x = imgui::im_str!("{}",(*data * 1000.).round()/1000.);
+    let mut x = imgui::im_str!("{}", (*data * 1000.).round() / 1000.);
     let label = imgui::ImString::new(label);
     let entered;
     {
@@ -13,7 +13,6 @@ pub fn imgui_decimal_text_field(label: &str, ui: &imgui::Ui, data: &mut f32) {
             .chars_noblank(true)
             .auto_select_all(true)
             .build();
-
     }
     if entered && !x.to_str().is_empty() {
         let new_x: f32 = x.to_str().parse().unwrap();
@@ -22,7 +21,7 @@ pub fn imgui_decimal_text_field(label: &str, ui: &imgui::Ui, data: &mut f32) {
 }
 
 pub fn imgui_decimal_text_field_f64(label: &str, ui: &imgui::Ui, data: &mut f64) {
-    let mut x = imgui::im_str!("{}",(*data * 1000.).round()/1000.);
+    let mut x = imgui::im_str!("{}", (*data * 1000.).round() / 1000.);
     let label = imgui::ImString::new(label);
     let entered;
     {

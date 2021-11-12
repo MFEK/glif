@@ -1,5 +1,5 @@
 use glifrenderer::constants::{self, OUTLINE_STROKE_THICKNESS};
-use glifrenderer::string::{POINTFONTS, POINTFONTSIZE, pointfont_from_size_and_factor};
+use glifrenderer::string::{pointfont_from_size_and_factor, POINTFONTS, POINTFONTSIZE};
 use skulpin::skia_safe::{
     dash_path_effect, AutoCanvasRestore, Canvas, Paint, Path, Point, TextBlob,
 };
@@ -78,7 +78,7 @@ impl Measure {
                 i,
                 (halfway.x as f32, halfway.y as f32),
                 angle as f32,
-                format!{"{0:.3}", distance}.as_str(),
+                format! {"{0:.3}", distance}.as_str(),
                 canvas,
             );
         }

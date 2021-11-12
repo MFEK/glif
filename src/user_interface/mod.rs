@@ -12,11 +12,11 @@ use std::rc::Rc;
 use crate::render;
 use crate::user_interface::gui::build_imgui_ui;
 use glifrenderer::viewport::Viewport;
-use ::skulpin::rafx::api::RafxExtents2D;
-use ::skulpin::Renderer;
 use imgui::{self, Context};
 use imgui_sdl2::ImguiSdl2;
 use sdl2::mouse::MouseState;
+use skulpin::rafx::api::RafxExtents2D;
+use skulpin::Renderer;
 
 use crate::editor::Editor;
 pub use crate::user_interface::mouse_input::MouseInfo;

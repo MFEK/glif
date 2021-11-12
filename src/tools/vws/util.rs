@@ -14,7 +14,7 @@ pub fn get_vws_contour(v: &Editor, contour_idx: usize) -> Option<VWSContour> {
                 Some(data)
             } else {
                 None
-            }
+            };
         }
 
         None
@@ -131,7 +131,7 @@ pub fn set_vws_handle(
 pub fn set_all_vws_handles(v: &mut Editor, handle: WhichHandle, mirror: bool, normal_offset: f64) {
     let contour_idx = v.contour_idx.unwrap();
     let mut vws_contour =
-        get_vws_contour(v, contour_idx).unwrap_or_else(||generate_vws_contour(v, contour_idx));
+        get_vws_contour(v, contour_idx).unwrap_or_else(|| generate_vws_contour(v, contour_idx));
 
     for handle_idx in 0..vws_contour.handles.len() {
         if mirror {
@@ -157,7 +157,7 @@ pub fn get_vws_handle_pos(
 ) -> (Vector, Vector, Vector) {
     v.with_active_layer(|layer| {
         let vws_contour =
-            get_vws_contour(v, contour_idx).unwrap_or_else(||generate_vws_contour(v, contour_idx));
+            get_vws_contour(v, contour_idx).unwrap_or_else(|| generate_vws_contour(v, contour_idx));
         let contour_pw = Piecewise::from(&get_contour!(layer, contour_idx));
 
         let vws_handle = vws_contour.handles[handle_idx];
@@ -197,25 +197,21 @@ pub fn get_vws_handle_pos(
         };
 
         match side {
-            WhichHandle::A => {
-                (
-                    start_point,
-                    tangent,
-                    start_point
-                        + normal * vws_handle.left_offset
-                        + tangent * -vws_handle.tangent_offset * scaled_tangent_offset,
-                )
-            }
-            WhichHandle::B => {
-                (
-                    start_point,
-                    tangent,
-                    start_point
-                        + normal * -vws_handle.right_offset
-                        + tangent * vws_handle.tangent_offset * scaled_tangent_offset,
-                )
-            }
-            _ => unreachable!()
+            WhichHandle::A => (
+                start_point,
+                tangent,
+                start_point
+                    + normal * vws_handle.left_offset
+                    + tangent * -vws_handle.tangent_offset * scaled_tangent_offset,
+            ),
+            WhichHandle::B => (
+                start_point,
+                tangent,
+                start_point
+                    + normal * -vws_handle.right_offset
+                    + tangent * vws_handle.tangent_offset * scaled_tangent_offset,
+            ),
+            _ => unreachable!(),
         }
     })
 }

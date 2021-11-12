@@ -50,9 +50,7 @@ impl Tool for Image {
 // Here you can implement behaviors for events.
 impl Image {
     pub fn new() -> Self {
-        Self {
-            selected_idx: None,
-        }
+        Self { selected_idx: None }
     }
 
     fn is_image_clicked(&self, v: &Editor, mouse_info: MouseInfo) -> Option<usize> {
@@ -131,7 +129,7 @@ impl Image {
             if mouse_info.modifiers.ctrl {
                 let pivot = self.get_image_pivot(v, img_idx);
                 v.set_behavior(Box::new(RotateImage::new(img_idx, pivot, mouse_info)));
-                return
+                return;
             }
 
             v.set_behavior(Box::new(MoveImage::new(img_idx, mouse_info)))
@@ -143,7 +141,7 @@ impl Image {
             // system
             let filename = match filedialog::open_image(None) {
                 Some(f) => f,
-                None => { return },
+                None => return,
             };
 
             v.begin_modification("Add image to layer.");

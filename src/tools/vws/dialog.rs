@@ -1,9 +1,9 @@
 use super::super::prelude::*;
 use super::util::*;
 use super::VWS;
-use crate::user_interface::Interface;
 use crate::user_interface::util::imgui_decimal_text_field;
 use crate::user_interface::util::imgui_decimal_text_field_f64;
+use crate::user_interface::Interface;
 use glifparser::glif::{CapType, ContourOperations, JoinType};
 
 fn join_type_to_idx(jt: JoinType) -> usize {
@@ -153,24 +153,30 @@ impl VWS {
 
                 if let Some(pidx) = v.point_idx {
                     let cidx = v.contour_idx.unwrap();
-                    let vws_contour_option = v.with_glyph(|_| {
-                        get_vws_contour(v, cidx)
-                    });
+                    let vws_contour_option = v.with_glyph(|_| get_vws_contour(v, cidx));
 
                     if let Some(vws_contour) = vws_contour_option {
                         let mut working_vws_contour = vws_contour.clone();
 
                         let mut constant_width = 0.;
                         imgui_decimal_text_field("Constant Width", ui, &mut constant_width);
-                        
+
                         if constant_width != 0. {
                             v.begin_modification("VWS dialog modification.");
                             set_all_vws_handles(v, WhichHandle::A, true, constant_width as f64);
                             v.end_modification();
                         }
 
-                        imgui_decimal_text_field_f64("Left Offset", ui, &mut working_vws_contour.handles[pidx].left_offset);
-                        imgui_decimal_text_field_f64("Right Offset", ui, &mut working_vws_contour.handles[pidx].right_offset);
+                        imgui_decimal_text_field_f64(
+                            "Left Offset",
+                            ui,
+                            &mut working_vws_contour.handles[pidx].left_offset,
+                        );
+                        imgui_decimal_text_field_f64(
+                            "Right Offset",
+                            ui,
+                            &mut working_vws_contour.handles[pidx].right_offset,
+                        );
 
                         if working_vws_contour != vws_contour {
                             v.begin_modification("VWS dialog modification.");
@@ -178,8 +184,7 @@ impl VWS {
                             v.end_modification();
                         }
                     }
-                }  
-
+                }
             });
     }
 }

@@ -173,7 +173,10 @@ impl Editor {
 
         let half_width = ((bounding_box.left - bounding_box.right) / 2.) as f32;
         let half_height = ((bounding_box.top - bounding_box.bottom) / 2.) as f32;
-        (bounding_box.left as f32 - half_width, bounding_box.top as f32 - half_height)
+        (
+            bounding_box.left as f32 - half_width,
+            bounding_box.top as f32 - half_height,
+        )
     }
 
     pub fn selected(&self) -> Option<(usize, usize)> {
@@ -193,7 +196,7 @@ impl Editor {
             let editor_cidx = self.contour_idx.unwrap();
 
             if contour_idx == editor_cidx && point_idx == editor_pidx {
-                return true
+                return true;
             }
         }
 
