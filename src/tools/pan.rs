@@ -6,7 +6,7 @@ use crate::user_interface::Interface;
 // Pan is a good example of a simple tool. It holds only a little bit of state, an optional position.
 // If the optional position is set the tool will calculate the delta between that position and the current
 // mouse position and set the camera accordingly.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Pan {
     #[allow(unused)]
     last_position: Option<(f32, f32)>,

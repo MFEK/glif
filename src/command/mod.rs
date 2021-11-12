@@ -8,9 +8,7 @@ use std::{
     str::FromStr,
 };
 
-use log;
 use strum_macros::{Display, EnumString};
-use xmltree;
 
 // a command file is put into the user's config directory upon first run
 // <command name="ToolPen" key = "A">
@@ -129,7 +127,7 @@ fn load_keybinding_xml(ignore_local: bool, write: bool) -> String {
         return config_string;
     }
 
-    let mut pb = CONFIG_PATH.clone().to_path_buf();
+    let mut pb = CONFIG_PATH.clone();
 
     pb.push("keybindings");
     pb.set_extension("xml");
@@ -237,7 +235,7 @@ pub fn keycode_to_command(keycode: &Keycode, keys_down: &HashSet<Keycode>) -> Op
         });
     }
 
-    return None;
+    None
 }
 
 struct KeyData {

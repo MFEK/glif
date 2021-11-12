@@ -3,7 +3,7 @@ use crate::tool_behaviors::pan::PanBehavior;
 use crate::user_interface::grid::Grid;
 use crate::user_interface::util::imgui_decimal_text_field;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct GridTool {}
 
 impl Tool for GridTool {

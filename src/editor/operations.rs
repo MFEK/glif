@@ -110,7 +110,7 @@ impl Editor {
             }
         }
 
-        let mut combined_layer = last_combine_layer.clone();
+        let mut combined_layer = last_combine_layer;
         let combined_layer_outline = Outline::from_skia_path(&current_layer_group);
         let mfek_outline = combined_layer_outline.iter().map(|c| c.into()).collect();
         combined_layer.outline = mfek_outline;
@@ -118,6 +118,6 @@ impl Editor {
 
         let mut exported_mfek = glif.clone();
         exported_mfek.layers = exported_layers;
-        return exported_mfek;
+        exported_mfek
     }
 }

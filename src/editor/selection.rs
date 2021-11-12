@@ -24,7 +24,7 @@ impl Editor {
 
                 if to_delete {
                     let mut mfekcur: MFEKContour<MFEKPointData> = cur_contour.into();
-                    mfekcur.operation = contour_operations::sub(&contour, begin, point_idx);
+                    mfekcur.operation = contour_operations::sub(contour, begin, point_idx);
                     results.push(mfekcur);
 
                     cur_contour = Vec::new();
@@ -35,7 +35,7 @@ impl Editor {
                 }
             }
             let mut mfekcur: MFEKContour<MFEKPointData> = cur_contour.into();
-            mfekcur.operation = contour_operations::sub(&contour, begin, contour.inner.len() - 1);
+            mfekcur.operation = contour_operations::sub(contour, begin, contour.inner.len() - 1);
             results.push(mfekcur);
 
             if results.len() > 1 && contour.inner.first().unwrap().ptype != PointType::Move {
@@ -46,7 +46,7 @@ impl Editor {
             }
 
             for mut result in results {
-                if result.inner.len() != 0 {
+                if !result.inner.is_empty() {
                     if deleted {
                         result.inner.first_mut().unwrap().ptype = PointType::Move;
                     }
@@ -101,7 +101,7 @@ impl Editor {
 
                 if to_delete {
                     let mut mfekcur: MFEKContour<MFEKPointData> = cur_contour.into();
-                    mfekcur.operation = contour_operations::sub(&contour, begin, point_idx);
+                    mfekcur.operation = contour_operations::sub(contour, begin, point_idx);
                     results.push(mfekcur);
 
                     cur_contour = Vec::new();
@@ -112,7 +112,7 @@ impl Editor {
                 }
             }
             let mut mfekcur: MFEKContour<MFEKPointData> = cur_contour.into();
-            mfekcur.operation = contour_operations::sub(&contour, begin, contour.inner.len() - 1);
+            mfekcur.operation = contour_operations::sub(contour, begin, contour.inner.len() - 1);
             results.push(mfekcur);
 
             if results.len() > 1 && contour.inner.first().unwrap().ptype != PointType::Move {
@@ -123,7 +123,7 @@ impl Editor {
             }
 
             for mut result in results {
-                if result.inner.len() != 0 {
+                if !result.inner.is_empty() {
                     if deleted {
                         result.inner.first_mut().unwrap().ptype = PointType::Move;
                     }
@@ -150,28 +150,22 @@ impl Editor {
                 y: point.y as f64,
             });
 
-            match point.a {
-                Handle::At(x, y) => {
-                    points.push(Vector {
-                        x: x as f64,
-                        y: y as f64,
-                    });
-                }
-                _ => {}
+            if let Handle::At(x, y) = point.a {
+                points.push(Vector {
+                    x: x as f64,
+                    y: y as f64,
+                });
             }
 
-            match point.b {
-                Handle::At(x, y) => {
-                    points.push(Vector {
-                        x: x as f64,
-                        y: y as f64,
-                    });
-                }
-                _ => {}
+            if let Handle::At(x, y) = point.b {
+                points.push(Vector {
+                    x: x as f64,
+                    y: y as f64,
+                });
             }
         }
 
-        return Rect::AABB_from_points(points);
+        Rect::AABB_from_points(points)
     }
 
     pub fn get_selection_bounding_box_center(&self) -> (f32, f32) {
@@ -179,10 +173,7 @@ impl Editor {
 
         let half_width = ((bounding_box.left - bounding_box.right) / 2.) as f32;
         let half_height = ((bounding_box.top - bounding_box.bottom) / 2.) as f32;
-        return (
-            bounding_box.left as f32 - half_width,
-            bounding_box.top as f32 - half_height,
-        );
+        (bounding_box.left as f32 - half_width, bounding_box.top as f32 - half_height)
     }
 
     pub fn selected(&self) -> Option<(usize, usize)> {
@@ -202,14 +193,10 @@ impl Editor {
             let editor_cidx = self.contour_idx.unwrap();
 
             if contour_idx == editor_cidx && point_idx == editor_pidx {
-                return true;
-            };
+                return true
+            }
         }
 
-        if self.selected.contains(&(contour_idx, point_idx)) {
-            return true;
-        };
-
-        return false;
+        self.selected.contains(&(contour_idx, point_idx))
     }
 }

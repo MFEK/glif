@@ -12,7 +12,7 @@ mod dialog;
 // The image tool is for adding and manipulating images on layers. With the image tool selected you can click an empty space in order
 // to add an image to the current layer. Clicking an image without holding any modifiers translates that image. Clicking while holding
 // ctrl rotates the image around it's center.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Image {
     selected_idx: Option<usize>,
 }

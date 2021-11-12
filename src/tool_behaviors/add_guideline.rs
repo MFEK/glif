@@ -3,7 +3,7 @@ use glifrenderer::guidelines::draw_guideline;
 
 use super::prelude::*;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct AddGuideline {}
 
 impl AddGuideline {

@@ -2,18 +2,10 @@ use glifparser::glif::HistoryEntry;
 
 use super::Editor;
 
+#[derive(Clone, Debug, Default)]
 pub struct History {
     pub undo_stack: Vec<HistoryEntry>,
     pub redo_stack: Vec<HistoryEntry>,
-}
-
-impl History {
-    pub fn new() -> Self {
-        Self {
-            undo_stack: vec!(),
-            redo_stack: vec!()
-        }
-    }
 }
 
 impl History {

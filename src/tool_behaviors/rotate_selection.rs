@@ -14,7 +14,7 @@ impl RotateSelection {
         RotateSelection {
             pivot_point,
             mouse_info,
-            rotate_vector: rotate_vector,
+            rotate_vector,
         }
     }
 

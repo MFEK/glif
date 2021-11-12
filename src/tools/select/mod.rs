@@ -18,7 +18,7 @@ mod dialog;
 // Select is a good example of a more complicated tool that keeps lots of state.
 // It has state for which handle it's selected, follow rules, selection box, and to track if it's currently
 // moving a point.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Select {
     pivot_point: Option<(f32, f32)>,
 }

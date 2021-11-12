@@ -10,7 +10,7 @@ use crate::user_interface::Interface;
 
 use super::prelude::*;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Measure {
     measure_from: Option<(f32, f32)>,
 }

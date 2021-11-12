@@ -133,8 +133,8 @@ impl ImguiManager {
         let imgui_renderer = Renderer::new(&mut imgui);
         return ImguiManager {
             imgui_context: imgui,
-            imgui_renderer: imgui_renderer,
-            imgui_sdl2: imgui_sdl2,
+            imgui_renderer,
+            imgui_sdl2,
         };
     }
 

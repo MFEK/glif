@@ -10,7 +10,7 @@ use editor::util::get_contour_start_or_end;
 use glifrenderer::points::UIPointType;
 use sdl2::mouse::MouseButton;
 use MFEKmath::{Bezier, Primitive};
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Pen {}
 
 impl Tool for Pen {

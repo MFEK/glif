@@ -7,7 +7,7 @@ use glifparser::glif::{ContourOperations, PAPContour, PatternCopies, PatternStre
 use super::prelude::*;
 use crate::{editor::Editor, user_interface::InputPrompt};
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct PAP {}
 
 impl Tool for PAP {

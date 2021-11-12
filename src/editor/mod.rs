@@ -32,6 +32,7 @@ pub mod macros;
 
 /// This is the main object that holds the state of the editor. It is responsible for mutating the glyph.
 /// The only state that should change not through the editor is the generation of previews for the purposes of drawing.
+#[derive(Debug, Default)]
 pub struct Editor {
     glyph: Option<MFEKGlif<MFEKPointData>>,
     modifying: bool, // a flag that is set when the active layer is currently being modified
@@ -68,7 +69,7 @@ impl Editor {
             glyph: None,
             modifying: false,
             dirty: false,
-            history: History::new(),
+            history: History::default(),
 
             active_tool: Box::new(Pan::new()),
             active_tool_enum: ToolEnum::Pan,

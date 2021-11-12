@@ -1,7 +1,5 @@
 use std::path::PathBuf;
 
-use nfd;
-
 pub fn filename_or_panic(
     filename: &Option<String>,
     filter: Option<&str>,

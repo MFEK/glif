@@ -7,7 +7,7 @@ use crate::user_interface::Interface;
 
 mod dialog;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Guidelines {
     selected_idx: Option<usize>,
 }

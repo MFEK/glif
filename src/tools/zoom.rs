@@ -6,7 +6,7 @@ use crate::user_interface::Interface;
 // Pan
 use super::{prelude::*, EditorEvent, MouseEventType, Tool};
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Zoom {}
 
 impl Tool for Zoom {

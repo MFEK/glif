@@ -10,7 +10,7 @@ use self::util::{clicked_handle, get_vws_handle_pos};
 
 use super::prelude::*;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct VWS {}
 
 impl Tool for VWS {
