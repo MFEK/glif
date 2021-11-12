@@ -17,7 +17,7 @@ dependencies = [
  "enum-iterator",
  "enum-unitary",
  "env_logger 0.9.0",
- "flo_curves 0.5.3",
+ "flo_curves",
  "font-kit",
  "git-version",
  "glifparser",
@@ -50,7 +50,7 @@ name = "MFEKmath"
 version = "0.1.0"
 source = "git+https://github.com/MFEK/math.rlib?branch=main#0cde4ce07c446ec912e9f52f88b0ac5dbf512ddf"
 dependencies = [
- "flo_curves 0.6.0",
+ "flo_curves",
  "glifparser",
  "plist",
  "skia-safe",
@@ -747,16 +747,6 @@ dependencies = [
 
 [[package]]
 name = "flo_curves"
-version = "0.5.3"
-source = "git+https://github.com/MFEK/flo_curves?branch=new_master#4024a4b705c6a706355b1e83ea6230c31a1d07d8"
-dependencies = [
- "itertools 0.10.1",
- "roots",
- "smallvec",
-]
-
-[[package]]
-name = "flo_curves"
 version = "0.6.0"
 source = "git+https://github.com/Logicalshift/flo_curves?branch=v0.6#2c4a3cf5c5d780f325d30876d2b33a77607be6d9"
 dependencies = [
@@ -1160,7 +1150,7 @@ dependencies = [
 [[package]]
 name = "glifrenderer"
 version = "0.1.0"
-source = "git+https://github.com/MFEK/glifrenderer.rlib#fc2a61b853c28a399d63ef541f83c1ace177f96b"
+source = "git+https://github.com/MFEK/glifrenderer.rlib#185d85da8f7242555087cf56a5d7ee06d912c319"
 dependencies = [
  "derive_more",
  "enum-iterator",
