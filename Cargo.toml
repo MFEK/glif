@@ -2,7 +2,7 @@
 name = "MFEKglif"
 version = "1.0.1"
 authors = ["Fredrick Brennan <copypaste@kittens.ph>", "Matthew Blanchard <matthewrblanchard@gmail.com>"] # + MFEK authors
-edition = "2018"
+edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
