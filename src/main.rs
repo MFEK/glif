@@ -24,6 +24,8 @@ mod contour_operations;
 pub mod editor;
 mod filedialog;
 mod ipc;
+#[macro_use]
+extern crate pub_mod;
 pub mod settings;
 mod system_fonts;
 mod tool_behaviors;

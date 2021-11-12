@@ -1,22 +1,5 @@
-//use pub_mod::pub_mod;
 // Include all tools via procedural macro. Expands to `pub mod pen; pub mod select; ...`
-//pub_mod!("src/tools");
-
-// TODO: reenable pub_mod! before this hits the main branch.
-pub mod anchors;
-pub mod console;
-pub mod grid;
-pub mod guidelines;
-pub mod image;
-pub mod measure;
-pub mod pan;
-pub mod pap;
-pub mod pen;
-pub mod prelude;
-pub mod select;
-pub mod shapes;
-pub mod vws;
-pub mod zoom;
+pub_mod!("src/tools");
 
 use self::prelude::*;
 use self::{
