@@ -99,7 +99,7 @@ strum_macros = "0.22"
 image = { version = "0.23", features = ["png"], default-features = false }
 
 # for certain Bézier curve manipulation functions
-flo_curves = { git = "https://github.com/MFEK/flo_curves", branch = "new_master" }
+flo_curves = { git = "https://github.com/Logicalshift/flo_curves", branch = "v0.6" }
 
 # for exporting UFO .glif files to layers
 plist = { git = "https://github.com/ebarnard/rust-plist" }

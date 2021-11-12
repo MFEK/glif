@@ -12,7 +12,7 @@ use glifrenderer::{calc_x, calc_y};
 use skulpin::skia_safe::Contains;
 use skulpin::skia_safe::Point as SkPoint;
 use skulpin::skia_safe::Rect as SkRect;
-use MFEKmath::{Bezier, Piecewise, Primitive};
+use MFEKmath::{Bezier, Piecewise, Primitive as MathPrimitive};
 
 use super::Editor;
 
@@ -147,7 +147,7 @@ pub fn nearest_point_on_curve(
                         contour_idx = Some(cx);
                         seg_idx = Some(bx);
 
-                        let subdivisions = mbezier.subdivide(ct);
+                        let subdivisions = MathPrimitive::subdivide(mbezier, ct);
                         if let Some(subdivisions) = subdivisions {
                             h1 = Some(subdivisions.0.to_control_points()[2]);
                             h2 = Some(subdivisions.1.to_control_points()[1]);
