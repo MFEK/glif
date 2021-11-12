@@ -13,12 +13,18 @@ use imgui::Ui;
 use crate::editor::Editor;
 use crate::user_interface::Interface;
 
-pub trait Tool: DynClone {
+pub trait Tool: DynClone + std::fmt::Debug {
     fn event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent);
 
     // We provide empty default implementations for these two because not every tool needs these hooks.
     fn draw(&self, _v: &Editor, _i: &Interface, _canvas: &mut Canvas) {}
     fn ui(&mut self, _v: &mut Editor, _i: &mut Interface, _ui: &mut Ui) {}
+}
+
+impl Default for Box<dyn Tool> {
+    fn default() -> Self {
+        Box::new(Pan::new())
+    }
 }
 
 use enum_unitary::enum_unitary;
@@ -37,6 +43,12 @@ enum_unitary! {
         Image,
         PAP,
         Guidelines
+    }
+}
+
+impl Default for ToolEnum {
+    fn default() -> Self {
+        ToolEnum::Pan
     }
 }
 

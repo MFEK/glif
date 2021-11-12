@@ -61,7 +61,7 @@ pub fn set_panic_hook() {
 
         let err = msgbox::create(
             "Uh oh! \u{2014} MFEKglif crashed",
-            format!("{0}", info.to_string()).as_str(),
+            info.to_string().as_str(),
             IconType::Error,
         );
 
@@ -75,7 +75,7 @@ pub fn set_panic_hook() {
             bt.resolve();
             eprintln!("Requested backtrace:\n{:?}", bt);
 
-            let mut pb = CONFIG_PATH.clone().to_path_buf();
+            let mut pb = CONFIG_PATH.to_path_buf();
             pb.push("error_log");
             pb.set_extension("txt");
 

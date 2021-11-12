@@ -12,24 +12,19 @@ mod dialog;
 // The image tool is for adding and manipulating images on layers. With the image tool selected you can click an empty space in order
 // to add an image to the current layer. Clicking an image without holding any modifiers translates that image. Clicking while holding
 // ctrl rotates the image around it's center.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Image {
     selected_idx: Option<usize>,
 }
 
 impl Tool for Image {
+    #[rustfmt::skip]
     fn event(&mut self, v: &mut Editor, _i: &mut Interface, event: EditorEvent) {
-        match event {
-            EditorEvent::MouseEvent {
-                event_type,
-                mouse_info,
-            } => {
-                match event_type {
-                    MouseEventType::Pressed => self.mouse_pressed(v, mouse_info),
-                    _ => {}
-                }
+        if let EditorEvent::MouseEvent { mouse_info, event_type } = event {
+            match event_type {
+                MouseEventType::Pressed => self.mouse_pressed(v, mouse_info),
+                _ => (),
             }
-            _ => {}
         }
     }
 
@@ -136,7 +131,7 @@ impl Image {
             if mouse_info.modifiers.ctrl {
                 let pivot = self.get_image_pivot(v, img_idx);
                 v.set_behavior(Box::new(RotateImage::new(img_idx, pivot, mouse_info)));
-                return;
+                return
             }
 
             v.set_behavior(Box::new(MoveImage::new(img_idx, mouse_info)))
@@ -148,13 +143,12 @@ impl Image {
             // system
             let filename = match filedialog::open_image(None) {
                 Some(f) => f,
-                None => return,
+                None => { return },
             };
 
             v.begin_modification("Add image to layer.");
             v.add_image_to_active_layer(filename);
             v.end_modification();
-            return;
         }
     }
 }

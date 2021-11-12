@@ -2,31 +2,10 @@ use super::super::prelude::*;
 use super::Guidelines;
 use crate::tool_behaviors::add_guideline::AddGuideline;
 use crate::user_interface::gui::FONT_IDS;
-use crate::user_interface::{icons, InputPrompt};
+use crate::user_interface::{self, icons, InputPrompt};
 use glifparser::IntegerOrFloat;
 use imgui::StyleColor;
 use std::rc::Rc;
-
-fn imgui_decimal_text_field(label: &str, ui: &imgui::Ui, data: &mut f32) {
-    let mut x = imgui::im_str!("{}", data);
-    let label = imgui::ImString::new(label);
-    let entered;
-    {
-        let it = ui.input_text(&label, &mut x);
-        entered = it
-            .enter_returns_true(true)
-            .chars_decimal(true)
-            .chars_noblank(true)
-            .auto_select_all(true)
-            .build();
-    }
-    if entered {
-        if x.to_str().len() > 0 {
-            let new_x: f32 = x.to_str().parse().unwrap();
-            *data = new_x;
-        }
-    }
-}
 
 impl Guidelines {
     pub fn tool_dialog(&mut self, v: &mut Editor, i: &mut Interface, ui: &imgui::Ui) {
@@ -74,11 +53,11 @@ impl Guidelines {
 
                 for guideline in 0..guideline_count {
                     let guideline_name = v.with_glyph(|glif| {
-                        { glif.guidelines[guideline].name.clone() }.unwrap_or("Unnamed".to_string())
+                        { glif.guidelines[guideline].name.clone() }.unwrap_or_else(||"Unnamed".to_string())
                     });
 
                     let guideline_display = imgui::im_str!("{0}", guideline_name);
-                    let im_str = imgui::ImString::from(guideline_display);
+                    let im_str = guideline_display;
 
                     let font_token = ui.push_font(FONT_IDS.with(|ids| ids.borrow()[1]));
                     let custom_button_color = ui.push_style_color(
@@ -97,7 +76,7 @@ impl Guidelines {
                                 glyph.guidelines[guideline]
                                     .name
                                     .clone()
-                                    .unwrap_or("".to_string())
+                                    .unwrap_or_else(||"".to_string())
                             }),
                             func: Rc::new(move |editor, string| {
                                 editor.with_glyph_mut(|glyph| {
@@ -138,7 +117,7 @@ impl Guidelines {
                 .size([tw, th], imgui::Condition::Always)
                 .build(ui, || {
                     let (mut at, mut angle) = v.with_glyph(|glyph| {
-                        let at = glyph.guidelines[selected].at.clone();
+                        let at = glyph.guidelines[selected].at;
                         let angle = match glyph.guidelines[selected].angle {
                             glifparser::IntegerOrFloat::Integer(n) => n as f32,
                             glifparser::IntegerOrFloat::Float(n) => n,
@@ -147,10 +126,10 @@ impl Guidelines {
                         (at, angle)
                     });
 
-                    let (old_at, old_angle) = (at.clone(), angle.clone());
-                    imgui_decimal_text_field("X", ui, &mut at.x);
-                    imgui_decimal_text_field("Y", ui, &mut at.y);
-                    imgui_decimal_text_field("Angle", ui, &mut angle);
+                    let (old_at, old_angle) = (at, angle);
+                    user_interface::util::imgui_decimal_text_field("X", ui, &mut at.x);
+                    user_interface::util::imgui_decimal_text_field("Y", ui, &mut at.y);
+                    user_interface::util::imgui_decimal_text_field("Angle", ui, &mut angle);
 
                     if at != old_at || angle != old_angle {
                         v.begin_modification("Modify guideline.");

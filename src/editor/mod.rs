@@ -32,6 +32,7 @@ pub mod macros;
 
 /// This is the main object that holds the state of the editor. It is responsible for mutating the glyph.
 /// The only state that should change not through the editor is the generation of previews for the purposes of drawing.
+#[derive(Debug, Default)]
 pub struct Editor {
     glyph: Option<MFEKGlif<MFEKPointData>>,
     modifying: bool, // a flag that is set when the active layer is currently being modified
@@ -68,7 +69,7 @@ impl Editor {
             glyph: None,
             modifying: false,
             dirty: false,
-            history: History::new(),
+            history: History::default(),
 
             active_tool: Box::new(Pan::new()),
             active_tool_enum: ToolEnum::Pan,
@@ -95,7 +96,7 @@ impl Editor {
     /// This function MUST be called before calling with_active_<layer/glif>_mut or it will panic.
     /// Pushes a clone of the current layer onto the history stack and puts the editor in a modifying state.
     pub fn begin_modification(&mut self, description: &str) {
-        if self.modifying == true {
+        if self.modifying {
             panic!("Began a new modification with one in progress!")
         }
 
@@ -113,9 +114,9 @@ impl Editor {
 
     /// This ends an ongoing modification and calls the proper events.
     pub fn end_modification(&mut self) {
-        if self.modifying == false {
-            return;
-        };
+        if !self.modifying {
+            return
+        }
 
         if !self.dirty {
             self.history.undo_stack.pop();
@@ -146,7 +147,7 @@ impl Editor {
         } else {
             // we're merging two open paths
             let (cidx, pidx) = self.with_active_layer_mut(|layer| {
-                let mut startc = get_contour_mut!(layer, start).clone();
+                let mut startc = get_contour!(layer, start).clone();
                 let endc = get_contour_mut!(layer, end);
 
                 endc.last_mut().unwrap().b = startc[0].a;
@@ -159,11 +160,7 @@ impl Editor {
 
                 layer.outline.remove(start);
                 //TODO: we need some kind of handling for when contours get removed
-                if start < end {
-                    (end, p_idx)
-                } else {
-                    (end, p_idx)
-                }
+                (end, p_idx)
             });
 
             self.contour_idx = Some(cidx);
@@ -194,7 +191,7 @@ impl Editor {
     where
         F: FnMut(&mut Layer<MFEKPointData>) -> R,
     {
-        if self.modifying == false {
+        if !self.modifying {
             panic!("A modification is not in progress!")
         }
 
@@ -211,7 +208,7 @@ impl Editor {
     where
         F: FnMut(&MFEKGlif<MFEKPointData>) -> R,
     {
-        closure(&self.glyph.as_ref().unwrap())
+        closure(self.glyph.as_ref().unwrap())
     }
 
     /// This function should be used to modify anchors, guidelines, and other glyph-level data. Do not use this to modify the active layer.
@@ -219,21 +216,20 @@ impl Editor {
     where
         F: FnMut(&mut MFEKGlif<MFEKPointData>) -> R,
     {
-        if self.modifying == false {
+        if !self.modifying {
             panic!("A modification is not in progress!")
         }
 
         self.dirty = true;
         self.mark_preview_dirty();
-        let ret = closure(&mut self.glyph.as_mut().unwrap());
-        ret
+        closure(self.glyph.as_mut().unwrap())
     }
 
     pub fn with_glyph_mut_no_history<F, R>(&mut self, mut closure: F) -> R
     where
         F: FnMut(&mut MFEKGlif<MFEKPointData>) -> R,
     {
-        closure(&mut self.glyph.as_mut().unwrap())
+        closure(self.glyph.as_mut().unwrap())
     }
 }
 

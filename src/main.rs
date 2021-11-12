@@ -72,16 +72,15 @@ fn main() {
         for event in event_pump.poll_iter() {
             util::debug_event!("Got event: {:?}", &event);
 
-            match &event {
-                Event::Quit { .. } => break 'main_loop,
-                _ => {}
+            if let Event::Quit { .. } = &event {
+                break 'main_loop
             }
 
             if imgui_manager.handle_imgui_event(&event) {
-                continue;
+                continue
             }
             if interface.active_prompts() {
-                continue;
+                continue
             }
 
             // we're gonna handle console text input here as this should steal input from the command system
@@ -104,7 +103,7 @@ fn main() {
                     keycode, ..
                 } => {
                     // we don't care about keydown events that have no keycode
-                    if !keycode.is_some() {
+                    if keycode.is_none() {
                         continue;
                     }
                     let keycode = keycode.unwrap();

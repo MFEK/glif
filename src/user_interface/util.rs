@@ -15,11 +15,9 @@ pub fn imgui_decimal_text_field(label: &str, ui: &imgui::Ui, data: &mut f32) {
             .build();
 
     }
-    if entered {
-        if x.to_str().len() > 0 {
-            let new_x: f32 = x.to_str().parse().unwrap();
-            *data = new_x;
-        }
+    if entered && !x.to_str().is_empty() {
+        let new_x: f32 = x.to_str().parse().unwrap();
+        *data = new_x;
     }
 }
 
@@ -36,11 +34,9 @@ pub fn imgui_decimal_text_field_f64(label: &str, ui: &imgui::Ui, data: &mut f64)
             .auto_select_all(true)
             .build();
     }
-    if entered {
-        if x.to_str().len() > 0 {
-            let new_x: f64 = x.to_str().parse().unwrap();
-            *data = new_x;
-        }
+    if entered && !x.to_str().is_empty() {
+        let new_x: f64 = x.to_str().parse().unwrap();
+        *data = new_x;
     }
 }
 
@@ -87,7 +83,7 @@ pub fn imgui_radius_theta<PD: PointData>(
         if athetas.to_str().len() > 0 && athetas.to_str() != "NaN" {
             new_theta = athetas.to_str().parse().unwrap();
         }
-        if new_r != f32::NAN && new_theta != f32::NAN {
+        if !f32::is_nan(new_r) && !f32::is_nan(new_theta) {
             point.set_polar(wh, (new_r, new_theta));
         }
     }

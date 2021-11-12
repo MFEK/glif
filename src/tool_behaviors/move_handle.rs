@@ -1,7 +1,7 @@
 use super::prelude::*;
 pub use crate::user_interface::follow::Follow;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct MoveHandle {
     // we hold on to a clone of the mouse info when the behavior gets put on the stack
     // on mouse released we check for the same button found here and if we find it we pop ourselves

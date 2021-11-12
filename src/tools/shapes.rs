@@ -12,17 +12,17 @@ use skulpin::skia_safe::{
 
 impl Tool for Shapes {
     fn event(&mut self, v: &mut Editor, _i: &mut Interface, event: EditorEvent) {
-        match event {
-            EditorEvent::MouseEvent {
-                event_type,
-                mouse_info,
-            } => match event_type {
+        if let EditorEvent::MouseEvent {
+            event_type,
+            mouse_info,
+        } = event
+        {
+            match event_type {
                 MouseEventType::Moved => self.mouse_moved(v, mouse_info),
                 MouseEventType::Pressed => self.mouse_pressed(v, mouse_info),
                 MouseEventType::Released => self.mouse_released(v, mouse_info),
                 _ => {}
-            },
-            _ => {}
+            }
         }
     }
 

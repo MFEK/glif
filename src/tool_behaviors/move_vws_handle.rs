@@ -1,7 +1,7 @@
 use super::prelude::*;
 use crate::tools::vws::util::*;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct MoveVWSHandle {
     mirror: bool,    // if true mirrors edits across the sides of the contour
     constrain: bool, // if true constrains the angle to the normal of the curve at the point
@@ -57,18 +57,15 @@ impl MoveVWSHandle {
     }
 }
 
+#[rustfmt::skip]
 impl ToolBehavior for MoveVWSHandle {
     fn event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
-        match event {
-            EditorEvent::MouseEvent {
-                event_type,
-                mouse_info,
-            } => match event_type {
+        if let EditorEvent::MouseEvent { mouse_info, event_type } = event {
+            match event_type {
                 MouseEventType::Released => self.mouse_released(v, i, mouse_info),
                 MouseEventType::Moved => self.mouse_moved(v, i, mouse_info),
-                _ => {}
-            },
-            _ => {}
+                _ => (),
+            }
         }
     }
 }

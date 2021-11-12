@@ -133,8 +133,8 @@ impl ImguiManager {
         let imgui_renderer = Renderer::new(&mut imgui);
         return ImguiManager {
             imgui_context: imgui,
-            imgui_renderer: imgui_renderer,
-            imgui_sdl2: imgui_sdl2,
+            imgui_renderer,
+            imgui_sdl2,
         };
     }
 
@@ -193,21 +193,21 @@ pub fn build_imgui_ui<'ui>(
             imgui::Condition::Always,
         )
         .build(&ui, || {
-            build_and_check_button(v, &ui, ToolEnum::Pan, &icons::PAN);
-            build_and_check_button(v, &ui, ToolEnum::Select, &icons::SELECT);
+            build_and_check_button(v, &ui, ToolEnum::Pan, icons::PAN);
+            build_and_check_button(v, &ui, ToolEnum::Select, icons::SELECT);
             ui.separator();
-            build_and_check_button(v, &ui, ToolEnum::Zoom, &icons::ZOOM);
-            build_and_check_button(v, &ui, ToolEnum::Measure, &icons::MEASURE);
+            build_and_check_button(v, &ui, ToolEnum::Zoom, icons::ZOOM);
+            build_and_check_button(v, &ui, ToolEnum::Measure, icons::MEASURE);
             ui.separator();
-            build_and_check_button(v, &ui, ToolEnum::Anchors, &icons::ANCHOR);
+            build_and_check_button(v, &ui, ToolEnum::Anchors, icons::ANCHOR);
             ui.separator();
-            build_and_check_button(v, &ui, ToolEnum::Pen, &icons::PEN);
-            build_and_check_button(v, &ui, ToolEnum::Grid, &icons::GRID);
-            build_and_check_button(v, &ui, ToolEnum::VWS, &icons::VWS);
-            build_and_check_button(v, &ui, ToolEnum::PAP, &icons::_PAP);
-            build_and_check_button(v, &ui, ToolEnum::Shapes, &icons::SHAPES);
-            build_and_check_button(v, &ui, ToolEnum::Image, &icons::IMAGES);
-            build_and_check_button(v, &ui, ToolEnum::Guidelines, &icons::GUIDELINES);
+            build_and_check_button(v, &ui, ToolEnum::Pen, icons::PEN);
+            build_and_check_button(v, &ui, ToolEnum::Grid, icons::GRID);
+            build_and_check_button(v, &ui, ToolEnum::VWS, icons::VWS);
+            build_and_check_button(v, &ui, ToolEnum::PAP, icons::_PAP);
+            build_and_check_button(v, &ui, ToolEnum::Shapes, icons::SHAPES);
+            build_and_check_button(v, &ui, ToolEnum::Image, icons::IMAGES);
+            build_and_check_button(v, &ui, ToolEnum::Guidelines, icons::GUIDELINES);
         });
 
     imgui::Window::new(imgui::im_str!("Layers"))

@@ -49,31 +49,27 @@ impl Interface {
     pub fn new(filename: &str) -> Self {
         let (sdl, window) = Self::initialize_sdl(filename);
 
-        let mut ret = Interface {
+        Interface {
             prompts: vec![],
             sdl_context: sdl,
             sdl_window: window,
 
             grid: None,
             mouse_info: MouseInfo::default(),
-            viewport: Viewport::default(),
-        };
-
-        ret.viewport.winsize = (WIDTH as f32, HEIGHT as f32);
-
-        return ret;
+            viewport: Viewport::default().winsize((WIDTH as f32, HEIGHT as f32)),
+        }
     }
 
     pub fn active_prompts(&self) -> bool {
-        return !self.prompts.is_empty();
+        !self.prompts.is_empty()
     }
 
     pub fn peek_prompt(&self) -> &InputPrompt {
-        return &self.prompts.first().unwrap();
+        &self.prompts.first().unwrap()
     }
 
-    pub fn pop_prompt(&mut self) {
-        self.prompts.pop();
+    pub fn pop_prompt(&mut self) -> Option<InputPrompt> {
+        self.prompts.pop()
     }
 
     pub fn get_tools_dialog_rect(&self) -> (f32, f32, f32, f32) {
@@ -95,7 +91,7 @@ impl Interface {
         mouse_state: &MouseState,
     ) {
         // build and render imgui
-        let dd = build_imgui_ui(imgui, imsdl2, v, self, &mouse_state);
+        let dd = build_imgui_ui(imgui, imsdl2, v, self, mouse_state);
 
         // draw glyph preview and imgui with skia
         let (window_width, window_height) = self.sdl_window.vulkan_drawable_size();

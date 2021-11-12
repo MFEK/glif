@@ -69,7 +69,7 @@ pub fn build_and_check_layer_list(v: &mut Editor, i: &mut Interface, ui: &imgui:
             "{0}",
             v.with_glyph(|glif| { glif.layers[layer].name.clone() })
         );
-        let im_str = imgui::ImString::from(layer_temp_name);
+        let im_str = layer_temp_name;
 
         let font_token = ui.push_font(FONT_IDS.with(|ids| ids.borrow()[1]));
         let no_padding = ui.push_style_var(StyleVar::ItemSpacing([0., 0.]));

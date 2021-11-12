@@ -29,7 +29,7 @@ impl Image {
                                     layer.images[selected]
                                         .0
                                         .color
-                                        .unwrap_or([1., 1., 1., 1.].into())
+                                        .unwrap_or_else(||[1., 1., 1., 1.].into())
                                 })
                                 .into(),
                             func: Rc::new(move |editor, color| {

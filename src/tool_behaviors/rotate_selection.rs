@@ -2,7 +2,7 @@ use MFEKmath::Vector;
 
 use super::prelude::*;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct RotateSelection {
     pivot_point: (f32, f32),
     rotate_vector: (f32, f32),
@@ -14,7 +14,7 @@ impl RotateSelection {
         RotateSelection {
             pivot_point,
             mouse_info,
-            rotate_vector: rotate_vector,
+            rotate_vector,
         }
     }
 
@@ -90,18 +90,15 @@ impl RotateSelection {
     }
 }
 
+#[rustfmt::skip]
 impl ToolBehavior for RotateSelection {
     fn event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
-        match event {
-            EditorEvent::MouseEvent {
-                event_type,
-                mouse_info,
-            } => match event_type {
+        if let EditorEvent::MouseEvent { mouse_info, event_type } = event {
+            match event_type {
                 MouseEventType::Released => self.mouse_released(v, i, mouse_info),
                 MouseEventType::Moved => self.mouse_moved(v, i, mouse_info),
-                _ => {}
-            },
-            _ => {}
+                _ => (),
+            }
         }
     }
 }

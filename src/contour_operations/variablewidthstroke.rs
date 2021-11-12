@@ -20,7 +20,7 @@ impl ContourOperation for VWSContour {
             output.push(contour.to_contour().into());
         }
 
-        return output;
+        output
     }
 
     fn sub(&self, _contour: &MFEKContour<MFEKPointData>, begin: usize, end: usize) -> Self {
@@ -40,41 +40,35 @@ impl ContourOperation for VWSContour {
         let mut temp_handles = self.handles.clone();
 
         match append.operation.clone() {
-            Some(op) => {
-                match op {
-                    glifparser::glif::ContourOperations::VariableWidthStroke { data } => {
-                        temp_handles.append(&mut data.handles.clone())
-                    }
-                    _ => {
-                        for _idx in 0..append.inner.len() {
-                            let last_handle = temp_handles.last().unwrap_or(&VWSHandle {
-                                left_offset: 10.,
-                                right_offset: 10.,
-                                tangent_offset: 0.,
-                                interpolation: glif::InterpolationType::Linear,
-                                
-                            }).clone();
-                            temp_handles.push(last_handle.clone());
-                        }
-                    }
-                }
+            Some(glifparser::glif::ContourOperations::VariableWidthStroke { mut data }) => {
+                    temp_handles.append(&mut data.handles)
             }
-            None => {
+            Some(_) => {
                 for _idx in 0..append.inner.len() {
-                    let last_handle = temp_handles.last().unwrap_or(&VWSHandle {
+                    let last_handle = *(temp_handles.last().unwrap_or(&VWSHandle {
                         left_offset: 10.,
                         right_offset: 10.,
                         tangent_offset: 0.,
                         interpolation: glif::InterpolationType::Linear,
-                        
-                    }).clone();
-                    temp_handles.push(last_handle.clone());
+                    }));
+                    temp_handles.push(last_handle);
+                }
+            }
+            None => {
+                for _idx in 0..append.inner.len() {
+                    let last_handle = *(temp_handles.last().unwrap_or(&VWSHandle {
+                        left_offset: 10.,
+                        right_offset: 10.,
+                        tangent_offset: 0.,
+                        interpolation: glif::InterpolationType::Linear,
+                    }));
+                    temp_handles.push(last_handle);
                 }
             }
         }
 
         VWSContour {
-            handles: temp_handles.into(),
+            handles: temp_handles,
             join_type: self.join_type,
             cap_start_type: self.cap_start_type,
             cap_end_type: self.cap_end_type,
@@ -93,7 +87,7 @@ impl ContourOperation for VWSContour {
         });
 
         VWSContour {
-            handles: temp_handles.into(),
+            handles: temp_handles,
             join_type: self.join_type,
             cap_start_type: self.cap_start_type,
             cap_end_type: self.cap_end_type,

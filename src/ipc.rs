@@ -7,7 +7,7 @@ use crate::editor::Editor;
 use std::{process, str};
 
 pub fn fetch_metrics(v: &mut Editor) {
-    let (status, qmdbin) = mfek_ipc::module_available("metadata".into());
+    let (status, qmdbin) = mfek_ipc::module_available("metadata");
     if status != Available::Yes {
         return;
     }

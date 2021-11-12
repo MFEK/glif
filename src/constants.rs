@@ -1,3 +1,4 @@
+#![allow(clippy::unusual_byte_groupings)]
 /* Factors */
 pub static SCALE_FACTOR: f32 = 0.05;
 pub static OFFSET_FACTOR: f32 = 10.;

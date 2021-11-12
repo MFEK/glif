@@ -1,6 +1,6 @@
 use super::prelude::*;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct MoveGuideline {
     selected_idx: usize,
     mouse_info: MouseInfo,

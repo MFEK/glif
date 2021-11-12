@@ -1,6 +1,6 @@
 use super::prelude::*;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct MovePoint {
     // we hold on to a clone of the mouse info when the behavior gets put on the stack
     // on mouse released we check for the same button found here and if we find it we pop ourselves
@@ -94,17 +94,14 @@ impl MovePoint {
 }
 
 impl ToolBehavior for MovePoint {
+    #[rustfmt::skip]
     fn event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
-        match event {
-            EditorEvent::MouseEvent {
-                event_type,
-                mouse_info,
-            } => match event_type {
+        if let EditorEvent::MouseEvent { mouse_info, event_type } = event {
+            match event_type {
                 MouseEventType::Released => self.mouse_released(v, i, mouse_info),
                 MouseEventType::Moved => self.mouse_moved(v, i, mouse_info),
-                _ => {}
-            },
-            _ => {}
+                _ => (),
+            }
         }
     }
 

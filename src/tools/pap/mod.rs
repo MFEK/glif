@@ -7,20 +7,17 @@ use glifparser::glif::{ContourOperations, PAPContour, PatternCopies, PatternStre
 use super::prelude::*;
 use crate::{editor::Editor, user_interface::InputPrompt};
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct PAP {}
 
 impl Tool for PAP {
+    #[rustfmt::skip]
     fn event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
-        match event {
-            EditorEvent::MouseEvent {
-                event_type,
-                mouse_info,
-            } => match event_type {
+        if let EditorEvent::MouseEvent { mouse_info, event_type } = event {
+            match event_type {
                 MouseEventType::Pressed => self.mouse_pressed(v, i, mouse_info),
-                _ => {}
-            },
-            _ => {}
+                _ => (),
+            }
         }
     }
 

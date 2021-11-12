@@ -57,7 +57,8 @@ impl Interface {
             .expect("Failed to create SDL2 Surface");
 
         window.set_icon(surface);
-        return (sdl_context, window);
+
+        (sdl_context, window)
     }
 
     pub fn set_window_title(&mut self, title: &str) -> Result<(), NulError> {

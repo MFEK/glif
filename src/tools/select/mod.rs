@@ -18,7 +18,7 @@ mod dialog;
 // Select is a good example of a more complicated tool that keeps lots of state.
 // It has state for which handle it's selected, follow rules, selection box, and to track if it's currently
 // moving a point.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Select {
     pivot_point: Option<(f32, f32)>,
 }
@@ -120,9 +120,7 @@ impl Select {
         // if the user holds control we initiate a rotation of the current selection, either around the pivot point
         // or around the selection's bounding box's center
         if mouse_info.modifiers.ctrl && !v.selected.is_empty() {
-            let pivot = self
-                .pivot_point
-                .unwrap_or(v.get_selection_bounding_box_center());
+            let pivot = self.pivot_point.unwrap_or_else(||v.get_selection_bounding_box_center());
             let pivot_calc = (calc_x(pivot.0), calc_y(pivot.1));
             let pivot_vector = Vector::from_components(pivot_calc.0 as f64, pivot_calc.1 as f64);
             let mouse_vector =

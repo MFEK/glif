@@ -94,7 +94,7 @@ impl Select {
                         }
                         // ArΘ
                         let (ar, mut atheta) = point.polar(WhichHandle::A);
-                        atheta = atheta * (180. / PI);
+                        atheta *= 180. / PI;
                         atheta -= 180.;
                         imgui_radius_theta("A", ui, ar, atheta, WhichHandle::A, &mut point);
                     }
@@ -118,7 +118,7 @@ impl Select {
                         }
                         // BrΘ
                         let (br, mut btheta) = point.polar(WhichHandle::B);
-                        btheta = btheta * (180. / PI);
+                        btheta *= 180. / PI;
                         btheta -= 180.;
                         if btheta.is_sign_positive() {
                             btheta = 360. - btheta;

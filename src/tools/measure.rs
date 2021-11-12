@@ -10,26 +10,20 @@ use crate::user_interface::Interface;
 
 use super::prelude::*;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Measure {
     measure_from: Option<(f32, f32)>,
 }
 
 impl Tool for Measure {
+    #[rustfmt::skip]
     fn event(&mut self, v: &mut Editor, _i: &mut Interface, event: EditorEvent) {
-        match event {
-            EditorEvent::MouseEvent {
-                event_type,
-                mouse_info,
-            } => {
-                match event_type {
-                    //MouseEventType::Moved => { self.mouse_moved(v, position, mouse_info) }
-                    MouseEventType::Pressed => self.mouse_pressed(v, mouse_info),
-                    MouseEventType::Released => self.mouse_released(v, mouse_info),
-                    _ => {}
-                }
+        if let EditorEvent::MouseEvent { mouse_info, event_type } = event {
+            match event_type {
+                MouseEventType::Pressed => self.mouse_pressed(v, mouse_info),
+                MouseEventType::Released => self.mouse_released(v, mouse_info),
+                _ => (),
             }
-            _ => {}
         }
     }
 

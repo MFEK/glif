@@ -10,20 +10,18 @@ use self::util::{clicked_handle, get_vws_handle_pos};
 
 use super::prelude::*;
 
-#[derive(Clone)]
+#[allow(clippy::upper_case_acronyms)]
+#[derive(Clone, Debug)]
 pub struct VWS {}
 
 impl Tool for VWS {
+    #[rustfmt::skip]
     fn event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
-        match event {
-            EditorEvent::MouseEvent {
-                event_type,
-                mouse_info,
-            } => match event_type {
-                super::MouseEventType::Pressed => self.mouse_pressed(v, i, mouse_info),
-                _ => {}
-            },
-            _ => {}
+        if let EditorEvent::MouseEvent { mouse_info, event_type } = event {
+            match event_type {
+                MouseEventType::Pressed => self.mouse_pressed(v, i, mouse_info),
+                _ => (),
+            }
         }
     }
 
@@ -42,22 +40,19 @@ impl VWS {
     }
 
     fn mouse_pressed(&mut self, v: &mut Editor, i: &Interface, mouse_info: MouseInfo) {
-        match clicked_handle(v, i, mouse_info) {
-            Some((ci, pi, wh)) => {
-                v.contour_idx = Some(ci);
-                v.point_idx = Some(pi);
-                v.selected.clear();
+        if let Some((ci, pi, wh)) = clicked_handle(v, i, mouse_info) {
+            v.contour_idx = Some(ci);
+            v.point_idx = Some(pi);
+            v.selected.clear();
 
-                v.set_behavior(Box::new(MoveVWSHandle::new(
-                    mouse_info.button == MouseButton::Left,
-                    mouse_info.modifiers.ctrl,
-                    mouse_info.modifiers.shift,
-                    wh,
-                    mouse_info,
-                )));
-            }
-            _ => {}
-        };
+            v.set_behavior(Box::new(MoveVWSHandle::new(
+                mouse_info.button == MouseButton::Left,
+                mouse_info.modifiers.ctrl,
+                mouse_info.modifiers.shift,
+                wh,
+                mouse_info,
+            )));
+        }
     }
 
     pub fn draw_handles(&self, v: &Editor, i: &Interface, canvas: &mut Canvas) {

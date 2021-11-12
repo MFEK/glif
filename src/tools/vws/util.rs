@@ -10,10 +10,11 @@ use MFEKmath::{Evaluate, Piecewise, Vector};
 pub fn get_vws_contour(v: &Editor, contour_idx: usize) -> Option<VWSContour> {
     v.with_active_layer(|layer| {
         if let Some(contour_op) = layer.outline[contour_idx].operation.clone() {
-            return match contour_op {
-                ContourOperations::VariableWidthStroke { data } => Some(data.clone()),
-                _ => None,
-            };
+            return if let ContourOperations::VariableWidthStroke { data } = contour_op {
+                Some(data)
+            } else {
+                None
+            }
         }
 
         None
@@ -67,10 +68,10 @@ pub fn set_vws_handle(
     let point_idx = v.point_idx.unwrap();
 
     let contour_op = get_vws_contour(v, contour_idx);
-    let mut vws_contour = if contour_op.is_none() {
-        generate_vws_contour(v, contour_idx)
+    let mut vws_contour = if let Some(op) = contour_op {
+        op
     } else {
-        contour_op.unwrap()
+        generate_vws_contour(v, contour_idx)
     };
 
     v.with_active_layer_mut(|layer| {
@@ -130,7 +131,7 @@ pub fn set_vws_handle(
 pub fn set_all_vws_handles(v: &mut Editor, handle: WhichHandle, mirror: bool, normal_offset: f64) {
     let contour_idx = v.contour_idx.unwrap();
     let mut vws_contour =
-        get_vws_contour(v, contour_idx).unwrap_or(generate_vws_contour(v, contour_idx));
+        get_vws_contour(v, contour_idx).unwrap_or_else(||generate_vws_contour(v, contour_idx));
 
     for handle_idx in 0..vws_contour.handles.len() {
         if mirror {
@@ -156,7 +157,7 @@ pub fn get_vws_handle_pos(
 ) -> (Vector, Vector, Vector) {
     v.with_active_layer(|layer| {
         let vws_contour =
-            get_vws_contour(v, contour_idx).unwrap_or(generate_vws_contour(v, contour_idx));
+            get_vws_contour(v, contour_idx).unwrap_or_else(||generate_vws_contour(v, contour_idx));
         let contour_pw = Piecewise::from(&get_contour!(layer, contour_idx));
 
         let vws_handle = vws_contour.handles[handle_idx];
@@ -197,7 +198,7 @@ pub fn get_vws_handle_pos(
 
         match side {
             WhichHandle::A => {
-                return (
+                (
                     start_point,
                     tangent,
                     start_point
@@ -206,7 +207,7 @@ pub fn get_vws_handle_pos(
                 )
             }
             WhichHandle::B => {
-                return (
+                (
                     start_point,
                     tangent,
                     start_point
@@ -214,7 +215,7 @@ pub fn get_vws_handle_pos(
                         + tangent * vws_handle.tangent_offset * scaled_tangent_offset,
                 )
             }
-            _ => panic!("Should be unreachable!"),
+            _ => unreachable!()
         }
     })
 }
@@ -240,7 +241,7 @@ fn generate_vws_contour(v: &Editor, contour_idx: usize) -> VWSContour {
         }
     });
 
-    return new_vws_contour;
+    new_vws_contour
 }
 
 pub fn clicked_handle(

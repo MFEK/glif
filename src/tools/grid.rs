@@ -1,9 +1,9 @@
 use super::prelude::*;
 use crate::tool_behaviors::pan::PanBehavior;
-use crate::user_interface::grid::Grid;
-use crate::user_interface::util::imgui_decimal_text_field;
+use crate::user_interface;
+use user_interface::grid::Grid;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct GridTool {}
 
 impl Tool for GridTool {
@@ -61,8 +61,8 @@ impl GridTool {
                 }
 
                 if let Some(grid) = &mut i.grid {
-                    imgui_decimal_text_field("Spacing", ui, &mut grid.spacing);
-                    imgui_decimal_text_field("Offset", ui, &mut grid.offset);
+                    user_interface::util::imgui_decimal_text_field("Spacing", ui, &mut grid.spacing);
+                    user_interface::util::imgui_decimal_text_field("Offset", ui, &mut grid.offset);
 
                     let old_italic = grid.slope.is_some();
                     let mut italic = grid.slope.is_some();
@@ -74,19 +74,19 @@ impl GridTool {
                     }
 
                     if let Some(slope) = grid.slope {
-                        let old_slope = slope.clone();
+                        let old_slope = slope;
 
-                        let mut new_slope = slope.clone();
-                        imgui_decimal_text_field("Slope", ui, &mut new_slope);
+                        let mut new_slope = slope;
+                        user_interface::util::imgui_decimal_text_field("Slope", ui, &mut new_slope);
 
                         if old_slope != new_slope { 
                             grid.slope = Some(new_slope);
                         };
 
-                        let old_angle = (f32::to_degrees(f32::atan(slope.clone())) * 10000.).round() / 10000.;
-                        let mut new_angle = old_angle.clone();
+                        let old_angle = (f32::to_degrees(f32::atan(slope)) * 10000.).round() / 10000.;
+                        let mut new_angle = old_angle;
 
-                        imgui_decimal_text_field("Degrees", ui, &mut new_angle);
+                        user_interface::util::imgui_decimal_text_field("Degrees", ui, &mut new_angle);
 
                         if old_angle != new_angle {
                             grid.slope = Some(f32::tan(f32::to_radians(new_angle)));

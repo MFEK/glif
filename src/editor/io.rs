@@ -35,7 +35,7 @@ impl Editor {
         };
 
         if *DEBUG_DUMP_GLYPH {
-            log::debug!("{:#?}", &glif.clone());
+            log::debug!("{:#?}", &glif);
         }
 
         self.set_glyph(glif);
@@ -79,7 +79,7 @@ impl Editor {
             log::warn!("In a flatten operation, layers not in the topmost group will be discarded and not in your chosen file. You may want to export (Ctrl+E) and not flatten.");
         }
 
-        let glif_struct = self.glyph.as_ref().unwrap().to_exported(&layer);
+        let glif_struct = self.glyph.as_ref().unwrap().to_exported(layer);
 
         self.with_glyph(|glyph| {
             let mut filename: std::path::PathBuf = if rename {
@@ -163,7 +163,7 @@ impl Editor {
             }
             log::info!("Targeting {:?} to write {}", &target, &layer.name);
 
-            let glif_struct = self.glyph.as_ref().unwrap().to_exported(&layer);
+            let glif_struct = self.glyph.as_ref().unwrap().to_exported(layer);
             glif::write_to_filename(&glif_struct, &target)
                 .unwrap_or_else(|e| panic!("Failed to write glif: {:?}", e));
 
@@ -205,14 +205,14 @@ impl Editor {
                 }
 
                 let layerinfo_plist = layer.to_layerinfo_plist();
-                layerinfo_plist.map(|layerinfo_p_| {
-                    current_layerinfo_p.map(|cmp| {
-                        if layerinfo_p_ != cmp {
+                if let Some(layerinfo_p2) = layerinfo_plist {
+                    if let Some(cmp) = current_layerinfo_p {
+                        if layerinfo_p2 != cmp {
                             log::warn!("I am replacing an existing layerinfo.plist with an incompatible layerinfo.plist. Other glyphs in this font may appear in different colors! This is not a bug in MFEKglif, you must use unique names for layers that will be differently colored *across* your font.");
                         }
-                    });
-                    layerinfo_p = Some(layerinfo_p_);
-                });
+                    }
+                    layerinfo_p = Some(layerinfo_p2);
+                };
 
                 if let Some(li) = layerinfo_p {
                     li.to_file_xml(layerinfo).expect(&format!(
@@ -232,7 +232,7 @@ impl Editor {
         // layercontents.plist
         use glifparser::glif::mfek::layer::ToLayerContentsPlist;
         let mut our_layercontents = (&export.layers).as_slice().to_layercontents_plist();
-        let layercontents = font_pb.clone();
+        let layercontents = font_pb;
         if let Some(mut layercontents_f) = layercontents {
             layercontents_f.push("layercontents.plist");
             if path::Path::exists(&layercontents_f) {

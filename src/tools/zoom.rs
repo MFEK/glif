@@ -6,20 +6,17 @@ use crate::user_interface::Interface;
 // Pan
 use super::{prelude::*, EditorEvent, MouseEventType, Tool};
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Zoom {}
 
+#[rustfmt::skip]
 impl Tool for Zoom {
     fn event(&mut self, _v: &mut Editor, i: &mut Interface, event: EditorEvent) {
-        match event {
-            EditorEvent::MouseEvent {
-                event_type,
-                mouse_info,
-            } => match event_type {
+        if let EditorEvent::MouseEvent { mouse_info, event_type } = event {
+            match event_type {
                 MouseEventType::Released => self.mouse_released(i, mouse_info),
-                _ => {}
-            },
-            _ => {}
+                _ => (),
+            }
         }
     }
 }

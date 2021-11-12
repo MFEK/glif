@@ -15,18 +15,18 @@ impl ContourOperation for PAPContour {
             output.push(contour.to_contour().into());
         }
 
-        return output;
+        output
     }
 
     fn sub(&self, _contour: &MFEKContour<MFEKPointData>, _begin: usize, _end: usize) -> Self {
-        return self.clone();
+        self.clone()
     }
 
     fn append(&self, _contour: &MFEKContour<MFEKPointData>, _append: &MFEKContour<MFEKPointData>) -> Self {
-        return self.clone();
+        self.clone()
     }
 
     fn insert(&self, _contour: &MFEKContour<MFEKPointData>, _point_idx: usize) -> Self {
-        return self.clone();
+        self.clone()
     }
 }

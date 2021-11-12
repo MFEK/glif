@@ -27,7 +27,6 @@ impl Interface {
             ))
             .build(window, extents);
 
-        // TODO: Handle failure to initialize skulpin more gracefully.
-        return renderer.unwrap();
+        renderer.expect("Failed to initialize Skulpin")
     }
 }

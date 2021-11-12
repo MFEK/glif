@@ -12,7 +12,7 @@ pub trait ContourOperation {
 pub fn sub(contour: &MFEKContour<MFEKPointData>, begin: usize, end: usize) -> Option<ContourOperations>
 {
     let op = contour.operation.clone();
-    if op.is_none() { return None }
+    op.as_ref()?;
 
     match op.unwrap() {
         ContourOperations::VariableWidthStroke { data} => {
@@ -28,7 +28,7 @@ pub fn sub(contour: &MFEKContour<MFEKPointData>, begin: usize, end: usize) -> Op
 pub fn append(contour: &MFEKContour<MFEKPointData>, append: &MFEKContour<MFEKPointData>) -> Option<ContourOperations>
 {
     let op = contour.operation.clone();
-    if op.is_none() { return None }
+    op.as_ref()?;
 
     match op.unwrap() {
         ContourOperations::VariableWidthStroke { data} => {
@@ -46,17 +46,17 @@ pub fn build(contour: &MFEKContour<MFEKPointData>) -> MFEKOutline<MFEKPointData>
 
     match op.unwrap() {
         ContourOperations::VariableWidthStroke { data} => {
-            return data.build(contour)
+            data.build(contour)
         }
         ContourOperations::PatternAlongPath { data} => {
-            return data.build(contour)
+            data.build(contour)
         }
     }
 }
 
 pub fn insert(contour: &MFEKContour<MFEKPointData>, idx: usize) -> Option<ContourOperations> {
     let op = contour.operation.clone();
-    if op.is_none() { return None }
+    op.as_ref()?;
 
     match op.unwrap() {
         ContourOperations::VariableWidthStroke { data} => {

@@ -184,7 +184,7 @@ pub fn build_box_selection(
     let mut selected = HashSet::new();
     for (cidx, contour) in outline.iter().enumerate() {
         for (pidx, point) in contour.inner.iter().enumerate() {
-            if SkRect::from(rect).contains(SkPoint::from((calc_x(point.x), calc_y(point.y)))) {
+            if rect.contains(SkPoint::from((calc_x(point.x), calc_y(point.y)))) {
                 selected.insert((cidx, pidx));
             }
         }
@@ -235,12 +235,12 @@ pub fn get_handle_pos(
         WhichHandle::B => outline[ci].inner[pi].b,
     };
 
-    return match ret_handle {
+    match ret_handle {
         Handle::At(hx, hy) => {
             return Some((hx, hy));
         }
         Handle::Colocated => None,
-    };
+    }
 }
 
 pub fn move_handle(

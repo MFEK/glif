@@ -77,7 +77,7 @@ impl VWS {
 
             // we only update the contour and previews when our selection changes
             if old_s != s_current_selection || e_current_selection != old_e {
-                let mut new_data = vws_contour.clone();
+                let mut new_data = vws_contour;
                 new_data.cap_start_type = s_selection;
                 new_data.cap_end_type = e_selection;
 
@@ -114,7 +114,7 @@ impl VWS {
 
             let new_selection = idx_to_join_type(current_selection);
             if new_selection != vws_contour.join_type {
-                let mut new_data = vws_contour.clone();
+                let mut new_data = vws_contour;
                 new_data.join_type = new_selection;
                 let new_op = ContourOperations::VariableWidthStroke { data: new_data };
 

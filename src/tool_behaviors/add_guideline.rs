@@ -3,7 +3,7 @@ use glifrenderer::guidelines::draw_guideline;
 
 use super::prelude::*;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct AddGuideline {}
 
 impl AddGuideline {
@@ -70,14 +70,10 @@ impl AddGuideline {
 impl ToolBehavior for AddGuideline {
     fn event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
         match event {
-            EditorEvent::MouseEvent {
-                event_type,
-                mouse_info,
-            } => match event_type {
-                MouseEventType::Released => self.mouse_released(v, i, mouse_info),
-                _ => {}
-            },
-            _ => {}
+            EditorEvent::MouseEvent { event_type: MouseEventType::Released, mouse_info } => {
+                self.mouse_released(v, i, mouse_info);
+            }
+            _ => ()
         }
     }
 
