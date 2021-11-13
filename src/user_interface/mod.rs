@@ -15,8 +15,8 @@ use glifrenderer::viewport::Viewport;
 use imgui::{self, Context};
 use imgui_sdl2::ImguiSdl2;
 use sdl2::mouse::MouseState;
-use skulpin::rafx::api::RafxExtents2D;
-use skulpin::Renderer;
+use ::skulpin::rafx::api::RafxExtents2D;
+use ::skulpin::Renderer;
 
 use crate::editor::Editor;
 pub use crate::user_interface::mouse_input::MouseInfo;
@@ -56,7 +56,7 @@ impl Interface {
 
             grid: None,
             mouse_info: MouseInfo::default(),
-            viewport: Viewport::default().winsize((WIDTH as f32, HEIGHT as f32)),
+            viewport: Viewport::default().with_winsize((WIDTH as f32, HEIGHT as f32)),
         }
     }
 
