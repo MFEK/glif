@@ -4,7 +4,7 @@ pub mod gui;
 pub mod icons;
 pub mod mouse_input;
 pub mod sdl;
-pub mod skulpin;
+pub mod skulpin_render;
 pub mod util;
 
 use std::rc::Rc;
@@ -15,8 +15,8 @@ use glifrenderer::viewport::Viewport;
 use imgui::{self, Context};
 use imgui_sdl2::ImguiSdl2;
 use sdl2::mouse::MouseState;
-use ::skulpin::rafx::api::RafxExtents2D;
-use ::skulpin::Renderer;
+use skulpin::rafx::api::RafxExtents2D;
+use skulpin::Renderer;
 
 use crate::editor::Editor;
 pub use crate::user_interface::mouse_input::MouseInfo;
