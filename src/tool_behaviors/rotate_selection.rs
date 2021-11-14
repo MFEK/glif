@@ -79,7 +79,7 @@ impl RotateSelection {
             });
         }
 
-        self.rotate_vector = normal_from_pivot.to_tuple();
+        self.rotate_vector = normal_from_pivot.into();
     }
 
     pub fn mouse_released(&mut self, v: &mut Editor, _i: &mut Interface, mouse_info: MouseInfo) {

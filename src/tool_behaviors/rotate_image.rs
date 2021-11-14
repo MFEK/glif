@@ -18,7 +18,7 @@ impl RotateImage {
         let pivot_vector = Vector::from_components(pivot.0 as f64, pivot.1 as f64);
         let mouse_vector =
             Vector::from_components(mouse_info.position.0 as f64, mouse_info.position.1 as f64);
-        let rotate_vector = (pivot_vector - mouse_vector).normalize().to_tuple();
+        let rotate_vector = (pivot_vector - mouse_vector).normalize().into();
 
         RotateImage {
             pivot,
@@ -45,7 +45,7 @@ impl RotateImage {
             Vector::from_components(self.rotate_vector.0 as f64, self.rotate_vector.1 as f64);
         let rotation_angle = normal_from_pivot.angle(rot_vec);
 
-        self.rotate_vector = normal_from_pivot.to_tuple();
+        self.rotate_vector = normal_from_pivot.into();
 
         v.with_active_layer_mut(|layer| {
             let affine = layer.images[self.selected_idx].1.clone();

@@ -131,7 +131,7 @@ impl Select {
 
             v.set_behavior(Box::new(RotateSelection::new(
                 pivot,
-                normal_from_pivot.to_tuple(),
+                normal_from_pivot.into(),
                 mouse_info,
             )));
             return;
