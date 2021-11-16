@@ -33,6 +33,7 @@
     <binding command="SelectAll" key="A" mod="CtrlMod"/>
     <binding command="CopySelection" key="C" mod="CtrlMod"/>
     <binding command="PasteSelection" key="V" mod="CtrlMod"/>
+    <binding command="PasteSelectionInPlace" key="V" mod="CtrlAltMod"/>
     <binding command="CutSelection" key="X" mod="CtrlMod"/>
 
     <!-- history -->

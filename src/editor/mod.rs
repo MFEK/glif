@@ -2,6 +2,7 @@ use crate::{
     tool_behaviors::ToolBehavior,
     tools::{pan::Pan, Tool, ToolEnum},
 };
+
 use glifparser::{
     glif::{HistoryEntry, Layer, MFEKPointData},
     Guideline, MFEKGlif,
@@ -12,7 +13,7 @@ pub use skulpin::skia_safe::{Canvas, Matrix, Path as SkPath, Point as SkPoint, R
 
 use std::collections::HashSet;
 
-use crate::editor::history::History;
+use self::{history::History, selection::EditorClipboard};
 use crate::get_contour_mut;
 
 pub mod debug;
@@ -42,7 +43,7 @@ pub struct Editor {
     history: History, // holds a history of previous states the glyph has been in
     active_tool: Box<dyn Tool>,
     active_tool_enum: ToolEnum,
-    clipboard: Option<Layer<MFEKPointData>>,
+    clipboard: EditorClipboard,
     layer_idx: Option<usize>, // active layer
     preview_dirty: bool,
 
@@ -74,7 +75,7 @@ impl Editor {
             active_tool: Box::new(Pan::new()),
             active_tool_enum: ToolEnum::Pan,
 
-            clipboard: None,
+            clipboard: EditorClipboard::default(),
             preview: None,
 
             layer_idx: None,
