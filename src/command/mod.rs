@@ -40,6 +40,7 @@ pub enum Command {
     SelectAll,
     CopySelection,
     PasteSelection,
+    PasteSelectionInPlace,
     CutSelection,
 
     // history

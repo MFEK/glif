@@ -48,8 +48,8 @@ enum-unitary = "0.4"
 backtrace = "0.3"
 colored = "2.0"
 
-# Right now only for pasting into console
-clipboard = "0.5"
+arboard = { version = "2.0" }
+shrinkwraprs = "0.3.0"
 
 # Logging
 log = "0.4"

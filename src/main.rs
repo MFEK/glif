@@ -216,7 +216,10 @@ fn main() {
                             editor.copy_selection();
                         }
                         Command::PasteSelection => {
-                            editor.paste_selection(interface.mouse_info.position);
+                            editor.paste_selection(Some(interface.mouse_info.position));
+                        }
+                        Command::PasteSelectionInPlace => {
+                            editor.paste_selection(None);
                         }
                         Command::CutSelection => {
                             editor.copy_selection();

@@ -1,11 +1,36 @@
 use glifparser::{
     glif::{Layer, MFEKContour, MFEKPointData},
+    outline::skia::ToSkiaPaths as _,
     Handle, PointType,
 };
+use glifrenderer::{calc_x, calc_y};
 use MFEKmath::{Rect, Vector};
+
+use arboard::{self, Clipboard};
+use serde_json;
+use shrinkwraprs;
+use skulpin::skia_safe::Point as SkPoint;
 
 use super::Editor;
 use crate::contour_operations;
+
+use std::fmt;
+
+#[derive(shrinkwraprs::Shrinkwrap)]
+#[shrinkwrap(mutable)]
+pub(crate) struct EditorClipboard(pub(crate) Clipboard);
+
+impl fmt::Debug for EditorClipboard {
+    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        f.debug_struct("Clipboard").finish()
+    }
+}
+
+impl Default for EditorClipboard {
+    fn default() -> Self {
+        EditorClipboard(Clipboard::new().expect("Failed to initialize clipboard"))
+    }
+}
 
 impl Editor {
     /// Copy the current selection and put it in our clipboard.
@@ -55,33 +80,87 @@ impl Editor {
             }
         }
 
-        self.clipboard = Some(Layer {
-            name: "".to_string(),
-            visible: true,
-            color: None,
-            outline: new_outline,
-            operation: None,
-            images: layer.images.clone(),
-        })
+        let mut cliptext = String::from("text/vnd.mfek.glifjson\t");
+
+        cliptext.push_str(
+            std::str::from_utf8(
+                &serde_json::to_vec_pretty(&Layer {
+                    name: "".to_string(),
+                    visible: true,
+                    color: None,
+                    outline: new_outline,
+                    operation: None,
+                    images: layer.images.clone(),
+                })
+                .unwrap(),
+            )
+            .unwrap(),
+        );
+
+        self.clipboard.as_mut().set_text(cliptext).unwrap();
     }
 
-    pub fn paste_selection(&mut self, _position: (f32, f32)) {
-        self.begin_modification("Paste clipboard.");
-        if let Some(clipboard) = &self.clipboard {
+    /// If `position` is provided, it means that the client is requesting that the layer outline be
+    /// moved
+    pub fn paste_selection(&mut self, position: Option<(f32, f32)>) {
+        if let Ok(clipboard) = self.clipboard.as_mut().get_text() {
+            let (mimetype, data) = if let Some((mimetype, data)) = clipboard.split_once('\t') {
+                (mimetype, data)
+            } else {
+                log::debug!("Tried to paste in a clipboard w/o tab (\\t) character");
+                return;
+            };
+
+            if mimetype != "text/vnd.mfek.glifjson" {
+                log::warn!("We must've misrecognized data w/tab (\\t) character as ours, aborting");
+                return;
+            }
+
+            let mut clipboard: Layer<_> = if let Ok(cdata) = serde_json::from_str(data) {
+                cdata
+            } else {
+                log::error!("Could not understand text/vnd.mfek.glifjson we think we produced. Mismatched MFEKglif versions running on same machine?");
+                return;
+            };
+            log::debug!("Got layer {} from clipboard", &clipboard.name);
+
+            self.begin_modification("Paste clipboard.");
             self.contour_idx = None;
             self.point_idx = None;
             self.selected.clear();
 
             let layer = &mut self.glyph.as_mut().unwrap().layers[self.layer_idx.unwrap()];
-            for contour in clipboard.outline.iter() {
+            if let Some(mpos) = position {
+                let comb = clipboard.outline.to_skia_paths(None).combined();
+                let b = comb.bounds();
+                let center = b.center();
+                let dist = SkPoint::new(calc_x(mpos.0) - center.x, calc_y(mpos.1) - center.y);
+                for contour in clipboard.outline.iter_mut() {
+                    for point in contour.inner.iter_mut() {
+                        point.x += dist.x;
+                        point.y += dist.y;
+                        if let Handle::At(mut ax, mut ay) = point.a {
+                            ax += dist.x;
+                            ay += dist.y;
+                            point.a = Handle::At(ax, ay);
+                        }
+                        if let Handle::At(mut bx, mut by) = point.b {
+                            bx += dist.x;
+                            by += dist.y;
+                            point.b = Handle::At(bx, by);
+                        }
+                    }
+                }
+            }
+            for contour in clipboard.outline.iter_mut() {
                 let cur_idx = layer.outline.len();
                 for (point_selection, _) in contour.inner.iter().enumerate() {
                     self.selected.insert((cur_idx, point_selection));
                 }
                 layer.outline.push(contour.clone());
             }
+            self.end_modification();
         }
-        self.end_modification();
     }
 
     pub fn delete_selection(&mut self) {
