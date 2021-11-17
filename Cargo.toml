@@ -94,7 +94,7 @@ directories = "4"
 
 #converting enums to strings
 strum = "0.22"
-strum_macros = "0.22"
+strum_macros = "0.23"
 
 #for logo, could be used in future for background images
 image = { version = "0.23", features = ["png"], default-features = false }
