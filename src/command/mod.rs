@@ -1,6 +1,6 @@
 use crate::settings::CONFIG_PATH;
 use sdl2::keyboard::Keycode;
-use std::path::Path;
+use std::path::PathBuf;
 use std::{
     cell::RefCell,
     collections::{HashMap, HashSet},
@@ -141,97 +141,108 @@ const DEFAULT_KEYBINDINGS: &str = include_str!(concat!(
     "/resources/default_keymap.xml"
 ));
 
-fn load_keybinding_xml(ignore_local: bool, write: bool) -> String {
-    // check for a keybinding file in our local directory first
-    let config_path = Path::new("./keybindings.xml");
-    let config_string = fs::read_to_string(&config_path);
+use lazy_static::lazy_static;
+lazy_static! {
+    pub static ref CONFIG_KEYBIND_PATH: PathBuf = {
+        let mut pb = CONFIG_PATH.clone();
 
-    if let Ok(config_string) = config_string {
-        return config_string;
-    }
-
-    let mut pb = CONFIG_PATH.clone();
-
-    pb.push("keybindings");
-    pb.set_extension("xml");
-
-    let path = pb.as_path();
-    let config_string = fs::read_to_string(path);
-
-    if let (Ok(config_string), false) = (config_string, ignore_local) {
-        return config_string;
-    }
-
-    if env::var("NO_WRITE_DEFAULT_KEYBINDS").is_err() && write {
-        static NO_WRITE_DEFAULT_KEYBINDS: &str =
-            "To disable this write set environment variable NO_WRITE_DEFAULT_KEYBINDS.";
-        match fs::write(&path, DEFAULT_KEYBINDINGS.to_owned().into_bytes()) {
-            Ok(_) => log::info!(
-                "Wrote default keybinds to `{}`. {}",
-                path.display(),
-                NO_WRITE_DEFAULT_KEYBINDS
-            ),
-            Err(_) => log::warn!(
-                "Could not write default keybinds to `{}`? {}",
-                path.display(),
-                NO_WRITE_DEFAULT_KEYBINDS
-            ),
-        }
-    }
-
-    // We didn't find either so we're gonna return our default
-    DEFAULT_KEYBINDINGS.to_owned()
+        pb.push("keybindings");
+        pb.set_extension("xml");
+        pb
+    };
 }
 
-fn parse_keybinds(mut config: xmltree::Element) -> HashMap<(Keycode, CommandMod), Command> {
+fn load_keybinding_xml(ignore_local: bool) -> Result<String, Box<dyn std::error::Error>> {
+    Ok(if !ignore_local {
+        fs::read_to_string(&*CONFIG_KEYBIND_PATH)?
+    } else {
+        // We didn't find either so we're gonna return our default
+        DEFAULT_KEYBINDINGS.to_owned()
+    })
+}
+
+fn parse_keybinds(
+    mut config: xmltree::Element,
+) -> Result<HashMap<(Keycode, CommandMod), Command>, String> {
     let mut hm: HashMap<(Keycode, CommandMod), Command> = HashMap::new();
 
     while let Some(binding) = config.take_child("binding") {
         let keycode = binding
             .attributes
             .get("key")
-            .expect("Binding does not have a key associated!");
+            .map(|k| Ok(k))
+            .unwrap_or(Err("Binding does not have a key associated!"))?;
         let command = binding
             .attributes
             .get("command")
-            .expect("Binding does not have a command associated!");
+            .map(|c| Ok(c))
+            .unwrap_or(Err("Binding does not have a command associated!"))?;
         let modifier = binding.attributes.get("mod");
 
         let command_mod = modifier.map(|m| m.as_str()).unwrap_or("").into();
 
-        let command_enum = Command::from_str(command).expect("Invalid command string!");
-        let keycode_enum =
-            sdl2::keyboard::Keycode::from_name(keycode).expect("Invalid keycode string!");
+        let command_enum = Command::from_str(command)
+            .map(|c| Ok(c))
+            .unwrap_or(Err("Invalid command string!"))?;
+        let keycode_enum = sdl2::keyboard::Keycode::from_name(keycode)
+            .map(|kc| Ok(kc))
+            .unwrap_or(Err("Invalid keycode string!"))?;
 
         hm.insert((keycode_enum, command_mod), command_enum);
     }
 
-    hm
+    Ok(hm)
 }
 
 pub fn initialize_keybinds() {
-    let mut binding_xml = load_keybinding_xml(false, true);
-    let default_xml = load_keybinding_xml(true, false);
-    let config_res = xmltree::Element::parse(binding_xml.as_bytes());
-    let default_res = xmltree::Element::parse(default_xml.as_bytes()).unwrap();
-    let config = if let Ok(el) = config_res {
-        el
-    } else {
-        binding_xml = default_xml;
-        xmltree::Element::parse(binding_xml.as_bytes()).expect("Invalid default keybinding XML‽")
+    let default_xml = load_keybinding_xml(true).unwrap();
+    let binding_xml = load_keybinding_xml(false);
+    let config_res =
+        xmltree::Element::parse(binding_xml.as_ref().unwrap_or(&default_xml).as_bytes());
+    let default_res =
+        xmltree::Element::parse(default_xml.as_bytes()).expect("Invalid default keybinding XML‽");
+    let config = match config_res {
+        Ok(el) => el,
+        Err(e) => {
+            log::warn!("Keybinds XML invalid ({:?}), using default", e);
+            default_res.clone()
+        }
     };
 
-    let mut keybinds = parse_keybinds(config);
-    let default_keybinds = parse_keybinds(default_res);
-    let commands: HashSet<_> = keybinds.clone().into_values().into_iter().collect();
-    let default_commands: HashSet<_> = default_keybinds.clone().into_values().into_iter().collect();
+    let default_keybinds = parse_keybinds(default_res).unwrap();
+    let mut keybinds = parse_keybinds(config).unwrap_or_else(|e| {
+        log::warn!("Keybinds XML invalid ({}), using default", e);
+        default_keybinds.clone()
+    });
+    let default_commands: HashSet<_> = default_keybinds.values().into_iter().collect();
+    let commands: HashSet<_> = keybinds.values().into_iter().collect();
 
     if commands != default_commands {
-        keybinds = default_keybinds;
         log::warn!(
             "Your keybinds are incomplete, missing {:?}; using defaults for all",
             &default_commands - &commands
         );
+        keybinds = default_keybinds;
+    }
+
+    if env::var("NO_WRITE_DEFAULT_KEYBINDS").is_err() && binding_xml.is_err() {
+        static NO_WRITE_DEFAULT_KEYBINDS: &str =
+            "To disable this write set environment variable NO_WRITE_DEFAULT_KEYBINDS.";
+        match fs::write(
+            &*CONFIG_KEYBIND_PATH,
+            DEFAULT_KEYBINDINGS.to_owned().into_bytes(),
+        ) {
+            Ok(_) => log::info!(
+                "Wrote default keybinds to `{}`. {}",
+                (&*CONFIG_KEYBIND_PATH).display(),
+                NO_WRITE_DEFAULT_KEYBINDS
+            ),
+            Err(_) => log::warn!(
+                "Could not write default keybinds to `{}`? {}",
+                (&*CONFIG_KEYBIND_PATH).display(),
+                NO_WRITE_DEFAULT_KEYBINDS
+            ),
+        }
     }
 
     KEYMAP.with(|v| {
