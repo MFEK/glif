@@ -128,9 +128,9 @@ impl Guidelines {
                     });
 
                     let (old_at, old_angle) = (at, angle);
-                    user_interface::util::imgui_decimal_text_field("X", ui, &mut at.x);
-                    user_interface::util::imgui_decimal_text_field("Y", ui, &mut at.y);
-                    user_interface::util::imgui_decimal_text_field("Angle", ui, &mut angle);
+                    user_interface::util::imgui_decimal_text_field("X", ui, &mut at.x, None);
+                    user_interface::util::imgui_decimal_text_field("Y", ui, &mut at.y, None);
+                    user_interface::util::imgui_decimal_text_field("Angle", ui, &mut angle, None);
 
                     if at != old_at || angle != old_angle {
                         v.begin_modification("Modify guideline.");

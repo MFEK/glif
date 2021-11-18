@@ -2,6 +2,8 @@ mod dialog;
 pub mod util;
 
 use crate::{tool_behaviors::move_vws_handle::MoveVWSHandle, user_interface::Interface};
+
+use glifparser::glif::ContourOperations;
 use sdl2::mouse::MouseButton;
 use skulpin::skia_safe::{Canvas, Paint, PaintStyle, Path as SkiaPath};
 use MFEKmath::{Evaluate, Piecewise};
@@ -30,7 +32,16 @@ impl Tool for VWS {
     }
 
     fn ui(&mut self, v: &mut Editor, i: &mut Interface, ui: &mut Ui) {
-        self.build_vws_settings_window(v, i, ui)
+        let show_dialog = v.with_active_layer(|layer| match v.contour_idx {
+            Some(ci) => match layer.outline[ci].operation {
+                Some(ContourOperations::VariableWidthStroke { .. }) => true,
+                _ => false,
+            },
+            _ => false,
+        });
+        if show_dialog {
+            self.tool_dialog(v, i, ui);
+        }
     }
 }
 

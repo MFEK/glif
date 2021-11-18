@@ -3,8 +3,9 @@ pub_mod!("src/tools");
 
 use self::prelude::*;
 use self::{
-    anchors::Anchors, grid::GridTool, guidelines::Guidelines, image::Image, measure::Measure,
-    pan::Pan, pap::PAP, pen::Pen, select::Select, shapes::Shapes, vws::VWS, zoom::Zoom,
+    anchors::Anchors, dash::Dash, grid::GridTool, guidelines::Guidelines, image::Image,
+    measure::Measure, pan::Pan, pap::PAP, pen::Pen, select::Select, shapes::Shapes, vws::VWS,
+    zoom::Zoom,
 };
 
 use dyn_clone::DynClone;
@@ -39,9 +40,10 @@ enum_unitary! {
         Zoom,
         Measure,
         VWS,
+        PAP,
+        Dash,
         Shapes,
         Image,
-        PAP,
         Guidelines
     }
 }
@@ -61,8 +63,9 @@ pub fn tool_enum_to_tool(tool: ToolEnum) -> Box<dyn Tool> {
         ToolEnum::Anchors => Box::new(Anchors::new()),
         ToolEnum::Grid => Box::new(GridTool::new()),
         ToolEnum::Measure => Box::new(Measure::new()),
-        ToolEnum::Shapes => Box::new(Shapes::new()), //FIXME: enable vws
-        ToolEnum::VWS => Box::new(VWS::new()),       //FIXME: enable vws
+        ToolEnum::Shapes => Box::new(Shapes::new()),
+        ToolEnum::VWS => Box::new(VWS::new()),
+        ToolEnum::Dash => Box::new(Dash::new()),
         ToolEnum::Image => Box::new(Image::new()),
         ToolEnum::PAP => Box::new(PAP::new()),
         ToolEnum::Guidelines => Box::new(Guidelines::new()),

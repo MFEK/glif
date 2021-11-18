@@ -127,7 +127,7 @@ impl VWS {
         }
     }
 
-    pub fn build_vws_settings_window(&self, v: &mut Editor, i: &Interface, ui: &mut imgui::Ui) {
+    pub fn tool_dialog(&self, v: &mut Editor, i: &Interface, ui: &mut imgui::Ui) {
         let (tx, ty, tw, th) = i.get_tools_dialog_rect();
 
         // if we don't have a contour selected we don't draw this
@@ -159,7 +159,7 @@ impl VWS {
                         let mut working_vws_contour = vws_contour.clone();
 
                         let mut constant_width = 0.;
-                        imgui_decimal_text_field("Constant Width", ui, &mut constant_width);
+                        imgui_decimal_text_field("Constant Width", ui, &mut constant_width, None);
 
                         if constant_width != 0. {
                             v.begin_modification("VWS dialog modification.");

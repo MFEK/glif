@@ -163,30 +163,29 @@ pub fn get_vws_handle_pos(
         let vws_handle = vws_contour.handles[handle_idx];
 
         // if we've got an open contour and are dealing with the last handle we need special logic
-        let (_bezier, start_point, tangent, normal) =
-            if !contour_pw.is_closed() && handle_idx == contour_pw.segs.len() {
-                let bezier = &contour_pw.segs[handle_idx - 1];
-                let start_point = bezier.end_point();
-                let tangent = bezier.tangent_at(1.).normalize();
-                let normal = Vector {
-                    x: tangent.y,
-                    y: -tangent.x,
-                }
-                .normalize();
+        let (_bezier, start_point, tangent, normal) = if handle_idx == contour_pw.segs.len() {
+            let bezier = &contour_pw.segs[handle_idx - 1];
+            let start_point = bezier.end_point();
+            let tangent = bezier.tangent_at(1.).normalize();
+            let normal = Vector {
+                x: tangent.y,
+                y: -tangent.x,
+            }
+            .normalize();
 
-                (bezier, start_point, tangent, normal)
-            } else {
-                let bezier = &contour_pw.segs[handle_idx];
-                let start_point = bezier.start_point();
-                let tangent = bezier.tangent_at(0.).normalize();
-                let normal = Vector {
-                    x: tangent.y,
-                    y: -tangent.x,
-                }
-                .normalize();
+            (bezier, start_point, tangent, normal)
+        } else {
+            let bezier = &contour_pw.segs[handle_idx];
+            let start_point = bezier.start_point();
+            let tangent = bezier.tangent_at(0.).normalize();
+            let normal = Vector {
+                x: tangent.y,
+                y: -tangent.x,
+            }
+            .normalize();
 
-                (bezier, start_point, tangent, normal)
-            };
+            (bezier, start_point, tangent, normal)
+        };
 
         let max_tangent = f64::max(vws_handle.right_offset, vws_handle.left_offset);
 

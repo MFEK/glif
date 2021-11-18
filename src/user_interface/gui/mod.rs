@@ -2,6 +2,7 @@ use std::cell::RefCell;
 
 use crate::{
     editor::Editor,
+    system_fonts,
     tools::ToolEnum,
     user_interface::gui::{
         layer_list::build_and_check_layer_list, prompts::build_and_check_prompts,
@@ -70,7 +71,7 @@ impl ImguiManager {
 
         let id = imgui.fonts().add_font(&[
             imgui::FontSource::TtfData {
-                data: &crate::system_fonts::SYSTEMSANS.data,
+                data: &system_fonts::SYSTEMSANS.data,
                 size_pixels: font_size,
                 config: Some(imgui::FontConfig {
                     oversample_h: 3,
@@ -101,7 +102,7 @@ impl ImguiManager {
 
         let id1 = imgui.fonts().add_font(&[
             imgui::FontSource::TtfData {
-                data: &crate::system_fonts::SYSTEMSANS.data,
+                data: &system_fonts::SYSTEMSANS.data,
                 size_pixels: font_size,
                 config: Some(imgui::FontConfig {
                     oversample_h: 3,
@@ -204,7 +205,8 @@ pub fn build_imgui_ui<'ui>(
             build_and_check_button(v, &ui, ToolEnum::Pen, icons::PEN);
             build_and_check_button(v, &ui, ToolEnum::Grid, icons::GRID);
             build_and_check_button(v, &ui, ToolEnum::VWS, icons::VWS);
-            build_and_check_button(v, &ui, ToolEnum::PAP, icons::_PAP);
+            build_and_check_button(v, &ui, ToolEnum::PAP, icons::PAP);
+            build_and_check_button(v, &ui, ToolEnum::Dash, icons::DASH);
             build_and_check_button(v, &ui, ToolEnum::Shapes, icons::SHAPES);
             build_and_check_button(v, &ui, ToolEnum::Image, icons::IMAGES);
             build_and_check_button(v, &ui, ToolEnum::Guidelines, icons::GUIDELINES);

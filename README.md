@@ -35,6 +35,8 @@ Note: This is a basic list to get you started. A complete list can be found in `
 * <kbd>P</kbd> &mdash; Select &laquo;Pen&raquo; tool
 * <kbd>V</kbd> &mdash; Select &laquo;Select&raquo; tool
 * <kbd>Z</kbd> &mdash; Select &laquo;Zoom&raquo; tool
+* <kbd>Alt</kbd><kbd>D</kbd> &mdash; Select &laquo;Dash Along Path&raquo; tool
+* <kbd>Alt</kbd><kbd>P</kbd> &mdash; Select &laquo;Pattern Along Path&raquo; tool
 * <kbd>W</kbd> &mdash; Select &laquo;Variable Width Stroke&raquo; tool
 * <kbd>M</kbd> &mdash; Select &laquo;Measure&raquo; tool
 * <kbd>N</kbd> &mdash; Select &laquo;Anchors&raquo; tool

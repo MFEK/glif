@@ -73,11 +73,15 @@ impl Interface {
     }
 
     pub fn get_tools_dialog_rect(&self) -> (f32, f32, f32, f32) {
+        let offset_y = (self.viewport.winsize.1 as f32 - (LAYERBOX_HEIGHT * 2.)) / 3.;
         (
             self.viewport.winsize.0 as f32 - (LAYERBOX_WIDTH) - (TOOLBOX_OFFSET_X),
-            self.viewport.winsize.1 as f32 - (LAYERBOX_HEIGHT * 2.) - (TOOLBOX_OFFSET_Y * 2.),
+            self.viewport.winsize.1 as f32
+                - (LAYERBOX_HEIGHT * 2.)
+                - (TOOLBOX_OFFSET_Y * 2.)
+                - offset_y,
             LAYERBOX_WIDTH,
-            LAYERBOX_HEIGHT,
+            LAYERBOX_HEIGHT + offset_y,
         )
     }
 

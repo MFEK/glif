@@ -73,13 +73,7 @@ pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
         });
     }
 
-    let active_layer = v.get_active_layer();
-    let path = glifrenderer::glyph::draw(
-        canvas,
-        v.preview.as_ref().unwrap(),
-        &i.viewport,
-        active_layer,
-    );
+    glifrenderer::glyph::draw(canvas, v.preview.as_ref().unwrap(), &i.viewport);
 
     v.with_glyph(|glyph| {
         // Cache component rects and flattened outline on MFEKGlif
@@ -105,13 +99,9 @@ pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
                     &selected,
                     canvas,
                 );
-            });
-            points::draw_directions(&i.viewport, path, canvas);
-
-            v.with_glyph(|glif| {
+                points::draw_directions(&i.viewport, glif, canvas);
                 draw_anchors(glif, &i.viewport, canvas);
             });
-            //points::draw_selected(v, canvas);
 
             v.dispatch_tool_draw(i, canvas);
         }

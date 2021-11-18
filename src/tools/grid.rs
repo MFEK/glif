@@ -65,8 +65,14 @@ impl GridTool {
                         "Spacing",
                         ui,
                         &mut grid.spacing,
+                        None,
                     );
-                    user_interface::util::imgui_decimal_text_field("Offset", ui, &mut grid.offset);
+                    user_interface::util::imgui_decimal_text_field(
+                        "Offset",
+                        ui,
+                        &mut grid.offset,
+                        None,
+                    );
 
                     let old_italic = grid.slope.is_some();
                     let mut italic = grid.slope.is_some();
@@ -81,7 +87,12 @@ impl GridTool {
                         let old_slope = slope;
 
                         let mut new_slope = slope;
-                        user_interface::util::imgui_decimal_text_field("Slope", ui, &mut new_slope);
+                        user_interface::util::imgui_decimal_text_field(
+                            "Slope",
+                            ui,
+                            &mut new_slope,
+                            None,
+                        );
 
                         if old_slope != new_slope {
                             grid.slope = Some(new_slope);
@@ -95,6 +106,7 @@ impl GridTool {
                             "Degrees",
                             ui,
                             &mut new_angle,
+                            None,
                         );
 
                         if old_angle != new_angle {

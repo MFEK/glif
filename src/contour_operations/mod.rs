@@ -1,3 +1,4 @@
+pub mod dashalongpath;
 pub mod patternalongpath;
 pub mod variablewidthstroke;
 use glifparser::glif::{ContourOperations, MFEKContour, MFEKOutline, MFEKPointData};
@@ -42,6 +43,9 @@ pub fn sub(
         ContourOperations::PatternAlongPath { data } => Some(ContourOperations::PatternAlongPath {
             data: data.sub(contour, begin, end),
         }),
+        ContourOperations::DashAlongPath { data } => Some(ContourOperations::DashAlongPath {
+            data: data.sub(contour, begin, end),
+        }),
         _ => unknown_op(),
     }
 }
@@ -62,6 +66,9 @@ pub fn append(
         ContourOperations::PatternAlongPath { data } => Some(ContourOperations::PatternAlongPath {
             data: data.append(contour, append),
         }),
+        ContourOperations::DashAlongPath { data } => Some(ContourOperations::DashAlongPath {
+            data: data.append(contour, append),
+        }),
         _ => unknown_op(),
     }
 }
@@ -75,6 +82,7 @@ pub fn build(contour: &MFEKContour<MFEKPointData>) -> MFEKOutline<MFEKPointData>
     match op.unwrap() {
         ContourOperations::VariableWidthStroke { data } => data.build(contour),
         ContourOperations::PatternAlongPath { data } => data.build(contour),
+        ContourOperations::DashAlongPath { data } => data.build(contour),
         _ => unknown_op_outline(),
     }
 }
@@ -90,6 +98,9 @@ pub fn insert(contour: &MFEKContour<MFEKPointData>, idx: usize) -> Option<Contou
             })
         }
         ContourOperations::PatternAlongPath { data } => Some(ContourOperations::PatternAlongPath {
+            data: data.insert(contour, idx),
+        }),
+        ContourOperations::DashAlongPath { data } => Some(ContourOperations::DashAlongPath {
             data: data.insert(contour, idx),
         }),
         _ => unknown_op(),

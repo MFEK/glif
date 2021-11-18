@@ -30,6 +30,8 @@ pub enum Command {
     ToolPen,
     ToolSelect,
     ToolZoom,
+    ToolDash,
+    ToolPAP,
     ToolVWS,
     ToolMeasure,
     ToolAnchors,

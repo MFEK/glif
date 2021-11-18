@@ -174,6 +174,12 @@ fn main() {
                         Command::ToolZoom => {
                             editor.set_tool(ToolEnum::Zoom);
                         }
+                        Command::ToolDash => {
+                            editor.set_tool(ToolEnum::Dash);
+                        }
+                        Command::ToolPAP => {
+                            editor.set_tool(ToolEnum::PAP);
+                        }
                         Command::ToolVWS => {
                             editor.set_tool(ToolEnum::VWS);
                         }

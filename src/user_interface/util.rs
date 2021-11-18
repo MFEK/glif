@@ -1,18 +1,26 @@
 use glifparser::{Point, PointData, WhichHandle};
 use MFEKmath::polar::PolarCoordinates;
 
-pub fn imgui_decimal_text_field(label: &str, ui: &imgui::Ui, data: &mut f32) {
+pub fn imgui_decimal_text_field(
+    label: &str,
+    ui: &imgui::Ui,
+    data: &mut f32,
+    f: Option<Box<dyn for<'a, 'b> FnMut(imgui::InputText<'a, 'b>) -> imgui::InputText<'a, 'b>>>,
+) {
     let mut x = imgui::im_str!("{}", (*data * 1000.).round() / 1000.);
     let label = imgui::ImString::new(label);
     let entered;
     {
-        let it = ui.input_text(&label, &mut x);
-        entered = it
+        let mut it = ui.input_text(&label, &mut x);
+        it = it
             .enter_returns_true(true)
             .chars_decimal(true)
             .chars_noblank(true)
-            .auto_select_all(true)
-            .build();
+            .auto_select_all(true);
+        if let Some(mut func) = f {
+            it = func(it);
+        }
+        entered = it.build();
     }
     if entered && !x.to_str().is_empty() {
         let new_x: f32 = x.to_str().parse().unwrap();

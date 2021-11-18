@@ -1,13 +1,15 @@
+use std::collections::HashSet;
 use std::f32::consts::PI;
 
 use super::Select;
 
+use crate::contour_operations::ContourOperation;
 use crate::editor::macros::{get_contour_len, get_contour_type, get_point};
 use crate::editor::Editor;
 use crate::user_interface::util::{imgui_decimal_text_field, imgui_radius_theta};
 use crate::user_interface::Interface;
 
-use glifparser::glif::MFEKPointData;
+use glifparser::glif::{ContourOperations, MFEKOutline, MFEKPointData};
 use glifparser::{Handle, Point, PointType, WhichHandle};
 use MFEKmath::polar::PolarCoordinates;
 
@@ -31,6 +33,7 @@ impl Select {
         let mut point: Point<MFEKPointData> = Point::new();
         let mut should_make_next_point_curve: bool = false;
         let mut should_clear_contour_op = false;
+        let mut should_apply_contour_op = false;
         let on_open_contour = v.with_active_layer(|l| get_contour_type!(l, ci) == PointType::Move);
         let contour_len = v.with_active_layer(|l| get_contour_len!(l, ci));
         v.with_active_layer(|layer| {
@@ -66,9 +69,9 @@ impl Select {
                 }
 
                 // X
-                imgui_decimal_text_field("X", ui, &mut point.x);
+                imgui_decimal_text_field("X", ui, &mut point.x, None);
                 // Y
-                imgui_decimal_text_field("Y", ui, &mut point.y);
+                imgui_decimal_text_field("Y", ui, &mut point.y, None);
 
                 // A
                 let mut a_colocated = point.a == Handle::Colocated;
@@ -78,9 +81,9 @@ impl Select {
                     // AX
                     let (mut ax, mut ay) = point.handle_or_colocated(WhichHandle::A, |f| f, |f| f);
                     let orig_axy = (ax, ay);
-                    imgui_decimal_text_field("AX", ui, &mut ax);
+                    imgui_decimal_text_field("AX", ui, &mut ax, None);
                     // AY
-                    imgui_decimal_text_field("AY", ui, &mut ay);
+                    imgui_decimal_text_field("AY", ui, &mut ay, None);
 
                     if (ax, ay) != orig_axy {
                         point.a = Handle::At(ax, ay);
@@ -104,9 +107,9 @@ impl Select {
                     // BX
                     let (mut bx, mut by) = point.handle_or_colocated(WhichHandle::B, |f| f, |f| f);
                     let orig_bxy = (bx, by);
-                    imgui_decimal_text_field("BX", ui, &mut bx);
+                    imgui_decimal_text_field("BX", ui, &mut bx, None);
                     // BY
-                    imgui_decimal_text_field("BY", ui, &mut by);
+                    imgui_decimal_text_field("BY", ui, &mut by, None);
                     if (bx, by) != orig_bxy {
                         point.b = Handle::At(bx, by);
                         point.ptype = PointType::Curve;
@@ -128,6 +131,10 @@ impl Select {
                     if ui.is_item_clicked(imgui::MouseButton::Left) {
                         should_clear_contour_op = true;
                     }
+                    ui.button(imgui::im_str!("Apply Contour Operation"), [0., 0.]);
+                    if ui.is_item_clicked(imgui::MouseButton::Left) {
+                        should_apply_contour_op = true;
+                    }
                 }
             });
         });
@@ -135,6 +142,34 @@ impl Select {
         if should_clear_contour_op {
             v.begin_modification("Reset contour op.");
             v.with_active_layer_mut(|layer| layer.outline[ci].operation = None);
+            v.end_modification();
+        }
+
+        if should_apply_contour_op {
+            v.begin_modification("Apply contour op.");
+            v.with_active_layer_mut(|layer| {
+                let op = &layer.outline[ci].operation.clone();
+                layer.outline[ci].operation = None;
+                let ol = match op {
+                    Some(ContourOperations::DashAlongPath { data }) => {
+                        data.build(&layer.outline[ci])
+                    }
+                    Some(ContourOperations::PatternAlongPath { data }) => {
+                        data.build(&layer.outline[ci])
+                    }
+                    Some(ContourOperations::VariableWidthStroke { data }) => {
+                        data.build(&layer.outline[ci])
+                    }
+                    _ => (MFEKOutline::new()),
+                };
+                layer.outline.remove(ci);
+                for contour in ol {
+                    layer.outline.push(contour);
+                }
+            });
+            v.contour_idx = None;
+            v.point_idx = None;
+            v.selected = HashSet::new();
             v.end_modification();
         }
 

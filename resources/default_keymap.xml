@@ -16,6 +16,8 @@
     <binding command="ToolPen" key="P"/>
     <binding command="ToolSelect" key="V"/>
     <binding command="ToolZoom" key="Z"/>
+    <binding command="ToolDash" key="D" mod="AltMod"/>
+    <binding command="ToolPAP" key="P" mod="AltMod"/>
     <binding command="ToolVWS" key="W"/>
     <binding command="ToolMeasure" key="M"/>
     <binding command="ToolAnchors" key="N"/>

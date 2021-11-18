@@ -182,7 +182,12 @@ impl PAP {
                     }
 
                     let mut new_spacing = data.spacing as f32;
-                    user_interface::util::imgui_decimal_text_field("Spacing", ui, &mut new_spacing);
+                    user_interface::util::imgui_decimal_text_field(
+                        "Spacing",
+                        ui,
+                        &mut new_spacing,
+                        None,
+                    );
 
                     if new_spacing != data.spacing as f32 {
                         let mut new_data = data.clone();
@@ -201,6 +206,7 @@ impl PAP {
                         "Normal Offset",
                         ui,
                         &mut new_normal,
+                        None,
                     );
 
                     if new_normal != data.normal_offset as f32 {
@@ -220,6 +226,7 @@ impl PAP {
                         "Tangent Offset",
                         ui,
                         &mut new_tangent,
+                        None,
                     );
 
                     if new_tangent != data.tangent_offset as f32 {
@@ -236,9 +243,19 @@ impl PAP {
 
                     let mut new_x_scale = data.pattern_scale.0 as f32;
                     let mut new_y_scale = data.pattern_scale.1 as f32;
-                    user_interface::util::imgui_decimal_text_field("##", ui, &mut new_x_scale);
+                    user_interface::util::imgui_decimal_text_field(
+                        "##",
+                        ui,
+                        &mut new_x_scale,
+                        None,
+                    );
                     ui.same_line(0.);
-                    user_interface::util::imgui_decimal_text_field("Scale", ui, &mut new_y_scale);
+                    user_interface::util::imgui_decimal_text_field(
+                        "Scale",
+                        ui,
+                        &mut new_y_scale,
+                        None,
+                    );
 
                     if (new_x_scale as f64, new_y_scale as f64) != data.pattern_scale {
                         let mut new_data = data.clone();
