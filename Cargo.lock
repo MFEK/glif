@@ -1201,7 +1201,7 @@ dependencies = [
 [[package]]
 name = "glifrenderer"
 version = "0.1.0"
-source = "git+https://github.com/MFEK/glifrenderer.rlib#5a7d5eb39d49f4e233f86cbca78aa918bb461d99"
+source = "git+https://github.com/MFEK/glifrenderer.rlib#9f4b8424c1f91558acded58d2ae80a1fec67878b"
 dependencies = [
  "derive_more",
  "enum-iterator",

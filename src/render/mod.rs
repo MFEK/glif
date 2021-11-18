@@ -99,8 +99,11 @@ pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
                     &selected,
                     canvas,
                 );
-                points::draw_directions(&i.viewport, glif, canvas);
                 draw_anchors(glif, &i.viewport, canvas);
+            });
+
+            v.with_active_layer(|active_layer| {
+                points::draw_directions(&i.viewport, active_layer, canvas);
             });
 
             v.dispatch_tool_draw(i, canvas);
