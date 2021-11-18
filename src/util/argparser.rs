@@ -26,7 +26,6 @@ pub fn parse_args() -> Args {
         .arg(
             clap::Arg::with_name("GLIF")
                 .help("Input UFO format .glif file")
-                .required(true)
                 .index(1),
         )
         .arg(
