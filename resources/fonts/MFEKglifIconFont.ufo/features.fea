@@ -1,0 +1,14 @@
+
+#Mark attachment classes (defined in GDEF, used in lookupflags)
+
+@GDEF_Simple = [\knife \measure \pan \pen \pencil \select \shapes \text \zoom \vws 
+	\anchor \pap \openeye \closedeye \minus \plus \left \down \up \right \rename \union 
+	\difference \combine \intersection \xor \venn \image \layers \confirm \reject 
+	\save \export \squiggle \refresh \delete \settings \copy \cut \paste \grid 
+	\guidelines \hyperbezier \quadpen \bsplinepen \spiropen \dash ];
+
+table GDEF {
+  GlyphClassDef @GDEF_Simple, , , ;
+
+} GDEF;
+

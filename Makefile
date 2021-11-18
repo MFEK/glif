@@ -24,3 +24,9 @@ dist:
 .PHONY: fmt
 fmt:
 	find src -type f -iname '*.rs' | parallel --bar RUST_LOG=error rustfmt {}
+
+resources/fonts/icons.ttf:
+	fontmake -u resources/fonts/MFEKglifIconFont.ufo -o ttf --output-path $@
+
+.PHONY: iconfont
+iconfont: resources/fonts/icons.ttf
