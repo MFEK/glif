@@ -2,6 +2,18 @@ pub mod patternalongpath;
 pub mod variablewidthstroke;
 use glifparser::glif::{ContourOperations, MFEKContour, MFEKOutline, MFEKPointData};
 
+use log;
+
+fn unknown_op() -> Option<ContourOperations> {
+    log::warn!("Found unknown contour operation attached to contour. File was generated with newer MFEKglif, please upgrade to edit properly.");
+    None
+}
+
+fn unknown_op_outline() -> MFEKOutline<MFEKPointData> {
+    unknown_op();
+    MFEKOutline::new()
+}
+
 pub trait ContourOperation {
     fn build(&self, contour: &MFEKContour<MFEKPointData>) -> MFEKOutline<MFEKPointData>;
     fn sub(&self, contour: &MFEKContour<MFEKPointData>, begin: usize, end: usize) -> Self;
@@ -30,6 +42,7 @@ pub fn sub(
         ContourOperations::PatternAlongPath { data } => Some(ContourOperations::PatternAlongPath {
             data: data.sub(contour, begin, end),
         }),
+        _ => unknown_op(),
     }
 }
 
@@ -49,6 +62,7 @@ pub fn append(
         ContourOperations::PatternAlongPath { data } => Some(ContourOperations::PatternAlongPath {
             data: data.append(contour, append),
         }),
+        _ => unknown_op(),
     }
 }
 
@@ -61,6 +75,7 @@ pub fn build(contour: &MFEKContour<MFEKPointData>) -> MFEKOutline<MFEKPointData>
     match op.unwrap() {
         ContourOperations::VariableWidthStroke { data } => data.build(contour),
         ContourOperations::PatternAlongPath { data } => data.build(contour),
+        _ => unknown_op_outline(),
     }
 }
 
@@ -77,5 +92,6 @@ pub fn insert(contour: &MFEKContour<MFEKPointData>, idx: usize) -> Option<Contou
         ContourOperations::PatternAlongPath { data } => Some(ContourOperations::PatternAlongPath {
             data: data.insert(contour, idx),
         }),
+        _ => unknown_op(),
     }
 }
