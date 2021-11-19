@@ -38,10 +38,10 @@ impl Editor {
                 .to_string_lossy()
                 .ends_with(".glifjson")
             {
-                true => {
-                    serde_json::from_str(&fs::read_to_string(&filename).expect("Could not open file"))
-                        .expect("Could not deserialize JSON MFEKGlif")
-                }
+                true => serde_json::from_str(
+                    &fs::read_to_string(&filename).expect("Could not open file"),
+                )
+                .expect("Could not deserialize JSON MFEKGlif"),
                 false => glifparser::read_from_filename(&filename)
                     .expect("Invalid glif!")
                     .into(),
