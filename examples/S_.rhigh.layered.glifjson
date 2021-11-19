@@ -1,0 +1,1123 @@
+{
+  "layers": [
+    {
+      "name": "Layer 0",
+      "visible": true,
+      "color": {
+        "r": {
+          "Float": 0.83613443
+        },
+        "g": {
+          "Float": 0.0
+        },
+        "b": {
+          "Float": 0.0
+        },
+        "a": {
+          "Float": 1.0
+        }
+      },
+      "outline": [
+        {
+          "inner": [
+            {
+              "x": 0.0,
+              "y": 0.0,
+              "a": {
+                "At": [
+                  342.854,
+                  102.601
+                ]
+              },
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Move",
+              "data": null
+            },
+            {
+              "x": 688.274,
+              "y": 503.595,
+              "a": {
+                "At": [
+                  688.274,
+                  540.36
+                ]
+              },
+              "b": {
+                "At": [
+                  688.274,
+                  408.69
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 645.524,
+              "y": 550.62,
+              "a": {
+                "At": [
+                  576.27,
+                  550.62
+                ]
+              },
+              "b": {
+                "At": [
+                  666.899,
+                  550.62
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 532.665,
+              "y": 415.53,
+              "a": {
+                "At": [
+                  532.665,
+                  346.115
+                ]
+              },
+              "b": {
+                "At": [
+                  532.665,
+                  484.785
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 530.1,
+              "y": 233.415,
+              "a": {
+                "At": [
+                  527.534,
+                  77.8057
+                ]
+              },
+              "b": {
+                "At": [
+                  530.1,
+                  233.415
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 327.465,
+              "y": 2.56543,
+              "a": {
+                "At": [
+                  180.717,
+                  2.56543
+                ]
+              },
+              "b": {
+                "At": [
+                  432.221,
+                  2.56543
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 61.5596,
+              "y": 265.905,
+              "a": {
+                "At": [
+                  281.0,
+                  179.0
+                ]
+              },
+              "b": {
+                "At": [
+                  61.5596,
+                  153.045
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 688.0,
+              "y": 171.16,
+              "a": "Colocated",
+              "b": {
+                "At": [
+                  433.0,
+                  171.16
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            }
+          ],
+          "operation": {
+            "DashAlongPath": {
+              "data": {
+                "stroke_width": 60.0,
+                "cull": null,
+                "dash_desc": [
+                  10.0,
+                  30.0
+                ],
+                "include_last_path": false,
+                "paint_join": 0,
+                "paint_cap": 1
+              }
+            }
+          }
+        }
+      ],
+      "operation": null,
+      "images": []
+    },
+    {
+      "name": "1",
+      "visible": true,
+      "color": {
+        "r": {
+          "Float": 1.0
+        },
+        "g": {
+          "Float": 0.72727233
+        },
+        "b": {
+          "Float": 0.0
+        },
+        "a": {
+          "Float": 1.0
+        }
+      },
+      "outline": [
+        {
+          "inner": [
+            {
+              "x": 0.0,
+              "y": 0.0,
+              "a": {
+                "At": [
+                  342.854,
+                  102.601
+                ]
+              },
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Move",
+              "data": null
+            },
+            {
+              "x": 688.274,
+              "y": 503.595,
+              "a": {
+                "At": [
+                  688.274,
+                  540.36
+                ]
+              },
+              "b": {
+                "At": [
+                  688.274,
+                  408.69
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 645.524,
+              "y": 550.62,
+              "a": {
+                "At": [
+                  576.27,
+                  550.62
+                ]
+              },
+              "b": {
+                "At": [
+                  666.899,
+                  550.62
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 532.665,
+              "y": 415.53,
+              "a": {
+                "At": [
+                  532.665,
+                  346.115
+                ]
+              },
+              "b": {
+                "At": [
+                  532.665,
+                  484.785
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 530.1,
+              "y": 233.415,
+              "a": {
+                "At": [
+                  527.534,
+                  77.8057
+                ]
+              },
+              "b": {
+                "At": [
+                  530.1,
+                  233.415
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 327.465,
+              "y": 2.56543,
+              "a": {
+                "At": [
+                  180.717,
+                  2.56543
+                ]
+              },
+              "b": {
+                "At": [
+                  432.221,
+                  2.56543
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 61.5596,
+              "y": 265.905,
+              "a": {
+                "At": [
+                  281.0,
+                  179.0
+                ]
+              },
+              "b": {
+                "At": [
+                  61.5596,
+                  153.045
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 688.0,
+              "y": 171.16,
+              "a": "Colocated",
+              "b": {
+                "At": [
+                  433.0,
+                  171.16
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            }
+          ],
+          "operation": {
+            "DashAlongPath": {
+              "data": {
+                "stroke_width": 50.0,
+                "cull": null,
+                "dash_desc": [
+                  10.0,
+                  30.0
+                ],
+                "include_last_path": false,
+                "paint_join": 0,
+                "paint_cap": 1
+              }
+            }
+          }
+        }
+      ],
+      "operation": null,
+      "images": []
+    },
+    {
+      "name": "2",
+      "visible": true,
+      "color": {
+        "r": {
+          "Float": 0.8851775
+        },
+        "g": {
+          "Float": 0.9159664
+        },
+        "b": {
+          "Float": 0.0
+        },
+        "a": {
+          "Float": 1.0
+        }
+      },
+      "outline": [
+        {
+          "inner": [
+            {
+              "x": 0.0,
+              "y": 0.0,
+              "a": {
+                "At": [
+                  342.854,
+                  102.601
+                ]
+              },
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Move",
+              "data": null
+            },
+            {
+              "x": 688.274,
+              "y": 503.595,
+              "a": {
+                "At": [
+                  688.274,
+                  540.36
+                ]
+              },
+              "b": {
+                "At": [
+                  688.274,
+                  408.69
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 645.524,
+              "y": 550.62,
+              "a": {
+                "At": [
+                  576.27,
+                  550.62
+                ]
+              },
+              "b": {
+                "At": [
+                  666.899,
+                  550.62
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 532.665,
+              "y": 415.53,
+              "a": {
+                "At": [
+                  532.665,
+                  346.115
+                ]
+              },
+              "b": {
+                "At": [
+                  532.665,
+                  484.785
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 530.1,
+              "y": 233.415,
+              "a": {
+                "At": [
+                  527.534,
+                  77.8057
+                ]
+              },
+              "b": {
+                "At": [
+                  530.1,
+                  233.415
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 327.465,
+              "y": 2.56543,
+              "a": {
+                "At": [
+                  180.717,
+                  2.56543
+                ]
+              },
+              "b": {
+                "At": [
+                  432.221,
+                  2.56543
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 61.5596,
+              "y": 265.905,
+              "a": {
+                "At": [
+                  281.0,
+                  179.0
+                ]
+              },
+              "b": {
+                "At": [
+                  61.5596,
+                  153.045
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 688.0,
+              "y": 171.16,
+              "a": "Colocated",
+              "b": {
+                "At": [
+                  433.0,
+                  171.16
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            }
+          ],
+          "operation": {
+            "DashAlongPath": {
+              "data": {
+                "stroke_width": 40.0,
+                "cull": null,
+                "dash_desc": [
+                  10.0,
+                  30.0
+                ],
+                "include_last_path": false,
+                "paint_join": 1,
+                "paint_cap": 1
+              }
+            }
+          }
+        }
+      ],
+      "operation": null,
+      "images": []
+    },
+    {
+      "name": "3",
+      "visible": true,
+      "color": {
+        "r": {
+          "Float": 0.0
+        },
+        "g": {
+          "Float": 0.85714287
+        },
+        "b": {
+          "Float": 0.07923174
+        },
+        "a": {
+          "Float": 1.0
+        }
+      },
+      "outline": [
+        {
+          "inner": [
+            {
+              "x": 0.0,
+              "y": 0.0,
+              "a": {
+                "At": [
+                  342.854,
+                  102.601
+                ]
+              },
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Move",
+              "data": null
+            },
+            {
+              "x": 688.274,
+              "y": 503.595,
+              "a": {
+                "At": [
+                  688.274,
+                  540.36
+                ]
+              },
+              "b": {
+                "At": [
+                  688.274,
+                  408.69
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 645.524,
+              "y": 550.62,
+              "a": {
+                "At": [
+                  576.27,
+                  550.62
+                ]
+              },
+              "b": {
+                "At": [
+                  666.899,
+                  550.62
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 532.665,
+              "y": 415.53,
+              "a": {
+                "At": [
+                  532.665,
+                  346.115
+                ]
+              },
+              "b": {
+                "At": [
+                  532.665,
+                  484.785
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 530.1,
+              "y": 233.415,
+              "a": {
+                "At": [
+                  527.534,
+                  77.8057
+                ]
+              },
+              "b": {
+                "At": [
+                  530.1,
+                  233.415
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 327.465,
+              "y": 2.56543,
+              "a": {
+                "At": [
+                  180.717,
+                  2.56543
+                ]
+              },
+              "b": {
+                "At": [
+                  432.221,
+                  2.56543
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 61.5596,
+              "y": 265.905,
+              "a": {
+                "At": [
+                  281.0,
+                  179.0
+                ]
+              },
+              "b": {
+                "At": [
+                  61.5596,
+                  153.045
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 688.0,
+              "y": 171.16,
+              "a": "Colocated",
+              "b": {
+                "At": [
+                  433.0,
+                  171.16
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            }
+          ],
+          "operation": {
+            "DashAlongPath": {
+              "data": {
+                "stroke_width": 30.0,
+                "cull": {
+                  "width": 0.0,
+                  "area_cutoff": 600.0
+                },
+                "dash_desc": [
+                  10.0,
+                  30.0
+                ],
+                "include_last_path": true,
+                "paint_join": 1,
+                "paint_cap": 1
+              }
+            }
+          }
+        }
+      ],
+      "operation": null,
+      "images": []
+    },
+    {
+      "name": "4",
+      "visible": true,
+      "color": {
+        "r": {
+          "Float": 0.0072028297
+        },
+        "g": {
+          "Float": 0.0
+        },
+        "b": {
+          "Float": 0.85714287
+        },
+        "a": {
+          "Float": 1.0
+        }
+      },
+      "outline": [
+        {
+          "inner": [
+            {
+              "x": 0.0,
+              "y": 0.0,
+              "a": {
+                "At": [
+                  342.854,
+                  102.601
+                ]
+              },
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Move",
+              "data": null
+            },
+            {
+              "x": 688.274,
+              "y": 503.595,
+              "a": {
+                "At": [
+                  688.274,
+                  540.36
+                ]
+              },
+              "b": {
+                "At": [
+                  688.274,
+                  408.69
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 645.524,
+              "y": 550.62,
+              "a": {
+                "At": [
+                  576.27,
+                  550.62
+                ]
+              },
+              "b": {
+                "At": [
+                  666.899,
+                  550.62
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 532.665,
+              "y": 415.53,
+              "a": {
+                "At": [
+                  532.665,
+                  346.115
+                ]
+              },
+              "b": {
+                "At": [
+                  532.665,
+                  484.785
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 530.1,
+              "y": 233.415,
+              "a": {
+                "At": [
+                  527.534,
+                  77.8057
+                ]
+              },
+              "b": {
+                "At": [
+                  530.1,
+                  233.415
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 327.465,
+              "y": 2.56543,
+              "a": {
+                "At": [
+                  180.717,
+                  2.56543
+                ]
+              },
+              "b": {
+                "At": [
+                  432.221,
+                  2.56543
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 61.5596,
+              "y": 265.905,
+              "a": {
+                "At": [
+                  281.0,
+                  179.0
+                ]
+              },
+              "b": {
+                "At": [
+                  61.5596,
+                  153.045
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 688.0,
+              "y": 171.16,
+              "a": "Colocated",
+              "b": {
+                "At": [
+                  433.0,
+                  171.16
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            }
+          ],
+          "operation": {
+            "DashAlongPath": {
+              "data": {
+                "stroke_width": 20.0,
+                "cull": null,
+                "dash_desc": [
+                  10.0,
+                  30.0
+                ],
+                "include_last_path": true,
+                "paint_join": 1,
+                "paint_cap": 1
+              }
+            }
+          }
+        }
+      ],
+      "operation": null,
+      "images": []
+    },
+    {
+      "name": "5",
+      "visible": true,
+      "color": {
+        "r": {
+          "Float": 0.84994006
+        },
+        "g": {
+          "Float": 0.0
+        },
+        "b": {
+          "Float": 0.85714287
+        },
+        "a": {
+          "Float": 1.0
+        }
+      },
+      "outline": [
+        {
+          "inner": [
+            {
+              "x": 0.0,
+              "y": 0.0,
+              "a": {
+                "At": [
+                  342.854,
+                  102.601
+                ]
+              },
+              "b": "Colocated",
+              "name": null,
+              "ptype": "Move",
+              "data": null
+            },
+            {
+              "x": 688.274,
+              "y": 503.595,
+              "a": {
+                "At": [
+                  688.274,
+                  540.36
+                ]
+              },
+              "b": {
+                "At": [
+                  688.274,
+                  408.69
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 645.524,
+              "y": 550.62,
+              "a": {
+                "At": [
+                  576.27,
+                  550.62
+                ]
+              },
+              "b": {
+                "At": [
+                  666.899,
+                  550.62
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 532.665,
+              "y": 415.53,
+              "a": {
+                "At": [
+                  532.665,
+                  346.115
+                ]
+              },
+              "b": {
+                "At": [
+                  532.665,
+                  484.785
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 530.1,
+              "y": 233.415,
+              "a": {
+                "At": [
+                  527.534,
+                  77.8057
+                ]
+              },
+              "b": {
+                "At": [
+                  530.1,
+                  233.415
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 327.465,
+              "y": 2.56543,
+              "a": {
+                "At": [
+                  180.717,
+                  2.56543
+                ]
+              },
+              "b": {
+                "At": [
+                  432.221,
+                  2.56543
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 61.5596,
+              "y": 265.905,
+              "a": {
+                "At": [
+                  281.0,
+                  179.0
+                ]
+              },
+              "b": {
+                "At": [
+                  61.5596,
+                  153.045
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            },
+            {
+              "x": 688.0,
+              "y": 171.16,
+              "a": "Colocated",
+              "b": {
+                "At": [
+                  433.0,
+                  171.16
+                ]
+              },
+              "name": null,
+              "ptype": "Curve",
+              "data": null
+            }
+          ],
+          "operation": {
+            "DashAlongPath": {
+              "data": {
+                "stroke_width": 10.0,
+                "cull": {
+                  "width": 20.0,
+                  "area_cutoff": 50.0
+                },
+                "dash_desc": [
+                  10.0,
+                  30.0
+                ],
+                "include_last_path": true,
+                "paint_join": 1,
+                "paint_cap": 1
+              }
+            }
+          }
+        }
+      ],
+      "operation": null,
+      "images": []
+    }
+  ],
+  "history": [],
+  "order": "Cubic",
+  "anchors": [],
+  "components": {
+    "root": "S.rhigh",
+    "vec": []
+  },
+  "flattened": [],
+  "component_rects": [],
+  "guidelines": [],
+  "width": 689,
+  "unicode": [],
+  "name": "S.rhigh",
+  "note": null,
+  "filename": "S_.rhigh.layered.glifjson"
+}
