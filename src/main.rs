@@ -138,6 +138,8 @@ fn main() {
                         continue;
                     }
 
+                    log::trace!("Received command: {:?}", command_info.command);
+
                     match command_info.command {
                         Command::ResetScale => {
                             interface.update_viewport(None, Some(1.));

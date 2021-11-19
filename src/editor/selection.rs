@@ -211,13 +211,13 @@ impl Editor {
             }
         }
 
-        self.glyph.as_mut().unwrap().layers[self.layer_idx.unwrap()].outline = new_outline;
-
-        self.end_modification();
+        self.with_active_layer_mut(|layer| layer.outline = new_outline.clone());
 
         self.contour_idx = None;
         self.point_idx = None;
         self.selected.clear();
+
+        self.end_modification();
     }
 
     pub fn build_selection_bounding_box(&self) -> Rect {

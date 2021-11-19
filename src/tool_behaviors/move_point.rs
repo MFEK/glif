@@ -85,9 +85,9 @@ impl MovePoint {
                         }
                     }
                 }
+                v.end_modification();
             }
 
-            v.end_modification();
             v.pop_behavior();
         }
     }

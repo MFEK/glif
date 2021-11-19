@@ -20,9 +20,11 @@ impl Editor {
     /// Pops a HistoryEntry off the layer stack and restores it.
     pub fn undo(&mut self) {
         if self.modifying {
+            log::trace!("Tried to undo while modifying — dropped.");
             return;
         }
         let entry = self.history.undo_stack.pop();
+        log::trace!("Popped: {:?}", &entry);
 
         if let Some(undo_entry) = entry {
             self.history.redo_stack.push(HistoryEntry {

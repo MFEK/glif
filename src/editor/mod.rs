@@ -97,6 +97,7 @@ impl Editor {
     /// This function MUST be called before calling with_active_<layer/glif>_mut or it will panic.
     /// Pushes a clone of the current layer onto the history stack and puts the editor in a modifying state.
     pub fn begin_modification(&mut self, description: &str) {
+        log::trace!("Modification begun: {}", description);
         if self.modifying {
             panic!("Began a new modification with one in progress!")
         }
@@ -115,12 +116,16 @@ impl Editor {
 
     /// This ends an ongoing modification and calls the proper events.
     pub fn end_modification(&mut self) {
+        log::trace!("Ending modification…");
         if !self.modifying {
             return;
         }
 
         if !self.dirty {
-            self.history.undo_stack.pop();
+            let history = self.history.undo_stack.pop();
+            if let Some(history) = history {
+                log::trace!("Modification ended: {}", &history.description);
+            }
         }
 
         // TODO: Events here.

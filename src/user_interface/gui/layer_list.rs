@@ -130,10 +130,10 @@ pub fn build_and_check_layer_list(v: &mut Editor, i: &mut Interface, ui: &imgui:
         let current_operation = v.with_glyph(|glif| glif.layers[layer].operation.clone());
         let icon = match current_operation.as_ref() {
             Some(op) => match op {
-                LayerOperation::Difference => icons::_LAYERDIFFERENCE,
-                LayerOperation::Union => icons::_LAYERUNION,
-                LayerOperation::XOR => icons::_LAYERXOR,
-                LayerOperation::Intersect => icons::_LAYERINTERSECTION,
+                LayerOperation::Difference => icons::LAYERDIFFERENCE,
+                LayerOperation::Union => icons::LAYERUNION,
+                LayerOperation::XOR => icons::LAYERXOR,
+                LayerOperation::Intersect => icons::LAYERINTERSECTION,
             },
             None => icons::LAYERCOMBINE,
         };

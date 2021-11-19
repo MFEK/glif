@@ -32,6 +32,7 @@
 
     <!-- selection -->
     <binding command="DeleteSelection" key="Backspace"/>
+    <binding command="DeleteSelection" key="Delete"/>
     <binding command="SelectAll" key="A" mod="CtrlMod"/>
     <binding command="CopySelection" key="C" mod="CtrlMod"/>
     <binding command="PasteSelection" key="V" mod="CtrlMod"/>
