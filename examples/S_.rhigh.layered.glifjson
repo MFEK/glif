@@ -715,9 +715,9 @@
           "operation": {
             "DashAlongPath": {
               "data": {
-                "stroke_width": 30.0,
+                "stroke_width": 29.0,
                 "cull": {
-                  "width": 0.0,
+                  "width": 1.0,
                   "area_cutoff": 600.0
                 },
                 "dash_desc": [
@@ -902,7 +902,10 @@
             "DashAlongPath": {
               "data": {
                 "stroke_width": 20.0,
-                "cull": null,
+                "cull": {
+                  "width": 10.0,
+                  "area_cutoff": 100.0
+                },
                 "dash_desc": [
                   10.0,
                   30.0
@@ -1086,7 +1089,7 @@
               "data": {
                 "stroke_width": 10.0,
                 "cull": {
-                  "width": 20.0,
+                  "width": 10.0,
                   "area_cutoff": 50.0
                 },
                 "dash_desc": [
@@ -1119,5 +1122,5 @@
   "unicode": [],
   "name": "S.rhigh",
   "note": null,
-  "filename": "S_.rhigh.layered.glifjson"
+  "filename": "examples/S_.rhigh.layered.glifjson"
 }

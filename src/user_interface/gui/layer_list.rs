@@ -4,7 +4,8 @@ use glifparser::glif::LayerOperation;
 use imgui::{ColorStackToken, StyleColor, StyleVar};
 
 use crate::editor::Editor;
-use crate::user_interface::{gui::FONT_IDS, icons, InputPrompt};
+use crate::user_interface::gui::{FONT_IDS, PROMPT_CLR};
+use crate::user_interface::{icons, InputPrompt};
 use crate::Interface;
 
 pub fn build_and_check_layer_list(v: &mut Editor, i: &mut Interface, ui: &imgui::Ui) {
@@ -182,11 +183,14 @@ pub fn build_and_check_layer_list(v: &mut Editor, i: &mut Interface, ui: &imgui:
             if ui.is_item_clicked(imgui::MouseButton::Left) {
                 i.push_prompt(InputPrompt::Color {
                     label: "Layer color:".to_string(),
-                    default: v
-                        .with_glyph(|glif| {
-                            glif.layers[layer].color.unwrap_or([0., 0., 0., 1.].into())
-                        })
-                        .into(),
+                    default: v.with_glyph(|glif| {
+                        let default = glif.layers[layer]
+                            .color
+                            .unwrap_or([0., 0., 0., 1.].into())
+                            .into();
+                        PROMPT_CLR.with(|clr| *clr.borrow_mut() = default);
+                        default
+                    }),
                     func: Rc::new(move |editor, color| {
                         let active_layer = editor.get_active_layer();
                         editor.set_active_layer(layer);

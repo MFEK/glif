@@ -90,6 +90,10 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ui: &mut imgui
                     PROMPT_CLR.with(|ui_color| {
                         imgui::ColorPicker::new(&imgui::im_str!("{}", label), &mut color).build(ui);
 
+                        if ui.is_key_down(Key::Escape) {
+                            i.pop_prompt();
+                        }
+
                         if ui.is_key_down(Key::Enter) {
                             ui_color.replace([0., 0., 0., 1.]);
                             func(v, Some(color));
