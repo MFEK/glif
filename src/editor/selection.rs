@@ -14,6 +14,7 @@ use skulpin::skia_safe::Point as SkPoint;
 use super::Editor;
 use crate::contour_operations;
 
+use std::collections::HashSet;
 use std::fmt;
 
 #[derive(shrinkwraprs::Shrinkwrap)]
@@ -129,36 +130,45 @@ impl Editor {
             self.point_idx = None;
             self.selected.clear();
 
-            let layer = &mut self.glyph.as_mut().unwrap().layers[self.layer_idx.unwrap()];
-            if let Some(mpos) = position {
-                let comb = clipboard.outline.to_skia_paths(None).combined();
-                let b = comb.bounds();
-                let center = b.center();
-                let dist = SkPoint::new(calc_x(mpos.0) - center.x, calc_y(mpos.1) - center.y);
-                for contour in clipboard.outline.iter_mut() {
-                    for point in contour.inner.iter_mut() {
-                        point.x += dist.x;
-                        point.y += dist.y;
-                        if let Handle::At(mut ax, mut ay) = point.a {
-                            ax += dist.x;
-                            ay += dist.y;
-                            point.a = Handle::At(ax, ay);
-                        }
-                        if let Handle::At(mut bx, mut by) = point.b {
-                            bx += dist.x;
-                            by += dist.y;
-                            point.b = Handle::At(bx, by);
+            let new_selected = self.with_active_layer_mut(|layer| {
+                if let Some(mpos) = position {
+                    let comb = clipboard.outline.to_skia_paths(None).combined();
+                    let b = comb.bounds();
+                    let center = b.center();
+                    let dist = SkPoint::new(calc_x(mpos.0) - center.x, calc_y(mpos.1) - center.y);
+                    for contour in clipboard.outline.iter_mut() {
+                        for point in contour.inner.iter_mut() {
+                            point.x += dist.x;
+                            point.y += dist.y;
+                            if let Handle::At(mut ax, mut ay) = point.a {
+                                ax += dist.x;
+                                ay += dist.y;
+                                point.a = Handle::At(ax, ay);
+                            }
+                            if let Handle::At(mut bx, mut by) = point.b {
+                                bx += dist.x;
+                                by += dist.y;
+                                point.b = Handle::At(bx, by);
+                            }
                         }
                     }
                 }
-            }
-            for contour in clipboard.outline.iter_mut() {
-                let cur_idx = layer.outline.len();
-                for (point_selection, _) in contour.inner.iter().enumerate() {
-                    self.selected.insert((cur_idx, point_selection));
+
+                let mut new_selected = HashSet::new();
+
+                for contour in clipboard.outline.iter_mut() {
+                    let cur_idx = layer.outline.len();
+                    for (point_selection, _) in contour.inner.iter().enumerate() {
+                        new_selected.insert((cur_idx, point_selection));
+                    }
+                    layer.outline.push(contour.clone());
                 }
-                layer.outline.push(contour.clone());
-            }
+
+                new_selected
+            });
+
+            self.selected.extend(new_selected);
+
             self.end_modification();
         }
     }
