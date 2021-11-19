@@ -30,20 +30,24 @@ impl Editor {
 
     pub fn load_glif_headless<F: AsRef<FsPath> + Clone>(&mut self, filename: F) {
         // TODO: Actually handle errors now that we have them.
-        let glif: MFEKGlif<MFEKPointData> = match filename
-            .as_ref()
-            .file_name()
-            .expect("No filename")
-            .to_string_lossy()
-            .ends_with(".glifjson")
-        {
-            true => {
-                serde_json::from_str(&fs::read_to_string(filename).expect("Could not open file"))
-                    .expect("Could not deserialize JSON MFEKGlif")
-            }
-            false => glifparser::read_from_filename(&filename)
-                .expect("Invalid glif!")
-                .into(),
+        let glif = {
+            let mut tempglif: MFEKGlif<MFEKPointData> = match filename
+                .as_ref()
+                .file_name()
+                .expect("No filename")
+                .to_string_lossy()
+                .ends_with(".glifjson")
+            {
+                true => {
+                    serde_json::from_str(&fs::read_to_string(&filename).expect("Could not open file"))
+                        .expect("Could not deserialize JSON MFEKGlif")
+                }
+                false => glifparser::read_from_filename(&filename)
+                    .expect("Invalid glif!")
+                    .into(),
+            };
+            tempglif.filename = Some(filename.as_ref().to_path_buf());
+            tempglif
         };
 
         if *DEBUG_DUMP_GLYPH {
