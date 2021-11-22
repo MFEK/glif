@@ -10,6 +10,21 @@ use std::{env, fs};
 
 use strum_macros::{Display, EnumString};
 
+#[derive(Copy, Clone, EnumString, Hash, Display, Debug, PartialEq, Eq)]
+pub enum CommandType {
+    Zoom,
+    Nudge,
+    ToolSelect,
+    Selection,
+    History,
+    IO,
+    ViewMode,
+    ToggleConsole,
+    ExecState,
+    PathOp,
+    Debug,
+}
+
 // a command file is put into the user's config directory upon first run
 // <command name="ToolPen" key = "A">
 #[derive(Copy, Clone, EnumString, Hash, Display, Debug, PartialEq, Eq)]
@@ -20,10 +35,22 @@ pub enum Command {
     ZoomOut,
 
     // move camera
+    // ↑
     NudgeUp,
+    NudgeBigUp,
+    NudgeTinyUp,
+    // ↓
     NudgeDown,
+    NudgeBigDown,
+    NudgeTinyDown,
+    // ←
     NudgeLeft,
+    NudgeBigLeft,
+    NudgeTinyLeft,
+    // →
     NudgeRight,
+    NudgeBigRight,
+    NudgeTinyRight,
 
     // tools
     ToolPan,
@@ -70,6 +97,33 @@ pub enum Command {
 
     // debug
     SkiaDump,
+}
+
+impl Command {
+    pub fn type_(&self) -> CommandType {
+        use Command::*;
+        match self {
+            ResetScale | ZoomIn | ZoomOut => CommandType::Zoom,
+            NudgeUp | NudgeBigUp | NudgeTinyUp | NudgeDown | NudgeBigDown | NudgeTinyDown
+            | NudgeLeft | NudgeBigLeft | NudgeTinyLeft | NudgeRight | NudgeBigRight
+            | NudgeTinyRight => CommandType::Nudge,
+            ToolPan | ToolPen | ToolSelect | ToolZoom | ToolDash | ToolPAP | ToolVWS
+            | ToolMeasure | ToolAnchors | ToolShapes => CommandType::ToolSelect,
+            DeleteSelection
+            | SelectAll
+            | CopySelection
+            | PasteSelection
+            | PasteSelectionInPlace
+            | CutSelection => CommandType::Selection,
+            HistoryUndo | HistoryRedo => CommandType::History,
+            IOOpen | IOSave | IOSaveAs | IOSaveFlatten | IOFlatten | IOExport => CommandType::IO,
+            TogglePointLabels | TogglePreviewMode => CommandType::ViewMode,
+            ToggleConsole => CommandType::ToggleConsole,
+            Quit => CommandType::ExecState,
+            ReverseContour => CommandType::PathOp,
+            SkiaDump => CommandType::Debug,
+        }
+    }
 }
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Hash)]

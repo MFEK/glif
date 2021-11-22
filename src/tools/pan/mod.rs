@@ -1,4 +1,6 @@
 use super::prelude::*;
+
+use crate::command::CommandType;
 use crate::editor::Editor;
 use crate::tool_behaviors::pan::PanBehavior;
 use crate::user_interface::Interface;
@@ -15,18 +17,28 @@ pub struct Pan {
 // We implement Tool for our tool. Here you can route events to functions or implement logic directly in the
 // match statement.
 impl Tool for Pan {
-    fn event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
+    fn event(&mut self, v: &mut Editor, interface: &mut Interface, event: EditorEvent) {
         match event {
             EditorEvent::MouseEvent {
                 event_type,
                 mouse_info,
             } => match event_type {
-                MouseEventType::Pressed => {
-                    v.push_behavior(Box::new(PanBehavior::new(i.viewport.clone(), mouse_info)))
-                }
+                MouseEventType::Pressed => v.push_behavior(Box::new(PanBehavior::new(
+                    interface.viewport.clone(),
+                    mouse_info,
+                ))),
                 _ => {}
             },
-            _ => {}
+            EditorEvent::ToolCommand { command, .. } => {
+                if command.type_() == CommandType::Nudge {
+                    v.push_behavior(Box::new(PanBehavior::new(
+                        interface.viewport.clone(),
+                        MouseInfo::default(),
+                    )));
+                    v.dispatch_editor_event(interface, event);
+                    v.pop_behavior();
+                }
+            },
         }
     }
 }

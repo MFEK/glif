@@ -4,7 +4,6 @@
 #![allow(non_snake_case)] // for our name MFEKglif
 
 use crate::{
-    constants::OFFSET_FACTOR,
     tools::zoom::{zoom_in_factor, zoom_out_factor},
 };
 use command::{Command, CommandInfo, CommandMod};
@@ -152,18 +151,6 @@ fn main() {
                             let scale = zoom_out_factor(&mut interface);
                             interface.update_viewport(None, Some(scale));
                         }
-                        Command::NudgeUp => {
-                            interface.update_viewport(Some((0., OFFSET_FACTOR)), None);
-                        }
-                        Command::NudgeDown => {
-                            interface.update_viewport(Some((0., -OFFSET_FACTOR)), None);
-                        }
-                        Command::NudgeLeft => {
-                            interface.update_viewport(Some((OFFSET_FACTOR, 0.)), None);
-                        }
-                        Command::NudgeRight => {
-                            interface.update_viewport(Some((-OFFSET_FACTOR, 0.)), None);
-                        }
                         Command::ToolPan => {
                             editor.set_tool(ToolEnum::Pan);
                         }
@@ -276,7 +263,7 @@ fn main() {
                         }
                         #[allow(unreachable_patterns)]
                         // This failsafe is here if you add a Command.
-                        cmd => unreachable!("Command unimplemented: {:?}", cmd),
+                        cmd => log::error!("Command unimplemented: {:?}", cmd),
                     }
                 }
 

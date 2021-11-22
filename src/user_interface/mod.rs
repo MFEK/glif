@@ -118,13 +118,17 @@ impl Interface {
         self.prompts.push(prompt);
     }
 
-    // this gets called by tools so it accepts &mut State
+    pub fn nudge_viewport(&mut self, offset: (f32, f32)) {
+        let now_offset = self.viewport.offset;
+        self.viewport.offset = (now_offset.0 + offset.0, now_offset.1 + offset.1);
+    }
+
     pub fn update_viewport(&mut self, offset: Option<(f32, f32)>, scale: Option<f32>) {
         let offset = match offset {
             None => self.viewport.offset,
             Some(offset) => (
-                self.viewport.offset.0 + offset.0,
-                self.viewport.offset.1 + offset.1,
+                offset.0,
+                offset.1,
             ),
         };
         let scale = match scale {

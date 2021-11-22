@@ -2,6 +2,8 @@
 /* Factors */
 pub static SCALE_FACTOR: f32 = 0.05;
 pub static OFFSET_FACTOR: f32 = 10.;
+pub static BIG_OFFSET_FACTOR: f32 = OFFSET_FACTOR * 10.;
+pub static TINY_OFFSET_FACTOR: f32 = 1.;
 
 // List of fonts to try in order until we find the console font.
 // Warning: This is not (yet?) a fallback list. The first found font will be used for all glyphs

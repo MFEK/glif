@@ -7,9 +7,17 @@
 
     <!-- move camera -->
     <binding command="NudgeUp" key="Up"/>
+    <binding command="NudgeBigUp" key="Up" mod="CtrlMod"/>
+    <binding command="NudgeTinyUp" key="Up" mod="AltMod"/>
     <binding command="NudgeDown" key="Down"/>
+    <binding command="NudgeBigDown" key="Down" mod="CtrlMod"/>
+    <binding command="NudgeTinyDown" key="Down" mod="AltMod"/>
     <binding command="NudgeLeft" key="Left"/>
+    <binding command="NudgeBigLeft" key="Left" mod="CtrlMod"/>
+    <binding command="NudgeTinyLeft" key="Left" mod="AltMod"/>
     <binding command="NudgeRight" key="Right"/>
+    <binding command="NudgeBigRight" key="Right" mod="CtrlMod"/>
+    <binding command="NudgeTinyRight" key="Right" mod="AltMod"/>
 
     <!-- tools -->
     <binding command="ToolPan" key="A"/>
