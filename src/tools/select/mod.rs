@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 // Select
 use super::{prelude::*, EditorEvent, MouseEventType, Tool};
-use crate::command::Command;
+use crate::command::{Command, CommandType};
 use crate::tool_behaviors::rotate_selection::RotateSelection;
 use crate::util::math::ReverseContours as _;
 
@@ -50,7 +50,16 @@ impl Tool for Select {
                 *stop_after = true;
                 self.reverse_selected(v);
             }
-            _ => {}
+            EditorEvent::ToolCommand {
+                command,
+                stop_after,
+                ..
+            } => {
+                if command.type_() == CommandType::Nudge {
+                    *stop_after = true;
+                    self.nudge_selected(v, command);
+                }
+            }
         }
     }
 
@@ -79,6 +88,21 @@ impl Select {
             points
         });
         v.selected = points;
+    }
+
+    fn nudge_selected(&mut self, v: &mut Editor, command: Command) {
+        for (ci, pi) in v.selected.clone() {
+            v.begin_modification("Nudge selected points.");
+            v.with_active_layer_mut(|layer| {
+                let point = &get_point!(layer, ci, pi);
+                let factor = PanBehavior::nudge_factor(command);
+                let offset = PanBehavior::nudge_offset(command, factor);
+                let x = point.x;
+                let y = point.y;
+                editor::util::move_point(&mut layer.outline, ci, pi, x - offset.0, y + offset.1);
+            });
+            v.end_modification();
+        }
     }
 
     fn reverse_selected(&mut self, v: &mut Editor) {
