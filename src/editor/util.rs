@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use crate::get_contour_len;
 use crate::{tools::prelude::math::FlipIfRequired, user_interface::Interface};
 use flo_curves::{
-    bezier::{solve_curve_for_t_within, Curve as FloCurve},
+    bezier::{solve_curve_for_t_along_axis, Curve as FloCurve},
     geo::Coord2,
 };
 use glifparser::{
@@ -141,10 +141,10 @@ pub fn nearest_point_on_curve(
                     Coord2(mbezier.w4.x, mbezier.w4.y),
                 );
                 let mouse_vec = Coord2(calc_x(position.0) as f64, calc_y(position.1 as f32) as f64);
-                let ct = solve_curve_for_t_within(
+                let ct = solve_curve_for_t_along_axis(
                     &bezier,
                     &mouse_vec,
-                    Some(3.5 / i.viewport.factor as f64),
+                    3.5 / i.viewport.factor as f64,
                 );
 
                 if let Some(ct) = ct {
