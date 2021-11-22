@@ -145,11 +145,11 @@ fn main() {
                             interface.update_viewport(None, Some(1.));
                         }
                         Command::ZoomIn => {
-                            let scale = zoom_in_factor(interface.viewport.factor, &mut interface);
+                            let scale = zoom_in_factor(&mut interface);
                             interface.update_viewport(None, Some(scale));
                         }
                         Command::ZoomOut => {
-                            let scale = zoom_out_factor(interface.viewport.factor, &mut interface);
+                            let scale = zoom_out_factor(&mut interface);
                             interface.update_viewport(None, Some(scale));
                         }
                         Command::NudgeUp => {
