@@ -3,7 +3,7 @@ use MFEKmath::{pattern_along_path_mfek, Piecewise};
 
 use super::ContourOperation;
 
-impl ContourOperation for PAPContour {
+impl ContourOperation for PAPContour<MFEKPointData> {
     fn build(&self, contour: &MFEKContour<MFEKPointData>) -> MFEKOutline<MFEKPointData> {
         let contour_pw = Piecewise::from(&contour.inner);
 

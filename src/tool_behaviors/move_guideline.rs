@@ -1,19 +1,13 @@
 use super::prelude::*;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct MoveGuideline {
-    selected_idx: usize,
-    mouse_info: MouseInfo,
+    pub selected_idx: usize,
+    pub global: bool,
+    pub mouse_info: MouseInfo,
 }
 
 impl MoveGuideline {
-    pub fn new(selected_idx: usize, mouse_info: MouseInfo) -> Self {
-        MoveGuideline {
-            mouse_info,
-            selected_idx,
-        }
-    }
-
     pub fn mouse_moved(&mut self, v: &mut Editor, _i: &mut Interface, mouse_info: MouseInfo) {
         let mp = self.mouse_info.position;
         let delta = (mp.0 - mouse_info.position.0, mp.1 - mouse_info.position.1);
@@ -23,10 +17,19 @@ impl MoveGuideline {
             v.begin_modification("Move guideline.");
         }
 
-        v.with_glyph_mut(|glyph| {
-            glyph.guidelines[selected].at.x -= delta.0;
-            glyph.guidelines[selected].at.y += delta.1;
-        });
+        if self.global {
+            let gl_len = v.with_glyph(|g| g.guidelines.len());
+            let guideline = &mut v.guidelines[selected - gl_len];
+            if guideline.name.as_ref().unwrap() != "lbearing" {
+                guideline.at.x -= delta.0;
+                guideline.at.y += delta.1;
+            }
+        } else {
+            v.with_glyph_mut(|glyph| {
+                glyph.guidelines[selected].at.x -= delta.0;
+                glyph.guidelines[selected].at.y += delta.1;
+            });
+        }
 
         self.mouse_info = mouse_info;
     }

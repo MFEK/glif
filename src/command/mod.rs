@@ -63,6 +63,7 @@ pub enum Command {
     ToolMeasure,
     ToolAnchors,
     ToolShapes,
+    ToolGuidelines,
 
     // selection
     DeleteSelection,
@@ -108,7 +109,7 @@ impl Command {
             | NudgeLeft | NudgeBigLeft | NudgeTinyLeft | NudgeRight | NudgeBigRight
             | NudgeTinyRight => CommandType::Nudge,
             ToolPan | ToolPen | ToolSelect | ToolZoom | ToolDash | ToolPAP | ToolVWS
-            | ToolMeasure | ToolAnchors | ToolShapes => CommandType::ToolSelect,
+            | ToolMeasure | ToolAnchors | ToolShapes | ToolGuidelines => CommandType::ToolSelect,
             DeleteSelection
             | SelectAll
             | CopySelection

@@ -31,9 +31,11 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ui: &mut imgui
     match i.peek_prompt().clone() {
         InputPrompt::Text {
             label,
-            default: _,
+            default,
             func,
         } => {
+            PROMPT_STR.with(|prompt_str|*prompt_str.borrow_mut() = imgui::ImString::new(default));
+
             imgui::Window::new(&imgui::im_str!("{}", label))
                 .bg_alpha(1.) // See comment on fn redraw_skia
                 .flags(imgui::WindowFlags::NO_RESIZE | imgui::WindowFlags::NO_COLLAPSE)
@@ -50,7 +52,6 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ui: &mut imgui
                 .build(ui, || {
                     PROMPT_STR.with(|prompt_str| {
                         ui.push_item_width(-1.);
-                        prompt_str.borrow_mut().clear();
                         ui.input_text(imgui::im_str!(""), &mut prompt_str.borrow_mut())
                             .build();
 

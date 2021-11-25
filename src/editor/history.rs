@@ -1,18 +1,30 @@
 use glifparser::glif::HistoryEntry;
+use glifparser::glif::MFEKPointData;
 
 use super::Editor;
 
 #[derive(Clone, Debug, Default)]
-pub struct History {
-    pub undo_stack: Vec<HistoryEntry>,
-    pub redo_stack: Vec<HistoryEntry>,
+pub struct History<PD: glifparser::PointData> {
+    pub undo_stack: Vec<HistoryEntry<PD>>,
+    pub redo_stack: Vec<HistoryEntry<PD>>,
 }
 
-impl History {
-    pub fn add_undo_entry(&mut self, entry: HistoryEntry) {
+impl<PD: glifparser::PointData> History<PD> {
+    pub fn add_undo_entry(&mut self, entry: HistoryEntry<PD>) {
         log::debug!("Added undo entry: {0}", entry.description);
         self.undo_stack.push(entry);
         self.redo_stack.clear();
+    }
+}
+
+fn entry_from_desc_and_editor(desc: &str, v: &Editor) -> HistoryEntry<MFEKPointData> {
+    HistoryEntry {
+        description: desc.to_owned(),
+        layer_idx: v.layer_idx,
+        contour_idx: v.contour_idx,
+        point_idx: v.point_idx,
+        selected: Some(v.selected.clone()),
+        glyph: v.glyph.as_ref().unwrap().clone(),
     }
 }
 
@@ -24,17 +36,11 @@ impl Editor {
             return;
         }
         let entry = self.history.undo_stack.pop();
-        log::trace!("Popped: {:?}", &entry);
+        log::trace!("Popped undo stack: {:?}", &entry);
 
         if let Some(undo_entry) = entry {
-            self.history.redo_stack.push(HistoryEntry {
-                description: "Undo".to_owned(),
-                layer_idx: self.layer_idx,
-                contour_idx: self.contour_idx,
-                point_idx: self.point_idx,
-                selected: Some(self.selected.clone()),
-                glyph: self.glyph.as_ref().unwrap().clone(),
-            });
+            log::debug!("Undid {}", &undo_entry.description);
+            self.history.redo_stack.push(entry_from_desc_and_editor("Undo", self));
 
             self.glyph = Some(undo_entry.glyph.clone());
             self.layer_idx = undo_entry.layer_idx;
@@ -53,8 +59,10 @@ impl Editor {
             return;
         }
         let entry = self.history.redo_stack.pop();
+        log::trace!("Popped redo stack: {:?}", &entry);
 
         if let Some(redo_entry) = entry {
+            log::debug!("Redid {}", &redo_entry.description);
             self.history.undo_stack.push(HistoryEntry {
                 description: "Redo".to_owned(),
                 layer_idx: self.layer_idx,

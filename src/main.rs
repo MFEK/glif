@@ -181,6 +181,9 @@ fn main() {
                         Command::ToolShapes => {
                             editor.set_tool(ToolEnum::Shapes);
                         }
+                        Command::ToolGuidelines => {
+                            editor.set_tool(ToolEnum::Guidelines);
+                        }
                         Command::TogglePointLabels => {
                             trigger_toggle_on!(
                                 interface,

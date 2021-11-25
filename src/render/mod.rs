@@ -4,8 +4,7 @@ pub mod grid;
 
 use glifparser::matrix::ToSkiaMatrix;
 use glifrenderer::anchors::draw_anchors;
-use glifrenderer::calc_x;
-use glifrenderer::calc_y;
+use glifrenderer::{calc_x, calc_y};
 use glifrenderer::constants::*;
 use glifrenderer::glyph::draw_components;
 use glifrenderer::guidelines;
@@ -68,9 +67,11 @@ pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
     }
 
     if pm != PreviewMode::Paper || PAPER_DRAW_GUIDELINES {
-        v.with_glyph(|glif| {
-            guidelines::draw_all(glif, &i.viewport, canvas);
-        });
+        guidelines::draw_baseline::<()>(&i.viewport, canvas);
+        let local_guidelines = v.with_glyph(|glyph|glyph.guidelines.iter().map(|g|g.clone()).collect::<Vec<_>>());
+        for guideline in v.guidelines.iter().chain(local_guidelines.iter()) {
+            guidelines::draw_guideline(&i.viewport, canvas, &guideline, None);
+        }
     }
 
     glifrenderer::glyph::draw(canvas, v.preview.as_ref().unwrap(), &i.viewport);

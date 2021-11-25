@@ -10,7 +10,7 @@ impl ContourOperation for VWSContour {
     fn build(&self, contour: &MFEKContour<MFEKPointData>) -> MFEKOutline<MFEKPointData> {
         let contour_pw = Piecewise::from(&contour.inner);
 
-        let settings = VWSSettings {
+        let settings = VWSSettings::<MFEKPointData> {
             cap_custom_start: None,
             cap_custom_end: None,
         };

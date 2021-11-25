@@ -11,7 +11,6 @@ use crate::{
 
 use super::{icons, Interface};
 
-// These are before transformation by STATE.dpi (glutin scale_factor)
 pub const TOOLBOX_OFFSET_X: f32 = 10.;
 pub const TOOLBOX_OFFSET_Y: f32 = TOOLBOX_OFFSET_X;
 pub const TOOLBOX_WIDTH: f32 = 52.;

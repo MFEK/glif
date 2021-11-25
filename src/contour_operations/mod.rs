@@ -5,7 +5,7 @@ use glifparser::glif::{ContourOperations, MFEKContour, MFEKOutline, MFEKPointDat
 
 use log;
 
-fn unknown_op() -> Option<ContourOperations> {
+fn unknown_op() -> Option<ContourOperations<MFEKPointData>> {
     log::warn!("Found unknown contour operation attached to contour. File was generated with newer MFEKglif, please upgrade to edit properly.");
     None
 }
@@ -30,7 +30,7 @@ pub fn sub(
     contour: &MFEKContour<MFEKPointData>,
     begin: usize,
     end: usize,
-) -> Option<ContourOperations> {
+) -> Option<ContourOperations<MFEKPointData>> {
     let op = contour.operation.clone();
     op.as_ref()?;
 
@@ -53,7 +53,7 @@ pub fn sub(
 pub fn append(
     contour: &MFEKContour<MFEKPointData>,
     append: &MFEKContour<MFEKPointData>,
-) -> Option<ContourOperations> {
+) -> Option<ContourOperations<MFEKPointData>> {
     let op = contour.operation.clone();
     op.as_ref()?;
 
@@ -87,7 +87,7 @@ pub fn build(contour: &MFEKContour<MFEKPointData>) -> MFEKOutline<MFEKPointData>
     }
 }
 
-pub fn insert(contour: &MFEKContour<MFEKPointData>, idx: usize) -> Option<ContourOperations> {
+pub fn insert(contour: &MFEKContour<MFEKPointData>, idx: usize) -> Option<ContourOperations<MFEKPointData>> {
     let op = contour.operation.clone();
     op.as_ref()?;
 

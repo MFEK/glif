@@ -72,6 +72,11 @@ impl Interface {
         self.prompts.pop()
     }
 
+    pub fn get_inspector_dialog_rect(&self) -> (f32, f32, f32, f32) {
+        let (tx, ty, tw, th) = self.get_tools_dialog_rect();
+        (tx, ty - (th * 0.35), tw, (th * 0.35) - (TOOLBOX_OFFSET_Y))
+    }
+
     pub fn get_tools_dialog_rect(&self) -> (f32, f32, f32, f32) {
         let offset_y = (self.viewport.winsize.1 as f32 - (LAYERBOX_HEIGHT * 2.)) / 3.;
         (

@@ -42,7 +42,7 @@ git-version = "0.3"
 # For UI toggles
 enum-iterator = "0.7.0"
 enum-unitary = "0.4"
-
+itertools = "0.10"
 
 # Display backtraces
 backtrace = "0.3"
@@ -65,6 +65,7 @@ nfd = { git = "https://github.com/raphlinus/nfd-rs", rev = "5e09b79bf511e3a91ae8
 regex = "1"
 
 serde_json = { version = "1.0" }
+serde = "1.0"
 
 ## Our crates
 # parses .glif files and gives us a place to put arbitrary data
@@ -100,7 +101,7 @@ strum_macros = "0.23"
 image = { version = "0.23", features = ["png"], default-features = false }
 
 # for certain Bézier curve manipulation functions
-flo_curves = { git = "https://github.com/Logicalshift/flo_curves", branch = "v0.6" }
+flo_curves = "0.6"
 
 # for exporting UFO .glif files to layers
 plist = "1.3"

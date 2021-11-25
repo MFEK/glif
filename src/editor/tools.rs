@@ -1,4 +1,5 @@
 use imgui::Ui;
+use log;
 use skulpin::skia_safe::Canvas;
 
 use super::{events::EditorEvent, Editor};
@@ -61,7 +62,8 @@ impl Editor {
 
     /// Pops the current behavior off the behavior stack. ToolBehavior should call this when it has finished.
     pub fn pop_behavior(&mut self) {
-        self.tool_behaviors.pop();
+        let popped = self.tool_behaviors.pop();
+        log::debug!("Popped a tool behavior: {:?}", popped);
 
         // if the behavior is not on the stack when we call this we set this flag to tell the dispatch_event function
         // not to put the behavior back on the stack. The flag is cleared at the start of dispatch_event.
@@ -71,6 +73,7 @@ impl Editor {
     /// Use this to push multiple behaviors on the stack for multi-stage editing. Behaviors should be pushed in the
     /// reverse order to their intended execution.
     pub fn push_behavior(&mut self, behavior: Box<dyn ToolBehavior>) {
+        log::debug!("Pushed a tool behavior: {:?}", behavior);
         self.tool_behaviors.push(behavior);
     }
 
@@ -79,6 +82,7 @@ impl Editor {
     /// as the only behavior on the stack.
     pub fn set_behavior(&mut self, behavior: Box<dyn ToolBehavior>) {
         self.tool_behaviors = vec![]; // this is called so infequently this should be fine
+        log::debug!("Cleared tool behaviors and set new behavior: {:?}", &behavior);
         self.push_behavior(behavior);
     }
 

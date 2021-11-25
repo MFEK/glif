@@ -5,7 +5,7 @@ use crate::{
 
 use glifparser::{
     glif::{HistoryEntry, Layer, MFEKPointData},
-    Guideline, MFEKGlif,
+    IntegerOrFloat, Guideline, MFEKGlif,
 };
 
 pub use skulpin::skia_safe::Contains as _;
@@ -40,7 +40,7 @@ pub struct Editor {
 
     dirty: bool, // Internal flag the editor uses to check for empty modifications.
     // end_layer_modification is called we simply discard the last history entry.
-    history: History, // holds a history of previous states the glyph has been in
+    history: History<MFEKPointData>, // holds a history of previous states the glyph has been in
     active_tool: Box<dyn Tool>,
     active_tool_enum: ToolEnum,
     clipboard: EditorClipboard,
@@ -57,7 +57,7 @@ pub struct Editor {
 
     pub images: images::EditorImages,
     // These are UFO-global guidelines which won't be picked up by glifparser.
-    pub guidelines: Vec<Guideline>,
+    pub guidelines: Vec<Guideline<MFEKPointData>>,
 
     pub quit_requested: bool, // allows for quits from outside event loop, e.g. from command closures
 
@@ -174,7 +174,14 @@ impl Editor {
         }
     }
 
+    fn add_width_guidelines(&mut self, glyph: &MFEKGlif<MFEKPointData>) {
+        self.guidelines.clear();
+        self.guidelines.push(Guideline::from_name_x_y_angle(String::from("lbearing"), 0., 0., IntegerOrFloat::Integer(90)));
+        self.guidelines.push(Guideline::from_name_x_y_angle(String::from("rbearing"), glyph.width.unwrap() as f32, 0., IntegerOrFloat::Integer(90)));
+    }
+
     pub fn set_glyph(&mut self, glyph: MFEKGlif<MFEKPointData>) {
+        self.add_width_guidelines(&glyph);
         self.glyph = Some(glyph);
         self.layer_idx = Some(0);
         self.mark_preview_dirty();

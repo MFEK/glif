@@ -96,5 +96,9 @@
     <string>spiropen.glif</string>
     <key>dash</key>
     <string>dash.glif</string>
+    <key>globe</key>
+    <string>globe.glif</string>
+    <key>ufo</key>
+    <string>ufo.glif</string>
   </dict>
 </plist>

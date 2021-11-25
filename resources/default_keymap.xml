@@ -30,6 +30,7 @@
     <binding command="ToolMeasure" key="M"/>
     <binding command="ToolAnchors" key="N"/>
     <binding command="ToolShapes" key="S"/>
+    <binding command="ToolGuidelines" key="G"/>
 
     <!-- view modes -->
     <binding command="TogglePointLabels" key="3" mod="ShiftMod"/>
