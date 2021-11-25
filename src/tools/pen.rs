@@ -159,7 +159,7 @@ impl Pen {
             // Lastly if we get here we create a new contour.
             let mouse_pos = mouse_info.position;
             v.contour_idx = v.with_active_layer_mut(|layer| {
-                let mut new_contour: Contour<MFEKPointData> = Vec::new();
+                let mut new_contour: Contour<MFEKGlifPointData> = Vec::new();
                 new_contour.push(Point::from_x_y_type(
                     (calc_x(mouse_pos.0 as f32), calc_y(mouse_pos.1 as f32)),
                     if mouse_info.modifiers.shift {

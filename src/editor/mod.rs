@@ -2,9 +2,10 @@ use crate::{
     tool_behaviors::ToolBehavior,
     tools::{pan::Pan, Tool, ToolEnum},
 };
+use crate::util::MFEKGlifPointData;
 
 use glifparser::{
-    glif::{HistoryEntry, Layer, MFEKPointData},
+    glif::{HistoryEntry, Layer},
     IntegerOrFloat, Guideline, MFEKGlif,
 };
 
@@ -35,12 +36,12 @@ pub mod macros;
 /// The only state that should change not through the editor is the generation of previews for the purposes of drawing.
 #[derive(Debug, Default)]
 pub struct Editor {
-    glyph: Option<MFEKGlif<MFEKPointData>>,
+    glyph: Option<MFEKGlif<MFEKGlifPointData>>,
     modifying: bool, // a flag that is set when the active layer is currently being modified
 
     dirty: bool, // Internal flag the editor uses to check for empty modifications.
     // end_layer_modification is called we simply discard the last history entry.
-    history: History<MFEKPointData>, // holds a history of previous states the glyph has been in
+    history: History<MFEKGlifPointData>, // holds a history of previous states the glyph has been in
     active_tool: Box<dyn Tool>,
     active_tool_enum: ToolEnum,
     clipboard: EditorClipboard,
@@ -50,14 +51,14 @@ pub struct Editor {
     tool_behaviors: Vec<Box<dyn ToolBehavior>>,
     behavior_finished: bool,
 
-    pub preview: Option<MFEKGlif<MFEKPointData>>,
+    pub preview: Option<MFEKGlif<MFEKGlifPointData>>,
     pub contour_idx: Option<usize>, // index into Outline
     pub point_idx: Option<usize>,
     pub selected: HashSet<(usize, usize)>,
 
     pub images: images::EditorImages,
     // These are UFO-global guidelines which won't be picked up by glifparser.
-    pub guidelines: Vec<Guideline<MFEKPointData>>,
+    pub guidelines: Vec<Guideline<MFEKGlifPointData>>,
 
     pub quit_requested: bool, // allows for quits from outside event loop, e.g. from command closures
 
@@ -174,13 +175,13 @@ impl Editor {
         }
     }
 
-    fn add_width_guidelines(&mut self, glyph: &MFEKGlif<MFEKPointData>) {
+    fn add_width_guidelines(&mut self, glyph: &MFEKGlif<MFEKGlifPointData>) {
         self.guidelines.clear();
-        self.guidelines.push(Guideline::from_name_x_y_angle(String::from("lbearing"), 0., 0., IntegerOrFloat::Integer(90)));
-        self.guidelines.push(Guideline::from_name_x_y_angle(String::from("rbearing"), glyph.width.unwrap() as f32, 0., IntegerOrFloat::Integer(90)));
+        self.guidelines.push(Guideline::from_x_y_angle(0., 0., IntegerOrFloat::Integer(90)).name("lbearing"));
+        self.guidelines.push(Guideline::from_x_y_angle(glyph.width.unwrap() as f32, 0., IntegerOrFloat::Integer(90)).name("rbearing"));
     }
 
-    pub fn set_glyph(&mut self, glyph: MFEKGlif<MFEKPointData>) {
+    pub fn set_glyph(&mut self, glyph: MFEKGlif<MFEKGlifPointData>) {
         self.add_width_guidelines(&glyph);
         self.glyph = Some(glyph);
         self.layer_idx = Some(0);
@@ -192,7 +193,7 @@ impl Editor {
     /// Calls the supplied closure with an immutable reference to the active layer.
     pub fn with_active_layer<F, R>(&self, mut closure: F) -> R
     where
-        F: FnMut(&Layer<MFEKPointData>) -> R,
+        F: FnMut(&Layer<MFEKGlifPointData>) -> R,
     {
         closure(&self.glyph.as_ref().unwrap().layers[self.layer_idx.unwrap()])
     }
@@ -202,7 +203,7 @@ impl Editor {
     /// glyph's state. This function will panic if you have not called begin_layer_modification!
     pub fn with_active_layer_mut<F, R>(&mut self, mut closure: F) -> R
     where
-        F: FnMut(&mut Layer<MFEKPointData>) -> R,
+        F: FnMut(&mut Layer<MFEKGlifPointData>) -> R,
     {
         if !self.modifying {
             panic!("A modification is not in progress!")
@@ -219,7 +220,7 @@ impl Editor {
     /// Calls the supplied closure with a copy of the glif.
     pub fn with_glyph<F, R>(&self, mut closure: F) -> R
     where
-        F: FnMut(&MFEKGlif<MFEKPointData>) -> R,
+        F: FnMut(&MFEKGlif<MFEKGlifPointData>) -> R,
     {
         closure(self.glyph.as_ref().unwrap())
     }
@@ -227,7 +228,7 @@ impl Editor {
     /// This function should be used to modify anchors, guidelines, and other glyph-level data. Do not use this to modify the active layer.
     pub fn with_glyph_mut<F, R>(&mut self, mut closure: F) -> R
     where
-        F: FnMut(&mut MFEKGlif<MFEKPointData>) -> R,
+        F: FnMut(&mut MFEKGlif<MFEKGlifPointData>) -> R,
     {
         if !self.modifying {
             panic!("A modification is not in progress!")
@@ -240,7 +241,7 @@ impl Editor {
 
     pub fn with_glyph_mut_no_history<F, R>(&mut self, mut closure: F) -> R
     where
-        F: FnMut(&mut MFEKGlif<MFEKPointData>) -> R,
+        F: FnMut(&mut MFEKGlif<MFEKGlifPointData>) -> R,
     {
         closure(self.glyph.as_mut().unwrap())
     }

@@ -1,10 +1,10 @@
-use glifparser::glif::MFEKPointData;
 use glifrenderer::guidelines::draw_guideline;
 
 use super::prelude::*;
 use crate::editor::Editor;
 use crate::tool_behaviors::move_guideline::MoveGuideline;
 use crate::user_interface::Interface;
+use crate::util::MFEKGlifPointData;
 
 use flo_curves as flo;
 use flo::Coordinate;
@@ -20,9 +20,9 @@ pub struct Guidelines {
 
 #[derive(Debug, Clone, Default)]
 struct SplitGuidelines {
-    guidelines: Vec<(Guideline<MFEKPointData>, bool)>,
-    local_guidelines: Vec<Guideline<MFEKPointData>>,
-    global_guidelines: Vec<Guideline<MFEKPointData>>,
+    guidelines: Vec<(Guideline<MFEKGlifPointData>, bool)>,
+    local_guidelines: Vec<Guideline<MFEKGlifPointData>>,
+    global_guidelines: Vec<Guideline<MFEKGlifPointData>>,
 }
 
 use itertools::{Either, Itertools as _};
@@ -42,7 +42,7 @@ impl SplitGuidelines {
     //
     //     let (mut guidelines, guidelines_len, local_guidelines_len, global_guidelines_len) = SplitGuidelines::new(v).as_tuple();
     //
-    fn as_tuple(self) -> (Vec<(Guideline<MFEKPointData>, bool)>, usize, usize, usize) {
+    fn as_tuple(self) -> (Vec<(Guideline<MFEKGlifPointData>, bool)>, usize, usize, usize) {
         let l = self.guidelines.len();
         (self.guidelines, l, self.local_guidelines.len(), self.global_guidelines.len())
     }

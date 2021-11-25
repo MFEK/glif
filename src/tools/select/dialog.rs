@@ -8,8 +8,9 @@ use crate::editor::macros::{get_contour_len, get_contour_type, get_point};
 use crate::editor::Editor;
 use crate::user_interface::util::{imgui_decimal_text_field, imgui_radius_theta};
 use crate::user_interface::Interface;
+use crate::util::MFEKGlifPointData;
 
-use glifparser::glif::{ContourOperations, MFEKOutline, MFEKPointData};
+use glifparser::glif::{ContourOperations, MFEKOutline};
 use glifparser::{Handle, Point, PointType, WhichHandle};
 use MFEKmath::polar::PolarCoordinates;
 
@@ -30,7 +31,7 @@ impl Select {
 
         let (tx, ty, tw, th) = i.get_tools_dialog_rect();
         let mut orig_point: Point<_> = Point::new();
-        let mut point: Point<MFEKPointData> = Point::new();
+        let mut point: Point<MFEKGlifPointData> = Point::new();
         let mut should_make_next_point_curve: bool = false;
         let mut should_clear_contour_op = false;
         let mut should_apply_contour_op = false;

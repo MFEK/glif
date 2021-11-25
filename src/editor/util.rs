@@ -7,7 +7,7 @@ use flo_curves::{
     geo::Coord2,
 };
 use glifparser::{
-    glif::{MFEKOutline, MFEKPointData},
+    glif::MFEKOutline,
     Handle, WhichHandle,
 };
 use glifrenderer::constants::{POINT_RADIUS, POINT_STROKE_THICKNESS};
@@ -17,6 +17,7 @@ use skulpin::skia_safe::Point as SkPoint;
 use skulpin::skia_safe::Rect as SkRect;
 use MFEKmath::{Bezier, Piecewise, Primitive as MathPrimitive};
 
+use crate::util::MFEKGlifPointData;
 use super::Editor;
 
 //TODO: Move to tool utility file
@@ -188,7 +189,7 @@ pub fn nearest_point_on_curve(
 
 pub fn build_box_selection(
     mut rect: SkRect,
-    outline: &MFEKOutline<MFEKPointData>,
+    outline: &MFEKOutline<MFEKGlifPointData>,
 ) -> HashSet<(usize, usize)> {
     rect.flip_if_required();
 
@@ -204,7 +205,7 @@ pub fn build_box_selection(
     selected
 }
 
-pub fn move_point(outline: &mut MFEKOutline<MFEKPointData>, ci: usize, pi: usize, x: f32, y: f32) {
+pub fn move_point(outline: &mut MFEKOutline<MFEKGlifPointData>, ci: usize, pi: usize, x: f32, y: f32) {
     let (cx, cy) = (outline[ci].inner[pi].x, outline[ci].inner[pi].y);
     let (dx, dy) = (cx - x, cy - y);
 
@@ -224,7 +225,7 @@ pub fn move_point(outline: &mut MFEKOutline<MFEKPointData>, ci: usize, pi: usize
 }
 
 pub fn move_point_without_handles(
-    outline: &mut MFEKOutline<MFEKPointData>,
+    outline: &mut MFEKOutline<MFEKGlifPointData>,
     ci: usize,
     pi: usize,
     x: f32,
@@ -235,7 +236,7 @@ pub fn move_point_without_handles(
 }
 
 pub fn get_handle_pos(
-    outline: &mut MFEKOutline<MFEKPointData>,
+    outline: &mut MFEKOutline<MFEKGlifPointData>,
     ci: usize,
     pi: usize,
     handle: WhichHandle,
@@ -255,7 +256,7 @@ pub fn get_handle_pos(
 }
 
 pub fn move_handle(
-    outline: &mut MFEKOutline<MFEKPointData>,
+    outline: &mut MFEKOutline<MFEKGlifPointData>,
     ci: usize,
     pi: usize,
     handle: WhichHandle,

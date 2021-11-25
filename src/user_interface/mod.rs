@@ -20,7 +20,9 @@ use skulpin::Renderer;
 
 use crate::editor::Editor;
 pub use crate::user_interface::mouse_input::MouseInfo;
-use glifparser::glif::{Layer, MFEKPointData};
+use crate::util::MFEKGlifPointData;
+
+use glifparser::glif::Layer;
 use sdl2::{video::Window, Sdl};
 
 use self::grid::Grid;
@@ -160,6 +162,6 @@ pub enum InputPrompt {
     },
     Layer {
         label: String,
-        func: Rc<dyn Fn(&mut Editor, Layer<MFEKPointData>)>,
+        func: Rc<dyn Fn(&mut Editor, Layer<MFEKGlifPointData>)>,
     },
 }

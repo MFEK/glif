@@ -1,5 +1,5 @@
 use glifparser::{
-    glif::{Layer, MFEKContour, MFEKPointData},
+    glif::{Layer, MFEKContour},
     outline::skia::ToSkiaPaths as _,
     Handle, PointType,
 };
@@ -13,6 +13,7 @@ use skulpin::skia_safe::Point as SkPoint;
 
 use super::Editor;
 use crate::contour_operations;
+use crate::util::MFEKGlifPointData;
 
 use std::collections::HashSet;
 use std::fmt;
@@ -37,7 +38,7 @@ impl Editor {
     /// Copy the current selection and put it in our clipboard.
     pub fn copy_selection(&mut self) {
         let layer = &self.glyph.as_ref().unwrap().layers[self.layer_idx.unwrap()];
-        let mut new_outline: Vec<MFEKContour<MFEKPointData>> = Vec::new();
+        let mut new_outline: Vec<MFEKContour<MFEKGlifPointData>> = Vec::new();
         for (contour_idx, contour) in layer.outline.iter().enumerate() {
             let mut results = Vec::new();
             let mut cur_contour = Vec::new();
@@ -49,7 +50,7 @@ impl Editor {
                 let to_delete = !self.point_selected(contour_idx, point_idx);
 
                 if to_delete {
-                    let mut mfekcur: MFEKContour<MFEKPointData> = cur_contour.into();
+                    let mut mfekcur: MFEKContour<MFEKGlifPointData> = cur_contour.into();
                     mfekcur.operation = contour_operations::sub(contour, begin, point_idx);
                     results.push(mfekcur);
 
@@ -60,7 +61,7 @@ impl Editor {
                     cur_contour.push(point.clone());
                 }
             }
-            let mut mfekcur: MFEKContour<MFEKPointData> = cur_contour.into();
+            let mut mfekcur: MFEKContour<MFEKGlifPointData> = cur_contour.into();
             mfekcur.operation = contour_operations::sub(contour, begin, contour.inner.len() - 1);
             results.push(mfekcur);
 
@@ -177,7 +178,7 @@ impl Editor {
         self.begin_modification("Delete selection.");
 
         let layer = &self.glyph.as_ref().unwrap().layers[self.layer_idx.unwrap()];
-        let mut new_outline: Vec<MFEKContour<MFEKPointData>> = Vec::new();
+        let mut new_outline: Vec<MFEKContour<MFEKGlifPointData>> = Vec::new();
         for (contour_idx, contour) in layer.outline.iter().enumerate() {
             let mut results = Vec::new();
             let mut cur_contour = Vec::new();
@@ -189,7 +190,7 @@ impl Editor {
                 let to_delete = self.point_selected(contour_idx, point_idx);
 
                 if to_delete {
-                    let mut mfekcur: MFEKContour<MFEKPointData> = cur_contour.into();
+                    let mut mfekcur: MFEKContour<MFEKGlifPointData> = cur_contour.into();
                     mfekcur.operation = contour_operations::sub(contour, begin, point_idx);
                     results.push(mfekcur);
 
@@ -200,7 +201,7 @@ impl Editor {
                     cur_contour.push(point.clone());
                 }
             }
-            let mut mfekcur: MFEKContour<MFEKPointData> = cur_contour.into();
+            let mut mfekcur: MFEKContour<MFEKGlifPointData> = cur_contour.into();
             mfekcur.operation = contour_operations::sub(contour, begin, contour.inner.len() - 1);
             results.push(mfekcur);
 

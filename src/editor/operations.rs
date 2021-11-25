@@ -2,11 +2,12 @@ use crate::contour_operations;
 use glifparser::outline::skia::{FromSkiaPath, ToSkiaPaths};
 use glifparser::FlattenedGlif;
 use glifparser::{
-    glif::{Layer, LayerOperation, MFEKPointData},
+    glif::{Layer, LayerOperation},
     MFEKGlif, Outline,
 };
 use skulpin::skia_safe::PathOp;
 
+use crate::util::MFEKGlifPointData;
 use super::Editor;
 
 impl Editor {
@@ -60,12 +61,12 @@ impl Editor {
         self.preview_dirty = false;
     }
 
-    pub fn prepare_export(&self) -> MFEKGlif<MFEKPointData> {
+    pub fn prepare_export(&self) -> MFEKGlif<MFEKGlifPointData> {
         let glif = self.preview.as_ref().unwrap();
 
         // MFEKGlif always has a layer zero so this is safe. (No it isn't, it can be invisible. TODO: Fix this.)
-        let mut last_combine_layer: Layer<MFEKPointData> = glif.layers[0].clone();
-        let mut exported_layers: Vec<Layer<MFEKPointData>> = vec![];
+        let mut last_combine_layer: Layer<MFEKGlifPointData> = glif.layers[0].clone();
+        let mut exported_layers: Vec<Layer<MFEKGlifPointData>> = vec![];
         let mut current_layer_group = last_combine_layer.outline.to_skia_paths(None).combined();
 
         for (layer_idx, layer) in glif.layers.iter().enumerate() {

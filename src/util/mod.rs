@@ -7,8 +7,10 @@ use std::{env, fs};
 use std::panic::set_hook;
 
 use crate::settings::CONFIG_PATH;
+
 use backtrace::Backtrace;
 use colored::Colorize;
+use glifparser::PointData;
 use lazy_static::lazy_static;
 use msgbox::IconType;
 
@@ -109,3 +111,14 @@ pub fn set_codepage_utf8() {
         debug_assert!(winapi::um::wincon::SetConsoleOutputCP(winapi::um::winnls::CP_UTF8) == 1);
     }
 }
+
+#[derive(Debug, Clone, Copy, serde::Serialize, serde::Deserialize)]
+pub enum MFEKGlifPointData {
+    Guideline { fixed: bool }
+}
+impl Default for MFEKGlifPointData {
+    fn default() -> Self {
+        Self::Guideline { fixed: false }
+    }
+}
+impl PointData for MFEKGlifPointData {}

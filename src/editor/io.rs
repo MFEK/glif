@@ -1,8 +1,9 @@
 use super::Editor;
+use crate::util::MFEKGlifPointData;
 
 use glifparser::glif::{
     self,
-    mfek::{Layer, MFEKGlif, MFEKPointData},
+    mfek::{Layer, MFEKGlif},
 };
 use glifparser::Glif;
 use log;
@@ -31,7 +32,7 @@ impl Editor {
     pub fn load_glif_headless<F: AsRef<FsPath> + Clone>(&mut self, filename: F) {
         // TODO: Actually handle errors now that we have them.
         let glif = {
-            let mut tempglif: MFEKGlif<MFEKPointData> = match filename
+            let mut tempglif: MFEKGlif<MFEKGlifPointData> = match filename
                 .as_ref()
                 .file_name()
                 .expect("No filename")
@@ -273,13 +274,13 @@ impl Editor {
 }
 
 pub trait ExportLayer {
-    fn to_exported(&self, layer: &Layer<MFEKPointData>) -> Glif<MFEKPointData>;
+    fn to_exported(&self, layer: &Layer<MFEKGlifPointData>) -> Glif<MFEKGlifPointData>;
 }
 
 /// Warning: You should always use this from MFEKglif with glif.preview.layers. If you use it with
 /// the normal MFEKGlif type's layers, then you will need to apply contour operations yourself!
-impl ExportLayer for MFEKGlif<MFEKPointData> {
-    fn to_exported(&self, layer: &Layer<MFEKPointData>) -> Glif<MFEKPointData> {
+impl ExportLayer for MFEKGlif<MFEKGlifPointData> {
+    fn to_exported(&self, layer: &Layer<MFEKGlifPointData>) -> Glif<MFEKGlifPointData> {
         let contours: Vec<_> = layer.outline.iter().map(|c| c.inner.clone()).collect();
         let mut ret = Glif::new();
         ret.outline = Some(contours);

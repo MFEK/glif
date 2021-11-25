@@ -153,14 +153,14 @@ impl ShapeDrawer {
         (cx, cy, ((cx).powf(2.) + (cy).powf(2.)).sqrt())
     }
 
-    fn draw_circle(&self) -> Outline<MFEKPointData> {
+    fn draw_circle(&self) -> Outline<MFEKGlifPointData> {
         let (cx, _cy, dist) = self.calculate_radius();
         let path = Path::circle(self.from, dist, Some(shape_direction(cx)));
         Outline::from_skia_path(&path)
     }
 
     // Odd even causes a pentagram at 5, and interesting connected shapes at odd numbers above 5.
-    fn draw_polygon(&self, polygon: ShapeType) -> Outline<MFEKPointData> {
+    fn draw_polygon(&self, polygon: ShapeType) -> Outline<MFEKGlifPointData> {
         let (sides, oddeven) = if polygon == ShapeType::Polygon {
             (self.sdata.polygon_sides, self.sdata.polygon_evenodd)
         } else {
@@ -235,7 +235,7 @@ impl ShapeDrawer {
         }
     }
 
-    fn draw_fits_in_rect(&self, stype: ShapeType) -> Outline<MFEKPointData> {
+    fn draw_fits_in_rect(&self, stype: ShapeType) -> Outline<MFEKGlifPointData> {
         let rect = Rect::new(
             self.from.0,
             self.from.1,
@@ -289,7 +289,7 @@ impl Shapes {
                     ShapeType::Polygon => sd.draw_polygon(self.stype),
                 };
 
-                let mfek_o: Vec<MFEKContour<MFEKPointData>> = o.iter().map(|e| e.into()).collect();
+                let mfek_o: Vec<MFEKContour<MFEKGlifPointData>> = o.iter().map(|e| e.into()).collect();
                 layer.outline.extend(mfek_o);
                 self.dropped_shape = true;
             });

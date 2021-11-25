@@ -1,6 +1,6 @@
 use glifparser::glif::HistoryEntry;
-use glifparser::glif::MFEKPointData;
 
+use crate::util::MFEKGlifPointData;
 use super::Editor;
 
 #[derive(Clone, Debug, Default)]
@@ -17,7 +17,7 @@ impl<PD: glifparser::PointData> History<PD> {
     }
 }
 
-fn entry_from_desc_and_editor(desc: &str, v: &Editor) -> HistoryEntry<MFEKPointData> {
+fn entry_from_desc_and_editor(desc: &str, v: &Editor) -> HistoryEntry<MFEKGlifPointData> {
     HistoryEntry {
         description: desc.to_owned(),
         layer_idx: v.layer_idx,
