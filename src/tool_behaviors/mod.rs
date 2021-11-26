@@ -1,14 +1,4 @@
-pub mod add_guideline;
-pub mod move_guideline;
-pub mod move_handle;
-pub mod move_image;
-pub mod move_point;
-pub mod move_vws_handle;
-pub mod pan;
-mod prelude;
-pub mod rotate_image;
-pub mod rotate_selection;
-pub mod selection_box;
+pub_mod!("src/tool_behaviors");
 
 use self::prelude::*;
 use dyn_clone::DynClone;
