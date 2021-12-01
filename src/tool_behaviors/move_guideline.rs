@@ -9,20 +9,31 @@ pub struct MoveGuideline {
 
 impl MoveGuideline {
     pub fn mouse_moved(&mut self, v: &mut Editor, _i: &mut Interface, mouse_info: MouseInfo) {
-        let mp = self.mouse_info.position;
-        let delta = (mp.0 - mouse_info.position.0, mp.1 - mouse_info.position.1);
-        let selected = self.selected_idx;
-
         if !v.is_modifying() {
             v.begin_modification("Move guideline.");
         }
 
+        let mp = self.mouse_info.position;
+        let delta = (mp.0 - mouse_info.position.0, mp.1 - mouse_info.position.1);
+        let selected = self.selected_idx;
+
         if self.global {
             let gl_len = v.with_glyph(|g| g.guidelines.len());
             let guideline = &mut v.guidelines[selected - gl_len];
-            if guideline.name.as_ref().unwrap() != "lbearing" {
-                guideline.at.x -= delta.0;
-                guideline.at.y += delta.1;
+            if guideline.data.as_guideline().fixed {
+                self.mouse_info = mouse_info;
+                return;
+            }
+            guideline.at.x -= delta.0;
+            guideline.at.y += delta.1;
+
+            if guideline.data.as_guideline().right {
+                v.with_glyph_mut(|glyph| {
+                    if let Some(w) = glyph.width.as_mut() {
+                        *w = (*w as f32 - delta.0) as u64;
+                    }
+                });
+                v.add_width_guidelines();
             }
         } else {
             v.with_glyph_mut(|glyph| {
@@ -36,7 +47,12 @@ impl MoveGuideline {
 
     pub fn mouse_released(&mut self, v: &mut Editor, _i: &mut Interface, mouse_info: MouseInfo) {
         if mouse_info.button == self.mouse_info.button {
-            v.end_modification();
+            v.mark_dirty(); // Moving a guideline technically is an "empty" mod otherwise.
+            if v.is_modifying() {
+                v.end_modification();
+            } else {
+                log::debug!("Didn't move the guideline.");
+            }
             v.pop_behavior();
         }
     }

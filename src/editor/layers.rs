@@ -19,13 +19,17 @@ impl Editor {
             layer_idx: self.layer_idx,
             contour_idx: self.contour_idx,
             point_idx: self.point_idx,
+            guidelines: self.guidelines.clone(),
             selected: Some(self.selected.clone()),
             glyph: self.glyph.as_ref().unwrap().clone(),
         });
 
         self.glyph.as_mut().unwrap().layers.push(new_layer);
 
-        self.end_modification();
+        if self.is_modifying() {
+            log::warn!("Possible bug: We thought we were changing layer state when add layer event received, causing us to forcibly terminate the modification so we can push history.");
+            self.end_modification();
+        }
 
         self.layer_idx = Some(self.glyph.as_mut().unwrap().layers.len() - 1);
         self.contour_idx = None;
@@ -40,16 +44,23 @@ impl Editor {
             return;
         }
 
-        self.end_modification();
+        if self.is_modifying() {
+            log::warn!("Possible bug: We thought we were changing layer state when delete layer event received, causing us to forcibly terminate the modification so we can push history.");
+            self.end_modification();
+        }
 
         self.history.add_undo_entry(HistoryEntry {
             description: "Deleted layer.".to_owned(),
             layer_idx: self.layer_idx,
             contour_idx: self.contour_idx,
             point_idx: self.point_idx,
+            guidelines: self.guidelines.clone(),
             selected: Some(self.selected.clone()),
             glyph: self.glyph.as_ref().unwrap().clone(),
         });
+
+        let lidx = self.layer_idx.unwrap();
+        self.with_glyph_mut_no_history(|glyph|glyph.layers.remove(lidx));
 
         if self.layer_idx != Some(0) {
             self.layer_idx = Some(self.layer_idx.unwrap() - 1);
@@ -88,6 +99,7 @@ impl Editor {
                 layer_idx: self.layer_idx,
                 contour_idx: self.contour_idx,
                 point_idx: self.point_idx,
+                guidelines: self.guidelines.clone(),
                 selected: Some(self.selected.clone()),
                 glyph: self.glyph.as_ref().unwrap().clone(),
             });

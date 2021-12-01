@@ -10,7 +10,7 @@ use glifrenderer::glyph::draw_components;
 use glifrenderer::guidelines;
 use glifrenderer::points;
 use glifrenderer::toggles::*;
-use glifrenderer::viewport;
+use glifrenderer::viewport::Viewport;
 
 use skulpin::skia_safe::Canvas;
 use skulpin::skia_safe::Matrix;
@@ -28,9 +28,9 @@ pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
     });
     // This will change the SkCanvas transformation matrix, and everything from here to
     // canvas.restore() will need to take that matrix into consideration.
-    viewport::redraw_viewport(&i.viewport, canvas);
+    i.viewport.redraw(canvas);
 
-    let dropped = v.with_glyph(|glif| {
+    /*let dropped = v.with_glyph(|glif| {
         let mut dropped = vec![];
         for layer in &glif.layers {
             for (l_image, i_matrix) in &layer.images {
@@ -40,12 +40,11 @@ pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
                     continue;
                 }
                 let image = &v.images[&l_image.filename];
-                let origin_transform = Matrix::translate((0., 0. - image.img.height() as f32));
-                let matrix3 = Matrix::translate((calc_x(0.), calc_y(0.)));
+                //let origin_transform = mtx.translate((0., 0. - image.img.height() as f32));
                 let tm = canvas.local_to_device_as_3x3();
                 canvas.save();
                 //let matrix2 = EncodedOrigin::to_matrix(EncodedOrigin::BottomLeft, (image.img.width(), image.img.height()));
-                let matrix = tm * matrix3 * i_matrix.to_skia_matrix() * origin_transform ;
+                let matrix = tm * i_matrix.to_skia_matrix();
                 canvas.set_matrix(&((matrix).into()));
                 //eprintln!("{:?}", Matrix::new_identity().set_rotate(45., None).to_affine());
                 // We shouldn't use (0., 0.) because this is a glifparser image, relative to the glif's points.
@@ -64,13 +63,14 @@ pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
                 layer.images.retain(|(gi, _)| gi.filename != dropee);
             }
         });
-    }
+    }*/
 
     if pm != PreviewMode::Paper || PAPER_DRAW_GUIDELINES {
         guidelines::draw_baseline::<()>(&i.viewport, canvas);
         let local_guidelines = v.with_glyph(|glyph|glyph.guidelines.iter().map(|g|g.clone()).collect::<Vec<_>>());
         for guideline in v.guidelines.iter().chain(local_guidelines.iter()) {
-            guidelines::draw_guideline(&i.viewport, canvas, &guideline, None);
+            let data = guideline.data.as_guideline();
+            guidelines::draw_guideline(&i.viewport, canvas, &guideline, if data.right {Some(RBEARING_STROKE)} else if data.format {Some(UFO_GUIDELINE_STROKE)} else { None });
         }
     }
 

@@ -111,7 +111,7 @@ impl Interface {
             height: window_height,
         };
 
-        let drew = skulpin.draw(extents, 1.0, |canvas, _coordinate_system_helper| {
+        let drew = skulpin.draw(extents, 1.0, |canvas, csh| {
             render::render_frame(v, self, canvas);
             imgui_renderer.render_imgui(canvas, dd);
         });

@@ -162,7 +162,7 @@ impl Select {
         }
 
         // if we found a point or handle we're going to start a drag operation
-        match clicked_point_or_handle(v, i, mouse_info.raw_position, None) {
+        match clicked_point_or_handle(v, i, mouse_info.position, None) {
             Some((ci, pi, wh)) => {
                 // first we check if shift is  held, if they are we put the current selection
                 // into the editor's selected HashSet

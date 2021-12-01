@@ -2,13 +2,11 @@
 pub mod argparser;
 pub mod math;
 
-use std::{env, fs};
-
+use std::{env, process};
+#[cfg(debug)]
+use std::fs;
 use std::panic::set_hook;
 
-use crate::settings::CONFIG_PATH;
-
-use backtrace::Backtrace;
 use colored::Colorize;
 use glifparser::PointData;
 use lazy_static::lazy_static;
@@ -39,27 +37,28 @@ macro_rules! trigger_toggle_on {
     };
 }
 
-#[macro_export]
-macro_rules! debug_event {
-    ($($arg:tt)*) => ({
-        use crate::util::DEBUG_EVENTS;
-        use log::debug;
-        if *DEBUG_EVENTS {
-            debug!($($arg)*);
-        }
-    })
+pub fn debug_event(str: &'static str, event: &sdl2::event::Event) {
+    use log::debug;
+    if *DEBUG_EVENTS {
+        debug!("Got event: {:?}", &event);
+    }
 }
-pub use debug_event;
+
+pub fn hard_error(msg: &str) -> ! {
+    eprintln!("{}", msg.bright_red());
+    process::exit(1)
+}
+
+#[cfg(debug)]
+fn now_epoch() -> u64 {
+    use std::time::SystemTime;
+    SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs()
+}
 
 pub fn set_panic_hook() {
     set_hook(Box::new(|info| {
-        let msg = info.payload().downcast_ref::<&str>();
-
-        if let Some(info) = msg {
-            eprintln!("\n{}\n", info.bright_red());
-        } else {
-            eprintln!("\n{}\n", info.to_string().bright_red());
-        }
+        let msg = info.payload().downcast_ref::<String>().map(|s|s.clone()).unwrap_or_else(||info.to_string());
+        eprintln!("\n{}\n", msg.bright_red());
 
         let err = msgbox::create(
             "Uh oh! \u{2014} MFEKglif crashed",
@@ -72,20 +71,21 @@ pub fn set_panic_hook() {
             Err(_) => eprintln!("Failed to create error box!"),
         }
 
+        #[cfg(debug)]
         if env::var("RUST_BACKTRACE").is_ok() {
-            let mut bt = Backtrace::new();
+            let mut bt = backtrace::Backtrace::new();
             bt.resolve();
             eprintln!("Requested backtrace:\n{:?}", bt);
 
-            let mut pb = CONFIG_PATH.to_path_buf();
-            pb.push("error_log");
+            let mut pb = env::temp_dir();
+            pb.push(format!("error_log_{}", now_epoch()));
             pb.set_extension("txt");
 
             let err = fs::write(pb.clone(), format!("{:?}", bt));
 
             match err {
-                Ok(_) => {}
-                Err(_) => eprintln!("Failed to write backtrace to file! {:?}", pb.clone()),
+                Ok(_) => eprintln!("Wrote backtrace to {}", pb.display()),
+                Err(_) => eprintln!("Failed to write backtrace to file! {}", pb.display()),
             }
         }
     }));
@@ -112,13 +112,36 @@ pub fn set_codepage_utf8() {
     }
 }
 
-#[derive(Debug, Clone, Copy, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Copy, Debug, Default, serde::Serialize, serde::Deserialize)]
+pub struct MFEKGlifGuidelineInfo {
+    pub fixed: bool,
+    pub format: bool,
+    pub right: bool,
+}
+#[derive(Clone, Copy, Debug, serde::Serialize, serde::Deserialize)]
 pub enum MFEKGlifPointData {
-    Guideline { fixed: bool }
+    Guideline(MFEKGlifGuidelineInfo),
 }
 impl Default for MFEKGlifPointData {
     fn default() -> Self {
-        Self::Guideline { fixed: false }
+        MFEKGlifPointData::Guideline(MFEKGlifGuidelineInfo::default())
+    }
+}
+impl MFEKGlifPointData {
+    pub fn new_guideline_data(fixed: bool, format: bool, right: bool) -> Self {
+        Self::Guideline(MFEKGlifGuidelineInfo {
+            fixed,
+            format,
+            right,
+        })
+    }
+    pub fn as_guideline(&self) -> MFEKGlifGuidelineInfo {
+        #[allow(irrefutable_let_patterns)]
+        if let MFEKGlifPointData::Guideline(guide) = self {
+            *guide
+        } else {
+            panic!("Tried to unwrap non-guideline as guideline")
+        }
     }
 }
 impl PointData for MFEKGlifPointData {}

@@ -7,12 +7,16 @@ use glifparser::{
 };
 use skulpin::skia_safe::PathOp;
 
-use crate::util::MFEKGlifPointData;
 use super::Editor;
+use crate::util::MFEKGlifPointData;
 
 impl Editor {
     pub fn mark_preview_dirty(&mut self) {
         self.preview_dirty = true;
+    }
+
+    pub fn mark_dirty(&mut self) {
+        self.dirty = true;
     }
 
     pub fn rebuild(&mut self) {

@@ -12,30 +12,40 @@ use crate::user_interface::grid::Grid;
 
 pub fn draw_grid(canvas: &mut Canvas, grid: &Grid, viewport: &Viewport) {
     let mut grid_path = Path::new();
+    let slope = grid.slope.filter(|gs|*gs != 0. && !gs.is_subnormal()).unwrap_or(0.);
+
+    let dmatrix = viewport.as_device_matrix();
+    let offset  = dmatrix.map_origin();
+    let factor = dmatrix.scale_x().abs();
+    let offset  = (offset.x * factor, offset.y * factor);
 
     let mut paint = Paint::default();
     paint.set_anti_alias(true);
-    paint.set_stroke_width(GUIDELINE_THICKNESS * (1. / viewport.factor));
+    paint.set_stroke_width(GUIDELINE_THICKNESS / factor);
     paint.set_style(PaintStyle::Stroke);
-    paint.set_color4f(Color4f::new(0., 0., 0., 0.2), None);
+    paint.set_color4f(Color4f::new(0., 0., 0., 1.0), None);
 
-    let scaled_left_offset = viewport.offset.0 / viewport.factor;
-    let scaled_top_offset = viewport.offset.1 / viewport.factor;
+    let mut scaled_left_offset = offset.0 / 2.;
+    let mut scaled_top_offset = offset.1 / 2.;
 
     let whole_left_offset = (grid.offset + scaled_left_offset) / grid.spacing;
-    let fractional_left_offset = whole_left_offset - whole_left_offset.floor();
+    let fractional_left_offset = if slope > 0. {
+        whole_left_offset - whole_left_offset.floor()
+    } else {
+        whole_left_offset.ceil() - whole_left_offset
+    };
     let units_from_left = fractional_left_offset * grid.spacing;
 
     let total_vertical =
-        f32::floor(viewport.winsize.0 as f32 / viewport.factor / grid.spacing) as i32;
+        (f32::ceil((viewport.winsize.0 as f32 * (1. / viewport.factor))) / grid.spacing) as i32;
     for i in 0..total_vertical {
         grid_path.move_to((
-            calc_x(units_from_left - scaled_left_offset + i as f32 * grid.spacing),
+            calc_x(units_from_left - scaled_left_offset + (i as f32 * grid.spacing)),
             -scaled_top_offset,
         ));
         grid_path.line_to((
-            calc_x(units_from_left - scaled_left_offset + i as f32 * grid.spacing),
-            -scaled_top_offset + viewport.winsize.1 as f32 / viewport.factor,
+            calc_x(units_from_left - scaled_left_offset + (i as f32 * grid.spacing)),
+            -scaled_top_offset + (viewport.winsize.1 as f32 * (1. / viewport.factor)),
         ));
     }
 
@@ -56,30 +66,34 @@ pub fn draw_grid(canvas: &mut Canvas, grid: &Grid, viewport: &Viewport) {
         ));
     }
 
-    if let Some(slope) = grid.slope {
-        if slope == 0. {
-            return;
-        };
-        let slope_max = f32::max(f32::abs(slope), 1.);
+    // Draw slanted lines (italic / rotalic)
 
-        let viewx = viewport.winsize.0 as f32 / viewport.factor;
+    if slope == 0. || slope.is_subnormal() {
+        return;
+    }
+    /*if grid.slope.map(|gs|gs < 0.).unwrap_or(false) {
+        scaled_left_offset = -scaled_left_offset;
+    }*/
 
-        let spacing = grid.spacing * slope_max;
-        let extra = -total_horizontal + (-total_horizontal as f32 * slope) as i32;
-        let offset = ((grid.offset + scaled_top_offset + scaled_left_offset * slope) / spacing)
-            .fract()
-            * spacing;
+    let slope_max: f32 = if slope < 0. { f32::min(-1., slope) } else { f32::max(1., slope) };
 
-        for i in extra..-extra {
-            grid_path.move_to((
-                calc_x(-scaled_left_offset),
-                calc_y(spacing * i as f32 - offset + scaled_top_offset),
-            ));
-            grid_path.line_to((
-                calc_x(viewx - scaled_left_offset),
-                calc_y(slope * (viewx) + spacing * i as f32 - offset + scaled_top_offset),
-            ));
-        }
+    let viewx = viewport.winsize.0 as f32 / viewport.factor;
+
+    let spacing = grid.spacing * slope_max;
+    let extra = -total_horizontal + (-total_horizontal as f32 * slope.abs()) as i32;
+    let offset = ((grid.offset + scaled_top_offset + scaled_left_offset * slope.abs()) / spacing)
+        .fract()
+        * spacing;
+
+    for i in extra..-extra {
+        grid_path.move_to((
+            calc_x(scaled_left_offset),
+            calc_y(spacing * i as f32 - offset + scaled_top_offset),
+        ));
+        grid_path.line_to((
+            calc_x(viewx + scaled_left_offset),
+            calc_y(slope * (viewx) + spacing * i as f32 - offset + scaled_top_offset),
+        ));
     }
 
     canvas.draw_path(&grid_path, &paint);

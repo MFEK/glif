@@ -1,5 +1,6 @@
 use glifrenderer::points::calc::*;
 use sdl2::mouse::MouseButton;
+use skulpin::skia_safe as skia;
 
 use crate::{command::CommandMod, user_interface::Interface};
 
@@ -39,15 +40,18 @@ impl MouseInfo {
         mousedown: Option<bool>,
         command_mod: CommandMod,
     ) -> MouseInfo {
-        let factor = 1. / i.viewport.factor;
-        let uoffset = i.viewport.offset;
-        let offset = (uoffset.0, uoffset.1);
+        let (mut mposition, absolute_mposition) = {
+            let factor = 1. / i.viewport.factor;
+            let uoffset = i.viewport.offset;
+            let offset = (uoffset.0, uoffset.1);
+            let absolute = skia::Point::new(position.0, position.1 - i.viewport.winsize.1);
 
-        let absolute_mposition = ((position.0).floor(), (position.1).floor());
-        let mut mposition = (
-            ((position.0).floor() - offset.0) * factor,
-            ((position.1).floor() - offset.1) * factor,
-        );
+            let mut matrix = skia::Matrix::new_identity();
+            matrix.set_scale((factor, -factor), None);
+            let skp = matrix.map_point(absolute);
+            let skp = (skp.x - (offset.0 * factor), skp.y + (offset.1 * factor));
+            (skp, (absolute.x, absolute.y))
+        };
 
         let raw_absolute_mposition = absolute_mposition;
         let raw_mposition = mposition;
@@ -112,8 +116,9 @@ impl MouseInfo {
 
 impl Interface {
     // Generic events
+    /// Currently non-functional as broken in Wayland. Considering removing.
     pub fn center_cursor(&mut self) {
-        let mut center = self.sdl_window.drawable_size();
+        /*let mut center = self.sdl_window.drawable_size();
         center.0 /= 2;
         center.1 /= 2;
         self.mouse_info.absolute_position = (center.0 as f32, center.1 as f32);
@@ -122,6 +127,6 @@ impl Interface {
             &self.sdl_window,
             center.0 as i32,
             center.1 as i32,
-        );
+        );*/
     }
 }

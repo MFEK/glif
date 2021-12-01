@@ -1,12 +1,12 @@
+use crate::util::MFEKGlifPointData;
 use crate::{
     tool_behaviors::ToolBehavior,
     tools::{pan::Pan, Tool, ToolEnum},
 };
-use crate::util::MFEKGlifPointData;
 
 use glifparser::{
     glif::{HistoryEntry, Layer},
-    IntegerOrFloat, Guideline, MFEKGlif,
+    Guideline, IntegerOrFloat, MFEKGlif,
 };
 
 pub use skulpin::skia_safe::Contains as _;
@@ -54,6 +54,7 @@ pub struct Editor {
     pub preview: Option<MFEKGlif<MFEKGlifPointData>>,
     pub contour_idx: Option<usize>, // index into Outline
     pub point_idx: Option<usize>,
+    pub italic_angle: f32,
     pub selected: HashSet<(usize, usize)>,
 
     pub images: images::EditorImages,
@@ -82,6 +83,7 @@ impl Editor {
             layer_idx: None,
             contour_idx: None,
             point_idx: None,
+            italic_angle: 0.,
             selected: HashSet::new(),
 
             images: images::EditorImages::new(),
@@ -108,6 +110,7 @@ impl Editor {
             layer_idx: self.layer_idx,
             contour_idx: self.contour_idx,
             point_idx: self.point_idx,
+            guidelines: self.guidelines.clone(),
             selected: Some(self.selected.clone()),
             glyph: self.glyph.as_ref().unwrap().clone(),
         });
@@ -119,14 +122,17 @@ impl Editor {
     pub fn end_modification(&mut self) {
         log::trace!("Ending modification…");
         if !self.modifying {
+            log::error!("Tried to end a modification when not modifying!");
             return;
         }
 
+        if let Some(history) = self.history.undo_stack.last() {
+            log::trace!("Modification ended: {}", &history.description);
+        }
+
         if !self.dirty {
-            let history = self.history.undo_stack.pop();
-            if let Some(history) = history {
-                log::trace!("Modification ended: {}", &history.description);
-            }
+            self.history.undo_stack.pop();
+            log::error!("Ended a modification when editor did not think it was dirty; discarded!");
         }
 
         // TODO: Events here.
@@ -175,15 +181,68 @@ impl Editor {
         }
     }
 
-    fn add_width_guidelines(&mut self, glyph: &MFEKGlif<MFEKGlifPointData>) {
-        self.guidelines.clear();
-        self.guidelines.push(Guideline::from_x_y_angle(0., 0., IntegerOrFloat::Integer(90)).name("lbearing"));
-        self.guidelines.push(Guideline::from_x_y_angle(glyph.width.unwrap() as f32, 0., IntegerOrFloat::Integer(90)).name("rbearing"));
+    pub fn add_width_guidelines(&mut self) {
+        self.guidelines = self
+            .guidelines
+            .iter()
+            .filter(|gl| {
+                !gl.data.as_guideline().format
+                    || (gl.data.as_guideline().format
+                        && ["ascender", "descender"]
+                            .iter()
+                            .any(|gln| gl.name.as_ref().map(|n| n == gln).unwrap_or(false)))
+            })
+            .map(|gl| gl.clone())
+            .collect();
+        for (i, (x, y, name, angle)) in [
+            (0., 0., "lbearing", IntegerOrFloat::Integer(90)),
+            (
+                self.glyph
+                    .as_ref()
+                    .map(|g| g.width.unwrap_or(0))
+                    .unwrap_or(0) as f32,
+                0.,
+                "rbearing",
+                IntegerOrFloat::Integer(90),
+            ),
+            (
+                0.,
+                0.,
+                "italic_lbearing",
+                IntegerOrFloat::Float(self.italic_angle),
+            ),
+            (
+                self.glyph
+                    .as_ref()
+                    .map(|g| g.width.unwrap_or(0))
+                    .unwrap_or(0) as f32,
+                0.,
+                "italic_rbearing",
+                IntegerOrFloat::Float(self.italic_angle),
+            ),
+        ]
+        .into_iter()
+        .enumerate()
+        {
+            if self.italic_angle == 0. && i >= 2 {
+                continue;
+            }
+            let (fixed, format, right) = (i % 2 == 0, true, i % 2 == 1);
+            self.guidelines.insert(
+                0,
+                Guideline::from_x_y_angle(x, y, angle)
+                    .name(name)
+                    .data(MFEKGlifPointData::new_guideline_data(fixed, format, right)),
+            );
+        }
     }
 
     pub fn set_glyph(&mut self, glyph: MFEKGlif<MFEKGlifPointData>) {
-        self.add_width_guidelines(&glyph);
         self.glyph = Some(glyph);
+    }
+
+    pub fn initialize(&mut self) {
+        self.add_width_guidelines();
         self.layer_idx = Some(0);
         self.mark_preview_dirty();
         self.recache_images();

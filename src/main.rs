@@ -75,7 +75,7 @@ fn main() {
 
         // sdl event handling
         for event in event_pump.poll_iter() {
-            util::debug_event!("Got event: {:?}", &event);
+            util::debug_event("Got event: {:?}", &event);
 
             if let Event::Quit { .. } = &event {
                 break 'main_loop;
@@ -340,13 +340,10 @@ fn main() {
                 }
 
                 Event::Window { win_event, .. } => match win_event {
-                    WindowEvent::SizeChanged(x, y) => {
+                    WindowEvent::SizeChanged(x, y) | WindowEvent::Resized(x, y) => {
                         interface.viewport.winsize = (x as f32, y as f32);
-                    }
-                    WindowEvent::Resized(x, y) => {
-                        interface.viewport.winsize = (x as f32, y as f32);
-                    }
-
+                        interface.viewport.set_broken_flag();
+                    },
                     _ => {}
                 },
                 _ => {}

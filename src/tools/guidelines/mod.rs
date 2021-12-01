@@ -2,7 +2,7 @@ use glifrenderer::guidelines::draw_guideline;
 
 use super::prelude::*;
 use crate::editor::Editor;
-use crate::tool_behaviors::move_guideline::MoveGuideline;
+use crate::tool_behaviors::{move_glyph::MoveGlyph, move_guideline::MoveGuideline};
 use crate::user_interface::Interface;
 use crate::util::MFEKGlifPointData;
 
@@ -73,7 +73,9 @@ impl Guidelines {
         Self::default()
     }
 
+    // This function searches for a guideline to select based on mouse position.
     fn mouse_pressed(&mut self, v: &mut Editor, i: &mut Interface, mouse_info: MouseInfo) {
+        // Otherwise, deselect so if we've a guideline selected it will no longer be.
         self.selected_idx = None;
 
         let split_guidelines = SplitGuidelines::new(v);
@@ -81,39 +83,53 @@ impl Guidelines {
 
         for (idx, (guide, global)) in guidelines.iter().map(|(g,gl)|(g,*gl)).enumerate() {
             let position = i.mouse_info.position;
-            log::debug!("Guidelines::mouse_pressed(…): Trying guideline index {} ({:?})", idx, &guide);
-            let angle = f64::from(guide.angle);
-            let angle_vec = kurbo::Vec2::from_angle(angle.to_radians()).floor();
-            let angle2 = f64::from(guide.angle) + 90.;
-            let angle2_vec = kurbo::Vec2::from_angle(angle2.to_radians()).floor();
+            log::trace!("Guidelines::mouse_pressed(…): Trying guideline index {} ({:?})", idx, &guide);
+            // Vectorize guideline angle
+            let angle = f64::from(-guide.angle);
+            let angle_vec = kurbo::Vec2::from_angle(angle.to_radians());
+            // Vectorize angle perpendicular to guideline angle
+            let angle2 = f64::from(-guide.angle) + 90.;
+            let angle2_vec = kurbo::Vec2::from_angle(angle2.to_radians());
             let vec = kurbo::Vec2::from((guide.at.x as f64, guide.at.y as f64));
             let vec2 = kurbo::Vec2::from((vec.x + angle_vec.x, vec.y + angle_vec.y));
+            // Create line segments based on the position of the mouse and both above angles
             let position_angle = (position.0 + angle_vec.x as f32, position.1 + angle_vec.y as f32);
             let position_angle2 = (position.0 + angle2_vec.x as f32, position.1 + angle2_vec.y as f32);
-            eprintln!("{} {:?} {:?} {:?} {:?}", idx, &vec, &vec2, &position_angle, &position_angle2);
+            // Create three points: the point at the guideline's location, and the point at the
+            // guideline's location offset by its angle. This is for creating a line segment which
+            // flo_curves turns into a `ray`, its word for an infinite line in Euclidean maths.
             let p1 = flo::geo::Coord2::from((calc_x(vec.x as f32) as f64, calc_y(vec.y as f32) as f64));
             let p2 = flo::geo::Coord2::from((calc_x(vec2.x as f32) as f64, calc_y(vec2.y as f32) as f64));
             let pp = flo::geo::Coord2::from((position.0, position.1));
+            // Find the mouse's distance from the guideline in question, along perpendicular axes
             let inter = flo::line::ray_intersects_ray(&(p1, p2), &(flo::geo::Coord2::from(position), flo::geo::Coord2::from(position_angle)));
             let inter2 = flo::line::ray_intersects_ray(&(p1, p2), &(flo::geo::Coord2::from(position), flo::geo::Coord2::from(position_angle2)));
 
+            // For both distances considered…
             for rir in [inter, inter2] {
                 if let Some(p) = rir {
-                    eprintln!("{}", p.distance_to(&pp));
+                    // If either is within 5 screen units, select the point and get it ready for
+                    // moving.
                     if p.distance_to(&pp) < 5. / i.viewport.factor as f64 {
                         let selected_idx = idx;
                         self.selected_idx = Some(selected_idx);
                         log::debug!("Guidelines::mouse_pressed(…): self.selected_index = {}", idx);
-                        v.set_behavior(Box::new(MoveGuideline { selected_idx, global, mouse_info }));
-                        return;
+                        break;
                     }
                 }
             }
-            self.selected_idx = None;
         }
 
+        // Finally, push the proper behavior if we found a point above.
         if let Some(selected_idx) = self.selected_idx {
-            v.set_behavior(Box::new(MoveGuideline { selected_idx, global: guidelines[selected_idx].1, mouse_info }));
+            if guidelines[selected_idx].0.data.as_guideline().fixed {
+                let mut behavior = Box::new(MoveGlyph::default());
+                behavior.mouse_pressed(v, i, mouse_info);
+                v.set_behavior(behavior);
+            } else {
+                let behavior = Box::new(MoveGuideline { selected_idx, global: guidelines[selected_idx].1, mouse_info });
+                v.set_behavior(behavior);
+            }
         }
     }
 

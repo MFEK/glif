@@ -1,7 +1,7 @@
 use glifparser::glif::HistoryEntry;
 
-use crate::util::MFEKGlifPointData;
 use super::Editor;
+use crate::util::MFEKGlifPointData;
 
 #[derive(Clone, Debug, Default)]
 pub struct History<PD: glifparser::PointData> {
@@ -17,12 +17,13 @@ impl<PD: glifparser::PointData> History<PD> {
     }
 }
 
-fn entry_from_desc_and_editor(desc: &str, v: &Editor) -> HistoryEntry<MFEKGlifPointData> {
+pub fn entry_from_desc_and_editor(desc: &str, v: &Editor) -> HistoryEntry<MFEKGlifPointData> {
     HistoryEntry {
         description: desc.to_owned(),
         layer_idx: v.layer_idx,
         contour_idx: v.contour_idx,
         point_idx: v.point_idx,
+        guidelines: v.guidelines.clone(),
         selected: Some(v.selected.clone()),
         glyph: v.glyph.as_ref().unwrap().clone(),
     }
@@ -40,12 +41,15 @@ impl Editor {
 
         if let Some(undo_entry) = entry {
             log::debug!("Undid {}", &undo_entry.description);
-            self.history.redo_stack.push(entry_from_desc_and_editor("Undo", self));
+            self.history
+                .redo_stack
+                .push(entry_from_desc_and_editor("Undo", self));
 
             self.glyph = Some(undo_entry.glyph.clone());
             self.layer_idx = undo_entry.layer_idx;
             self.contour_idx = undo_entry.contour_idx;
             self.point_idx = undo_entry.point_idx;
+            self.guidelines = undo_entry.guidelines;
             if let Some(selected) = undo_entry.selected {
                 self.selected = selected
             }
@@ -68,6 +72,7 @@ impl Editor {
                 layer_idx: self.layer_idx,
                 contour_idx: self.contour_idx,
                 point_idx: self.point_idx,
+                guidelines: self.guidelines.clone(),
                 selected: Some(self.selected.clone()),
                 glyph: self.glyph.as_ref().unwrap().clone(),
             });
@@ -76,6 +81,7 @@ impl Editor {
             self.layer_idx = redo_entry.layer_idx;
             self.contour_idx = redo_entry.contour_idx;
             self.point_idx = redo_entry.point_idx;
+            self.guidelines = redo_entry.guidelines;
             if let Some(selected) = redo_entry.selected {
                 self.selected = selected
             }

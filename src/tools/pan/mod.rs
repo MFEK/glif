@@ -1,7 +1,7 @@
 use super::prelude::*;
 
-use crate::command::CommandType;
 use crate::editor::Editor;
+use crate::tool_behaviors::ToolBehavior;
 use crate::tool_behaviors::pan::PanBehavior;
 use crate::user_interface::Interface;
 
@@ -29,15 +29,12 @@ impl Tool for Pan {
                 ))),
                 _ => {}
             },
-            EditorEvent::ToolCommand { command, .. } => {
-                if command.type_() == CommandType::Nudge {
-                    v.push_behavior(Box::new(PanBehavior::new(
-                        interface.viewport.clone(),
-                        MouseInfo::default(),
-                    )));
-                    v.dispatch_editor_event(interface, event);
-                    v.pop_behavior();
-                }
+            EditorEvent::ToolCommand { .. } => {
+                let mut behavior = Box::new(PanBehavior::new(
+                    interface.viewport.clone(),
+                    MouseInfo::default(),
+                ));
+                behavior.event(v, interface, event);
             },
         }
     }

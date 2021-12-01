@@ -27,7 +27,7 @@ pub use skulpin::skia_safe::{
     Canvas, IPoint as SkIPoint, Matrix, Path as SkPath, Point as SkPoint, Rect as SkRect,
 };
 
-pub use glifparser::{Contour, Handle, Outline, Point, PointType, WhichHandle};
+pub use glifparser::{Contour, Handle, Outline, Point, PointType, WhichHandle, glif::MFEKGlif};
 
 //User interface
 pub use crate::user_interface::{Interface, MouseInfo};

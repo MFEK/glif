@@ -57,6 +57,8 @@ impl Editor {
 
         self.set_glyph(glif);
 
+        ipc::fetch_italic(self);
+        self.initialize();
         ipc::fetch_metrics(self);
     }
 

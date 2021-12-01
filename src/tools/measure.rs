@@ -1,3 +1,4 @@
+use num_traits::float::Float;
 use glifrenderer::constants::{self, OUTLINE_STROKE_THICKNESS};
 use glifrenderer::string::{pointfont_from_size_and_factor, POINTFONTS, POINTFONTSIZE};
 use skulpin::skia_safe::{
@@ -101,15 +102,15 @@ pub fn draw_measure_string(
     let (blob, rect) = {
         POINTFONTS.with(|f| {
             let mut hm = f.borrow_mut();
-            let f = hm.get(&((POINTFONTSIZE * 1. / factor).round() as usize));
+            let f = hm.get(&((POINTFONTSIZE * 1. / factor).integer_decode()));
             let font = match f {
                 Some(fon) => fon,
                 None => {
                     hm.insert(
-                        (POINTFONTSIZE * 1. / factor).round() as usize,
+                        (POINTFONTSIZE * 1. / factor).integer_decode(),
                         pointfont_from_size_and_factor(POINTFONTSIZE, factor),
                     );
-                    hm.get(&((POINTFONTSIZE * 1. / factor).round() as usize))
+                    hm.get(&((POINTFONTSIZE * 1. / factor).integer_decode()))
                         .unwrap()
                 }
             };

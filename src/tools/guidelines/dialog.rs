@@ -33,6 +33,11 @@ impl Guidelines {
                     unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icons::PLUS) },
                     [0., 0.],
                 );
+
+                if ui.is_item_clicked(imgui::MouseButton::Left) {
+                    v.push_behavior(Box::new(AddGuideline::new(0., false)));
+                }
+
                 ui.same_line(0.);
                 ui.button(
                     unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(&PLUS_GLOBE) },
@@ -40,16 +45,16 @@ impl Guidelines {
                 );
 
                 if ui.is_item_clicked(imgui::MouseButton::Left) {
-                    v.push_behavior(Box::new(AddGuideline::new(0.)));
+                    v.push_behavior(Box::new(AddGuideline::new(0., true)));
                 }
 
                 if let Some(selected) = self.selected_idx {
-                    log::trace!("Selected {}; global len {}", selected, global_guidelines_len);
+                    //log::trace!("Selected {}; global len {}", selected, global_guidelines_len);
                     let selected_i = if guidelines[selected].1 {selected - local_guidelines_len} else {selected};
-                    log::trace!("Selected index {}", selected_i);
+                    //log::trace!("Selected index {}", selected_i);
 
                     ui.same_line(0.);
-                    if guidelines[selected].1 && selected <= local_guidelines_len + 3 {
+                    if guidelines[selected].1 && guidelines[selected].0.data.as_guideline().format {
                         ui.text(imgui::ImString::new("Format defined."));
                     } else {
                         ui.button(
@@ -89,7 +94,7 @@ impl Guidelines {
                         ui.style_color(StyleColor::WindowBg),
                     );
 
-                    if !(is_global && gidx <= local_guidelines_len + 3) {
+                    if !(is_global && guideline.data.as_guideline().format) {
                         ui.button(
                             unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icons::RENAME) },
                             [0., 0.],
@@ -118,7 +123,7 @@ impl Guidelines {
                     }
 
                     if is_global {
-                        ui.text(unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(if gidx <= local_guidelines_len + 3 { icons::UFO } else { icons::GLOBE }) });
+                        ui.text(unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(if guideline.data.as_guideline().format { icons::UFO } else { icons::GLOBE }) });
                     }
 
                     font_token.pop(ui);
@@ -163,15 +168,19 @@ impl Guidelines {
                     };
 
                     let (old_at, old_angle) = (at, angle);
-                    user_interface::util::imgui_decimal_text_field("X", ui, &mut at.x, None);
-                    user_interface::util::imgui_decimal_text_field("Y", ui, &mut at.y, None);
-                    if !(guidelines[selected].1 && selected <= local_guidelines_len + 3) {
+                    if !guidelines[selected].0.data.as_guideline().fixed {
+                        user_interface::util::imgui_decimal_text_field("X", ui, &mut at.x, None);
+                        user_interface::util::imgui_decimal_text_field("Y", ui, &mut at.y, None);
+                    } else {
+                        ui.text(imgui::im_str!("Position of {} is fixed.", guidelines[selected].0.name.as_ref().unwrap_or(&format!("Unnamed {}", selected+1))));
+                    }
+                    if !(guidelines[selected].1 && guidelines[selected].0.data.as_guideline().format) {
                         user_interface::util::imgui_decimal_text_field("Angle", ui, &mut angle, None);
                     } else {
                         ui.text(imgui::im_str!("Angle of {} is fixed.", guidelines[selected].0.name.as_ref().unwrap_or(&format!("Unnamed {}", selected+1))));
                     }
 
-                    if at != old_at || (!guidelines[selected].1 && angle != old_angle) {
+                    if at != old_at || (!guidelines[selected].0.data.as_guideline().format && angle != old_angle) {
                         let selected_i = if guidelines[selected].1 {selected - local_guidelines_len} else {selected};
 
                         v.begin_modification(&format!("Modify {} guideline.", if guidelines[selected].1 { "global" } else { "local" }));

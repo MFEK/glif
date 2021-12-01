@@ -82,7 +82,10 @@ impl Editor {
     /// as the only behavior on the stack.
     pub fn set_behavior(&mut self, behavior: Box<dyn ToolBehavior>) {
         self.tool_behaviors = vec![]; // this is called so infequently this should be fine
-        log::debug!("Cleared tool behaviors and set new behavior: {:?}", &behavior);
+        log::debug!(
+            "Cleared tool behaviors and set new behavior: {:?}",
+            &behavior
+        );
         self.push_behavior(behavior);
     }
 
