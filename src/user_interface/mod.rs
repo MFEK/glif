@@ -41,7 +41,7 @@ pub struct Interface {
     sdl_context: Sdl,
     pub sdl_window: Window,
 
-    pub grid: Option<Grid>,
+    pub grid: Grid,
     pub mouse_info: MouseInfo,
     pub viewport: Viewport,
 }
@@ -55,7 +55,7 @@ impl Interface {
             sdl_context: sdl,
             sdl_window: window,
 
-            grid: None,
+            grid: Grid::default(),
             mouse_info: MouseInfo::default(),
             viewport: Viewport::default().with_winsize((WIDTH as f32, HEIGHT as f32)),
         }

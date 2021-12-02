@@ -56,14 +56,14 @@ impl MouseInfo {
         let raw_absolute_mposition = absolute_mposition;
         let raw_mposition = mposition;
 
-        if let Some(grid) = &i.grid {
+        if i.grid.show {
             let mpos = (mposition.0, calc_y(mposition.1));
 
             let mut candidates = vec![];
 
             let standard_snap = (
-                (mpos.0 / grid.spacing + grid.offset).round() * grid.spacing,
-                calc_y((mpos.1 / grid.spacing + grid.offset).round() * grid.spacing),
+                (mpos.0 / i.grid.spacing + i.grid.offset).round() * i.grid.spacing,
+                calc_y((mpos.1 / i.grid.spacing + i.grid.offset).round() * i.grid.spacing),
             );
 
             let dist = f32::sqrt(
@@ -73,10 +73,10 @@ impl MouseInfo {
 
             candidates.push((dist, standard_snap));
 
-            if let Some(slope) = &grid.slope {
+            if let Some(slope) = &i.grid.slope {
                 let slope_max = f32::min(f32::abs(*slope), 1.);
                 let x = mpos.0 - mpos.1 / slope;
-                let s = (grid.spacing / slope_max).abs();
+                let s = (i.grid.spacing / slope_max).abs();
                 let c = (x / s + 0.5).floor() * s;
                 let c2 = c * -slope;
 

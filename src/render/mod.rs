@@ -2,28 +2,28 @@
 
 use glifparser::matrix::ToSkiaMatrix;
 use glifrenderer::anchors::draw_anchors;
-use glifrenderer::{calc_x, calc_y};
 use glifrenderer::constants::*;
 use glifrenderer::glyph::draw_components;
 use glifrenderer::grid;
 use glifrenderer::guidelines;
 use glifrenderer::points;
 use glifrenderer::toggles::*;
-use glifrenderer::viewport::Viewport;
 
-use skulpin::skia_safe::{self as skia, Canvas, Matrix};
+use skulpin::skia_safe::{self as skia, Canvas};
 
 use crate::user_interface::PAPER_DRAW_GUIDELINES;
 use crate::{editor::Editor, user_interface::Interface};
 
 pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
     canvas.save();
+
     let pm = i.viewport.preview_mode;
     canvas.clear(if pm == PreviewMode::Paper {
         PAPER_BGCOLOR
     } else {
         BACKGROUND_COLOR
     });
+
     // This will change the SkCanvas transformation matrix, and everything from here to
     // canvas.restore() will need to take that matrix into consideration.
     i.viewport.redraw(canvas);
@@ -66,6 +66,9 @@ pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
             let data = guideline.data.as_guideline();
             guidelines::draw_guideline(&i.viewport, canvas, &guideline, if data.right {Some(RBEARING_STROKE)} else if data.format {Some(UFO_GUIDELINE_STROKE)} else { None });
         }
+        if i.grid.show {
+            grid::draw(canvas, &i.grid, &i.viewport);
+        }
     }
 
     glifrenderer::glyph::draw(canvas, v.preview.as_ref().unwrap(), &i.viewport);
@@ -107,10 +110,6 @@ pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
             //points::draw_selected(v, canvas);
         }
         PreviewMode::Paper => (),
-    }
-
-    if let Some(grid) = &i.grid {
-        grid::draw(canvas, grid, &i.viewport);
     }
 
     // Reset transformation matrix

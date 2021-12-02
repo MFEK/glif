@@ -4,8 +4,8 @@ use super::prelude::*;
 use crate::tool_behaviors::pan::PanBehavior;
 use crate::user_interface;
 
-#[derive(Clone, Debug)]
-pub struct GridTool {}
+#[derive(Clone, Debug, Default)]
+pub struct GridTool;
 
 impl Tool for GridTool {
     fn event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
@@ -30,7 +30,7 @@ impl Tool for GridTool {
 
 impl GridTool {
     pub fn new() -> Self {
-        Self {}
+        Self::default()
     }
 
     pub fn grid_settings(&mut self, i: &mut Interface, ui: &imgui::Ui) {
@@ -46,45 +46,41 @@ impl GridTool {
             .position([tx, ty], imgui::Condition::Always)
             .size([tw, th], imgui::Condition::Always)
             .build(ui, || {
-                let old_active = i.grid.is_some();
+                let old_active = i.grid.show;
                 let mut active = old_active;
 
                 ui.checkbox(imgui::im_str!("Active"), &mut active);
 
                 if !active {
-                    i.grid = None;
+                    i.grid.show = false;
                 } else if !old_active && active {
-                    i.grid = Some(Grid {
-                        offset: 0.,
-                        spacing: 30.,
-                        slope: None,
-                    })
+                    i.grid.show = true;
                 }
 
-                if let Some(grid) = &mut i.grid {
+                if i.grid.show {
                     user_interface::util::imgui_decimal_text_field(
                         "Spacing",
                         ui,
-                        &mut grid.spacing,
+                        &mut i.grid.spacing,
                         None,
                     );
                     user_interface::util::imgui_decimal_text_field(
                         "Offset",
                         ui,
-                        &mut grid.offset,
+                        &mut i.grid.offset,
                         None,
                     );
 
-                    let old_italic = grid.slope.is_some();
-                    let mut italic = grid.slope.is_some();
+                    let old_italic = i.grid.slope.is_some();
+                    let mut italic = i.grid.slope.is_some();
                     ui.checkbox(imgui::im_str!("Italic"), &mut italic);
                     if italic != old_italic && italic {
-                        grid.slope = Some(0.5);
+                        i.grid.slope = Some(0.5);
                     } else if italic != old_italic && !italic {
-                        grid.slope = None;
+                        i.grid.slope = None;
                     }
 
-                    if let Some(slope) = grid.slope {
+                    if let Some(slope) = i.grid.slope {
                         let old_slope = slope;
 
                         let mut new_slope = slope;
@@ -96,7 +92,7 @@ impl GridTool {
                         );
 
                         if old_slope != new_slope {
-                            grid.slope = Some(new_slope);
+                            i.grid.slope = Some(new_slope);
                         };
 
                         let old_angle =
@@ -111,11 +107,11 @@ impl GridTool {
                         );
 
                         if old_angle != new_angle {
-                            grid.slope = Some(f32::tan(f32::to_radians(new_angle)));
+                            i.grid.slope = Some(f32::tan(f32::to_radians(new_angle)));
                         }
                     }
 
-                    grid.offset %= grid.spacing;
+                    i.grid.offset %= i.grid.spacing;
                 }
             });
     }
