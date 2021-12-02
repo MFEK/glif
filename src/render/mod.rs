@@ -28,7 +28,7 @@ pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
     // canvas.restore() will need to take that matrix into consideration.
     i.viewport.redraw(canvas);
 
-    /*let dropped = v.with_glyph(|glif| {
+    let dropped = v.with_glyph(|glif| {
         let mut dropped = vec![];
         for layer in &glif.layers {
             for (l_image, i_matrix) in &layer.images {
@@ -38,16 +38,12 @@ pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
                     continue;
                 }
                 let image = &v.images[&l_image.filename];
-                //let origin_transform = mtx.translate((0., 0. - image.img.height() as f32));
                 let tm = canvas.local_to_device_as_3x3();
                 canvas.save();
-                //let matrix2 = EncodedOrigin::to_matrix(EncodedOrigin::BottomLeft, (image.img.width(), image.img.height()));
-                let matrix = tm * i_matrix.to_skia_matrix();
+                let matrix2 = skia::EncodedOrigin::to_matrix(skia::EncodedOrigin::BottomLeft, (image.img.width(), image.img.height()));
+                let matrix = tm * i_matrix.to_skia_matrix() * matrix2;
                 canvas.set_matrix(&((matrix).into()));
                 //eprintln!("{:?}", Matrix::new_identity().set_rotate(45., None).to_affine());
-                // We shouldn't use (0., 0.) because this is a glifparser image, relative to the glif's points.
-                // So, we need points::calc::calc_(x|y). Remember also, the glif y is positive, while Skia's
-                // negative.
                 canvas.draw_image(&image.img, (0., 0.), None);
                 canvas.restore();
             }
@@ -61,7 +57,7 @@ pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
                 layer.images.retain(|(gi, _)| gi.filename != dropee);
             }
         });
-    }*/
+    }
 
     if pm != PreviewMode::Paper || PAPER_DRAW_GUIDELINES {
         guidelines::draw_baseline::<()>(&i.viewport, canvas);

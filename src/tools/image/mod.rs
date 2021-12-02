@@ -63,9 +63,7 @@ impl Image {
 
                 let img_rect = image.img.bounds();
 
-                let origin_transform = Matrix::translate((0., 0. - image.img.height() as f32));
-                let matrix3 = Matrix::translate((calc_x(0.), calc_y(0.)));
-                let origin_mat = matrix3 * i_matrix.to_skia_matrix() * origin_transform;
+                let origin_mat = i_matrix.to_skia_matrix();
 
                 let f_rect = SkRect::new(
                     img_rect.left() as f32,
@@ -90,14 +88,11 @@ impl Image {
         v.with_active_layer(|layer| {
             let image = &v.images[&layer.images[idx].0.filename];
 
+            let origin_mat = layer.images[idx].1.to_skia_matrix();
             let img_rect = image.img.bounds();
+            let point = origin_mat.map_xy(img_rect.width() as f32 / 2., img_rect.height() as f32 / 2.);
 
-            let origin_transform = Matrix::translate((0., 0. - image.img.height() as f32));
-            let matrix3 = Matrix::translate((calc_x(0.), calc_y(0.)));
-            let origin_mat = matrix3 * layer.images[idx].1.to_skia_matrix() * origin_transform;
-            let final_img_pivot = origin_mat.map_xy(0., img_rect.bottom() as f32);
-
-            (final_img_pivot.x, final_img_pivot.y)
+            (point.x, point.y)
         })
     }
 
@@ -107,9 +102,7 @@ impl Image {
 
             let img_rect = image.img.bounds();
 
-            let origin_transform = Matrix::translate((0., 0. - image.img.height() as f32));
-            let matrix3 = Matrix::translate((calc_x(0.), calc_y(0.)));
-            let origin_mat = matrix3 * layer.images[idx].1.to_skia_matrix() * origin_transform;
+            let origin_mat = layer.images[idx].1.to_skia_matrix();
 
             let f_rect = SkRect::new(
                 img_rect.left() as f32,
