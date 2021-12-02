@@ -1,5 +1,4 @@
 pub mod follow;
-pub mod grid;
 pub mod gui;
 pub mod icons;
 pub mod mouse_input;
@@ -11,6 +10,7 @@ use std::rc::Rc;
 
 use crate::render;
 use crate::user_interface::gui::build_imgui_ui;
+use glifrenderer::grid::Grid;
 use glifrenderer::viewport::Viewport;
 use imgui::{self, Context};
 use imgui_sdl2::ImguiSdl2;
@@ -25,7 +25,6 @@ use crate::util::MFEKGlifPointData;
 use glifparser::glif::Layer;
 use sdl2::{video::Window, Sdl};
 
-use self::grid::Grid;
 pub use self::gui::ImguiManager;
 use self::gui::LAYERBOX_HEIGHT;
 use self::gui::LAYERBOX_WIDTH;

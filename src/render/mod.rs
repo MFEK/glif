@@ -1,5 +1,3 @@
-pub mod grid;
-
 // TODO: Replace console! pub mod console;
 
 use glifparser::matrix::ToSkiaMatrix;
@@ -7,13 +5,13 @@ use glifrenderer::anchors::draw_anchors;
 use glifrenderer::{calc_x, calc_y};
 use glifrenderer::constants::*;
 use glifrenderer::glyph::draw_components;
+use glifrenderer::grid;
 use glifrenderer::guidelines;
 use glifrenderer::points;
 use glifrenderer::toggles::*;
 use glifrenderer::viewport::Viewport;
 
-use skulpin::skia_safe::Canvas;
-use skulpin::skia_safe::Matrix;
+use skulpin::skia_safe::{self as skia, Canvas, Matrix};
 
 use crate::user_interface::PAPER_DRAW_GUIDELINES;
 use crate::{editor::Editor, user_interface::Interface};
@@ -116,7 +114,7 @@ pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
     }
 
     if let Some(grid) = &i.grid {
-        grid::draw_grid(canvas, grid, &i.viewport);
+        grid::draw(canvas, grid, &i.viewport);
     }
 
     // Reset transformation matrix

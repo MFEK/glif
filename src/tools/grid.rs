@@ -1,7 +1,8 @@
+use glifrenderer::grid::Grid;
+
 use super::prelude::*;
 use crate::tool_behaviors::pan::PanBehavior;
 use crate::user_interface;
-use user_interface::grid::Grid;
 
 #[derive(Clone, Debug)]
 pub struct GridTool {}
