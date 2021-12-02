@@ -1,3 +1,6 @@
+// This file is mainly utilities that are common use cases for the editor, but don't necessarily need to be
+// in Editor.
+
 use std::collections::HashSet;
 
 use crate::get_contour_len;
@@ -24,6 +27,7 @@ pub enum SelectPointInfo {
     End,
 }
 
+/*
 #[derive(Clone, Copy, Debug, Hash, PartialEq)]
 pub struct PointKey {
     /// contour index
@@ -52,10 +56,7 @@ impl ClickedPoint<'_, '_, '_> {
         //let (ci, pi, wh) = clicked_point_or_handle(self.v, self.i, position, mask);
         Err(())
     }
-}
-
-// This file is mainly utilities that are common use cases for the editor, but don't necessarily need to be
-// in Editor.
+}*/
 
 /// Utility function to quickly check which point or mouse is hovering. Optional mask parameter specifies a point to ignore.
 pub fn clicked_point_or_handle(

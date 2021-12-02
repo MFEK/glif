@@ -15,11 +15,20 @@ use std::{
 };
 
 use crate::filedialog;
-use crate::ipc;
 use crate::user_interface::Interface;
 use crate::util::DEBUG_DUMP_GLYPH;
 
 impl Editor {
+    pub fn filename_or_panic(&self) -> path::PathBuf {
+        self.glyph
+            .as_ref()
+            .unwrap()
+            .filename
+            .as_ref()
+            .unwrap()
+            .clone()
+    }
+
     pub fn load_glif<F: AsRef<FsPath> + Clone>(&mut self, i: &mut Interface, filename: F) {
         i.set_window_title(&format!(
             "MFEKglif — {}",
@@ -123,7 +132,7 @@ impl Editor {
             self.rebuild(i);
         }
         let glif_fn = {
-            let mut temp = self.with_glyph(|g| g.filename.as_ref().unwrap().clone());
+            let mut temp = self.filename_or_panic();
             temp.set_extension("glif");
             temp.file_name().unwrap().to_owned()
         };

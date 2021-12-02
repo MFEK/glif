@@ -49,12 +49,12 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ui: &mut imgui
                     ui.text(&imgui::im_str!("{}", question));
                     ui.button(imgui::im_str!("Yes"), [-1., 0.]);
                     if ui.is_item_clicked(imgui::MouseButton::Left) {
-                        func(v, true);
+                        func(v, i, true);
                         i.pop_prompt();
                     }
                     ui.button(imgui::im_str!("No"), [-1., 0.]);
                     if ui.is_item_clicked(imgui::MouseButton::Left) || ui.is_key_down(Key::Escape) {
-                        func(v, false);
+                        func(v, i, false);
                         i.pop_prompt();
                     }
                 });

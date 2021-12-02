@@ -37,10 +37,10 @@ macro_rules! trigger_toggle_on {
     };
 }
 
-pub fn debug_event(str: &'static str, event: &sdl2::event::Event) {
+pub fn debug_event(s: &'static str, event: &sdl2::event::Event) {
     use log::debug;
     if *DEBUG_EVENTS {
-        debug!("Got event: {:?}", &event);
+        debug!("Got event: {:?} {:?}", &s, &event);
     }
 }
 

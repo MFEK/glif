@@ -30,9 +30,6 @@ pub fn fetch_italic(v: &mut Editor) {
     }
 }
 
-use std::path;
-use std::sync::mpsc::{channel, Sender, Receiver};
-
 pub fn launch_fs_watcher(v: &mut Editor) {
     let filename = v.with_glyph(|glyph| glyph.filename.clone());
     let ipc_info = IPCInfo::from_glif_path("MFEKglif".to_string(), &filename.as_ref().unwrap());

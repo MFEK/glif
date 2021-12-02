@@ -81,7 +81,7 @@ impl Guidelines {
         let split_guidelines = SplitGuidelines::new(v);
         let (guidelines, _guidelines_len, _local_guidelines_len, _global_guidelines_len) = split_guidelines.as_tuple();
 
-        for (idx, (guide, global)) in guidelines.iter().map(|(g,gl)|(g,*gl)).enumerate() {
+        for (idx, (guide, _)) in guidelines.iter().enumerate() {
             let position = i.mouse_info.position;
             log::trace!("Guidelines::mouse_pressed(…): Trying guideline index {} ({:?})", idx, &guide);
             // Vectorize guideline angle

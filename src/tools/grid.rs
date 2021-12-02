@@ -1,13 +1,11 @@
-use glifrenderer::grid::Grid;
-
 use super::prelude::*;
 use crate::tool_behaviors::pan::PanBehavior;
 use crate::user_interface;
 
 #[derive(Clone, Debug, Default)]
-pub struct GridTool;
+pub struct Grid;
 
-impl Tool for GridTool {
+impl Tool for Grid {
     fn event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
         match event {
             EditorEvent::MouseEvent {
@@ -28,7 +26,7 @@ impl Tool for GridTool {
     }
 }
 
-impl GridTool {
+impl Grid {
     pub fn new() -> Self {
         Self::default()
     }

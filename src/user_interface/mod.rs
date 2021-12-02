@@ -110,7 +110,9 @@ impl Interface {
             height: window_height,
         };
 
-        let drew = skulpin.draw(extents, 1.0, |canvas, csh| {
+        // What we are doing with Viewport is far too complex for skulpin::CoordinateSystemHelper,
+        // thus we've stubbed it out.
+        let drew = skulpin.draw(extents, 1.0, |canvas, _| {
             render::render_frame(v, self, canvas);
             imgui_renderer.render_imgui(canvas, dd);
         });
@@ -151,7 +153,7 @@ impl Interface {
 pub enum InputPrompt {
     YesNo {
         question: String,
-        func: Rc<dyn Fn(&mut Editor, bool)>,
+        func: Rc<dyn Fn(&mut Editor, &mut Interface, bool)>,
     },
     Text {
         label: String,

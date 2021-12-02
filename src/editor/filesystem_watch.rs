@@ -5,6 +5,8 @@ use std::ffi::OsStr;
 use std::rc::Rc;
 use std::sync::mpsc::TryRecvError;
 
+use mfek_ipc::InUfo as _;
+
 fn oss(s: &'static str) -> &'static OsStr {
     OsStr::new(s)
 }
@@ -17,7 +19,7 @@ impl Editor {
                 Ok(p) => {
                     if p.file_name() == Some(oss("fontinfo.plist")) {
                         self.initialize();
-                        log::info!("Reloaded glyph, fontinfo.plist changed");
+                        log::info!("Reloaded UFO-sourced metadata, fontinfo.plist changed");
                     } else if p.extension() == Some(oss("glif"))
                         || p.extension() == Some(oss("glifjson"))
                     {
@@ -30,12 +32,12 @@ impl Editor {
                             });
                             if !our_change.unwrap_or(false) {
                                 i.push_prompt(InputPrompt::YesNo {
-                                    question: "Another program/MFEKglif instance rewrote the current \nglyph. Reload?\n ".to_string(),
-                                    func: Rc::new(move |v, reload| {
+                                    question: "Another program/MFEKglif instance rewrote the current \nglyph. Reload? Any changes made will be lost.\n ".to_string(),
+                                    func: Rc::new(move |v, i, reload| {
                                         if !reload { return }
                                         v.begin_modification("Reloaded glyph due to write by another program or instance.");
-                                        let filename = v.glyph.as_ref().unwrap().filename.as_ref().unwrap().to_owned();
-                                        v.load_glif_headless(filename);
+                                        let filename = v.filename_or_panic();
+                                        v.load_glif(i, filename);
                                         v.end_modification();
                                     }),
                                 });
@@ -47,13 +49,15 @@ impl Editor {
                                 self.history.undo_stack.pop();
                             }
                         } else {
+                            let ufo_or_dir = if p.ufo().is_some() { "UFO" } else { "directory" };
                             log::info!(
-                                "Another glif in this UFO changed: {:?}",
+                                "Another glif in this {} changed: {:?}",
+                                ufo_or_dir,
                                 p.file_name().unwrap()
                             );
                         }
                     } else {
-                        log::debug!("Ignored write of file {:?} in UFO", p)
+                        log::debug!("Ignored write of file {:?}", p)
                     }
                 }
                 Err(TryRecvError::Empty) => break,

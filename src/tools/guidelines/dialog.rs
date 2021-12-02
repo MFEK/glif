@@ -25,7 +25,7 @@ impl Guidelines {
             .position([tx, ty], imgui::Condition::Always)
             .size([tw, th], imgui::Condition::Always)
             .build(ui, || {
-                let (mut guidelines, _guidelines_len, local_guidelines_len, global_guidelines_len) = SplitGuidelines::new(v).as_tuple();
+                let (mut guidelines, _guidelines_len, local_guidelines_len, _global_guidelines_len) = SplitGuidelines::new(v).as_tuple();
 
                 let pop_me = ui.push_style_color(imgui::StyleColor::Button, [0., 0., 0., 0.2]);
 

@@ -3,7 +3,7 @@ pub_mod!("src/tools");
 
 use self::prelude::*;
 use self::{
-    anchors::Anchors, dash::Dash, grid::GridTool, guidelines::Guidelines, image::Image,
+    anchors::Anchors, dash::Dash, grid::Grid, guidelines::Guidelines, image::Image,
     measure::Measure, pan::Pan, pap::PAP, pen::Pen, select::Select, shapes::Shapes, vws::VWS,
     zoom::Zoom,
 };
@@ -61,7 +61,7 @@ pub fn tool_enum_to_tool(tool: ToolEnum) -> Box<dyn Tool> {
         ToolEnum::Select => Box::new(Select::new()),
         ToolEnum::Zoom => Box::new(Zoom::new()),
         ToolEnum::Anchors => Box::new(Anchors::new()),
-        ToolEnum::Grid => Box::new(GridTool::new()),
+        ToolEnum::Grid => Box::new(Grid::new()),
         ToolEnum::Measure => Box::new(Measure::new()),
         ToolEnum::Shapes => Box::new(Shapes::new()),
         ToolEnum::VWS => Box::new(VWS::new()),
