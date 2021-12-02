@@ -14,7 +14,7 @@ use imgui::Ui;
 use crate::editor::Editor;
 use crate::user_interface::Interface;
 
-pub trait Tool: DynClone + std::fmt::Debug {
+pub trait Tool: DynClone + std::fmt::Debug + Send {
     fn event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent);
 
     // We provide empty default implementations for these two because not every tool needs these hooks.

@@ -78,4 +78,15 @@ impl Interface {
             .filter_map(Keycode::from_scancode)
             .collect::<HashSet<Keycode>>()
     }
+
+    pub fn flash_window(&mut self) {
+        use std::ffi::c_void;
+        extern "C" {
+            fn SDL_FlashWindow(w: *mut c_void, o: isize);
+        }
+        unsafe {
+            //                                                    2 == SDL_FLASH_UNTIL_FOCUSED
+            SDL_FlashWindow(self.sdl_window.raw() as *mut c_void, 2);
+        }
+    }
 }

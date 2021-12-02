@@ -13,7 +13,7 @@ fn oss(s: &'static str) -> &'static OsStr {
 
 impl Editor {
     pub fn handle_filesystem_events(&mut self, i: &mut Interface) {
-        loop {
+        'filesystem_watch: loop {
             let event = self.filesystem_watch_rx.try_recv();
             match event {
                 Ok(p) => {
@@ -25,14 +25,10 @@ impl Editor {
                     {
                         let filename = self.filename_or_panic();
                         if filename.file_name().unwrap() == p.file_name().unwrap() {
-                            let our_change = self.history.undo_stack.last().map(|undo| {
-                                undo.description == "Saved glyph"
-                                    || undo.description == "Flattened glyph"
-                                    || undo.description == "Exported glyph"
-                            });
-                            if !our_change.unwrap_or(false) {
+                            if !self.just_saved() {
                                 i.push_prompt(InputPrompt::YesNo {
                                     question: "Another program/MFEKglif instance rewrote the current \nglyph. Reload? Any changes made will be lost.\n ".to_string(),
+                                    afterword: "".to_string(),
                                     func: Rc::new(move |v, i, reload| {
                                         if !reload { return }
                                         v.begin_modification("Reloaded glyph due to write by another program or instance.");
@@ -44,9 +40,6 @@ impl Editor {
                                 log::warn!("Another program changed this glyph!");
                             } else {
                                 log::debug!("Got filesystem event from our own recent write");
-                            }
-                            if let Some(true) = our_change {
-                                self.history.undo_stack.pop();
                             }
                         } else {
                             let ufo_or_dir = if p.ufo().is_some() { "UFO" } else { "directory" };
@@ -60,7 +53,7 @@ impl Editor {
                         log::debug!("Ignored write of file {:?}", p)
                     }
                 }
-                Err(TryRecvError::Empty) => break,
+                Err(TryRecvError::Empty) => { break 'filesystem_watch },
                 Err(_) => panic!("Filesystem watcher disconnected!"),
             }
         }

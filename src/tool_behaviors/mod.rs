@@ -7,7 +7,7 @@ use dyn_clone::DynClone;
 /// If there is a tool on the stack the top ToolBehavior will intercept events. This allows you to
 /// encapsulate behaviors like panning, and reuse them. It also allows you to break large tools like Select
 /// up into more manageable pieces.
-pub trait ToolBehavior: DynClone + std::fmt::Debug {
+pub trait ToolBehavior: DynClone + std::fmt::Debug + Send {
     fn event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent);
 
     // Not every behavior draws so we provide an empty default implementation.

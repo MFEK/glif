@@ -12,13 +12,26 @@ use plist::{self, Value as PlistValue};
 use std::{
     fs, io,
     path::{self, Path as FsPath},
+    rc::Rc,
 };
 
 use crate::filedialog;
-use crate::user_interface::Interface;
+use crate::user_interface::{Interface, InputPrompt};
 use crate::util::DEBUG_DUMP_GLYPH;
 
 impl Editor {
+    pub fn just_saved(&self) -> bool {
+        self.history.undo_stack.last().map(|undo| {
+            undo.description == "Saved glyph"
+                || undo.description == "Flattened glyph"
+                || undo.description == "Exported glyph"
+        }).unwrap_or(false)
+    }
+
+    pub fn has_unsaved_changes(&self) -> bool {
+        !self.just_saved() && self.history.undo_stack.last().is_some()
+    }
+
     pub fn filename_or_panic(&self) -> path::PathBuf {
         self.glyph
             .as_ref()
@@ -284,6 +297,28 @@ impl Editor {
         }
         self.begin_modification("Exported glyph");
         self.end_modification();
+    }
+
+    pub fn quit(&mut self, i: &mut Interface) {
+        if self.has_unsaved_changes() {
+            let changes = self.history.undo_stack.iter().take(10).map(|he|he.description.clone()).collect::<Vec<_>>().join(" ");
+            i.flash_window();
+            i.push_prompt(InputPrompt::YesNo {
+                question: "Unsaved changes exist in glyph. Quit anyway?".to_string(),
+                afterword: format!("Recent changes:\n{}", &changes),
+                func: Rc::new(move |v: &mut Editor, _, reload: bool| {
+                    v.quit_requested = reload;
+                    if reload {
+                        log::warn!("Quit, discarding unsaved changes");
+                    } else {
+                        log::info!("Requested quit cancelled");
+                    }
+                }),
+            });
+        } else {
+            log::info!("Quit with no unsaved changes");
+            self.quit_requested = true;
+        }
     }
 }
 

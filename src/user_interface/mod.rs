@@ -153,6 +153,7 @@ impl Interface {
 pub enum InputPrompt {
     YesNo {
         question: String,
+        afterword: String,
         func: Rc<dyn Fn(&mut Editor, &mut Interface, bool)>,
     },
     Text {

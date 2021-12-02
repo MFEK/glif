@@ -11,6 +11,7 @@ use editor::{
     events::{EditorEvent, MouseEventType},
     Editor,
 };
+use ctrlc;
 use glifrenderer::toggles::{PointLabels, PreviewMode};
 use tools::ToolEnum;
 use user_interface::{ImguiManager, Interface};
@@ -60,6 +61,8 @@ fn main() {
     // Makes glyph available to on_load_glif events
     editor.load_glif(&mut interface, &filename);
 
+    ctrlc::set_handler(util::quit_next_frame).expect("Could not set SIGTERM handler.");
+
     ipc::launch_fs_watcher(&mut editor);
 
     command::initialize_keybinds();
@@ -80,7 +83,7 @@ fn main() {
             util::debug_event("Got event: {:?}", &event);
 
             if let Event::Quit { .. } = &event {
-                break 'main_loop;
+                editor.quit(&mut interface);
             }
 
             if imgui_manager.handle_imgui_event(&event) {
@@ -256,7 +259,7 @@ fn main() {
                             editor.export_glif(Some(&mut interface));
                         }
                         Command::Quit => {
-                            break 'main_loop;
+                            editor.quit(&mut interface);
                         }
                         // TODO: More elegantly deal with Command's meant for consumption by a
                         // single tool?

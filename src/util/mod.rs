@@ -55,6 +55,11 @@ fn now_epoch() -> u64 {
     SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs()
 }
 
+pub fn quit_next_frame() {
+    log::warn!("Quitting immediately due to Ctrl-C received at console (or SIGTERM signal)…");
+    std::process::exit(1);
+}
+
 pub fn set_panic_hook() {
     set_hook(Box::new(|info| {
         let msg = info.payload().downcast_ref::<String>().map(|s|s.clone()).unwrap_or_else(||info.to_string());
