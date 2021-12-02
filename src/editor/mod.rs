@@ -1,5 +1,6 @@
 use crate::util::MFEKGlifPointData;
 use crate::{
+    ipc,
     tool_behaviors::ToolBehavior,
     tools::{pan::Pan, Tool, ToolEnum},
 };
@@ -13,11 +14,14 @@ pub use skulpin::skia_safe::Contains as _;
 pub use skulpin::skia_safe::{Canvas, Matrix, Path as SkPath, Point as SkPoint, Rect as SkRect};
 
 use std::collections::HashSet;
+use std::path;
+use std::sync::mpsc::{Sender, Receiver};
 
 use self::{history::History, selection::EditorClipboard};
 use crate::get_contour_mut;
 
 pub mod debug;
+pub mod filesystem_watch;
 pub mod events;
 pub mod headless;
 pub mod history;
@@ -34,7 +38,7 @@ pub mod macros;
 
 /// This is the main object that holds the state of the editor. It is responsible for mutating the glyph.
 /// The only state that should change not through the editor is the generation of previews for the purposes of drawing.
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct Editor {
     glyph: Option<MFEKGlif<MFEKGlifPointData>>,
     modifying: bool, // a flag that is set when the active layer is currently being modified
@@ -50,6 +54,9 @@ pub struct Editor {
 
     tool_behaviors: Vec<Box<dyn ToolBehavior>>,
     behavior_finished: bool,
+
+    pub(crate) filesystem_watch_tx: Sender<path::PathBuf>, 
+    pub(crate) filesystem_watch_rx: Receiver<path::PathBuf>,
 
     pub preview: Option<MFEKGlif<MFEKGlifPointData>>,
     pub contour_idx: Option<usize>, // index into Outline
@@ -68,6 +75,7 @@ pub struct Editor {
 
 impl Editor {
     pub fn new() -> Editor {
+        let (fstx, fsrx) = std::sync::mpsc::channel();
         Editor {
             glyph: None,
             modifying: false,
@@ -94,6 +102,9 @@ impl Editor {
 
             tool_behaviors: vec![],
             behavior_finished: true,
+
+            filesystem_watch_tx: fstx,
+            filesystem_watch_rx: fsrx,
         }
     }
 
@@ -131,8 +142,7 @@ impl Editor {
         }
 
         if !self.dirty {
-            self.history.undo_stack.pop();
-            log::error!("Ended a modification when editor did not think it was dirty; discarded!");
+            log::debug!("Ended a modification when editor did not think it was dirty");
         }
 
         // TODO: Events here.
@@ -242,11 +252,14 @@ impl Editor {
     }
 
     pub fn initialize(&mut self) {
+        ipc::fetch_italic(self);
+        self.guidelines.clear();
         self.add_width_guidelines();
         self.layer_idx = Some(0);
         self.mark_preview_dirty();
         self.recache_images();
         log::debug!("Images: {:?}", &self.images);
+        ipc::fetch_metrics(self);
     }
 
     /// Calls the supplied closure with an immutable reference to the active layer.

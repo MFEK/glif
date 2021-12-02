@@ -56,10 +56,7 @@ impl Editor {
         }
 
         self.set_glyph(glif);
-
-        ipc::fetch_italic(self);
         self.initialize();
-        ipc::fetch_metrics(self);
     }
 
     pub fn save_glif(&mut self, rename: bool) -> Result<path::PathBuf, ()> {
@@ -89,9 +86,9 @@ impl Editor {
         res
     }
 
-    pub fn flatten_glif(&mut self, rename: bool) {
+    pub fn flatten_glif(&mut self, i: &mut Interface, rename: bool) {
         self.mark_preview_dirty();
-        self.rebuild();
+        self.rebuild(i);
         let export = self.prepare_export();
         let layer = &export.layers[0];
         if export.layers.len() > 1 {
@@ -116,11 +113,15 @@ impl Editor {
                 .map(|()| log::info!("Requested flatten to {:?}", &filename))
                 .unwrap_or_else(|e| panic!("Failed to write glif: {:?}", e));
         });
+        self.begin_modification("Flattened glyph");
+        self.end_modification();
     }
 
-    pub fn export_glif(&mut self) {
+    pub fn export_glif(&mut self, interface: Option<&mut Interface>) {
         self.mark_preview_dirty();
-        self.rebuild();
+        if let Some(i) = interface {
+            self.rebuild(i);
+        }
         let glif_fn = {
             let mut temp = self.with_glyph(|g| g.filename.as_ref().unwrap().clone());
             temp.set_extension("glif");
@@ -272,6 +273,8 @@ impl Editor {
                 ));
             log::info!("Wrote glyph {}'s layercontents.plist.", &glif_name);
         }
+        self.begin_modification("Exported glyph");
+        self.end_modification();
     }
 }
 

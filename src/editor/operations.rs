@@ -1,4 +1,5 @@
 use crate::contour_operations;
+use crate::user_interface::Interface;
 use glifparser::outline::skia::{FromSkiaPath, ToSkiaPaths};
 use glifparser::FlattenedGlif;
 use glifparser::{
@@ -19,7 +20,9 @@ impl Editor {
         self.dirty = true;
     }
 
-    pub fn rebuild(&mut self) {
+    pub fn rebuild(&mut self, i: &mut Interface) {
+        self.handle_filesystem_events(i);
+
         if !self.preview_dirty {
             return;
         };

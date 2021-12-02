@@ -149,6 +149,10 @@ impl Interface {
 
 #[derive(Clone)]
 pub enum InputPrompt {
+    YesNo {
+        question: String,
+        func: Rc<dyn Fn(&mut Editor, bool)>,
+    },
     Text {
         label: String,
         default: String,

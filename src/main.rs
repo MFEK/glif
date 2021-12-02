@@ -60,6 +60,8 @@ fn main() {
     // Makes glyph available to on_load_glif events
     editor.load_glif(&mut interface, &filename);
 
+    ipc::launch_fs_watcher(&mut editor);
+
     command::initialize_keybinds();
     // TODO: Replace console! tools::console::initialize_console_commands();
 
@@ -245,13 +247,13 @@ fn main() {
                             Err(()) => {}
                         },
                         Command::IOFlatten => {
-                            editor.flatten_glif(true);
+                            editor.flatten_glif(&mut interface, true);
                         }
                         Command::IOSaveFlatten => {
-                            editor.flatten_glif(false);
+                            editor.flatten_glif(&mut interface, false);
                         }
                         Command::IOExport => {
-                            editor.export_glif();
+                            editor.export_glif(Some(&mut interface));
                         }
                         Command::Quit => {
                             break 'main_loop;
@@ -350,7 +352,7 @@ fn main() {
             }
         }
 
-        editor.rebuild();
+        editor.rebuild(&mut interface);
         interface.render(
             &mut editor,
             &mut imgui_manager.imgui_context,

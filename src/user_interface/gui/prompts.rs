@@ -29,6 +29,36 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ui: &mut imgui
         });
 
     match i.peek_prompt().clone() {
+        InputPrompt::YesNo {
+            question, func,
+        } => {
+            imgui::Window::new(&imgui::im_str!("MFEKglif"))
+                .bg_alpha(1.) // See comment on fn redraw_skia
+                .flags(imgui::WindowFlags::NO_RESIZE | imgui::WindowFlags::NO_COLLAPSE)
+                .position_pivot([0.5, 0.5])
+                .position(
+                    [(i.viewport.winsize.0 / 2.), (i.viewport.winsize.1 / 2.)],
+                    imgui::Condition::Always,
+                )
+                .size(
+                    [*TOOLBOX_HEIGHT, TOOLBOX_WIDTH + 100.],
+                    imgui::Condition::Always,
+                )
+                .focused(true)
+                .build(ui, || {
+                    ui.text(&imgui::im_str!("{}", question));
+                    ui.button(imgui::im_str!("Yes"), [-1., 0.]);
+                    if ui.is_item_clicked(imgui::MouseButton::Left) {
+                        func(v, true);
+                        i.pop_prompt();
+                    }
+                    ui.button(imgui::im_str!("No"), [-1., 0.]);
+                    if ui.is_item_clicked(imgui::MouseButton::Left) || ui.is_key_down(Key::Escape) {
+                        func(v, false);
+                        i.pop_prompt();
+                    }
+                });
+        },
         InputPrompt::Text {
             label,
             default,

@@ -15,7 +15,7 @@ impl Editor {
             HeadlessMode::Save => {
                 self.save_glif(false).unwrap();
             }
-            HeadlessMode::Export => self.export_glif(),
+            HeadlessMode::Export => self.export_glif(None),
             HeadlessMode::RunScript => unimplemented!(),
         }
         process::exit(0)
