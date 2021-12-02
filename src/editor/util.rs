@@ -24,7 +24,7 @@ pub enum SelectPointInfo {
     End,
 }
 
-#[derive(Clone, Copy, Debug, Hash, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, Hash, PartialEq)]
 pub struct PointKey {
     /// contour index
     pub ci: u32,
@@ -34,22 +34,23 @@ pub struct PointKey {
     pub wh: Option<glifparser::WhichHandle>,
 }
 
-#[derive(PartialEq, Clone, Copy)]
+#[derive(Clone, Copy)]
 pub struct ClickedPoint<'hitomi, 'a, 'cute> {
     pub key: PointKey,
     v:       &'hitomi Editor,
     i:       &'a      Interface,
-    ignored: &'cute   HashSet<>, 
+    ignored: &'cute   HashSet<PointKey>, 
 }
 
-impl ClickedPoint {
-    pub fn solve<T>(
+impl ClickedPoint<'_, '_, '_> {
+    pub fn solve<T: glifparser::PointData>(
         position: (f32, f32),
         mask: Option<(usize, usize)>,
     // TODO: Error type for the different reasons points may not be selected.
     ) -> Result<glifparser::Point<T>, ()> {
         // contour idx, point idx, which handle enum w/Neither variant
-        let (ci, pi, wh) = clicked_point_or_handle(self.v, self.i, position, mask);
+        //let (ci, pi, wh) = clicked_point_or_handle(self.v, self.i, position, mask);
+        Err(())
     }
 }
 
