@@ -43,11 +43,11 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            target/debug
+            target/release
           key: cargo-${{ matrix.platform }}-${{ hashFiles('**/Cargo.lock') }}
       - name: Run cargo build
         run: |
-          cargo build --locked
+          cargo build --release --locked
       - name: Run cargo test
         run: |
           cargo test --locked
@@ -56,8 +56,8 @@ jobs:
         with:
           name: MFEKglif-${{ matrix.platform }}
           path: |
-            target/debug/MFEKglif
-            target/debug/MFEKglif.exe
+            target/release/MFEKglif
+            target/release/MFEKglif.exe
 
   rustfmt:
     strategy:
