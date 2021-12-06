@@ -17,7 +17,7 @@ dependencies = [
  "enum-iterator",
  "enum-unitary",
  "env_logger 0.9.0",
- "flo_curves",
+ "flo_curves 0.6.1",
  "font-kit",
  "git-version",
  "glifparser",
@@ -49,9 +49,9 @@ dependencies = [
 [[package]]
 name = "MFEKmath"
 version = "0.1.0"
-source = "git+https://github.com/MFEK/math.rlib?branch=main#4567c6edf02067e8044a9a4d5b4640bfdffb16dd"
+source = "git+https://github.com/MFEK/math.rlib?branch=main#2c70bdc7b243a766aae0607ec8314a45068882f7"
 dependencies = [
- "flo_curves",
+ "flo_curves 0.6.0",
  "glifparser",
  "kurbo",
  "log",
@@ -782,8 +782,19 @@ dependencies = [
 
 [[package]]
 name = "flo_curves"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a7f49674e0905d093d0d4c6e88d868b8b066f4be51c9beedd0e3734268be8349"
+dependencies = [
+ "itertools 0.10.1",
+ "roots",
+ "smallvec",
+]
+
+[[package]]
+name = "flo_curves"
 version = "0.6.1"
-source = "git+https://github.com/Logicalshift/flo_curves?branch=v0.6#8746f2fa3b17575031cb7cc6ecd9caa6f096a356"
+source = "git+https://github.com/Logicalshift/flo_curves?branch=v0.6#ad2824dcb370203a646e383e0175cddcd228a021"
 dependencies = [
  "itertools 0.10.1",
  "roots",
@@ -1185,7 +1196,7 @@ dependencies = [
 [[package]]
 name = "glifparser"
 version = "1.1.0"
-source = "git+https://github.com/MFEK/glifparser.rlib?branch=master#57b20ff75106843f98f4aa867da60e151b63cd5f"
+source = "git+https://github.com/MFEK/glifparser.rlib?branch=master#ff5af8905354759dc3566939e9dba5685bd0fbe2"
 dependencies = [
  "image",
  "integer_or_float",
