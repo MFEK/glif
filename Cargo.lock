@@ -702,9 +702,9 @@ dependencies = [
 
 [[package]]
 name = "enum-unitary"
-version = "0.4.3"
+version = "0.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e37680fdbcd5b46ecedf01e04d05e4d7345ff71482950cb05196526631ef12cb"
+checksum = "fd152dd5adb69db02c4aa7f8d65a9778c2df79dd27367bfadabcbc0dd84c4eca"
 dependencies = [
  "enum-iterator",
  "num-traits",
