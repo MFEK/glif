@@ -131,6 +131,9 @@ impl Select {
                 None
             }
         });
+        if !v.point_idx.is_some() {
+            v.contour_idx = None;
+        }
         v.end_modification();
     }
 
