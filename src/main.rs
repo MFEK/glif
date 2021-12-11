@@ -41,6 +41,7 @@ mod user_interface;
 pub mod util;
 
 fn main() {
+    mfek_ipc::display_header("glif");
     util::init_env_logger();
     util::set_panic_hook();
 
@@ -56,7 +57,7 @@ fn main() {
     let mut interface = Interface::new(filename.to_str().unwrap());
     let mut imgui_manager = ImguiManager::new(&interface.sdl_window);
 
-    let mut skulpin_renderer = Interface::initialize_skulpin_renderer(&interface.sdl_window);
+    let mut skulpin_renderer = interface.initialize_skulpin_renderer(&interface.sdl_window);
 
     // Makes glyph available to on_load_glif events
     editor.load_glif(&mut interface, &filename);

@@ -48,6 +48,12 @@ impl Guidelines {
                     v.push_behavior(Box::new(AddGuideline::new(0., true)));
                 }
 
+                ui.same_line(0.);
+                ui.button(&imgui::im_str!("Write {}", unsafe { String::from_utf8_unchecked(icons::GLOBE.to_vec()) }), [0., 0.]);
+                if ui.is_item_clicked(imgui::MouseButton::Left) {
+                    v.write_metrics();
+                }
+
                 if let Some(selected) = self.selected_idx {
                     //log::trace!("Selected {}; global len {}", selected, global_guidelines_len);
                     let selected_i = if guidelines[selected].1 {selected - local_guidelines_len} else {selected};

@@ -5,8 +5,69 @@ use mfek_ipc::{self, Available, IPCInfo};
 use crate::editor::Editor;
 use crate::util::MFEKGlifPointData;
 
+use std::process;
+
 lazy_static::lazy_static! {
-    pub static ref METADATA_STATUS: Available = mfek_ipc::module_available("metadata", "0.0-beta1").0;
+    pub static ref METADATA_AVAILABLE: (Available, String) = mfek_ipc::module_available("metadata", "0.0.1-beta1");
+    pub static ref METADATA_STATUS: Available = METADATA_AVAILABLE.0;
+    pub static ref METADATA_BIN: String = METADATA_AVAILABLE.1.clone();
+}
+
+impl Editor {
+    pub fn write_metrics(&self) {
+        if *METADATA_STATUS == Available::No {
+            return;
+        }
+
+        let filename = self.with_glyph(|glyph| glyph.filename.clone());
+        let ipc_info = IPCInfo::from_glif_path("MFEKglif".to_string(), &filename.unwrap());
+
+        let font = if let Some(font) = ipc_info.font {
+            font
+        } else {
+            log::error!("Requested a write of metrics when not in a font, global metrics/guidelines can't be written.");
+            return
+        };
+
+        let mut args = vec![];
+        let mut guidelines = vec![];
+        let mut has_ascender = false;
+        let mut has_descender = false;
+        for g in self.guidelines.iter() {
+            match g.name.as_ref().map(|n|n.as_str()) {
+                Some("ascender") => {
+                    if !has_ascender {
+                        args.extend(["-k".to_string(), "ascender".to_string(), "-v".to_string()]);
+                        args.push(format!("<real>{}</real>", g.at.y));
+                        has_ascender = true;
+                    } else {
+                        continue
+                    }
+                }
+                Some("descender") => {
+                    if !has_descender {
+                        args.extend(["-k".to_string(), "descender".to_string(), "-v".to_string()]);
+                        args.push(format!("<real>{}</real>", g.at.y));
+                        has_descender = true;
+                    } else {
+                        continue
+                    }
+                }
+                _ => {}
+            }
+            if !g.data.as_guideline().format {
+                guidelines.push(g);
+            }
+        }
+        let guidelinesp = plist::Value::Array(guidelines.iter().map(|g|plist::Value::Dictionary(g.as_plist_dict())).collect::<Vec<_>>());
+        let mut guidelinesv = vec![];
+        plist::to_writer_xml(&mut guidelinesv, &guidelinesp).unwrap();
+        args.extend(["-k".to_string(), "guidelines".to_string(), "-v".to_string(), String::from_utf8(guidelinesv).unwrap()]);
+        let ok = process::Command::new(&*METADATA_BIN).arg(&font).arg("arbitrary").args(&args).status();
+        if let Err(e) = ok {
+            log::error!("Failed to execute MFEKmetadata to rewrite metrics! {:?}", e);
+        }
+    }
 }
 
 pub fn fetch_italic(v: &mut Editor) {
