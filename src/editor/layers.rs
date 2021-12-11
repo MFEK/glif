@@ -60,7 +60,7 @@ impl Editor {
         });
 
         let lidx = self.layer_idx.unwrap();
-        self.with_glyph_mut_no_history(|glyph|glyph.layers.remove(lidx));
+        self.with_glyph_mut_no_history(|glyph| glyph.layers.remove(lidx));
 
         if self.layer_idx != Some(0) {
             self.layer_idx = Some(self.layer_idx.unwrap() - 1);

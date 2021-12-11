@@ -26,7 +26,7 @@ impl Editor {
             font
         } else {
             log::error!("Requested a write of metrics when not in a font, global metrics/guidelines can't be written.");
-            return
+            return;
         };
 
         let mut args = vec![];
@@ -34,14 +34,14 @@ impl Editor {
         let mut has_ascender = false;
         let mut has_descender = false;
         for g in self.guidelines.iter() {
-            match g.name.as_ref().map(|n|n.as_str()) {
+            match g.name.as_ref().map(|n| n.as_str()) {
                 Some("ascender") => {
                     if !has_ascender {
                         args.extend(["-k".to_string(), "ascender".to_string(), "-v".to_string()]);
                         args.push(format!("<real>{}</real>", g.at.y));
                         has_ascender = true;
                     } else {
-                        continue
+                        continue;
                     }
                 }
                 Some("descender") => {
@@ -50,7 +50,7 @@ impl Editor {
                         args.push(format!("<real>{}</real>", g.at.y));
                         has_descender = true;
                     } else {
-                        continue
+                        continue;
                     }
                 }
                 _ => {}
@@ -59,11 +59,25 @@ impl Editor {
                 guidelines.push(g);
             }
         }
-        let guidelinesp = plist::Value::Array(guidelines.iter().map(|g|plist::Value::Dictionary(g.as_plist_dict())).collect::<Vec<_>>());
+        let guidelinesp = plist::Value::Array(
+            guidelines
+                .iter()
+                .map(|g| plist::Value::Dictionary(g.as_plist_dict()))
+                .collect::<Vec<_>>(),
+        );
         let mut guidelinesv = vec![];
         plist::to_writer_xml(&mut guidelinesv, &guidelinesp).unwrap();
-        args.extend(["-k".to_string(), "guidelines".to_string(), "-v".to_string(), String::from_utf8(guidelinesv).unwrap()]);
-        let ok = process::Command::new(&*METADATA_BIN).arg(&font).arg("arbitrary").args(&args).status();
+        args.extend([
+            "-k".to_string(),
+            "guidelines".to_string(),
+            "-v".to_string(),
+            String::from_utf8(guidelinesv).unwrap(),
+        ]);
+        let ok = process::Command::new(&*METADATA_BIN)
+            .arg(&font)
+            .arg("arbitrary")
+            .args(&args)
+            .status();
         if let Err(e) = ok {
             log::error!("Failed to execute MFEKmetadata to rewrite metrics! {:?}", e);
         }
@@ -80,14 +94,13 @@ pub fn fetch_italic(v: &mut Editor) {
     let italic_angle = mfek_ipc::helpers::metadata::arbitrary(&ipc_info, &["italicAngle"]);
 
     if let Ok(arbdict) = italic_angle {
-        if let Some(Ok(angle)) = arbdict
-            .get("italicAngle")
-            .map(|a| a.parse::<f32>())
-        {
+        if let Some(Ok(angle)) = arbdict.get("italicAngle").map(|a| a.parse::<f32>()) {
             v.italic_angle = angle - 90.;
         }
     } else {
-        log::warn!("Failed to get italic angle. Either not in font (font not italic), or font corrupt.");
+        log::warn!(
+            "Failed to get italic angle. Either not in font (font not italic), or font corrupt."
+        );
     }
 }
 
@@ -97,7 +110,10 @@ pub fn launch_fs_watcher(v: &mut Editor) {
     if let Some(font) = ipc_info.font {
         mfek_ipc::notifythread::launch(font, v.filesystem_watch_tx.clone());
     } else {
-        mfek_ipc::notifythread::launch(ipc_info.glyph.unwrap().parent().unwrap().to_owned(), v.filesystem_watch_tx.clone());
+        mfek_ipc::notifythread::launch(
+            ipc_info.glyph.unwrap().parent().unwrap().to_owned(),
+            v.filesystem_watch_tx.clone(),
+        );
     }
 }
 

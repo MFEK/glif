@@ -90,7 +90,10 @@ pub fn build(contour: &MFEKContour<MFEKGlifPointData>) -> MFEKOutline<MFEKGlifPo
     }
 }
 
-pub fn insert(contour: &MFEKContour<MFEKGlifPointData>, idx: usize) -> Option<ContourOperations<MFEKGlifPointData>> {
+pub fn insert(
+    contour: &MFEKContour<MFEKGlifPointData>,
+    idx: usize,
+) -> Option<ContourOperations<MFEKGlifPointData>> {
     let op = contour.operation.clone();
     op.as_ref()?;
 

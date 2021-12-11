@@ -15,14 +15,14 @@ pub use skulpin::skia_safe::{Canvas, Matrix, Path as SkPath, Point as SkPoint, R
 
 use std::collections::HashSet;
 use std::path;
-use std::sync::mpsc::{Sender, Receiver};
+use std::sync::mpsc::{Receiver, Sender};
 
 use self::{history::History, selection::EditorClipboard};
 use crate::get_contour_mut;
 
 pub mod debug;
-pub mod filesystem_watch;
 pub mod events;
+pub mod filesystem_watch;
 pub mod headless;
 pub mod history;
 pub mod images;
@@ -55,7 +55,7 @@ pub struct Editor {
     tool_behaviors: Vec<Box<dyn ToolBehavior>>,
     behavior_finished: bool,
 
-    pub(crate) filesystem_watch_tx: Sender<path::PathBuf>, 
+    pub(crate) filesystem_watch_tx: Sender<path::PathBuf>,
     pub(crate) filesystem_watch_rx: Receiver<path::PathBuf>,
 
     pub preview: Option<MFEKGlif<MFEKGlifPointData>>,

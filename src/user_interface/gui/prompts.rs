@@ -30,7 +30,9 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ui: &mut imgui
 
     match i.peek_prompt().clone() {
         InputPrompt::YesNo {
-            question, afterword, func
+            question,
+            afterword,
+            func,
         } => {
             imgui::Window::new(&imgui::im_str!("MFEKglif"))
                 .bg_alpha(1.) // See comment on fn redraw_skia
@@ -59,13 +61,13 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ui: &mut imgui
                     }
                     ui.text(&imgui::im_str!("{}", afterword));
                 });
-        },
+        }
         InputPrompt::Text {
             label,
             default,
             func,
         } => {
-            PROMPT_STR.with(|prompt_str|*prompt_str.borrow_mut() = imgui::ImString::new(default));
+            PROMPT_STR.with(|prompt_str| *prompt_str.borrow_mut() = imgui::ImString::new(default));
 
             imgui::Window::new(&imgui::im_str!("{}", label))
                 .bg_alpha(1.) // See comment on fn redraw_skia

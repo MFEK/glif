@@ -2,10 +2,10 @@
 pub mod argparser;
 pub mod math;
 
-use std::{env, process};
 #[cfg(debug)]
 use std::fs;
 use std::panic::set_hook;
+use std::{env, process};
 
 use colored::Colorize;
 use glifparser::PointData;
@@ -52,7 +52,10 @@ pub fn hard_error(msg: &str) -> ! {
 #[cfg(debug)]
 fn now_epoch() -> u64 {
     use std::time::SystemTime;
-    SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs()
+    SystemTime::now()
+        .duration_since(SystemTime::UNIX_EPOCH)
+        .unwrap()
+        .as_secs()
 }
 
 pub fn quit_next_frame() {
@@ -62,7 +65,11 @@ pub fn quit_next_frame() {
 
 pub fn set_panic_hook() {
     set_hook(Box::new(|info| {
-        let msg = info.payload().downcast_ref::<String>().map(|s|s.clone()).unwrap_or_else(||info.to_string());
+        let msg = info
+            .payload()
+            .downcast_ref::<String>()
+            .map(|s| s.clone())
+            .unwrap_or_else(|| info.to_string());
         eprintln!("\n{}\n", msg.bright_red());
 
         let err = msgbox::create(

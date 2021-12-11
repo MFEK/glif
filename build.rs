@@ -10,5 +10,8 @@ fn main() {
         println!("cargo:rustc-env=debug");
     }
     println!("cargo:rustc-env=COMPILED_AT={}", &kyou);
-    println!("cargo:rustc-env=COMPILED_AT_PLAIN={}", stdstr::from_utf8(&kyou_plain.unwrap()).unwrap());
+    println!(
+        "cargo:rustc-env=COMPILED_AT_PLAIN={}",
+        stdstr::from_utf8(&kyou_plain.unwrap()).unwrap()
+    );
 }

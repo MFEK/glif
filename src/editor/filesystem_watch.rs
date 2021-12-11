@@ -42,7 +42,11 @@ impl Editor {
                                 log::debug!("Got filesystem event from our own recent write");
                             }
                         } else {
-                            let ufo_or_dir = if p.ufo().is_some() { "UFO" } else { "directory" };
+                            let ufo_or_dir = if p.ufo().is_some() {
+                                "UFO"
+                            } else {
+                                "directory"
+                            };
                             log::info!(
                                 "Another glif in this {} changed: {:?}",
                                 ufo_or_dir,
@@ -53,7 +57,7 @@ impl Editor {
                         log::debug!("Ignored write of file {:?}", p)
                     }
                 }
-                Err(TryRecvError::Empty) => { break 'filesystem_watch },
+                Err(TryRecvError::Empty) => break 'filesystem_watch,
                 Err(_) => panic!("Filesystem watcher disconnected!"),
             }
         }

@@ -3,15 +3,13 @@
 //! Apache 2.0 licensed. See AUTHORS.
 #![allow(non_snake_case)] // for our name MFEKglif
 
-use crate::{
-    tools::zoom::{zoom_in_factor, zoom_out_factor},
-};
+use crate::tools::zoom::{zoom_in_factor, zoom_out_factor};
 use command::{Command, CommandInfo, CommandMod};
+use ctrlc;
 use editor::{
     events::{EditorEvent, MouseEventType},
     Editor,
 };
-use ctrlc;
 use glifrenderer::toggles::{PointLabels, PreviewMode};
 use tools::ToolEnum;
 use user_interface::{ImguiManager, Interface};
@@ -349,7 +347,7 @@ fn main() {
                     WindowEvent::SizeChanged(x, y) | WindowEvent::Resized(x, y) => {
                         interface.viewport.winsize = (x as f32, y as f32);
                         interface.viewport.set_broken_flag();
-                    },
+                    }
                     _ => {}
                 },
                 _ => {}

@@ -61,10 +61,27 @@ pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
 
     if pm != PreviewMode::Paper || PAPER_DRAW_GUIDELINES {
         guidelines::draw_baseline::<()>(&i.viewport, canvas);
-        let local_guidelines = v.with_glyph(|glyph|glyph.guidelines.iter().map(|g|g.clone()).collect::<Vec<_>>());
+        let local_guidelines = v.with_glyph(|glyph| {
+            glyph
+                .guidelines
+                .iter()
+                .map(|g| g.clone())
+                .collect::<Vec<_>>()
+        });
         for guideline in v.guidelines.iter().chain(local_guidelines.iter()) {
             let data = guideline.data.as_guideline();
-            guidelines::draw_guideline(&i.viewport, canvas, &guideline, if data.right {Some(RBEARING_STROKE)} else if data.format {Some(UFO_GUIDELINE_STROKE)} else { None });
+            guidelines::draw_guideline(
+                &i.viewport,
+                canvas,
+                &guideline,
+                if data.right {
+                    Some(RBEARING_STROKE)
+                } else if data.format {
+                    Some(UFO_GUIDELINE_STROKE)
+                } else {
+                    None
+                },
+            );
         }
         if i.grid.show {
             grid::draw(canvas, &i.grid, &i.viewport);

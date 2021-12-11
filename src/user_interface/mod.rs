@@ -135,10 +135,7 @@ impl Interface {
     pub fn update_viewport(&mut self, offset: Option<(f32, f32)>, scale: Option<f32>) {
         let offset = match offset {
             None => self.viewport.offset,
-            Some(offset) => (
-                offset.0,
-                offset.1,
-            ),
+            Some(offset) => (offset.0, offset.1),
         };
         let scale = match scale {
             None => self.viewport.factor,

@@ -16,16 +16,20 @@ use std::{
 };
 
 use crate::filedialog;
-use crate::user_interface::{Interface, InputPrompt};
+use crate::user_interface::{InputPrompt, Interface};
 use crate::util::DEBUG_DUMP_GLYPH;
 
 impl Editor {
     pub fn just_saved(&self) -> bool {
-        self.history.undo_stack.last().map(|undo| {
-            undo.description == "Saved glyph"
-                || undo.description == "Flattened glyph"
-                || undo.description == "Exported glyph"
-        }).unwrap_or(false)
+        self.history
+            .undo_stack
+            .last()
+            .map(|undo| {
+                undo.description == "Saved glyph"
+                    || undo.description == "Flattened glyph"
+                    || undo.description == "Exported glyph"
+            })
+            .unwrap_or(false)
     }
 
     pub fn has_unsaved_changes(&self) -> bool {
@@ -301,7 +305,14 @@ impl Editor {
 
     pub fn quit(&mut self, i: &mut Interface) {
         if self.has_unsaved_changes() {
-            let changes = self.history.undo_stack.iter().take(10).map(|he|he.description.clone()).collect::<Vec<_>>().join(" ");
+            let changes = self
+                .history
+                .undo_stack
+                .iter()
+                .take(10)
+                .map(|he| he.description.clone())
+                .collect::<Vec<_>>()
+                .join(" ");
             i.flash_window();
             i.push_prompt(InputPrompt::YesNo {
                 question: "Unsaved changes exist in glyph. Quit anyway?".to_string(),

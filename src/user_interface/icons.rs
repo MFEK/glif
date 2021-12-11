@@ -35,7 +35,9 @@ pub fn chain(icons: &[&[u8]]) -> Vec<u8> {
     let mut ret = Vec::with_capacity(icons.len() * 4);
     for (i, icon) in icons.into_iter().enumerate() {
         ret.extend(*icon);
-        if i != icons.len() - 1 { assert_eq!(ret.pop(), Some(0)); }
+        if i != icons.len() - 1 {
+            assert_eq!(ret.pop(), Some(0));
+        }
     }
     ret
 }

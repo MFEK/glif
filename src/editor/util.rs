@@ -43,7 +43,7 @@ pub struct ClickedPoint<'hitomi, 'a, 'cute> {
     pub key: PointKey,
     v:       &'hitomi Editor,
     i:       &'a      Interface,
-    ignored: &'cute   HashSet<PointKey>, 
+    ignored: &'cute   HashSet<PointKey>,
 }
 
 impl ClickedPoint<'_, '_, '_> {
