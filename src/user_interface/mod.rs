@@ -32,8 +32,6 @@ use self::gui::TOOLBOX_OFFSET_X;
 use self::gui::TOOLBOX_OFFSET_Y;
 
 /* Window */
-pub const HEIGHT: u32 = 800;
-pub const WIDTH: u32 = HEIGHT;
 pub const PAPER_DRAW_GUIDELINES: bool = false;
 
 pub struct Interface {
@@ -48,7 +46,8 @@ pub struct Interface {
 
 impl Interface {
     pub fn new(filename: &str) -> Self {
-        let (sdl, window) = Self::initialize_sdl(filename);
+        let viewport = Viewport::default();
+        let (sdl, window) = Self::initialize_sdl(filename, &viewport);
 
         Interface {
             prompts: vec![],
@@ -57,7 +56,7 @@ impl Interface {
 
             grid: Grid::default(),
             mouse_info: MouseInfo::default(),
-            viewport: Viewport::default().with_winsize((WIDTH as f32, HEIGHT as f32)),
+            viewport: Viewport::default(),
         }
     }
 
@@ -91,6 +90,14 @@ impl Interface {
         )
     }
 
+    pub fn extents(&self) -> RafxExtents2D {
+        let (window_width, window_height) = self.sdl_window.vulkan_drawable_size();
+        RafxExtents2D {
+            width: window_width,
+            height: window_height,
+        }
+    }
+
     pub fn render(
         &mut self,
         v: &mut Editor,
@@ -104,15 +111,9 @@ impl Interface {
         let dd = build_imgui_ui(imgui, imsdl2, v, self, mouse_state);
 
         // draw glyph preview and imgui with skia
-        let (window_width, window_height) = self.sdl_window.vulkan_drawable_size();
-        let extents = RafxExtents2D {
-            width: window_width,
-            height: window_height,
-        };
-
         // What we are doing with Viewport is far too complex for skulpin::CoordinateSystemHelper,
         // thus we've stubbed it out.
-        let drew = skulpin.draw(extents, 1.0, |canvas, _| {
+        let drew = skulpin.draw(self.extents(), 1.0, |canvas, _| {
             render::render_frame(v, self, canvas);
             imgui_renderer.render_imgui(canvas, dd);
         });
