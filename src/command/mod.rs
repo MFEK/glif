@@ -64,6 +64,7 @@ pub enum Command {
     ToolAnchors,
     ToolShapes,
     ToolGuidelines,
+    ToolGrid,
 
     // selection
     DeleteSelection,
@@ -118,7 +119,7 @@ impl Command {
             | CutSelection => CommandType::Selection,
             HistoryUndo | HistoryRedo => CommandType::History,
             IOOpen | IOSave | IOSaveAs | IOSaveFlatten | IOFlatten | IOExport => CommandType::IO,
-            TogglePointLabels | TogglePreviewMode => CommandType::ViewMode,
+            ToolGrid | TogglePointLabels | TogglePreviewMode => CommandType::ViewMode,
             ToggleConsole => CommandType::ToggleConsole,
             Quit => CommandType::ExecState,
             ReverseContour => CommandType::PathOp,

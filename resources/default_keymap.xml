@@ -31,6 +31,7 @@
     <binding command="ToolAnchors" key="N"/>
     <binding command="ToolShapes" key="S"/>
     <binding command="ToolGuidelines" key="G"/>
+    <binding command="ToolGrid" key="G" mod="AltMod"/>
 
     <!-- view modes -->
     <binding command="TogglePointLabels" key="3" mod="ShiftMod"/>
