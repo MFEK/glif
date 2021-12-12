@@ -309,6 +309,7 @@ impl Editor {
                 .history
                 .undo_stack
                 .iter()
+                .rev()
                 .take(10)
                 .map(|he| he.description.clone())
                 .collect::<Vec<_>>()
