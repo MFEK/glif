@@ -313,7 +313,6 @@ impl Editor {
                 .map(|he| he.description.clone())
                 .collect::<Vec<_>>()
                 .join(" ");
-            i.flash_window();
             i.push_prompt(InputPrompt::YesNo {
                 question: "Unsaved changes exist in glyph. Quit anyway?".to_string(),
                 afterword: format!("Recent changes:\n{}", &changes),
