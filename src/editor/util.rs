@@ -1,3 +1,6 @@
+// This file is mainly utilities that are common use cases for the editor, but don't necessarily need to be
+// in Editor.
+
 use std::collections::HashSet;
 
 use crate::get_contour_len;
@@ -6,10 +9,7 @@ use flo_curves::{
     bezier::{solve_curve_for_t_along_axis, Curve as FloCurve},
     geo::Coord2,
 };
-use glifparser::{
-    glif::{MFEKOutline, MFEKPointData},
-    Handle, WhichHandle,
-};
+use glifparser::{glif::MFEKOutline, Handle, WhichHandle};
 use glifrenderer::constants::{POINT_RADIUS, POINT_STROKE_THICKNESS};
 use glifrenderer::{calc_x, calc_y};
 use skulpin::skia_safe::Contains;
@@ -18,6 +18,7 @@ use skulpin::skia_safe::Rect as SkRect;
 use MFEKmath::{Bezier, Piecewise, Primitive as MathPrimitive};
 
 use super::Editor;
+use crate::util::MFEKGlifPointData;
 
 //TODO: Move to tool utility file
 #[derive(PartialEq, Clone, Copy)]
@@ -25,8 +26,37 @@ pub enum SelectPointInfo {
     Start,
     End,
 }
-// This file is mainly utilities that are common use cases for the editor, but don't necessarily need to be
-// in Editor.
+
+/*
+#[derive(Clone, Copy, Debug, Hash, PartialEq)]
+pub struct PointKey {
+    /// contour index
+    pub ci: u32,
+    /// point index
+    pub pi: u32,
+    /// which handle? if unset you get closest by distance
+    pub wh: Option<glifparser::WhichHandle>,
+}
+
+#[derive(Clone, Copy)]
+pub struct ClickedPoint<'hitomi, 'a, 'cute> {
+    pub key: PointKey,
+    v:       &'hitomi Editor,
+    i:       &'a      Interface,
+    ignored: &'cute   HashSet<PointKey>,
+}
+
+impl ClickedPoint<'_, '_, '_> {
+    pub fn solve<T: glifparser::PointData>(
+        position: (f32, f32),
+        mask: Option<(usize, usize)>,
+    // TODO: Error type for the different reasons points may not be selected.
+    ) -> Result<glifparser::Point<T>, ()> {
+        // contour idx, point idx, which handle enum w/Neither variant
+        //let (ci, pi, wh) = clicked_point_or_handle(self.v, self.i, position, mask);
+        Err(())
+    }
+}*/
 
 /// Utility function to quickly check which point or mouse is hovering. Optional mask parameter specifies a point to ignore.
 pub fn clicked_point_or_handle(
@@ -188,7 +218,7 @@ pub fn nearest_point_on_curve(
 
 pub fn build_box_selection(
     mut rect: SkRect,
-    outline: &MFEKOutline<MFEKPointData>,
+    outline: &MFEKOutline<MFEKGlifPointData>,
 ) -> HashSet<(usize, usize)> {
     rect.flip_if_required();
 
@@ -204,12 +234,56 @@ pub fn build_box_selection(
     selected
 }
 
-pub fn move_point(outline: &mut MFEKOutline<MFEKPointData>, ci: usize, pi: usize, x: f32, y: f32) {
+pub fn move_all_layers(v: &mut Editor, x: f32, y: f32) {
+    v.with_glyph_mut(|glyph| {
+        //let mut all_indexes = vec![];
+        for li in 0..glyph.layers.len() {
+            //all_indexes.push(vec![]);
+            for ci in 0..glyph.layers[li].outline.len() {
+                for pi in 0..glyph.layers[li].outline[ci].inner.len() {
+                    //all_indexes.last_mut().unwrap().push((ci, pi));
+                    move_point_by(&mut glyph.layers[li].outline, ci, pi, None, None, x, y);
+                }
+            }
+        }
+        /*for (li, alayer) in all_indexes.iter().enumerate() {
+            for (ci, pi) in alayer {
+                let (ci, pi) = (*ci, *pi);
+                move_point(&mut glyph.layers[li].outline, ci, pi, x, y);
+            }
+        }*/
+    });
+}
+
+pub fn move_point(
+    outline: &mut MFEKOutline<MFEKGlifPointData>,
+    ci: usize,
+    pi: usize,
+    x: f32,
+    y: f32,
+) {
     let (cx, cy) = (outline[ci].inner[pi].x, outline[ci].inner[pi].y);
     let (dx, dy) = (cx - x, cy - y);
 
-    outline[ci].inner[pi].x = x;
-    outline[ci].inner[pi].y = y;
+    move_point_by(outline, ci, pi, Some(x), Some(y), dx, dy);
+}
+
+pub fn move_point_by(
+    outline: &mut MFEKOutline<MFEKGlifPointData>,
+    ci: usize,
+    pi: usize,
+    x: Option<f32>,
+    y: Option<f32>,
+    dx: f32,
+    dy: f32,
+) {
+    if let (Some(x), Some(y)) = (x, y) {
+        outline[ci].inner[pi].x = x;
+        outline[ci].inner[pi].y = y;
+    } else {
+        outline[ci].inner[pi].x -= dx;
+        outline[ci].inner[pi].y -= dy;
+    }
 
     let a = outline[ci].inner[pi].a;
     let b = outline[ci].inner[pi].b;
@@ -224,7 +298,7 @@ pub fn move_point(outline: &mut MFEKOutline<MFEKPointData>, ci: usize, pi: usize
 }
 
 pub fn move_point_without_handles(
-    outline: &mut MFEKOutline<MFEKPointData>,
+    outline: &mut MFEKOutline<MFEKGlifPointData>,
     ci: usize,
     pi: usize,
     x: f32,
@@ -235,7 +309,7 @@ pub fn move_point_without_handles(
 }
 
 pub fn get_handle_pos(
-    outline: &mut MFEKOutline<MFEKPointData>,
+    outline: &mut MFEKOutline<MFEKGlifPointData>,
     ci: usize,
     pi: usize,
     handle: WhichHandle,
@@ -255,7 +329,7 @@ pub fn get_handle_pos(
 }
 
 pub fn move_handle(
-    outline: &mut MFEKOutline<MFEKPointData>,
+    outline: &mut MFEKOutline<MFEKGlifPointData>,
     ci: usize,
     pi: usize,
     handle: WhichHandle,

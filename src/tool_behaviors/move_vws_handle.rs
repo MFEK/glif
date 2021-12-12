@@ -50,6 +50,9 @@ impl MoveVWSHandle {
     }
 
     pub fn mouse_released(&mut self, v: &mut Editor, _i: &mut Interface, mouse_info: MouseInfo) {
+        if !v.is_modifying() {
+            return; // just a click
+        }
         if mouse_info.button == self.mouse_info.button {
             v.end_modification();
             v.pop_behavior();

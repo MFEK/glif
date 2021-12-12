@@ -1,39 +1,58 @@
 use super::prelude::*;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct MoveGuideline {
-    selected_idx: usize,
-    mouse_info: MouseInfo,
+    pub selected_idx: usize,
+    pub global: bool,
+    pub mouse_info: MouseInfo,
 }
 
 impl MoveGuideline {
-    pub fn new(selected_idx: usize, mouse_info: MouseInfo) -> Self {
-        MoveGuideline {
-            mouse_info,
-            selected_idx,
-        }
-    }
-
     pub fn mouse_moved(&mut self, v: &mut Editor, _i: &mut Interface, mouse_info: MouseInfo) {
-        let mp = self.mouse_info.position;
-        let delta = (mp.0 - mouse_info.position.0, mp.1 - mouse_info.position.1);
-        let selected = self.selected_idx;
-
         if !v.is_modifying() {
             v.begin_modification("Move guideline.");
         }
 
-        v.with_glyph_mut(|glyph| {
-            glyph.guidelines[selected].at.x -= delta.0;
-            glyph.guidelines[selected].at.y += delta.1;
-        });
+        let mp = self.mouse_info.position;
+        let delta = (mp.0 - mouse_info.position.0, mp.1 - mouse_info.position.1);
+        let selected = self.selected_idx;
+
+        if self.global {
+            let gl_len = v.with_glyph(|g| g.guidelines.len());
+            let guideline = &mut v.guidelines[selected - gl_len];
+            if guideline.data.as_guideline().fixed {
+                self.mouse_info = mouse_info;
+                return;
+            }
+            guideline.at.x -= delta.0;
+            guideline.at.y -= delta.1;
+
+            if guideline.data.as_guideline().right {
+                v.with_glyph_mut(|glyph| {
+                    if let Some(w) = glyph.width.as_mut() {
+                        *w = (*w as f32 - delta.0) as u64;
+                    }
+                });
+                v.add_width_guidelines();
+            }
+        } else {
+            v.with_glyph_mut(|glyph| {
+                glyph.guidelines[selected].at.x -= delta.0;
+                glyph.guidelines[selected].at.y -= delta.1;
+            });
+        }
 
         self.mouse_info = mouse_info;
     }
 
     pub fn mouse_released(&mut self, v: &mut Editor, _i: &mut Interface, mouse_info: MouseInfo) {
         if mouse_info.button == self.mouse_info.button {
-            v.end_modification();
+            v.mark_dirty(); // Moving a guideline technically is an "empty" mod otherwise.
+            if v.is_modifying() {
+                v.end_modification();
+            } else {
+                log::debug!("Didn't move the guideline.");
+            }
             v.pop_behavior();
         }
     }

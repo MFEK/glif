@@ -1,8 +1,9 @@
 use super::Editor;
+use crate::util::MFEKGlifPointData;
 
 use glifparser::glif::{
     self,
-    mfek::{Layer, MFEKGlif, MFEKPointData},
+    mfek::{Layer, MFEKGlif},
 };
 use glifparser::Glif;
 use log;
@@ -11,14 +12,40 @@ use plist::{self, Value as PlistValue};
 use std::{
     fs, io,
     path::{self, Path as FsPath},
+    rc::Rc,
 };
 
 use crate::filedialog;
-use crate::ipc;
-use crate::user_interface::Interface;
+use crate::user_interface::{InputPrompt, Interface};
 use crate::util::DEBUG_DUMP_GLYPH;
 
 impl Editor {
+    pub fn just_saved(&self) -> bool {
+        self.history
+            .undo_stack
+            .last()
+            .map(|undo| {
+                undo.description == "Saved glyph"
+                    || undo.description == "Flattened glyph"
+                    || undo.description == "Exported glyph"
+            })
+            .unwrap_or(false)
+    }
+
+    pub fn has_unsaved_changes(&self) -> bool {
+        !self.just_saved() && self.history.undo_stack.last().is_some()
+    }
+
+    pub fn filename_or_panic(&self) -> path::PathBuf {
+        self.glyph
+            .as_ref()
+            .unwrap()
+            .filename
+            .as_ref()
+            .unwrap()
+            .clone()
+    }
+
     pub fn load_glif<F: AsRef<FsPath> + Clone>(&mut self, i: &mut Interface, filename: F) {
         i.set_window_title(&format!(
             "MFEKglif — {}",
@@ -31,7 +58,7 @@ impl Editor {
     pub fn load_glif_headless<F: AsRef<FsPath> + Clone>(&mut self, filename: F) {
         // TODO: Actually handle errors now that we have them.
         let glif = {
-            let mut tempglif: MFEKGlif<MFEKPointData> = match filename
+            let mut tempglif: MFEKGlif<MFEKGlifPointData> = match filename
                 .as_ref()
                 .file_name()
                 .expect("No filename")
@@ -55,8 +82,7 @@ impl Editor {
         }
 
         self.set_glyph(glif);
-
-        ipc::fetch_metrics(self);
+        self.initialize();
     }
 
     pub fn save_glif(&mut self, rename: bool) -> Result<path::PathBuf, ()> {
@@ -86,9 +112,9 @@ impl Editor {
         res
     }
 
-    pub fn flatten_glif(&mut self, rename: bool) {
+    pub fn flatten_glif(&mut self, i: &mut Interface, rename: bool) {
         self.mark_preview_dirty();
-        self.rebuild();
+        self.rebuild(i);
         let export = self.prepare_export();
         let layer = &export.layers[0];
         if export.layers.len() > 1 {
@@ -113,13 +139,17 @@ impl Editor {
                 .map(|()| log::info!("Requested flatten to {:?}", &filename))
                 .unwrap_or_else(|e| panic!("Failed to write glif: {:?}", e));
         });
+        self.begin_modification("Flattened glyph");
+        self.end_modification();
     }
 
-    pub fn export_glif(&mut self) {
+    pub fn export_glif(&mut self, interface: Option<&mut Interface>) {
         self.mark_preview_dirty();
-        self.rebuild();
+        if let Some(i) = interface {
+            self.rebuild(i);
+        }
         let glif_fn = {
-            let mut temp = self.with_glyph(|g| g.filename.as_ref().unwrap().clone());
+            let mut temp = self.filename_or_panic();
             temp.set_extension("glif");
             temp.file_name().unwrap().to_owned()
         };
@@ -269,17 +299,48 @@ impl Editor {
                 ));
             log::info!("Wrote glyph {}'s layercontents.plist.", &glif_name);
         }
+        self.begin_modification("Exported glyph");
+        self.end_modification();
+    }
+
+    pub fn quit(&mut self, i: &mut Interface) {
+        if self.has_unsaved_changes() {
+            let changes = self
+                .history
+                .undo_stack
+                .iter()
+                .rev()
+                .take(10)
+                .map(|he| he.description.clone())
+                .collect::<Vec<_>>()
+                .join(" ");
+            i.push_prompt(InputPrompt::YesNo {
+                question: "Unsaved changes exist in glyph. Quit anyway?".to_string(),
+                afterword: format!("Recent changes:\n{}", &changes),
+                func: Rc::new(move |v: &mut Editor, _, reload: bool| {
+                    v.quit_requested = reload;
+                    if reload {
+                        log::warn!("Quit, discarding unsaved changes");
+                    } else {
+                        log::info!("Requested quit cancelled");
+                    }
+                }),
+            });
+        } else {
+            log::info!("Quit with no unsaved changes");
+            self.quit_requested = true;
+        }
     }
 }
 
 pub trait ExportLayer {
-    fn to_exported(&self, layer: &Layer<MFEKPointData>) -> Glif<MFEKPointData>;
+    fn to_exported(&self, layer: &Layer<MFEKGlifPointData>) -> Glif<MFEKGlifPointData>;
 }
 
 /// Warning: You should always use this from MFEKglif with glif.preview.layers. If you use it with
 /// the normal MFEKGlif type's layers, then you will need to apply contour operations yourself!
-impl ExportLayer for MFEKGlif<MFEKPointData> {
-    fn to_exported(&self, layer: &Layer<MFEKPointData>) -> Glif<MFEKPointData> {
+impl ExportLayer for MFEKGlif<MFEKGlifPointData> {
+    fn to_exported(&self, layer: &Layer<MFEKGlifPointData>) -> Glif<MFEKGlifPointData> {
         let contours: Vec<_> = layer.outline.iter().map(|c| c.inner.clone()).collect();
         let mut ret = Glif::new();
         ret.outline = Some(contours);

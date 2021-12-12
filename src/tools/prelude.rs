@@ -22,7 +22,6 @@ pub use skulpin::skia_safe::{
 };
 pub use skulpin::skia_safe::{Paint, PaintStyle, Path, Rect};
 
-pub use glifparser::glif::MFEKPointData;
 pub use glifparser::{Contour, Handle, Outline, Point, PointType, WhichHandle};
 
 // std

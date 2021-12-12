@@ -45,6 +45,17 @@ pub fn parse_args() -> Args {
         )
         .get_matches();
 
+    eprint!(
+        "This is MFEKglif {} (“{}”), ",
+        env!("CARGO_PKG_VERSION"),
+        env!("MFEK_REL_CODENAME")
+    );
+    if atty::is(atty::Stream::Stderr) {
+        eprintln!("compiled @ {}", env!("COMPILED_AT"));
+    } else {
+        eprintln!("compiled @ {}", env!("COMPILED_AT_PLAIN"));
+    }
+
     let mode = match (matches.is_present("export"), matches.is_present("save")) {
         (true, false) => HeadlessMode::Export,
         (false, true) => HeadlessMode::Save,

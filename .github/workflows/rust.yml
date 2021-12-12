@@ -43,21 +43,21 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            target/debug
+            target/release
           key: cargo-${{ matrix.platform }}-${{ hashFiles('**/Cargo.lock') }}
       - name: Run cargo build
         run: |
-          cargo build --locked
-      - name: Run cargo test
-        run: |
-          cargo test --locked
+          cargo build --release --locked
+    # - name: Run cargo test
+    #   run: |
+    #     cargo test --release --locked
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
           name: MFEKglif-${{ matrix.platform }}
           path: |
-            target/debug/MFEKglif
-            target/debug/MFEKglif.exe
+            target/release/MFEKglif
+            target/release/MFEKglif.exe
 
   rustfmt:
     strategy:
@@ -74,7 +74,7 @@ jobs:
           components: rustfmt
       - name: Run rustfmt
         run: |
-          git ls-files '*.rs' | xargs rustfmt --check
+          cargo fmt -- --check
 
   cargo_bloat:
     if: false

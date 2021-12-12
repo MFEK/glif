@@ -1,23 +1,24 @@
 use glifparser::{
-    glif::{self, MFEKContour, MFEKOutline, MFEKPointData, VWSHandle},
+    glif::{self, MFEKContour, MFEKOutline, VWSHandle},
     VWSContour,
 };
 use MFEKmath::{variable_width_stroke, Piecewise, VWSSettings};
 
 use super::ContourOperation;
+use crate::util::MFEKGlifPointData;
 
 impl ContourOperation for VWSContour {
-    fn build(&self, contour: &MFEKContour<MFEKPointData>) -> MFEKOutline<MFEKPointData> {
+    fn build(&self, contour: &MFEKContour<MFEKGlifPointData>) -> MFEKOutline<MFEKGlifPointData> {
         let contour_pw = Piecewise::from(&contour.inner);
 
-        let settings = VWSSettings {
+        let settings = VWSSettings::<MFEKGlifPointData> {
             cap_custom_start: None,
             cap_custom_end: None,
         };
 
         let vws_output = variable_width_stroke(&contour_pw, self, &settings);
 
-        let mut output: MFEKOutline<MFEKPointData> = Vec::new();
+        let mut output: MFEKOutline<MFEKGlifPointData> = Vec::new();
         for contour in vws_output.segs {
             output.push(contour.to_contour().into());
         }
@@ -25,7 +26,7 @@ impl ContourOperation for VWSContour {
         output
     }
 
-    fn sub(&self, _contour: &MFEKContour<MFEKPointData>, begin: usize, end: usize) -> Self {
+    fn sub(&self, _contour: &MFEKContour<MFEKGlifPointData>, begin: usize, end: usize) -> Self {
         let temp_handles = self.handles.split_at(begin);
         let (final_handles, _) = temp_handles.1.split_at(end + 1 - begin);
         VWSContour {
@@ -40,8 +41,8 @@ impl ContourOperation for VWSContour {
 
     fn append(
         &self,
-        _contour: &MFEKContour<MFEKPointData>,
-        append: &MFEKContour<MFEKPointData>,
+        _contour: &MFEKContour<MFEKGlifPointData>,
+        append: &MFEKContour<MFEKGlifPointData>,
     ) -> Self {
         let mut temp_handles = self.handles.clone();
 
@@ -83,7 +84,7 @@ impl ContourOperation for VWSContour {
         }
     }
 
-    fn insert(&self, _contour: &MFEKContour<MFEKPointData>, point_idx: usize) -> Self {
+    fn insert(&self, _contour: &MFEKContour<MFEKGlifPointData>, point_idx: usize) -> Self {
         let mut temp_handles = self.handles.clone();
         temp_handles.insert(
             point_idx,

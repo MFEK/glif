@@ -3,10 +3,9 @@
 //! Apache 2.0 licensed. See AUTHORS.
 #![allow(non_snake_case)] // for our name MFEKglif
 
-use crate::{
-    tools::zoom::{zoom_in_factor, zoom_out_factor},
-};
+use crate::tools::zoom::{zoom_in_factor, zoom_out_factor};
 use command::{Command, CommandInfo, CommandMod};
+use ctrlc;
 use editor::{
     events::{EditorEvent, MouseEventType},
     Editor,
@@ -40,6 +39,7 @@ mod user_interface;
 pub mod util;
 
 fn main() {
+    mfek_ipc::display_header("glif");
     util::init_env_logger();
     util::set_panic_hook();
 
@@ -55,10 +55,14 @@ fn main() {
     let mut interface = Interface::new(filename.to_str().unwrap());
     let mut imgui_manager = ImguiManager::new(&interface.sdl_window);
 
-    let mut skulpin_renderer = Interface::initialize_skulpin_renderer(&interface.sdl_window);
+    let mut skulpin_renderer = interface.initialize_skulpin_renderer(&interface.sdl_window);
 
     // Makes glyph available to on_load_glif events
     editor.load_glif(&mut interface, &filename);
+
+    ctrlc::set_handler(util::quit_next_frame).expect("Could not set SIGTERM handler.");
+
+    ipc::launch_fs_watcher(&mut editor);
 
     command::initialize_keybinds();
     // TODO: Replace console! tools::console::initialize_console_commands();
@@ -75,10 +79,10 @@ fn main() {
 
         // sdl event handling
         for event in event_pump.poll_iter() {
-            util::debug_event!("Got event: {:?}", &event);
+            util::debug_event("Got event: {:?}", &event);
 
             if let Event::Quit { .. } = &event {
-                break 'main_loop;
+                editor.quit(&mut interface);
             }
 
             if imgui_manager.handle_imgui_event(&event) {
@@ -181,6 +185,12 @@ fn main() {
                         Command::ToolShapes => {
                             editor.set_tool(ToolEnum::Shapes);
                         }
+                        Command::ToolGuidelines => {
+                            editor.set_tool(ToolEnum::Guidelines);
+                        }
+                        Command::ToolGrid => {
+                            editor.set_tool(ToolEnum::Grid);
+                        }
                         Command::TogglePointLabels => {
                             trigger_toggle_on!(
                                 interface,
@@ -242,16 +252,16 @@ fn main() {
                             Err(()) => {}
                         },
                         Command::IOFlatten => {
-                            editor.flatten_glif(true);
+                            editor.flatten_glif(&mut interface, true);
                         }
                         Command::IOSaveFlatten => {
-                            editor.flatten_glif(false);
+                            editor.flatten_glif(&mut interface, false);
                         }
                         Command::IOExport => {
-                            editor.export_glif();
+                            editor.export_glif(Some(&mut interface));
                         }
                         Command::Quit => {
-                            break 'main_loop;
+                            editor.quit(&mut interface);
                         }
                         // TODO: More elegantly deal with Command's meant for consumption by a
                         // single tool?
@@ -337,20 +347,17 @@ fn main() {
                 }
 
                 Event::Window { win_event, .. } => match win_event {
-                    WindowEvent::SizeChanged(x, y) => {
+                    WindowEvent::SizeChanged(x, y) | WindowEvent::Resized(x, y) => {
                         interface.viewport.winsize = (x as f32, y as f32);
+                        interface.viewport.set_broken_flag();
                     }
-                    WindowEvent::Resized(x, y) => {
-                        interface.viewport.winsize = (x as f32, y as f32);
-                    }
-
                     _ => {}
                 },
                 _ => {}
             }
         }
 
-        editor.rebuild();
+        editor.rebuild(&mut interface);
         interface.render(
             &mut editor,
             &mut imgui_manager.imgui_context,

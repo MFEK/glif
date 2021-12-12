@@ -11,7 +11,6 @@ use crate::{
 
 use super::{icons, Interface};
 
-// These are before transformation by STATE.dpi (glutin scale_factor)
 pub const TOOLBOX_OFFSET_X: f32 = 10.;
 pub const TOOLBOX_OFFSET_Y: f32 = TOOLBOX_OFFSET_X;
 pub const TOOLBOX_WIDTH: f32 = 52.;
@@ -196,17 +195,17 @@ pub fn build_imgui_ui<'ui>(
         .build(&ui, || {
             build_and_check_button(v, &ui, ToolEnum::Pan, icons::PAN);
             build_and_check_button(v, &ui, ToolEnum::Select, icons::SELECT);
+            build_and_check_button(v, &ui, ToolEnum::Pen, icons::PEN);
             ui.separator();
             build_and_check_button(v, &ui, ToolEnum::Zoom, icons::ZOOM);
             build_and_check_button(v, &ui, ToolEnum::Measure, icons::MEASURE);
-            ui.separator();
-            build_and_check_button(v, &ui, ToolEnum::Anchors, icons::ANCHOR);
-            ui.separator();
-            build_and_check_button(v, &ui, ToolEnum::Pen, icons::PEN);
             build_and_check_button(v, &ui, ToolEnum::Grid, icons::GRID);
+            ui.separator();
             build_and_check_button(v, &ui, ToolEnum::VWS, icons::VWS);
             build_and_check_button(v, &ui, ToolEnum::PAP, icons::PAP);
             build_and_check_button(v, &ui, ToolEnum::Dash, icons::DASH);
+            ui.separator();
+            build_and_check_button(v, &ui, ToolEnum::Anchors, icons::ANCHOR);
             build_and_check_button(v, &ui, ToolEnum::Shapes, icons::SHAPES);
             build_and_check_button(v, &ui, ToolEnum::Image, icons::IMAGES);
             build_and_check_button(v, &ui, ToolEnum::Guidelines, icons::GUIDELINES);

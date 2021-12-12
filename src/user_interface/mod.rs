@@ -1,5 +1,4 @@
 pub mod follow;
-pub mod grid;
 pub mod gui;
 pub mod icons;
 pub mod mouse_input;
@@ -11,6 +10,7 @@ use std::rc::Rc;
 
 use crate::render;
 use crate::user_interface::gui::build_imgui_ui;
+use glifrenderer::grid::Grid;
 use glifrenderer::viewport::Viewport;
 use imgui::{self, Context};
 use imgui_sdl2::ImguiSdl2;
@@ -20,10 +20,11 @@ use skulpin::Renderer;
 
 use crate::editor::Editor;
 pub use crate::user_interface::mouse_input::MouseInfo;
-use glifparser::glif::{Layer, MFEKPointData};
+use crate::util::MFEKGlifPointData;
+
+use glifparser::glif::Layer;
 use sdl2::{video::Window, Sdl};
 
-use self::grid::Grid;
 pub use self::gui::ImguiManager;
 use self::gui::LAYERBOX_HEIGHT;
 use self::gui::LAYERBOX_WIDTH;
@@ -31,8 +32,6 @@ use self::gui::TOOLBOX_OFFSET_X;
 use self::gui::TOOLBOX_OFFSET_Y;
 
 /* Window */
-pub const HEIGHT: u32 = 800;
-pub const WIDTH: u32 = HEIGHT;
 pub const PAPER_DRAW_GUIDELINES: bool = false;
 
 pub struct Interface {
@@ -40,23 +39,24 @@ pub struct Interface {
     sdl_context: Sdl,
     pub sdl_window: Window,
 
-    pub grid: Option<Grid>,
+    pub grid: Grid,
     pub mouse_info: MouseInfo,
     pub viewport: Viewport,
 }
 
 impl Interface {
     pub fn new(filename: &str) -> Self {
-        let (sdl, window) = Self::initialize_sdl(filename);
+        let viewport = Viewport::default();
+        let (sdl, window) = Self::initialize_sdl(filename, &viewport);
 
         Interface {
             prompts: vec![],
             sdl_context: sdl,
             sdl_window: window,
 
-            grid: None,
+            grid: Grid::default(),
             mouse_info: MouseInfo::default(),
-            viewport: Viewport::default().with_winsize((WIDTH as f32, HEIGHT as f32)),
+            viewport: Viewport::default(),
         }
     }
 
@@ -72,6 +72,11 @@ impl Interface {
         self.prompts.pop()
     }
 
+    pub fn get_inspector_dialog_rect(&self) -> (f32, f32, f32, f32) {
+        let (tx, ty, tw, th) = self.get_tools_dialog_rect();
+        (tx, ty - (th * 0.35), tw, (th * 0.35) - (TOOLBOX_OFFSET_Y))
+    }
+
     pub fn get_tools_dialog_rect(&self) -> (f32, f32, f32, f32) {
         let offset_y = (self.viewport.winsize.1 as f32 - (LAYERBOX_HEIGHT * 2.)) / 3.;
         (
@@ -83,6 +88,14 @@ impl Interface {
             LAYERBOX_WIDTH,
             LAYERBOX_HEIGHT + offset_y,
         )
+    }
+
+    pub fn extents(&self) -> RafxExtents2D {
+        let (window_width, window_height) = self.sdl_window.vulkan_drawable_size();
+        RafxExtents2D {
+            width: window_width,
+            height: window_height,
+        }
     }
 
     pub fn render(
@@ -98,13 +111,9 @@ impl Interface {
         let dd = build_imgui_ui(imgui, imsdl2, v, self, mouse_state);
 
         // draw glyph preview and imgui with skia
-        let (window_width, window_height) = self.sdl_window.vulkan_drawable_size();
-        let extents = RafxExtents2D {
-            width: window_width,
-            height: window_height,
-        };
-
-        let drew = skulpin.draw(extents, 1.0, |canvas, _coordinate_system_helper| {
+        // What we are doing with Viewport is far too complex for skulpin::CoordinateSystemHelper,
+        // thus we've stubbed it out.
+        let drew = skulpin.draw(self.extents(), 1.0, |canvas, _| {
             render::render_frame(v, self, canvas);
             imgui_renderer.render_imgui(canvas, dd);
         });
@@ -126,10 +135,7 @@ impl Interface {
     pub fn update_viewport(&mut self, offset: Option<(f32, f32)>, scale: Option<f32>) {
         let offset = match offset {
             None => self.viewport.offset,
-            Some(offset) => (
-                offset.0,
-                offset.1,
-            ),
+            Some(offset) => (offset.0, offset.1),
         };
         let scale = match scale {
             None => self.viewport.factor,
@@ -143,6 +149,11 @@ impl Interface {
 
 #[derive(Clone)]
 pub enum InputPrompt {
+    YesNo {
+        question: String,
+        afterword: String,
+        func: Rc<dyn Fn(&mut Editor, &mut Interface, bool)>,
+    },
     Text {
         label: String,
         default: String,
@@ -155,6 +166,6 @@ pub enum InputPrompt {
     },
     Layer {
         label: String,
-        func: Rc<dyn Fn(&mut Editor, Layer<MFEKPointData>)>,
+        func: Rc<dyn Fn(&mut Editor, Layer<MFEKGlifPointData>)>,
     },
 }

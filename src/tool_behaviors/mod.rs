@@ -1,14 +1,4 @@
-pub mod add_guideline;
-pub mod move_guideline;
-pub mod move_handle;
-pub mod move_image;
-pub mod move_point;
-pub mod move_vws_handle;
-pub mod pan;
-mod prelude;
-pub mod rotate_image;
-pub mod rotate_selection;
-pub mod selection_box;
+pub_mod!("src/tool_behaviors");
 
 use self::prelude::*;
 use dyn_clone::DynClone;
@@ -17,7 +7,7 @@ use dyn_clone::DynClone;
 /// If there is a tool on the stack the top ToolBehavior will intercept events. This allows you to
 /// encapsulate behaviors like panning, and reuse them. It also allows you to break large tools like Select
 /// up into more manageable pieces.
-pub trait ToolBehavior: DynClone + std::fmt::Debug {
+pub trait ToolBehavior: DynClone + std::fmt::Debug + Send {
     fn event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent);
 
     // Not every behavior draws so we provide an empty default implementation.

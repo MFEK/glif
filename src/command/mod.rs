@@ -63,6 +63,8 @@ pub enum Command {
     ToolMeasure,
     ToolAnchors,
     ToolShapes,
+    ToolGuidelines,
+    ToolGrid,
 
     // selection
     DeleteSelection,
@@ -108,7 +110,7 @@ impl Command {
             | NudgeLeft | NudgeBigLeft | NudgeTinyLeft | NudgeRight | NudgeBigRight
             | NudgeTinyRight => CommandType::Nudge,
             ToolPan | ToolPen | ToolSelect | ToolZoom | ToolDash | ToolPAP | ToolVWS
-            | ToolMeasure | ToolAnchors | ToolShapes => CommandType::ToolSelect,
+            | ToolMeasure | ToolAnchors | ToolShapes | ToolGuidelines => CommandType::ToolSelect,
             DeleteSelection
             | SelectAll
             | CopySelection
@@ -117,7 +119,7 @@ impl Command {
             | CutSelection => CommandType::Selection,
             HistoryUndo | HistoryRedo => CommandType::History,
             IOOpen | IOSave | IOSaveAs | IOSaveFlatten | IOFlatten | IOExport => CommandType::IO,
-            TogglePointLabels | TogglePreviewMode => CommandType::ViewMode,
+            ToolGrid | TogglePointLabels | TogglePreviewMode => CommandType::ViewMode,
             ToggleConsole => CommandType::ToggleConsole,
             Quit => CommandType::ExecState,
             ReverseContour => CommandType::PathOp,

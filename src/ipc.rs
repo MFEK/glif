@@ -1,53 +1,151 @@
-use glifparser::{Guideline, GuidelinePoint, IntegerOrFloat};
-use log::error;
+use glifparser::{Guideline, IntegerOrFloat};
+use log;
 use mfek_ipc::{self, Available, IPCInfo};
 
 use crate::editor::Editor;
+use crate::util::MFEKGlifPointData;
 
-use std::{process, str};
+use std::process;
 
-pub fn fetch_metrics(v: &mut Editor) {
-    let (status, qmdbin) = mfek_ipc::module_available("metadata");
-    if status != Available::Yes {
+lazy_static::lazy_static! {
+    pub static ref METADATA_AVAILABLE: (Available, String) = mfek_ipc::module_available("metadata", "0.0.1-beta1");
+    pub static ref METADATA_STATUS: Available = METADATA_AVAILABLE.0;
+    pub static ref METADATA_BIN: String = METADATA_AVAILABLE.1.clone();
+}
+
+impl Editor {
+    pub fn write_metrics(&self) {
+        if *METADATA_STATUS == Available::No {
+            return;
+        }
+
+        let filename = self.with_glyph(|glyph| glyph.filename.clone());
+        let ipc_info = IPCInfo::from_glif_path("MFEKglif".to_string(), &filename.unwrap());
+
+        let font = if let Some(font) = ipc_info.font {
+            font
+        } else {
+            log::error!("Requested a write of metrics when not in a font, global metrics/guidelines can't be written.");
+            return;
+        };
+
+        let mut args = vec![];
+        let mut guidelines = vec![];
+        let mut has_ascender = false;
+        let mut has_descender = false;
+        for g in self.guidelines.iter() {
+            match g.name.as_ref().map(|n| n.as_str()) {
+                Some("ascender") => {
+                    if !has_ascender {
+                        args.extend(["-k".to_string(), "ascender".to_string(), "-v".to_string()]);
+                        args.push(format!("<real>{}</real>", g.at.y));
+                        has_ascender = true;
+                    } else {
+                        continue;
+                    }
+                }
+                Some("descender") => {
+                    if !has_descender {
+                        args.extend(["-k".to_string(), "descender".to_string(), "-v".to_string()]);
+                        args.push(format!("<real>{}</real>", g.at.y));
+                        has_descender = true;
+                    } else {
+                        continue;
+                    }
+                }
+                _ => {}
+            }
+            if !g.data.as_guideline().format {
+                guidelines.push(g);
+            }
+        }
+        let guidelinesp = plist::Value::Array(
+            guidelines
+                .iter()
+                .map(|g| plist::Value::Dictionary(g.as_plist_dict()))
+                .collect::<Vec<_>>(),
+        );
+        let mut guidelinesv = vec![];
+        plist::to_writer_xml(&mut guidelinesv, &guidelinesp).unwrap();
+        args.extend([
+            "-k".to_string(),
+            "guidelines".to_string(),
+            "-v".to_string(),
+            String::from_utf8(guidelinesv).unwrap(),
+        ]);
+        let ok = process::Command::new(&*METADATA_BIN)
+            .arg(&font)
+            .arg("arbitrary")
+            .args(&args)
+            .status();
+        if let Err(e) = ok {
+            log::error!("Failed to execute MFEKmetadata to rewrite metrics! {:?}", e);
+        }
+    }
+}
+
+pub fn fetch_italic(v: &mut Editor) {
+    if *METADATA_STATUS == Available::No {
         return;
     }
     let filename = v.with_glyph(|glyph| glyph.filename.clone());
     let ipc_info = IPCInfo::from_glif_path("MFEKglif".to_string(), &filename.unwrap());
 
-    match &ipc_info.font.as_ref() {
-        Some(ref font) => {
-            let command = process::Command::new(qmdbin)
-                .arg(font)
-                .args(&["arbitrary", "-k", "ascender", "-k", "descender"])
-                .output()
-                .expect("No output, font corrupt?");
+    let italic_angle = mfek_ipc::helpers::metadata::arbitrary(&ipc_info, &["italicAngle"]);
 
-            let lines_vec = str::from_utf8(&command.stdout).unwrap();
-            let mut lines_iter = lines_vec.lines();
-            let nlines = lines_iter.count();
-            lines_iter = lines_vec.lines();
+    if let Ok(arbdict) = italic_angle {
+        if let Some(Ok(angle)) = arbdict.get("italicAngle").map(|a| a.parse::<f32>()) {
+            v.italic_angle = angle - 90.;
+        }
+    } else {
+        log::warn!(
+            "Failed to get italic angle. Either not in font (font not italic), or font corrupt."
+        );
+    }
+}
 
-            if nlines != 2 {
-                error!("Cannot set ascender/descender, font corrupt?");
-            } else {
-                let names = &["ascender", "descender"];
-                for (i, line) in lines_iter.enumerate() {
-                    v.guidelines.push(Guideline {
-                        at: GuidelinePoint {
-                            x: 0.,
-                            y: line.parse().expect("Font is corrupt, metrics not numeric!"),
-                        },
-                        angle: IntegerOrFloat::Float(0.),
-                        name: Some(names[i].to_string()),
-                        color: None,
-                        identifier: None,
-                    });
-                }
-            }
+pub fn launch_fs_watcher(v: &mut Editor) {
+    let filename = v.with_glyph(|glyph| glyph.filename.clone());
+    let ipc_info = IPCInfo::from_glif_path("MFEKglif".to_string(), &filename.as_ref().unwrap());
+    if let Some(font) = ipc_info.font {
+        mfek_ipc::notifythread::launch(font, v.filesystem_watch_tx.clone());
+    } else {
+        mfek_ipc::notifythread::launch(
+            ipc_info.glyph.unwrap().parent().unwrap().to_owned(),
+            v.filesystem_watch_tx.clone(),
+        );
+    }
+}
+
+pub fn fetch_metrics(v: &mut Editor) {
+    if *METADATA_STATUS == Available::No {
+        return;
+    }
+    let filename = v.with_glyph(|glyph| glyph.filename.clone());
+    let ipc_info = IPCInfo::from_glif_path("MFEKglif".to_string(), &filename.unwrap());
+
+    let metrics = mfek_ipc::helpers::metadata::ascender_descender(&ipc_info);
+
+    if let Ok(metrics) = metrics {
+        const NAMES: &[&str] = &["ascender", "descender"];
+        for (i, metric) in [metrics.0, metrics.1].into_iter().enumerate() {
+            let (fixed, format, right) = (false, true, false);
+            let guideline = Guideline::from_x_y_angle(0., metric, IntegerOrFloat::default())
+                .name(NAMES[i].to_string())
+                .data(MFEKGlifPointData::new_guideline_data(fixed, format, right));
+            log::trace!("Adding metrics guideline: {:?}", &guideline);
+            v.guidelines.push(guideline);
         }
-        None => {
-            error!("Cannot set metrics, .glif file not part of a UFO!");
-        }
+    } else {
+        log::warn!("Failed to get ascender/descender. Not in font, or font corrupt.");
+    }
+
+    let guidelines = mfek_ipc::helpers::metadata::guidelines(&ipc_info);
+
+    if let Ok(guidelines) = guidelines {
+        v.guidelines.extend(guidelines);
+    } else {
+        log::warn!("Failed to get font-level guidelines. Not in font, or font corrupt.");
     }
 
     v.ipc_info = Some(ipc_info);

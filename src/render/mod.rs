@@ -1,35 +1,32 @@
-pub mod grid;
-
 // TODO: Replace console! pub mod console;
 
 use glifparser::matrix::ToSkiaMatrix;
 use glifrenderer::anchors::draw_anchors;
-use glifrenderer::calc_x;
-use glifrenderer::calc_y;
 use glifrenderer::constants::*;
 use glifrenderer::glyph::draw_components;
+use glifrenderer::grid;
 use glifrenderer::guidelines;
 use glifrenderer::points;
 use glifrenderer::toggles::*;
-use glifrenderer::viewport;
 
-use skulpin::skia_safe::Canvas;
-use skulpin::skia_safe::Matrix;
+use skulpin::skia_safe::{self as skia, Canvas};
 
 use crate::user_interface::PAPER_DRAW_GUIDELINES;
 use crate::{editor::Editor, user_interface::Interface};
 
 pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
     canvas.save();
+
     let pm = i.viewport.preview_mode;
     canvas.clear(if pm == PreviewMode::Paper {
         PAPER_BGCOLOR
     } else {
         BACKGROUND_COLOR
     });
+
     // This will change the SkCanvas transformation matrix, and everything from here to
     // canvas.restore() will need to take that matrix into consideration.
-    viewport::redraw_viewport(&i.viewport, canvas);
+    i.viewport.redraw(canvas);
 
     let dropped = v.with_glyph(|glif| {
         let mut dropped = vec![];
@@ -41,17 +38,12 @@ pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
                     continue;
                 }
                 let image = &v.images[&l_image.filename];
-                let origin_transform = Matrix::translate((0., 0. - image.img.height() as f32));
-                let matrix3 = Matrix::translate((calc_x(0.), calc_y(0.)));
                 let tm = canvas.local_to_device_as_3x3();
                 canvas.save();
-                //let matrix2 = EncodedOrigin::to_matrix(EncodedOrigin::BottomLeft, (image.img.width(), image.img.height()));
-                let matrix = tm * matrix3 * i_matrix.to_skia_matrix() * origin_transform ;
+                let matrix2 = skia::EncodedOrigin::to_matrix(skia::EncodedOrigin::BottomLeft, (image.img.width(), image.img.height()));
+                let matrix = tm * i_matrix.to_skia_matrix() * matrix2;
                 canvas.set_matrix(&((matrix).into()));
                 //eprintln!("{:?}", Matrix::new_identity().set_rotate(45., None).to_affine());
-                // We shouldn't use (0., 0.) because this is a glifparser image, relative to the glif's points.
-                // So, we need points::calc::calc_(x|y). Remember also, the glif y is positive, while Skia's
-                // negative.
                 canvas.draw_image(&image.img, (0., 0.), None);
                 canvas.restore();
             }
@@ -68,9 +60,32 @@ pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
     }
 
     if pm != PreviewMode::Paper || PAPER_DRAW_GUIDELINES {
-        v.with_glyph(|glif| {
-            guidelines::draw_all(glif, &i.viewport, canvas);
+        guidelines::draw_baseline::<()>(&i.viewport, canvas);
+        let local_guidelines = v.with_glyph(|glyph| {
+            glyph
+                .guidelines
+                .iter()
+                .map(|g| g.clone())
+                .collect::<Vec<_>>()
         });
+        for guideline in v.guidelines.iter().chain(local_guidelines.iter()) {
+            let data = guideline.data.as_guideline();
+            guidelines::draw_guideline(
+                &i.viewport,
+                canvas,
+                &guideline,
+                if data.right {
+                    Some(RBEARING_STROKE)
+                } else if data.format {
+                    Some(UFO_GUIDELINE_STROKE)
+                } else {
+                    None
+                },
+            );
+        }
+        if i.grid.show {
+            grid::draw(canvas, &i.grid, &i.viewport);
+        }
     }
 
     glifrenderer::glyph::draw(canvas, v.preview.as_ref().unwrap(), &i.viewport);
@@ -112,10 +127,6 @@ pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
             //points::draw_selected(v, canvas);
         }
         PreviewMode::Paper => (),
-    }
-
-    if let Some(grid) = &i.grid {
-        grid::draw_grid(canvas, grid, &i.viewport);
     }
 
     // Reset transformation matrix

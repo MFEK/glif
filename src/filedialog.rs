@@ -1,3 +1,5 @@
+use crate::util;
+
 use std::path::PathBuf;
 
 pub fn filename_or_panic(
@@ -9,7 +11,7 @@ pub fn filename_or_panic(
         Some(file) => file.into(),
         None => match nfd::open_file_dialog(filter, start_in) {
             Ok(nfd::Response::Okay(file)) => file.into(),
-            _ => panic!("Exit requested"),
+            _ => util::hard_error("Exit requested"),
         },
     }
 }

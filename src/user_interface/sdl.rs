@@ -1,7 +1,9 @@
 use std::collections::HashSet;
 use std::ffi::NulError;
 
-use crate::user_interface::{Interface, HEIGHT, WIDTH};
+use crate::user_interface::Interface;
+
+use glifrenderer::viewport::Viewport;
 use image;
 use sdl2::keyboard::Keycode;
 use sdl2::EventPump;
@@ -9,7 +11,7 @@ use sdl2::{pixels::PixelFormatEnum, surface::Surface, video::Window, Sdl};
 use skulpin::LogicalSize;
 
 impl Interface {
-    pub fn initialize_sdl(filename: &str) -> (Sdl, Window) {
+    pub fn initialize_sdl(filename: &str, viewport: &Viewport) -> (Sdl, Window) {
         // SDL initialization
         let sdl_context = sdl2::init().expect("Failed to initialize sdl2");
         let video_subsystem = sdl_context
@@ -19,8 +21,8 @@ impl Interface {
         video_subsystem.text_input().start();
 
         let logical_size = LogicalSize {
-            width: WIDTH,
-            height: HEIGHT,
+            width: viewport.winsize.0 as u32,
+            height: viewport.winsize.1 as u32,
         };
 
         let mut window = video_subsystem

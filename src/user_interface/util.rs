@@ -9,6 +9,7 @@ pub fn imgui_decimal_text_field(
 ) {
     let mut x = imgui::im_str!("{}", (*data * 1000.).round() / 1000.);
     let label = imgui::ImString::new(label);
+    let tok = ui.push_item_width(100.);
     let entered;
     {
         let mut it = ui.input_text(&label, &mut x);
@@ -26,6 +27,7 @@ pub fn imgui_decimal_text_field(
         let new_x: f32 = x.to_str().parse().unwrap();
         *data = new_x;
     }
+    tok.pop(ui);
 }
 
 pub fn imgui_decimal_text_field_f64(label: &str, ui: &imgui::Ui, data: &mut f64) {

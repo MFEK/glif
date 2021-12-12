@@ -28,3 +28,16 @@ pub const IMAGES: &[u8] = &[239, 128, 156, 0]; // U+F01C
 pub const GRID: &[u8] = &[239, 128, 169, 0]; // U+F029
 pub const GUIDELINES: &[u8] = &[239, 128, 176, 0]; // U+F030
 pub const DASH: &[u8] = &[239, 128, 181, 0]; // U+F035
+pub const GLOBE: &[u8] = &[239, 128, 182, 0]; // U+F036
+pub const UFO: &[u8] = &[239, 128, 183, 0]; // U+F037
+
+pub fn chain(icons: &[&[u8]]) -> Vec<u8> {
+    let mut ret = Vec::with_capacity(icons.len() * 4);
+    for (i, icon) in icons.into_iter().enumerate() {
+        ret.extend(*icon);
+        if i != icons.len() - 1 {
+            assert_eq!(ret.pop(), Some(0));
+        }
+    }
+    ret
+}
