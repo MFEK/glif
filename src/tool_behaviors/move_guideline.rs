@@ -25,7 +25,7 @@ impl MoveGuideline {
                 return;
             }
             guideline.at.x -= delta.0;
-            guideline.at.y += delta.1;
+            guideline.at.y -= delta.1;
 
             if guideline.data.as_guideline().right {
                 v.with_glyph_mut(|glyph| {
@@ -38,7 +38,7 @@ impl MoveGuideline {
         } else {
             v.with_glyph_mut(|glyph| {
                 glyph.guidelines[selected].at.x -= delta.0;
-                glyph.guidelines[selected].at.y += delta.1;
+                glyph.guidelines[selected].at.y -= delta.1;
             });
         }
 
