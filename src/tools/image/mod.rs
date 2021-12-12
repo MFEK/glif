@@ -1,4 +1,5 @@
 use super::prelude::*;
+use crate::command::Command;
 use crate::editor::Editor;
 use crate::filedialog;
 use crate::tool_behaviors::move_image::MoveImage;
@@ -20,11 +21,17 @@ pub struct Image {
 impl Tool for Image {
     #[rustfmt::skip]
     fn event(&mut self, v: &mut Editor, _i: &mut Interface, event: EditorEvent) {
-        if let EditorEvent::MouseEvent { mouse_info, event_type } = event {
-            match event_type {
-                MouseEventType::Pressed => self.mouse_pressed(v, mouse_info),
-                _ => (),
+        match event {
+            EditorEvent::MouseEvent { mouse_info, event_type } => {
+                match event_type {
+                    MouseEventType::Pressed => self.mouse_pressed(v, mouse_info),
+                    _ => (),
+                }
+            },
+            EditorEvent::ToolCommand { command: Command::DeleteSelection, .. } => {
+                self.delete_selected(v);
             }
+            _ => {}
         }
     }
 
@@ -139,6 +146,18 @@ impl Image {
 
             v.begin_modification("Add image to layer.");
             v.add_image_to_active_layer(filename);
+            v.end_modification();
+        }
+    }
+
+    fn delete_selected(&mut self, v: &mut Editor) {
+        if let Some(idx) = self.selected_idx {
+            v.begin_modification("Delete image from layer.");
+            self.selected_idx = None;
+            v.with_active_layer_mut(|layer| {
+                layer.images.remove(idx);
+            });
+            v.recache_images();
             v.end_modification();
         }
     }

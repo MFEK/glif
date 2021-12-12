@@ -191,6 +191,9 @@ fn main() {
                         Command::ToolGrid => {
                             editor.set_tool(ToolEnum::Grid);
                         }
+                        Command::ToolImages => {
+                            editor.set_tool(ToolEnum::Image);
+                        }
                         Command::TogglePointLabels => {
                             trigger_toggle_on!(
                                 interface,
