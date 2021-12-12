@@ -48,9 +48,9 @@ jobs:
       - name: Run cargo build
         run: |
           cargo build --release --locked
-      - name: Run cargo test
-        run: |
-          cargo test --locked
+    # - name: Run cargo test
+    #   run: |
+    #     cargo test --release --locked
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
