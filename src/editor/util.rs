@@ -234,24 +234,26 @@ pub fn build_box_selection(
     selected
 }
 
-pub fn move_all_layers(v: &mut Editor, x: f32, y: f32) {
+pub fn move_all_layers(v: &mut Editor, mut x: f32, mut y: f32) {
     v.with_glyph_mut(|glyph| {
-        //let mut all_indexes = vec![];
         for li in 0..glyph.layers.len() {
-            //all_indexes.push(vec![]);
             for ci in 0..glyph.layers[li].outline.len() {
                 for pi in 0..glyph.layers[li].outline[ci].inner.len() {
-                    //all_indexes.last_mut().unwrap().push((ci, pi));
-                    move_point_by(&mut glyph.layers[li].outline, ci, pi, None, None, x, y);
+                    let (cx, cy) = {
+                        let outline = &glyph.layers[li].outline;
+                        (outline[ci].inner[pi].x, outline[ci].inner[pi].y)
+                    };
+                    if x.is_nan() {
+                        x = 0.;
+                    }
+                    if y.is_nan() {
+                        y = 0.;
+                    }
+                    let (dx, dy) = (cx - x, cy - y);
+                    move_point(&mut glyph.layers[li].outline, ci, pi, dx, dy);
                 }
             }
         }
-        /*for (li, alayer) in all_indexes.iter().enumerate() {
-            for (ci, pi) in alayer {
-                let (ci, pi) = (*ci, *pi);
-                move_point(&mut glyph.layers[li].outline, ci, pi, x, y);
-            }
-        }*/
     });
 }
 
@@ -265,25 +267,8 @@ pub fn move_point(
     let (cx, cy) = (outline[ci].inner[pi].x, outline[ci].inner[pi].y);
     let (dx, dy) = (cx - x, cy - y);
 
-    move_point_by(outline, ci, pi, Some(x), Some(y), dx, dy);
-}
-
-pub fn move_point_by(
-    outline: &mut MFEKOutline<MFEKGlifPointData>,
-    ci: usize,
-    pi: usize,
-    x: Option<f32>,
-    y: Option<f32>,
-    dx: f32,
-    dy: f32,
-) {
-    if let (Some(x), Some(y)) = (x, y) {
-        outline[ci].inner[pi].x = x;
-        outline[ci].inner[pi].y = y;
-    } else {
-        outline[ci].inner[pi].x -= dx;
-        outline[ci].inner[pi].y -= dy;
-    }
+    outline[ci].inner[pi].x = x;
+    outline[ci].inner[pi].y = y;
 
     let a = outline[ci].inner[pi].a;
     let b = outline[ci].inner[pi].b;

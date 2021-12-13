@@ -24,16 +24,22 @@ impl MoveGlyph {
         };
 
         let delta = (mp.0 - mouse_info.position.0, mp.1 - mouse_info.position.1);
+        let alt = mouse_info.modifiers.alt;
 
-        v.with_glyph_mut(|glyph| {
-            *glyph = mg_glyph.clone();
-            if let Some(w) = glyph.width.as_mut() {
-                *w = (*w as f32 - delta.0) as u64;
-            }
-        });
-        v.add_width_guidelines();
+        if !alt {
+            v.with_glyph_mut(|glyph| {
+                *glyph = mg_glyph.clone();
+                if let Some(w) = glyph.width.as_mut() {
+                    let delta = -delta.0;
+                    *w = (*w as f32 + delta) as u64;
+                }
+            });
+            v.add_width_guidelines();
+        } else {
+            self.mouse_info = Some(mouse_info);
+        }
 
-        editor::util::move_all_layers(v, delta.0, 0.);
+        editor::util::move_all_layers(v, delta.0, f32::NAN);
     }
 
     pub fn mouse_released(&mut self, v: &mut Editor, _i: &mut Interface, mouse_info: MouseInfo) {
