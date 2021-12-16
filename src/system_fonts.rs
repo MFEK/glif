@@ -17,20 +17,23 @@ pub struct Font {
 }
 
 fn load_font(family: &[FKFamilyName]) -> Font {
-    let source = SystemSource::new();
-    let font = source
-        .select_best_match(family, &Properties::new())
-        .unwrap();
-    match font {
-        FKHandle::Path { path, .. } => Font {
+    log::debug!("Looking for a UI font to satisfy request for {:?}", family);
+    let font = match SystemSource::new().select_best_match(family, &Properties::new()) {
+        Ok(FKHandle::Path { path, .. }) => Font {
             path: Some(path.clone()),
             data: fs::read(path).expect("Failed to open font path system specified"),
         },
-        FKHandle::Memory { bytes, .. } => Font {
+        Ok(FKHandle::Memory { bytes, .. }) => Font {
             path: None,
             data: Arc::try_unwrap(bytes).expect("Failed to load in-memory font"),
         },
-    }
+        Err(e) => panic!(
+            "Failed to select font for {:?} ! Error from fontkit {:?}",
+            family, e
+        ),
+    };
+    log::debug!("OK: Found {:?} (len {})", &font.path, font.data.len());
+    font
 }
 
 lazy_static! {
