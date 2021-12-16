@@ -1,5 +1,6 @@
 COMMA:=,
 
+export CARGOFLAGS := $(if $(CARGOFLAGS),$(CARGOFLAGS),)
 export RUSTFLAGS := $(if $(RUSTFLAGS),$(RUSTFLAGS),)
 export RUST_LOG := $(if $(RUST_LOG),$(RUST_LOG),MFEKglif=debug$(COMMA)mfek_ipc=trace)
 export RUST_BACKTRACE := $(if $(RUST_BACKTRACE),$(RUST_BACKTRACE),)
@@ -11,10 +12,10 @@ all: build
 
 .PHONY: datestamp
 datestamp:
-	date -u '+%Y$(shell tput setaf 2)年$(shell tput sgr0)%m$(shell tput setaf 2)月$(shell tput sgr0)%d$(shell tput setaf 2)日$(shell tput sgr0)' > .cargo/kyou
+	./mk/cargo_config.sh || git checkout .cargo/config.toml
 
 .PHONY: build
-build:
+build: datestamp
 	RUST_LOG="$(RUST_LOG)" RUST_BACKTRACE="$(RUST_BACKTRACE)" cargo build $(CARGOFLAGS)
 
 .PHONY: testrun
@@ -22,8 +23,7 @@ testrun: build
 	RUST_LOG="$(RUST_LOG)" RUST_BACKTRACE="$(RUST_BACKTRACE)" cargo run $(CARGOFLAGS) -- $(TESTFILE)
 
 .PHONY: dist
-dist:
-	make CARGOFLAGS='--release' build
+dist: build
 	mkdir -p target/release-upx
 	upx --best -o target/release-upx/$(MFEK_MODULE) target/release/$(MFEK_MODULE)
 
