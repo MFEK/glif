@@ -234,7 +234,8 @@ impl Editor {
         .into_iter()
         .enumerate()
         {
-            if self.italic_angle == 0. && i >= 2 {
+            // Skip showing italic bearings if they'd be equal to normal bearings
+            if self.italic_angle % 90. == 0. && i >= 2 {
                 continue;
             }
             let (fixed, format, right) = (i % 2 == 0, true, i % 2 == 1);
