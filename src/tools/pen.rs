@@ -49,24 +49,24 @@ impl Pen {
         // If that is the case we merge them
         if let (Some(c_idx), Some(p_idx)) = (v.contour_idx, v.point_idx) {
             // we've clicked a point?
-            if let Some(info) = clicked_point_or_handle(v, i, mouse_info.raw_position, None) {
+            if let Some((info_ci, info_pi, _)) = clicked_point_or_handle(v, i, mouse_info.raw_position, None) {
                 // we have the end of one contour active and clicked the start of another?
                 let end_is_active =
                     get_contour_start_or_end(v, c_idx, p_idx) == Some(SelectPointInfo::End);
                 let start_is_clicked =
-                    get_contour_start_or_end(v, info.0, info.1) == Some(SelectPointInfo::Start);
+                    get_contour_start_or_end(v, info_ci, info_pi) == Some(SelectPointInfo::Start);
 
                 // make sure these contours are open
                 let selected_open =
                     v.with_active_layer(|layer| get_contour_type!(layer, c_idx)) == PointType::Move;
-                let target_open = v.with_active_layer(|layer| get_contour_type!(layer, info.0))
+                let target_open = v.with_active_layer(|layer| get_contour_type!(layer, info_ci))
                     == PointType::Move;
                 if end_is_active && start_is_clicked && selected_open && target_open {
                     v.with_active_layer_mut(|layer| {
-                        let new_point = get_point!(layer, info.0, info.1).clone();
+                        let mut new_point = get_point!(layer, info_ci, info_pi).clone();
                         get_contour_mut!(layer, c_idx).push(new_point);
                     });
-                    v.merge_contours(info.0, c_idx);
+                    v.merge_contours(info_ci, c_idx);
                     v.end_modification();
                     return;
                 }
@@ -210,21 +210,21 @@ impl Pen {
         // we've got a point selected?
         if let (Some(c_idx), Some(p_idx)) = (v.contour_idx, v.point_idx) {
             // we've clicked a handle?
-            if let Some(info) = clicked_point_or_handle(v, i, i.mouse_info.raw_position, None) {
+            if let Some((info_ci, info_pi, _)) = clicked_point_or_handle(v, i, i.mouse_info.raw_position, None) {
                 // we have the end of one contour active and clicked the start of another?
                 let end_is_active =
                     get_contour_start_or_end(v, c_idx, p_idx) == Some(SelectPointInfo::End);
                 let start_is_clicked =
-                    get_contour_start_or_end(v, info.0, info.1) == Some(SelectPointInfo::Start);
+                    get_contour_start_or_end(v, info_ci, info_pi) == Some(SelectPointInfo::Start);
 
                 // make sure these contours are open
                 let selected_open =
                     v.with_active_layer(|layer| get_contour_type!(layer, c_idx)) == PointType::Move;
-                let target_open = v.with_active_layer(|layer| get_contour_type!(layer, info.0))
+                let target_open = v.with_active_layer(|layer| get_contour_type!(layer, info_ci))
                     == PointType::Move;
                 if end_is_active && start_is_clicked && selected_open && target_open {
                     let point =
-                        v.with_active_layer(|layer| get_contour!(layer, info.0)[info.1].clone());
+                        v.with_active_layer(|layer| get_contour!(layer, info_ci)[info_pi].clone());
                     draw_point(
                         &i.viewport,
                         (calc_x(point.x), calc_y(point.y)),

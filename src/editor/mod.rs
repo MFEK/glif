@@ -169,9 +169,10 @@ impl Editor {
             self.point_idx = Some(0);
         } else {
             // we're merging two open paths
-            let (cidx, pidx) = self.with_active_layer_mut(|layer| {
+            let (mut cidx, pidx) = self.with_active_layer_mut(|layer| {
                 let mut startc = get_contour!(layer, start).clone();
                 let endc = get_contour_mut!(layer, end);
+                let mut end = end;
 
                 endc.last_mut().unwrap().b = startc[0].a;
 
@@ -182,7 +183,11 @@ impl Editor {
                 }
 
                 layer.outline.remove(start);
-                //TODO: we need some kind of handling for when contours get removed
+
+                if end > layer.outline.len() - 1 {
+                    end = start;
+                }
+
                 (end, p_idx)
             });
 

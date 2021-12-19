@@ -47,7 +47,7 @@ impl Select {
             imgui::Window::new(&if multiple_points_selected {
                 imgui::ImString::new("Points")
             } else {
-                imgui::im_str!("Point ({}, {})", ci, pi)
+                imgui::im_str!("Point @({}, {}) of type {:?}", ci, pi, point.ptype)
             })
             .bg_alpha(1.) // See comment on fn redraw_skia
             .flags(

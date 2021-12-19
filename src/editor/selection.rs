@@ -216,6 +216,8 @@ impl Editor {
                 if !result.inner.is_empty() {
                     if deleted {
                         result.inner.first_mut().unwrap().ptype = PointType::Move;
+                        //result.inner.first_mut().unwrap().b = Handle::Colocated;
+                        //result.inner.last_mut().unwrap().a = Handle::Colocated;
                     }
                     new_outline.push(result);
                 }
