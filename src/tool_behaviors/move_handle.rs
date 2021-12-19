@@ -1,5 +1,6 @@
 use super::prelude::*;
 pub use crate::user_interface::follow::Follow;
+use MFEKmath::polar::PolarCoordinates as _;
 
 #[derive(Clone, Debug)]
 pub struct MoveHandle {
@@ -7,18 +8,24 @@ pub struct MoveHandle {
     // on mouse released we check for the same button found here and if we find it we pop ourselves
     // this is a common process among toolbehaviors and allows the behavior to be independent of bindings
     mouse_info: MouseInfo,
-    follow: Follow,
 
     // the index of the point that has the handle we're moving
     wh: WhichHandle,
+
+    // this handle did not previously exist but is being drawn by user for the first time
+    creating: bool,
+
+    warned_force_line: bool,
 }
 
+// Event handlers
 impl MoveHandle {
-    pub fn new(wh: WhichHandle, follow: Follow, mouse_info: MouseInfo) -> Self {
+    pub fn new(wh: WhichHandle, mouse_info: MouseInfo, creating: bool) -> Self {
         Self {
             wh,
-            follow,
             mouse_info,
+            creating,
+            warned_force_line: false,
         }
     }
 
@@ -26,6 +33,8 @@ impl MoveHandle {
         if !v.is_modifying() {
             v.begin_modification("Move handle.");
         }
+
+        self.mouse_info.modifiers = mouse_info.modifiers;
 
         let x = calc_x(mouse_info.position.0 as f32);
         let y = calc_y(mouse_info.position.1 as f32);
@@ -36,65 +45,34 @@ impl MoveHandle {
             let handle = match self.wh {
                 WhichHandle::A => get_point!(layer, vci, vpi).a,
                 WhichHandle::B => get_point!(layer, vci, vpi).b,
-                WhichHandle::Neither => unreachable!("Should've been matched by above?!"),
+                WhichHandle::Neither => panic!("MoveHandle cannot be created with a WhichHandle::Neither!"),
             };
 
             // Current x, current y
             let (cx, cy) = match handle {
                 Handle::At(cx, cy) => (cx, cy),
-                _ => {
-                    let point_pos = (get_point!(layer, vci, vpi).x, get_point!(layer, vci, vpi).y);
-                    // we are going to initialize the other handle if follow is
-                    // set to mirror
-                    if self.follow == Follow::Mirror {
-                        let initialize_pos = Handle::At(point_pos.0, point_pos.1);
-                        match self.wh {
-                            WhichHandle::A => get_point!(layer, vci, vpi).b = initialize_pos,
-                            WhichHandle::B => get_point!(layer, vci, vpi).a = initialize_pos,
-                            WhichHandle::Neither => {
-                                unreachable!("Should've been matched by above?!")
-                            }
-                        }
-                    }
-                    point_pos
-                }
+                Handle::Colocated => (get_point!(layer, vci, vpi).x, get_point!(layer, vci, vpi).y),
             };
 
             // Difference in x, difference in y
             let (dx, dy) = (cx - x, cy - y);
 
-            // If Follow::Mirror (left mouse button), other control point (handle) will do mirror
-            // image action of currently selected control point. Perhaps pivoting around central
-            // point is better?
-            macro_rules! move_mirror {
-                ($cur:ident, $mirror:ident) => {
-                    get_point!(layer, vci, vpi).$cur = Handle::At(x, y);
-                    let h = get_point!(layer, vci, vpi).$mirror;
-                    match h {
-                        Handle::At(hx, hy) => {
-                            if self.follow == Follow::Mirror {
-                                get_point!(layer, vci, vpi).$mirror = Handle::At(hx + dx, hy + dy);
-                            } else if self.follow == Follow::ForceLine {
-                                let (px, py) =
-                                    (get_point!(layer, vci, vpi).x, get_point!(layer, vci, vpi).y);
-                                let (dx, dy) = (px - x, py - y);
-
-                                get_point!(layer, vci, vpi).$mirror = Handle::At(px + dx, py + dy);
-                            }
-                        }
-                        Handle::Colocated => (),
-                    }
-                };
-            }
+            let follow = if self.creating {
+                Follow::Mirror
+            } else {
+                Follow::from(self.mouse_info)
+            };
 
             match self.wh {
-                WhichHandle::A => {
-                    move_mirror!(a, b);
+                WhichHandle::A | WhichHandle::B => {
+                    get_point!(layer, vci, vpi).set_handle(self.wh, Handle::At(x, y));
+                    match follow {
+                        Follow::Mirror => self.mirror(&mut get_point!(layer, vci, vpi), (dx, dy)),
+                        Follow::ForceLine => self.force_line(&mut get_point!(layer, vci, vpi)),
+                        Follow::No => ()
+                    }
                 }
-                WhichHandle::B => {
-                    move_mirror!(b, a);
-                }
-                WhichHandle::Neither => unreachable!("Should've been matched by above?!"),
+                WhichHandle::Neither => unreachable!("Should've been matched above?!"),
             }
         });
     }
@@ -103,6 +81,35 @@ impl MoveHandle {
         if mouse_info.button == self.mouse_info.button {
             v.end_modification();
             v.pop_behavior();
+        }
+    }
+}
+
+// Implementations of Follow::* behaviors
+impl MoveHandle {
+    fn mirror(&self, point: &mut Point<MFEKGlifPointData>, (dx, dy): (f32, f32)) {
+        let (hx, hy) = match point.handle(self.wh.opposite()) {
+            Handle::At(hx, hy) => (hx, hy),
+            Handle::Colocated => {
+                // Initialize control point currently marked as being colocated
+                point.set_handle(self.wh.opposite(), Handle::At(point.x, point.y));
+                (point.x, point.y)
+            },
+        };
+        point.set_handle(self.wh.opposite(), Handle::At(hx + dx, hy + dy));
+    }
+
+    fn force_line(&mut self, point: &mut Point<MFEKGlifPointData>) {
+        let (r, _) = point.polar(self.wh.opposite());
+        let (_, theta) = point.polar(self.wh);
+        match point.handle(self.wh.opposite()) {
+            Handle::At(..) => point.set_polar(self.wh.opposite(), (r, theta.to_degrees())),
+            Handle::Colocated => {
+                if !self.warned_force_line {
+                    log::warn!("Makes no sense to force line when opposite handle is colocated, ignoring");
+                }
+                self.warned_force_line = true;
+            },
         }
     }
 }

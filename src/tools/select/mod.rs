@@ -189,8 +189,7 @@ impl Select {
                     v.set_behavior(Box::new(MovePoint::new(move_selected, mouse_info)));
                 } else {
                     // the user clicked a handle so we push a move_handle behavior
-                    let follow = mouse_info.into();
-                    v.set_behavior(Box::new(MoveHandle::new(wh, follow, mouse_info)));
+                    v.set_behavior(Box::new(MoveHandle::new(wh, mouse_info, false)));
                 }
             }
             None => {

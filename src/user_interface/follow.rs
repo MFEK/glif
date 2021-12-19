@@ -4,14 +4,14 @@ use derive_more::Display;
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq)]
 /// Point following behavior when using the select tool
 pub enum Follow {
-    // Other point will take mirror action of current point.
+    // If Follow::Mirror (left mouse button), other control point (handle) will do mirror
+    // image action of currently selected control point. Perhaps pivoting around central
+    // point is better?
+    /// Other point will take mirror action of current point.
     Mirror,
-    // Other point will be forced into a line with the current point as midpoint.
+    /// Other point will be forced into a line with the current point as midpoint.
     ForceLine,
-    // For a quadratic curve, the "other side" of the curve (in reality, the control point on an
-    // adjacent curve), should follow too.
-    QuadOpposite,
-    // Other point will remain in fixed position.
+    /// Other point will remain in fixed position.
     No,
 }
 
@@ -26,6 +26,8 @@ impl From<MouseInfo> for Follow {
             } => {
                 if modifiers.ctrl {
                     Follow::ForceLine
+                } else if modifiers.alt {
+                    Follow::Mirror
                 } else {
                     Follow::No
                 }
@@ -34,7 +36,7 @@ impl From<MouseInfo> for Follow {
                 button: MouseButton::Right,
                 ..
             } => Follow::Mirror,
-            _ => Follow::QuadOpposite,
+            _ => Follow::No,
         }
     }
 }

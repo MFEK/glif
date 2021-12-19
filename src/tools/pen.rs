@@ -2,7 +2,6 @@ use super::prelude::*;
 use crate::contour_operations;
 use crate::tool_behaviors::move_handle::MoveHandle;
 use crate::tool_behaviors::pan::PanBehavior;
-use crate::user_interface::follow::Follow;
 use crate::user_interface::Interface;
 use glifrenderer::points::draw_point;
 
@@ -180,8 +179,8 @@ impl Pen {
         // vehavior onto the editor's behavior stack.
         v.push_behavior(Box::new(MoveHandle::new(
             WhichHandle::A,
-            Follow::Mirror,
             mouse_info,
+            true,
         )));
     }
 
