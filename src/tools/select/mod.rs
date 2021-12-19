@@ -91,7 +91,12 @@ impl Select {
     }
 
     fn nudge_selected(&mut self, v: &mut Editor, command: Command) {
-        for (ci, pi) in v.selected.clone() {
+        let to_chain = if let (Some(ci), Some(pi)) = (v.contour_idx, v.point_idx) {
+            vec![(ci, pi)]
+        } else {
+            vec![]
+        };
+        for (ci, pi) in v.selected.clone().into_iter().chain(to_chain) {
             v.begin_modification("Nudge selected points.");
             v.with_active_layer_mut(|layer| {
                 let point = &get_point!(layer, ci, pi);
