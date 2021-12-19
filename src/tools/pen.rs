@@ -65,7 +65,7 @@ impl Pen {
                     == PointType::Move;
                 if end_is_active && start_is_clicked && selected_open && target_open {
                     v.with_active_layer_mut(|layer| {
-                        let mut new_point = get_point!(layer, info_ci, info_pi).clone();
+                        let new_point = get_point!(layer, info_ci, info_pi).clone();
                         get_contour_mut!(layer, c_idx).push(new_point);
                     });
                     v.merge_contours(info_ci, c_idx);

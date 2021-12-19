@@ -169,7 +169,7 @@ impl Editor {
             self.point_idx = Some(0);
         } else {
             // we're merging two open paths
-            let (mut cidx, pidx) = self.with_active_layer_mut(|layer| {
+            let (cidx, pidx) = self.with_active_layer_mut(|layer| {
                 let mut startc = get_contour!(layer, start).clone();
                 let endc = get_contour_mut!(layer, end);
                 let mut end = end;
