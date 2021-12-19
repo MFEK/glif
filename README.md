@@ -2,7 +2,7 @@
 
 Glyph editor for the Modular Font Editor K project. [![Build Status](https://img.shields.io/github/workflow/status/MFEK/glif/Rust?label=Rust&logo=Rust)](https://github.com/MFEK/glif/actions?workflow=Rust)
 
-**Current beta release: [v1.1.0ꞵ “First Hurrah”](https://github.com/MFEK/glif/releases/tag/v1.1.0b) ‖ [Binaries (links in § Artifacts) (Linux, MacOS, Windows)](https://github.com/MFEK/glif/actions/runs/1568627354)**
+**Current beta release: [v1.1.0ꞵ2 “First Hurrah”](https://github.com/MFEK/glif/releases/tag/v1.1.0b2) ‖ [Binaries (links in § Artifacts) (Linux, MacOS, Windows)](https://github.com/MFEK/glif/actions/runs/1568627354)**
 
 ![](https://raw.githubusercontent.com/MFEK/glif/master/doc/screenshot_main.png)
 
