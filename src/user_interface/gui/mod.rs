@@ -162,6 +162,11 @@ pub fn build_and_check_button(v: &mut Editor, ui: &imgui::Ui, mode: ToolEnum, ic
     if ui.is_item_clicked(imgui::MouseButton::Left) {
         v.set_tool(mode);
     }
+    if ui.is_item_hovered() {
+        ui.tooltip(|| {
+            ui.text(imgui::im_str!("{:?}", mode));
+        });
+    }
     if let Some(p) = pop_me {
         p.pop(ui);
     }
