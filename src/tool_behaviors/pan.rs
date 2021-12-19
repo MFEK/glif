@@ -79,7 +79,8 @@ impl ToolBehavior for PanBehavior {
                     let offset = PanBehavior::nudge_offset(command, factor);
                     i.nudge_viewport(offset);
                 }
-            }
+            },
+            _ => {},
         }
     }
 }

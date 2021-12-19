@@ -16,6 +16,7 @@ use user_interface::{ImguiManager, Interface};
 use util::argparser::HeadlessMode;
 
 use sdl2::event::{Event, WindowEvent};
+use sdl2::mouse::MouseWheelDirection as SdlMouseWheelDirection;
 pub use skulpin::{rafx::api as RafxApi, skia_safe};
 
 use crate::user_interface::mouse_input::MouseInfo;
@@ -347,6 +348,33 @@ fn main() {
                     );
 
                     interface.mouse_info = mouse_info;
+                }
+
+                Event::MouseWheel {
+                    x, y, direction, ..
+                } => {
+                    let (mut x, mut y) = (x, y);
+                    // If direction is SDL_MOUSEWHEEL_FLIPPED the values in x and y will be
+                    // opposite. Multiply by -1 to change them back.
+                    // ( https://wiki.libsdl.org/SDL_MouseWheelEvent#remarks )
+                    match direction {
+                        SdlMouseWheelDirection::Normal => {}
+                        SdlMouseWheelDirection::Flipped => {
+                            x *= -1;
+                            y *= -1;
+                        }
+                        SdlMouseWheelDirection::Unknown(..) => {
+                            log::warn!("SDL doesn't know the direction of the mouse wheel?")
+                        }
+                    }
+
+                    editor.dispatch_editor_event(
+                        &mut interface,
+                        EditorEvent::ScrollEvent {
+                            horizontal: x,
+                            vertical: y,
+                        },
+                    );
                 }
 
                 Event::Window { win_event, .. } => match win_event {

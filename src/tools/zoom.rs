@@ -12,11 +12,13 @@ pub struct Zoom {}
 #[rustfmt::skip]
 impl Tool for Zoom {
     fn event(&mut self, _v: &mut Editor, i: &mut Interface, event: EditorEvent) {
-        if let EditorEvent::MouseEvent { mouse_info, event_type } = event {
-            match event_type {
+        match event {
+            EditorEvent::MouseEvent { mouse_info, event_type } => match event_type {
                 MouseEventType::Released => self.mouse_released(i, mouse_info),
                 _ => (),
             }
+            EditorEvent::ScrollEvent { vertical, .. } => self.scroll(i, vertical),
+            _ => {},
         }
     }
 }
@@ -24,6 +26,18 @@ impl Tool for Zoom {
 impl Zoom {
     pub fn new() -> Self {
         Self {}
+    }
+
+    fn scroll(&self, i: &mut Interface, vertical: i32) {
+        let zoomout = vertical < 0;
+        for _ in 0..vertical.abs() {
+            let scale = if zoomout {
+                zoom_out_factor(i)
+            } else {
+                zoom_in_factor(i)
+            };
+            i.update_viewport(None, Some(scale));
+        }
     }
 
     fn mouse_released(&self, i: &mut Interface, mouse_info: MouseInfo) {

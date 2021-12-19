@@ -7,6 +7,7 @@ pub enum MouseEventType {
     DoubleClick,
     Released,
     Moved,
+    Scrolled,
 }
 
 #[derive(Debug)]
@@ -14,6 +15,14 @@ pub enum EditorEvent<'a> {
     MouseEvent {
         event_type: MouseEventType,
         mouse_info: MouseInfo,
+    },
+
+    ScrollEvent {
+        /// Assumed to almost always be unused, few devices support this
+        horizontal: i32,
+        /// Main scroll wheel use
+        /// From SDL docs: positive away from the user and negative towards the user
+        vertical: i32,
     },
 
     ToolCommand {

@@ -60,6 +60,7 @@ impl Tool for Select {
                     self.nudge_selected(v, command);
                 }
             }
+            _ => {}
         }
     }
 

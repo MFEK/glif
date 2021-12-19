@@ -36,6 +36,7 @@ impl Tool for Pan {
                 ));
                 behavior.event(v, interface, event);
             }
+            _ => {}
         }
     }
 }
