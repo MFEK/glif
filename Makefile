@@ -14,6 +14,10 @@ all: build
 datestamp:
 	./mk/cargo_config.sh || git checkout .cargo/config.toml
 
+.PHONY: clean-datestamp
+clean-datestamp:
+	git checkout .cargo/config.toml
+
 .PHONY: build
 build: datestamp
 	RUST_LOG="$(RUST_LOG)" RUST_BACKTRACE="$(RUST_BACKTRACE)" cargo build $(CARGOFLAGS)
