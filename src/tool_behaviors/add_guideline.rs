@@ -14,11 +14,19 @@ pub struct AddGuideline {
 
 impl AddGuideline {
     pub fn new(angle: f32, global: bool) -> Self {
-        AddGuideline { angle, global, new_angle_idx: 0 }
+        AddGuideline {
+            angle,
+            global,
+            new_angle_idx: 0,
+        }
     }
 
     pub fn mouse_released(&mut self, v: &mut Editor, mouse_info: MouseInfo) {
-        let prev_guide = Guideline::from_x_y_angle(calc_x(mouse_info.position.0), calc_y(mouse_info.position.1), Float(self.angle));
+        let prev_guide = Guideline::from_x_y_angle(
+            calc_x(mouse_info.position.0),
+            calc_y(mouse_info.position.1),
+            Float(self.angle),
+        );
 
         v.begin_modification("Add guideline.");
         if self.global {
@@ -33,8 +41,16 @@ impl AddGuideline {
         v.pop_behavior();
     }
     fn next_angle_type(&mut self, v: &Editor) {
-        let angle_types = if v.italic_angle == 0. { vec![0., 90.] } else { vec![0., v.italic_angle, 90.] };
-        self.new_angle_idx = if self.new_angle_idx == angle_types.len() - 1 { 0 } else { self.new_angle_idx + 1 };
+        let angle_types = if v.italic_angle == 0. {
+            vec![0., 90.]
+        } else {
+            vec![0., v.italic_angle, 90.]
+        };
+        self.new_angle_idx = if self.new_angle_idx == angle_types.len() - 1 {
+            0
+        } else {
+            self.new_angle_idx + 1
+        };
         self.angle = angle_types[self.new_angle_idx];
     }
 }
@@ -50,7 +66,8 @@ impl ToolBehavior for AddGuideline {
             }
             EditorEvent::ToolCommand {
                 command: Command::ReverseContour,
-                stop_after, ..
+                stop_after,
+                ..
             } => {
                 self.next_angle_type(v); // usually the same as a "reversal"
                 *stop_after = true;
@@ -60,7 +77,11 @@ impl ToolBehavior for AddGuideline {
     }
 
     fn draw(&self, _v: &Editor, i: &Interface, canvas: &mut Canvas) {
-        let prev_guide = Guideline::<()>::from_x_y_angle(calc_x(i.mouse_info.position.0), calc_y(i.mouse_info.position.1), Float(self.angle));
+        let prev_guide = Guideline::<()>::from_x_y_angle(
+            calc_x(i.mouse_info.position.0),
+            calc_y(i.mouse_info.position.1),
+            Float(self.angle),
+        );
         draw_guideline(&i.viewport, canvas, &prev_guide, None)
     }
 }

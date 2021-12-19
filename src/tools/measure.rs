@@ -1,6 +1,6 @@
-use num_traits::float::Float;
 use glifrenderer::constants::{self, OUTLINE_STROKE_THICKNESS};
 use glifrenderer::string::{pointfont_from_size_and_factor, POINTFONTS, POINTFONTSIZE};
+use num_traits::float::Float;
 use skulpin::skia_safe::{
     dash_path_effect, AutoCanvasRestore, Canvas, Paint, Path, Point, TextBlob,
 };

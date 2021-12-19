@@ -28,13 +28,9 @@ impl Zoom {
 
     fn mouse_released(&self, i: &mut Interface, mouse_info: MouseInfo) {
         let scale = match mouse_info.button {
-            MouseButton::Left => {
-                zoom_in_factor(i)
-            }
-            MouseButton::Right => {
-                zoom_out_factor(i)
-            }
-            _ => {return}
+            MouseButton::Left => zoom_in_factor(i),
+            MouseButton::Right => zoom_out_factor(i),
+            _ => return,
         };
         i.update_viewport(None, Some(scale));
     }

@@ -289,7 +289,8 @@ impl Shapes {
                     ShapeType::Polygon => sd.draw_polygon(self.stype),
                 };
 
-                let mfek_o: Vec<MFEKContour<MFEKGlifPointData>> = o.iter().map(|e| e.into()).collect();
+                let mfek_o: Vec<MFEKContour<MFEKGlifPointData>> =
+                    o.iter().map(|e| e.into()).collect();
                 layer.outline.extend(mfek_o);
                 self.dropped_shape = true;
             });

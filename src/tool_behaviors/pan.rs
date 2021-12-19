@@ -1,6 +1,9 @@
 use super::prelude::*;
 
-use crate::command::{Command::{*, self}, CommandType};
+use crate::command::{
+    Command::{self, *},
+    CommandType,
+};
 
 #[derive(Clone, Debug)]
 pub struct PanBehavior {

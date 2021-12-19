@@ -1,8 +1,8 @@
 use super::prelude::*;
 
 use crate::editor::Editor;
-use crate::tool_behaviors::ToolBehavior;
 use crate::tool_behaviors::pan::PanBehavior;
+use crate::tool_behaviors::ToolBehavior;
 use crate::user_interface::Interface;
 
 // Pan is a good example of a simple tool. It holds only a little bit of state, an optional position.
@@ -35,7 +35,7 @@ impl Tool for Pan {
                     MouseInfo::default(),
                 ));
                 behavior.event(v, interface, event);
-            },
+            }
         }
     }
 }

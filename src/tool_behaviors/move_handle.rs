@@ -45,7 +45,9 @@ impl MoveHandle {
             let handle = match self.wh {
                 WhichHandle::A => get_point!(layer, vci, vpi).a,
                 WhichHandle::B => get_point!(layer, vci, vpi).b,
-                WhichHandle::Neither => panic!("MoveHandle cannot be created with a WhichHandle::Neither!"),
+                WhichHandle::Neither => {
+                    panic!("MoveHandle cannot be created with a WhichHandle::Neither!")
+                }
             };
 
             // Current x, current y
@@ -69,7 +71,7 @@ impl MoveHandle {
                     match follow {
                         Follow::Mirror => self.mirror(&mut get_point!(layer, vci, vpi), (dx, dy)),
                         Follow::ForceLine => self.force_line(&mut get_point!(layer, vci, vpi)),
-                        Follow::No => ()
+                        Follow::No => (),
                     }
                 }
                 WhichHandle::Neither => unreachable!("Should've been matched above?!"),
@@ -94,7 +96,7 @@ impl MoveHandle {
                 // Initialize control point currently marked as being colocated
                 point.set_handle(self.wh.opposite(), Handle::At(point.x, point.y));
                 (point.x, point.y)
-            },
+            }
         };
         point.set_handle(self.wh.opposite(), Handle::At(hx + dx, hy + dy));
     }
@@ -106,10 +108,12 @@ impl MoveHandle {
             Handle::At(..) => point.set_polar(self.wh.opposite(), (r, theta.to_degrees())),
             Handle::Colocated => {
                 if !self.warned_force_line {
-                    log::warn!("Makes no sense to force line when opposite handle is colocated, ignoring");
+                    log::warn!(
+                        "Makes no sense to force line when opposite handle is colocated, ignoring"
+                    );
                 }
                 self.warned_force_line = true;
-            },
+            }
         }
     }
 }

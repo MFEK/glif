@@ -4,7 +4,7 @@ use super::prelude::*;
 #[derivative(Debug)]
 pub struct MoveGlyph {
     mouse_info: Option<MouseInfo>,
-    #[derivative(Debug="ignore")]
+    #[derivative(Debug = "ignore")]
     glyph: Option<MFEKGlif<MFEKGlifPointData>>,
 }
 
@@ -13,15 +13,16 @@ impl MoveGlyph {
         v.begin_modification("Move glyph.");
 
         self.mouse_info = Some(mouse_info);
-        self.glyph = Some(v.with_glyph(|glyph|glyph.clone()));
+        self.glyph = Some(v.with_glyph(|glyph| glyph.clone()));
     }
 
     pub fn mouse_moved(&mut self, v: &mut Editor, _i: &mut Interface, mouse_info: MouseInfo) {
-        let (mp, mg_glyph) = if let (Some(mi), Some(g)) = (self.mouse_info.as_mut(), self.glyph.as_mut()) {
-            (mi.position, g)
-        } else {
-            return;
-        };
+        let (mp, mg_glyph) =
+            if let (Some(mi), Some(g)) = (self.mouse_info.as_mut(), self.glyph.as_mut()) {
+                (mi.position, g)
+            } else {
+                return;
+            };
 
         let delta = (mp.0 - mouse_info.position.0, mp.1 - mouse_info.position.1);
         let alt = mouse_info.modifiers.alt;

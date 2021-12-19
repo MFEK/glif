@@ -49,7 +49,9 @@ impl Pen {
         // If that is the case we merge them
         if let (Some(c_idx), Some(p_idx)) = (v.contour_idx, v.point_idx) {
             // we've clicked a point?
-            if let Some((info_ci, info_pi, _)) = clicked_point_or_handle(v, i, mouse_info.raw_position, None) {
+            if let Some((info_ci, info_pi, _)) =
+                clicked_point_or_handle(v, i, mouse_info.raw_position, None)
+            {
                 // we have the end of one contour active and clicked the start of another?
                 let end_is_active =
                     get_contour_start_or_end(v, c_idx, p_idx) == Some(SelectPointInfo::End);
@@ -177,11 +179,7 @@ impl Pen {
 
         // No matter how you move the point we want you to be able to manipulate it so we push the MoveHandle
         // vehavior onto the editor's behavior stack.
-        v.push_behavior(Box::new(MoveHandle::new(
-            WhichHandle::A,
-            mouse_info,
-            true,
-        )));
+        v.push_behavior(Box::new(MoveHandle::new(WhichHandle::A, mouse_info, true)));
     }
 
     fn draw_nearest_point(&self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
@@ -210,7 +208,9 @@ impl Pen {
         // we've got a point selected?
         if let (Some(c_idx), Some(p_idx)) = (v.contour_idx, v.point_idx) {
             // we've clicked a handle?
-            if let Some((info_ci, info_pi, _)) = clicked_point_or_handle(v, i, i.mouse_info.raw_position, None) {
+            if let Some((info_ci, info_pi, _)) =
+                clicked_point_or_handle(v, i, i.mouse_info.raw_position, None)
+            {
                 // we have the end of one contour active and clicked the start of another?
                 let end_is_active =
                     get_contour_start_or_end(v, c_idx, p_idx) == Some(SelectPointInfo::End);

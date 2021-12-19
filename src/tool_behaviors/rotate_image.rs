@@ -30,9 +30,7 @@ impl RotateImage {
 
     pub fn mouse_moved(&mut self, v: &mut Editor, _i: &mut Interface, mouse_info: MouseInfo) {
         if !v.is_modifying() {
-            v.begin_modification(
-                "Rotate image.",
-            )
+            v.begin_modification("Rotate image.")
         }
         let pivot_vector = Vector::from_components(self.pivot.0 as f64, self.pivot.1 as f64);
         let mouse_vector =
@@ -51,7 +49,8 @@ impl RotateImage {
             let raw_affine: Vec<f32> = affine.as_coeffs().iter().map(|x| *x as f32).collect();
 
             let sk_affine = Matrix::from_affine(&raw_affine.try_into().unwrap());
-            let rotate_mat = Matrix::rotate_deg_pivot(-(rotation_angle as f32).to_degrees(), self.pivot);
+            let rotate_mat =
+                Matrix::rotate_deg_pivot(-(rotation_angle as f32).to_degrees(), self.pivot);
 
             let sk_affine = rotate_mat * sk_affine;
 
