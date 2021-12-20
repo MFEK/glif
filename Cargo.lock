@@ -1632,7 +1632,7 @@ dependencies = [
 [[package]]
 name = "mfek-ipc"
 version = "0.0.0-beta1"
-source = "git+https://github.com/MFEK/ipc.rlib#695933d8bbee2a9066a969529be525b9ea1dc638"
+source = "git+https://github.com/MFEK/ipc.rlib#e42ed02a1104a5d4a1df8058a45b698cf49cb84f"
 dependencies = [
  "atty",
  "colored",
