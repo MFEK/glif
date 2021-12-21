@@ -6,23 +6,26 @@ use crate::user_interface::Interface;
 
 use glifparser::{glif::MFEKContour, outline::skia::FromSkiaPath, Outline};
 use imgui;
+use num;
+use num_derive::FromPrimitive;
 use skulpin::skia_safe::{
     Matrix, Path, PathDirection, PathEffect, Point as SkPoint, RRect, Rect, StrokeRec,
 };
 
 impl Tool for Shapes {
     fn event(&mut self, v: &mut Editor, _i: &mut Interface, event: EditorEvent) {
-        if let EditorEvent::MouseEvent {
-            event_type,
-            mouse_info,
-        } = event
-        {
-            match event_type {
+        match event {
+            EditorEvent::MouseEvent {
+                event_type,
+                mouse_info,
+            } => match event_type {
                 MouseEventType::Moved => self.mouse_moved(v, mouse_info),
                 MouseEventType::Pressed => self.mouse_pressed(v, mouse_info),
                 MouseEventType::Released => self.mouse_released(v, mouse_info),
                 _ => {}
-            }
+            },
+            EditorEvent::ScrollEvent { vertical, .. } => self.scroll(vertical),
+            _ => {}
         }
     }
 
@@ -31,13 +34,38 @@ impl Tool for Shapes {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+// Do not modify w/o modifying ShapeType prev/next impl's!
+#[derive(Clone, Copy, Debug, PartialEq, FromPrimitive)]
 pub enum ShapeType {
     Circle,
     Oval,
     Rectangle,
     RoundedRectangle,
     Polygon,
+}
+
+// Implement scrolling through options
+// Perhaps some day consider merging this w/trigger_toggle_on!(…)?
+impl ShapeType {
+    fn prev(&self) -> Self {
+        use ShapeType::*;
+        match self {
+            Oval | Rectangle | RoundedRectangle | Polygon => {
+                num::FromPrimitive::from_u32(*self as u32 - 1).unwrap()
+            }
+            Circle => Polygon,
+        }
+    }
+
+    fn next(&self) -> Self {
+        use ShapeType::*;
+        match self {
+            Circle | Oval | Rectangle | RoundedRectangle => {
+                num::FromPrimitive::from_u32(*self as u32 + 1).unwrap()
+            }
+            Polygon => Circle,
+        }
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -301,5 +329,16 @@ impl Shapes {
         v.end_modification();
         self.pressed_pos = None;
         self.dropped_shape = false;
+    }
+
+    fn scroll(&mut self, vertical: i32) {
+        let prev = vertical > 0;
+        for _ in 0..vertical.abs() {
+            if prev {
+                self.stype = self.stype.prev();
+            } else {
+                self.stype = self.stype.next();
+            }
+        }
     }
 }
