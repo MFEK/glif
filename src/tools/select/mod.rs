@@ -8,10 +8,7 @@ use crate::util::math::ReverseContours as _;
 
 use MFEKmath::Vector;
 
-use crate::tool_behaviors::move_handle::MoveHandle;
-use crate::tool_behaviors::move_point::MovePoint;
-use crate::tool_behaviors::pan::PanBehavior;
-use crate::tool_behaviors::selection_box::SelectionBox;
+use crate::tool_behaviors::{move_handle::MoveHandle, move_point::MovePoint, pan::PanBehavior, selection_box::SelectionBox, zoom_scroll::ZoomScroll};
 
 mod dialog;
 
@@ -60,6 +57,8 @@ impl Tool for Select {
                     self.nudge_selected(v, command);
                 }
             }
+            EditorEvent::ScrollEvent { .. } => ZoomScroll::default().event(v, i, event),
+            #[allow(unreachable_patterns)] // more events likely to be added.
             _ => {}
         }
     }

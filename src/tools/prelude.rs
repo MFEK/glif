@@ -1,5 +1,6 @@
 // Our stuff
 pub use super::Tool;
+pub use crate::tool_behaviors::ToolBehavior as _;
 
 // Renderer
 pub use glifrenderer::constants::*;

@@ -2,8 +2,7 @@ use super::prelude::*;
 use crate::command::Command;
 use crate::editor::Editor;
 use crate::filedialog;
-use crate::tool_behaviors::move_image::MoveImage;
-use crate::tool_behaviors::rotate_image::RotateImage;
+use crate::tool_behaviors::{move_image::MoveImage, rotate_image::RotateImage, zoom_scroll::ZoomScroll};
 use crate::user_interface::{Interface, MouseInfo};
 use glifparser::matrix::ToSkiaMatrix;
 use skulpin::skia_safe::{Paint, PaintStyle, Path};
@@ -20,7 +19,7 @@ pub struct Image {
 
 impl Tool for Image {
     #[rustfmt::skip]
-    fn event(&mut self, v: &mut Editor, _i: &mut Interface, event: EditorEvent) {
+    fn event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
         match event {
             EditorEvent::MouseEvent { mouse_info, event_type } => {
                 match event_type {
@@ -31,6 +30,7 @@ impl Tool for Image {
             EditorEvent::ToolCommand { command: Command::DeleteSelection, .. } => {
                 self.delete_selected(v);
             }
+            EditorEvent::ScrollEvent { .. } => ZoomScroll::default().event(v, i, event),
             _ => {}
         }
     }

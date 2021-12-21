@@ -1,5 +1,5 @@
 use super::prelude::*;
-use crate::tool_behaviors::pan::PanBehavior;
+use crate::tool_behaviors::{pan::PanBehavior, zoom_scroll::ZoomScroll};
 use crate::user_interface;
 
 #[derive(Clone, Debug, Default)]
@@ -17,6 +17,7 @@ impl Tool for Grid {
                 }
                 _ => {}
             },
+            EditorEvent::ScrollEvent { .. } => ZoomScroll::default().event(v, i, event),
             _ => {}
         }
     }

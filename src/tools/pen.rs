@@ -1,7 +1,6 @@
 use super::prelude::*;
 use crate::contour_operations;
-use crate::tool_behaviors::move_handle::MoveHandle;
-use crate::tool_behaviors::pan::PanBehavior;
+use crate::tool_behaviors::{move_handle::MoveHandle, pan::PanBehavior, zoom_scroll::ZoomScroll};
 use crate::user_interface::Interface;
 use glifrenderer::points::draw_point;
 
@@ -13,16 +12,15 @@ use MFEKmath::{Bezier, Primitive};
 pub struct Pen {}
 
 impl Tool for Pen {
+    #[rustfmt::skip]
     fn event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
-        if let EditorEvent::MouseEvent {
-            mouse_info,
-            event_type,
-        } = event
-        {
-            match event_type {
+        match event {
+            EditorEvent::MouseEvent { mouse_info, event_type } => match event_type {
                 MouseEventType::Pressed => self.mouse_pressed(v, i, mouse_info),
                 _ => (),
             }
+            EditorEvent::ScrollEvent { .. } => ZoomScroll::default().event(v, i, event),
+            _ => {}
         }
     }
 

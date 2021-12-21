@@ -1,6 +1,6 @@
 use super::prelude::*;
 use crate::command::Command;
-use crate::tool_behaviors::pan::PanBehavior;
+use crate::tool_behaviors::{pan::PanBehavior, zoom_scroll::ZoomScroll};
 use crate::user_interface::{InputPrompt, Interface};
 
 #[derive(Clone, Debug)]
@@ -33,6 +33,8 @@ impl Tool for Anchors {
             } => {
                 self.delete_selection(v);
             }
+            EditorEvent::ScrollEvent { .. } => ZoomScroll::default().event(v, i, event),
+            #[allow(unreachable_patterns)] // more events likely to be added.
             _ => {}
         }
     }
