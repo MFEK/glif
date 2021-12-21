@@ -68,6 +68,14 @@ On Arch Linux, these two packages provide all the dependencies: `gtk3` `libxcb`
 
 On Ubuntu, these three packages provide the dependencies: `libgtk-3-dev` `libxcb-shape0-dev` `libxcb-xfixes0-dev`
 
+#### Adding `.desktop` shortcut
+
+I provide a `.desktop` shortcut in `resources/` as `MFEKglif.desktop`. To install it, assuming MFEKglif is in your `$PATH`:
+
+1. Copy the icon to `$XDG_HOME`. On my system, the command was `mkdir -p ~/.local/share/icons/hicolor/512x512/apps/ && cp resources/MFEKglif.png ~/.local/share/icons/hicolor/512x512/apps/MFEKglif.png`.
+2. Run `desktop-file-install --dir=~/.local/share/applications ~/MFEKglif.desktop` to install locally (also depends on `$XDG_HOME`, or run it as root without `--dir` to install the `.desktop` icon globally.
+3. Run `update-desktop-database` on the directory used in step 2.
+
 ### For everyone
 
 * Download and install [`rustup`](https://rustup.rs/), selecting either the `nightly` or `stable` toolchain. MFEKglif builds on both as of 7 November 2021.
