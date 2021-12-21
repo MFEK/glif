@@ -2,7 +2,9 @@ use super::prelude::*;
 use crate::command::Command;
 use crate::editor::Editor;
 use crate::filedialog;
-use crate::tool_behaviors::{move_image::MoveImage, rotate_image::RotateImage, zoom_scroll::ZoomScroll};
+use crate::tool_behaviors::{
+    move_image::MoveImage, rotate_image::RotateImage, zoom_scroll::ZoomScroll,
+};
 use crate::user_interface::{Interface, MouseInfo};
 use glifparser::matrix::ToSkiaMatrix;
 use skulpin::skia_safe::{Paint, PaintStyle, Path};

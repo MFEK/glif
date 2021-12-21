@@ -1,7 +1,7 @@
 use super::prelude::*;
 
 use crate::editor::Editor;
-use crate::tool_behaviors::{pan::PanBehavior, ToolBehavior, zoom_scroll::ZoomScroll};
+use crate::tool_behaviors::{pan::PanBehavior, zoom_scroll::ZoomScroll, ToolBehavior};
 use crate::user_interface::Interface;
 
 // Pan is a good example of a simple tool. It holds only a little bit of state, an optional position.
@@ -22,17 +22,14 @@ impl Tool for Pan {
                 event_type,
                 mouse_info,
             } => match event_type {
-                MouseEventType::Pressed => v.push_behavior(Box::new(PanBehavior::new(
-                    i.viewport.clone(),
-                    mouse_info,
-                ))),
+                MouseEventType::Pressed => {
+                    v.push_behavior(Box::new(PanBehavior::new(i.viewport.clone(), mouse_info)))
+                }
                 _ => {}
             },
             EditorEvent::ToolCommand { .. } => {
-                let mut behavior = Box::new(PanBehavior::new(
-                    i.viewport.clone(),
-                    MouseInfo::default(),
-                ));
+                let mut behavior =
+                    Box::new(PanBehavior::new(i.viewport.clone(), MouseInfo::default()));
                 behavior.event(v, i, event);
             }
             EditorEvent::ScrollEvent { .. } => ZoomScroll::default().event(v, i, event),

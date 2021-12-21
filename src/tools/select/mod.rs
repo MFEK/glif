@@ -8,7 +8,10 @@ use crate::util::math::ReverseContours as _;
 
 use MFEKmath::Vector;
 
-use crate::tool_behaviors::{move_handle::MoveHandle, move_point::MovePoint, pan::PanBehavior, selection_box::SelectionBox, zoom_scroll::ZoomScroll};
+use crate::tool_behaviors::{
+    move_handle::MoveHandle, move_point::MovePoint, pan::PanBehavior, selection_box::SelectionBox,
+    zoom_scroll::ZoomScroll,
+};
 
 mod dialog;
 

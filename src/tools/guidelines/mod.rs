@@ -2,7 +2,9 @@ use glifrenderer::guidelines::draw_guideline;
 
 use super::prelude::*;
 use crate::editor::Editor;
-use crate::tool_behaviors::{move_glyph::MoveGlyph, move_guideline::MoveGuideline, zoom_scroll::ZoomScroll};
+use crate::tool_behaviors::{
+    move_glyph::MoveGlyph, move_guideline::MoveGuideline, zoom_scroll::ZoomScroll,
+};
 use crate::user_interface::Interface;
 use crate::util::MFEKGlifPointData;
 

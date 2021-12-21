@@ -7,8 +7,8 @@ use glifparser::glif::{
 };
 
 use super::prelude::*;
-use crate::{editor::Editor, user_interface::InputPrompt};
 use crate::tool_behaviors::zoom_scroll::ZoomScroll;
+use crate::{editor::Editor, user_interface::InputPrompt};
 
 #[derive(Clone, Debug)]
 pub struct PAP {}
