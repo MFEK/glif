@@ -92,11 +92,13 @@ impl Editor {
     }
 
     pub fn clear_behaviors(&mut self) {
+        log::debug!("Manually cleared tool behaviors");
         self.tool_behaviors = vec![];
     }
 
     /// Set the active tool by enum. When adding your own tools make sure to add them to ToolEnum.
     pub fn set_tool(&mut self, tool: ToolEnum) {
+        log::debug!("Set tool to {:?}", tool);
         if self.active_tool_enum == tool {
             return;
         };
