@@ -83,6 +83,9 @@ impl Tool for Guidelines {
     #[rustfmt::skip]
     fn event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
         match event {
+            EditorEvent::IOEvent { event_type: IOEventType::FontinfoReloaded, .. } => {
+                self.selected_idx = None;
+            }
             EditorEvent::MouseEvent { mouse_info, event_type } => match event_type {
                 MouseEventType::Pressed => self.mouse_pressed(v, i, mouse_info),
                 _ => (),
