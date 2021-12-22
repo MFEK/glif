@@ -2,6 +2,8 @@
 pub mod argparser;
 pub mod math;
 
+use crate::editor::events::EditorEvent;
+
 #[cfg(debug)]
 use std::fs;
 use std::panic::set_hook;
@@ -10,11 +12,12 @@ use std::{env, process};
 use colored::Colorize;
 use glifparser::PointData;
 use lazy_static::lazy_static;
+use log;
 use msgbox::IconType;
 
 lazy_static! {
-    pub static ref DEBUG_DUMP_GLYPH: bool = option_env!("DEBUG_DUMP_GLYPH").is_some();
-    pub static ref DEBUG_EVENTS: bool = option_env!("DEBUG_EVENTS").is_some();
+    pub static ref DEBUG_DUMP_GLYPH: bool = env::var("MFEK_DEBUG_DUMP_GLYPH").is_ok();
+    pub static ref DEBUG_EVENTS: bool = env::var("MFEK_DEBUG_EVENTS").is_ok();
 }
 
 #[macro_export]
@@ -37,10 +40,15 @@ macro_rules! trigger_toggle_on {
     };
 }
 
-pub fn debug_event(s: &'static str, event: &sdl2::event::Event) {
-    use log::debug;
+pub fn log_sdl_event(event: &sdl2::event::Event) {
     if *DEBUG_EVENTS {
-        debug!("Got event: {:?} {:?}", &s, &event);
+        log::debug!("Got SDL event: {:?}", &event);
+    }
+}
+
+pub fn log_editor_event(event: &EditorEvent) {
+    if *DEBUG_EVENTS {
+        log::debug!("Got editor event: {:?}", &event);
     }
 }
 
@@ -105,13 +113,14 @@ pub fn set_panic_hook() {
 
 pub fn init_env_logger() {
     if env::var("RUST_LOG").is_err() {
-        env::set_var(
-            "RUST_LOG",
-            "INFO,rafx_framework=off,rafx_api=off,skulpin=off",
-        )
-    }
-    if *DEBUG_DUMP_GLYPH || *DEBUG_EVENTS {
-        env::set_var("RUST_LOG", "DEBUG")
+        if *DEBUG_DUMP_GLYPH || *DEBUG_EVENTS {
+            env::set_var("RUST_LOG", "INFO,MFEKglif=trace,rafx_framework=off,rafx_api=off,skulpin=off")
+        } else {
+            env::set_var(
+                "RUST_LOG",
+                "INFO,rafx_framework=off,rafx_api=off,skulpin=off",
+            )
+        }
     }
     env_logger::init();
 }

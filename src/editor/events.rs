@@ -11,7 +11,7 @@ pub enum MouseEventType {
 }
 
 #[derive(Debug)]
-pub enum EditorEvent<'a> {
+pub enum EditorEvent<'frame> {
     MouseEvent {
         event_type: MouseEventType,
         mouse_info: MouseInfo,
@@ -28,6 +28,6 @@ pub enum EditorEvent<'a> {
     ToolCommand {
         command: Command,
         command_mod: CommandMod,
-        stop_after: &'a mut bool,
+        stop_after: &'frame mut bool,
     },
 }

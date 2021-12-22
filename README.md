@@ -110,7 +110,7 @@ We welcome all contributions! Please open an issue first so we can discuss befor
 
 ### More debug output
 
-It is possible to get even more debug output out of MFEKglif for figuring out where problems lie. To ask MFEKglif to dump the parsed .glif file on runtime, pass `DEBUG_DUMP_GLYPH=Y`. To see every single `sdl2` event (warning: this will flood your stdout) pass `DEBUG_EVENTS=Y`.
+It is possible to get even more debug output out of MFEKglif for figuring out where problems lie. To ask MFEKglif to dump the parsed .glif file on runtime, pass `MFEK_DEBUG_DUMP_GLYPH=Y`. To see every single `sdl2` event (warning: this will flood your stdout) pass `MFEK_DEBUG_EVENTS=Y`.
 
 ### Adding icons
 

@@ -7,6 +7,7 @@ use crate::{
     tool_behaviors::ToolBehavior,
     tools::{tool_enum_to_tool, Tool, ToolEnum},
     user_interface::Interface,
+    util,
 };
 
 impl Editor {
@@ -14,6 +15,7 @@ impl Editor {
     /// Adding new events is as simple as adding a new anonymous struct to EditorEvent and a call to this function in the appropriate
     /// place.Tools can then implement behavior for that event in their handle_event implementation.
     pub fn dispatch_editor_event(&mut self, i: &mut Interface, event: EditorEvent) {
+        util::log_editor_event(&event);
         self.behavior_finished = false;
         if let Some(behavior) = self.tool_behaviors.pop() {
             let mut active_behavior = dyn_clone::clone_box(&*behavior);

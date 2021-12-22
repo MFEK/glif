@@ -79,7 +79,7 @@ fn main() {
 
         // sdl event handling
         for event in event_pump.poll_iter() {
-            util::debug_event("Got event: {:?}", &event);
+            util::log_sdl_event(&event);
 
             if let Event::Quit { .. } = &event {
                 editor.quit(&mut interface);
