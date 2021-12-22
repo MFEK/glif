@@ -2,7 +2,8 @@ use glifparser::{Guideline, IntegerOrFloat};
 use log;
 use mfek_ipc::{self, Available, IPCInfo};
 
-use crate::editor::Editor;
+use crate::editor::{events::*, Editor};
+use crate::user_interface::Interface;
 use crate::util::MFEKGlifPointData;
 
 use std::process;
@@ -14,13 +15,13 @@ lazy_static::lazy_static! {
 }
 
 impl Editor {
-    pub fn write_metrics(&self) {
+    pub fn write_metrics(&mut self, interface: &mut Interface) {
         if *METADATA_STATUS == Available::No {
             return;
         }
 
-        let filename = self.with_glyph(|glyph| glyph.filename.clone());
-        let ipc_info = IPCInfo::from_glif_path("MFEKglif".to_string(), &filename.unwrap());
+        let filename = self.with_glyph(|glyph| glyph.filename.clone()).unwrap();
+        let ipc_info = IPCInfo::from_glif_path("MFEKglif".to_string(), &filename);
 
         let font = if let Some(font) = ipc_info.font {
             font
@@ -80,6 +81,14 @@ impl Editor {
             .status();
         if let Err(e) = ok {
             log::error!("Failed to execute MFEKmetadata to rewrite metrics! {:?}", e);
+        } else {
+            self.dispatch_editor_event(
+                interface,
+                EditorEvent::IOEvent {
+                    event_type: IOEventType::FontinfoWritten,
+                    path: filename.clone(),
+                },
+            );
         }
     }
 }

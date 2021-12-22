@@ -114,7 +114,10 @@ pub fn set_panic_hook() {
 pub fn init_env_logger() {
     if env::var("RUST_LOG").is_err() {
         if *DEBUG_DUMP_GLYPH || *DEBUG_EVENTS {
-            env::set_var("RUST_LOG", "INFO,MFEKglif=trace,rafx_framework=off,rafx_api=off,skulpin=off")
+            env::set_var(
+                "RUST_LOG",
+                "INFO,MFEKglif=trace,rafx_framework=off,rafx_api=off,skulpin=off",
+            )
         } else {
             env::set_var(
                 "RUST_LOG",

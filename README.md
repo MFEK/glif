@@ -28,8 +28,8 @@ Note: This is a basic list to get you started. A complete list can be found in `
 * <kbd>Ctrl</kbd><kbd>O</kbd> &mdash; Open user-specified .glif or .glifjson file
 * <kbd>Ctrl</kbd><kbd>S</kbd> &mdash; Save current glyph in a multi-layered .glifjson file
 * <kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>S</kbd> &mdash; Save current glyph in a multi-layered user-specified .glifjson file
-* <kbd>Ctrl</kbd><kbd>U</kbd> &mdash; Flatten the topmost layer, and write it to a user-specified .glif file
-* <kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>U</kbd> &mdash; Flatten the topmost layer, and overwrite current .glif with it
+* <kbd>Ctrl</kbd><kbd>U</kbd> &mdash; Flatten the topmost layer, and overwrite current .glif with it
+* <kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>U</kbd> &mdash; Flatten the topmost layer, and write it to a user-specified .glif file
 * <kbd>Ctrl</kbd><kbd>E</kbd> &mdash; Export the multi-layered .glif to different `glyphs/` directories for each layer, with `layerinfo.plist` and update `layercontents.plist` for each.
 
 ### Tools

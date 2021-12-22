@@ -1,4 +1,4 @@
-use super::Editor;
+use super::{events::*, Editor};
 use crate::user_interface::{InputPrompt, Interface};
 
 use std::ffi::OsStr;
@@ -19,6 +19,13 @@ impl Editor {
                 Ok(p) => {
                     if p.file_name() == Some(oss("fontinfo.plist")) {
                         self.initialize();
+                        self.dispatch_editor_event(
+                            i,
+                            EditorEvent::IOEvent {
+                                event_type: IOEventType::FontinfoReloaded,
+                                path: p,
+                            },
+                        );
                         log::info!("Reloaded UFO-sourced metadata, fontinfo.plist changed");
                     } else if p.extension() == Some(oss("glif"))
                         || p.extension() == Some(oss("glifjson"))

@@ -1,4 +1,4 @@
-use super::Editor;
+use super::{events::*, Editor};
 use crate::util::MFEKGlifPointData;
 
 use glifparser::glif::{
@@ -46,13 +46,23 @@ impl Editor {
             .clone()
     }
 
-    pub fn load_glif<F: AsRef<FsPath> + Clone>(&mut self, i: &mut Interface, filename: F) {
-        i.set_window_title(&format!(
-            "MFEKglif — {}",
-            filename.as_ref().to_str().unwrap()
-        ))
-        .expect("Failed to set SDL2 window title");
-        self.load_glif_headless(filename);
+    pub fn load_glif<F: AsRef<FsPath> + Clone>(&mut self, interface: &mut Interface, filename: F) {
+        interface
+            .set_window_title(&format!(
+                "MFEKglif — {}",
+                filename.as_ref().to_str().unwrap()
+            ))
+            .expect("Failed to set SDL2 window title");
+        self.load_glif_headless(filename.clone());
+        self.mark_preview_dirty();
+        self.rebuild(interface);
+        self.dispatch_editor_event(
+            interface,
+            EditorEvent::IOEvent {
+                event_type: IOEventType::FileSwitched,
+                path: filename.as_ref().to_path_buf(),
+            },
+        );
     }
 
     pub fn load_glif_headless<F: AsRef<FsPath> + Clone>(&mut self, filename: F) {
@@ -112,7 +122,7 @@ impl Editor {
         res
     }
 
-    pub fn flatten_glif(&mut self, i: &mut Interface, rename: bool) {
+    pub fn flatten_glif(&mut self, i: &mut Interface, rename: bool) -> Result<path::PathBuf, ()> {
         self.mark_preview_dirty();
         self.rebuild(i);
         let export = self.prepare_export();
@@ -123,11 +133,11 @@ impl Editor {
 
         let glif_struct = self.glyph.as_ref().unwrap().to_exported(layer);
 
-        self.with_glyph(|glyph| {
+        let filename = self.with_glyph(|glyph| {
             let mut filename: std::path::PathBuf = if rename {
                 match filedialog::save_filename(Some("glif"), None) {
                     Some(f) => f,
-                    None => return,
+                    None => return None,
                 }
             } else {
                 glyph.filename.clone().unwrap()
@@ -138,12 +148,20 @@ impl Editor {
             glif::write_to_filename(&glif_struct, &filename)
                 .map(|()| log::info!("Requested flatten to {:?}", &filename))
                 .unwrap_or_else(|e| panic!("Failed to write glif: {:?}", e));
+
+            Some(filename)
         });
-        self.begin_modification("Flattened glyph");
-        self.end_modification();
+        match filename {
+            Some(filename) => {
+                self.begin_modification("Flattened glyph");
+                self.end_modification();
+                Ok(filename)
+            }
+            None => Err(()),
+        }
     }
 
-    pub fn export_glif(&mut self, interface: Option<&mut Interface>) {
+    pub fn export_glif(&mut self, interface: Option<&mut Interface>) -> Result<(), ()> {
         self.mark_preview_dirty();
         if let Some(i) = interface {
             self.rebuild(i);
@@ -172,7 +190,7 @@ impl Editor {
                 "Glyph has {} layers; font must have a parent UFO!",
                 self.get_layer_count()
             );
-            return;
+            return Err(());
         };
 
         for (i, layer) in export.layers.iter().enumerate() {
@@ -218,7 +236,7 @@ impl Editor {
                 if layer.color.is_some() {
                     log::error!(".glif's layer 0 calls for a color, but it has no parent UFO. Cannot create layercontents.plist, color will be lost!")
                 }
-                return;
+                return Err(());
             }
 
             // In the second phase, we write the plist files layerinfo.plist and
@@ -301,6 +319,7 @@ impl Editor {
         }
         self.begin_modification("Exported glyph");
         self.end_modification();
+        Ok(())
     }
 
     pub fn quit(&mut self, i: &mut Interface) {

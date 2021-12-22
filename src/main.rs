@@ -7,7 +7,7 @@ use crate::tools::zoom::{zoom_in_factor, zoom_out_factor};
 use command::{Command, CommandInfo, CommandMod};
 use ctrlc;
 use editor::{
-    events::{EditorEvent, MouseEventType},
+    events::{EditorEvent, IOEventType, MouseEventType},
     Editor,
 };
 use glifrenderer::toggles::{PointLabels, PreviewMode};
@@ -249,19 +249,55 @@ fn main() {
                         }
                         Command::IOSave => {
                             drop(editor.save_glif(false));
+                            editor.dispatch_editor_event(
+                                &mut interface,
+                                EditorEvent::IOEvent {
+                                    event_type: IOEventType::FileSaved,
+                                    path: filename.clone(),
+                                },
+                            );
                         }
                         Command::IOSaveAs => match editor.save_glif(true) {
-                            Ok(pb) => editor.load_glif(&mut interface, &pb),
+                            Ok(pb) => {
+                                editor.dispatch_editor_event(
+                                    &mut interface,
+                                    EditorEvent::IOEvent {
+                                        event_type: IOEventType::FileSavedAs,
+                                        path: pb.clone(),
+                                    },
+                                );
+                                editor.load_glif(&mut interface, &pb);
+                            }
                             Err(()) => {}
                         },
-                        Command::IOFlatten => {
-                            editor.flatten_glif(&mut interface, true);
-                        }
-                        Command::IOSaveFlatten => {
-                            editor.flatten_glif(&mut interface, false);
+                        Command::IOFlatten | Command::IOFlattenAs => {
+                            let rename = command_info.command == Command::IOFlattenAs;
+                            let event_type = if rename {
+                                IOEventType::FileFlattenedAs
+                            } else {
+                                IOEventType::FileFlattened
+                            };
+                            match editor.flatten_glif(&mut interface, rename) {
+                                Ok(filename) => editor.dispatch_editor_event(
+                                    &mut interface,
+                                    EditorEvent::IOEvent {
+                                        event_type,
+                                        path: filename,
+                                    },
+                                ),
+                                Err(()) => {}
+                            }
                         }
                         Command::IOExport => {
-                            editor.export_glif(Some(&mut interface));
+                            if let Ok(()) = editor.export_glif(Some(&mut interface)) {
+                                editor.dispatch_editor_event(
+                                    &mut interface,
+                                    EditorEvent::IOEvent {
+                                        event_type: IOEventType::FileExported,
+                                        path: filename.clone(),
+                                    },
+                                );
+                            }
                         }
                         Command::Quit => {
                             editor.quit(&mut interface);

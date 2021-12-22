@@ -59,7 +59,7 @@
     <binding command="IOSave" key="S" mod="CtrlMod"/>
     <binding command="IOSaveAs" key="S" mod="CtrlShiftMod"/>
     <binding command="IOFlatten" key="U" mod="CtrlMod"/>
-    <binding command="IOSaveFlatten" key="U" mod="CtrlShiftMod"/>
+    <binding command="IOFlattenAs" key="U" mod="CtrlShiftMod"/>
     <binding command="IOExport" key="E" mod="CtrlMod"/>
 
     <!-- misc -->

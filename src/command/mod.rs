@@ -83,8 +83,8 @@ pub enum Command {
     IOOpen,
     IOSave,
     IOSaveAs,
-    IOSaveFlatten,
     IOFlatten,
+    IOFlattenAs,
     IOExport,
 
     // view modes
@@ -121,7 +121,7 @@ impl Command {
             | PasteSelectionInPlace
             | CutSelection => CommandType::Selection,
             HistoryUndo | HistoryRedo => CommandType::History,
-            IOOpen | IOSave | IOSaveAs | IOSaveFlatten | IOFlatten | IOExport => CommandType::IO,
+            IOOpen | IOSave | IOSaveAs | IOFlatten | IOFlattenAs | IOExport => CommandType::IO,
             ToolGrid | TogglePointLabels | TogglePreviewMode => CommandType::ViewMode,
             ToggleConsole => CommandType::ToggleConsole,
             Quit => CommandType::ExecState,
