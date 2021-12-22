@@ -23,8 +23,12 @@ build: datestamp
 	RUST_LOG="$(RUST_LOG)" RUST_BACKTRACE="$(RUST_BACKTRACE)" cargo build $(CARGOFLAGS)
 
 .PHONY: testrun
-testrun: build
+testrun:
 	RUST_LOG="$(RUST_LOG)" RUST_BACKTRACE="$(RUST_BACKTRACE)" cargo run $(CARGOFLAGS) -- $(TESTFILE)
+
+.PHONY: echo-testrun
+echo-testrun:
+	echo RUST_LOG="$(RUST_LOG)" RUST_BACKTRACE="$(RUST_BACKTRACE)" cargo run $(CARGOFLAGS) -- $(TESTFILE)
 
 .PHONY: dist
 dist: build
