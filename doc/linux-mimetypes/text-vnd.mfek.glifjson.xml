@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+    <mime-type type="text/vnd.mfek.glifjson">
+        <comment>MFEKglif's native glyph format</comment>
+        <icon name="application-x-font-otf"/>
+        <glob-deleteall/>
+        <glob pattern="*.glifjson"/>
+    </mime-type>
+</mime-info>

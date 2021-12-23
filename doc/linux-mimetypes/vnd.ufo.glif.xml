@@ -1,7 +1,1 @@
-<?xml version="1.0" encoding="utf-8"?>
-<mime-type xmlns="http://www.freedesktop.org/standards/shared-mime-info" type="text/vnd.ufo.glif">
-  <comment>Unified Font Object (UFO) glyph</comment>
-  <icon name="application-x-font-afm"/>
-  <glob-deleteall/>
-  <glob pattern="*.glif"/>
-</mime-type>
+text-vnd.ufo.glif.xml
