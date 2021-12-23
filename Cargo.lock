@@ -1633,9 +1633,10 @@ dependencies = [
 
 [[package]]
 name = "mfek-ipc"
-version = "0.0.0-beta1"
-source = "git+https://github.com/MFEK/ipc.rlib#e42ed02a1104a5d4a1df8058a45b698cf49cb84f"
+version = "0.0.1-beta1"
+source = "git+https://github.com/MFEK/ipc.rlib#3e73d2376d8bd00f4bab37d0af1d66f56928229e"
 dependencies = [
+ "ansi_term",
  "atty",
  "colored",
  "figlet-rs",
@@ -2716,9 +2717,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "1.0.82"
+version = "1.0.83"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8daf5dd0bb60cbd4137b1b587d2fc0ae729bc07cf01cd70b36a1ed5ade3b9d59"
+checksum = "23a1dfb999630e338648c83e91c59a4e9fb7620f520c3194b6b89e276f2f1959"
 dependencies = [
  "proc-macro2",
  "quote",

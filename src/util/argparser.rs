@@ -46,7 +46,7 @@ pub fn parse_args() -> Args {
         .get_matches();
 
     eprint!(
-        "This is MFEKglif {} (“{}”)",
+        "This is MFEKglif v{} (“{}”)",
         env!("CARGO_PKG_VERSION"),
         env!("MFEK_REL_CODENAME")
     );

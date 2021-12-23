@@ -1,24 +1,24 @@
 use glifparser::{Guideline, IntegerOrFloat};
 use log;
-use mfek_ipc::{self, Available, IPCInfo};
+use mfek_ipc::{self, module, IPCInfo};
 
 use crate::editor::{events::*, Editor};
 use crate::user_interface::Interface;
 use crate::util::MFEKGlifPointData;
 
+use std::path::PathBuf;
 use std::process;
 
 lazy_static::lazy_static! {
-    pub static ref METADATA_AVAILABLE: (Available, String) = mfek_ipc::module_available("metadata", "0.0.1-beta1");
-    pub static ref METADATA_STATUS: Available = METADATA_AVAILABLE.0;
-    pub static ref METADATA_BIN: String = METADATA_AVAILABLE.1.clone();
+    pub static ref METADATA_AVAILABLE: Result<(module::Version<'static>, PathBuf), ()> = mfek_ipc::module::available("metadata", "0.0.2-beta1");
 }
 
 impl Editor {
     pub fn write_metrics(&mut self, interface: &mut Interface) {
-        if *METADATA_STATUS == Available::No {
-            return;
-        }
+        let exe = match &*METADATA_AVAILABLE {
+            Ok((_, exe)) => exe,
+            Err(e) => return log::error!("Failed to launch MFEKmetadata! {:?}", e), // ()
+        };
 
         let filename = self.with_glyph(|glyph| glyph.filename.clone()).unwrap();
         let ipc_info = IPCInfo::from_glif_path("MFEKglif".to_string(), &filename);
@@ -74,7 +74,7 @@ impl Editor {
             "-v".to_string(),
             String::from_utf8(guidelinesv).unwrap(),
         ]);
-        let ok = process::Command::new(&*METADATA_BIN)
+        let ok = process::Command::new(&exe)
             .arg(&font)
             .arg("arbitrary")
             .args(&args)
@@ -94,9 +94,10 @@ impl Editor {
 }
 
 pub fn fetch_italic(v: &mut Editor) {
-    if *METADATA_STATUS == Available::No {
-        return;
+    if let Err(_) = &*METADATA_AVAILABLE {
+        return log::debug!("Not trying fetch_italic, MFEKmetadata unavailable");
     }
+
     let filename = v.with_glyph(|glyph| glyph.filename.clone());
     let ipc_info = IPCInfo::from_glif_path("MFEKglif".to_string(), &filename.unwrap());
 
@@ -113,23 +114,11 @@ pub fn fetch_italic(v: &mut Editor) {
     }
 }
 
-pub fn launch_fs_watcher(v: &mut Editor) {
-    let filename = v.with_glyph(|glyph| glyph.filename.clone());
-    let ipc_info = IPCInfo::from_glif_path("MFEKglif".to_string(), &filename.as_ref().unwrap());
-    if let Some(font) = ipc_info.font {
-        mfek_ipc::notifythread::launch(font, v.filesystem_watch_tx.clone());
-    } else {
-        mfek_ipc::notifythread::launch(
-            ipc_info.glyph.unwrap().parent().unwrap().to_owned(),
-            v.filesystem_watch_tx.clone(),
-        );
-    }
-}
-
 pub fn fetch_metrics(v: &mut Editor) {
-    if *METADATA_STATUS == Available::No {
-        return;
+    if let Err(_) = &*METADATA_AVAILABLE {
+        return log::debug!("Not trying fetch_italic, MFEKmetadata unavailable");
     }
+
     let filename = v.with_glyph(|glyph| glyph.filename.clone());
     let ipc_info = IPCInfo::from_glif_path("MFEKglif".to_string(), &filename.unwrap());
 
@@ -158,4 +147,17 @@ pub fn fetch_metrics(v: &mut Editor) {
     }
 
     v.ipc_info = Some(ipc_info);
+}
+
+pub fn launch_fs_watcher(v: &mut Editor) {
+    let filename = v.with_glyph(|glyph| glyph.filename.clone());
+    let ipc_info = IPCInfo::from_glif_path("MFEKglif".to_string(), &filename.as_ref().unwrap());
+    if let Some(font) = ipc_info.font {
+        mfek_ipc::notifythread::launch(font, v.filesystem_watch_tx.clone());
+    } else {
+        mfek_ipc::notifythread::launch(
+            ipc_info.glyph.unwrap().parent().unwrap().to_owned(),
+            v.filesystem_watch_tx.clone(),
+        );
+    }
 }
