@@ -1,6 +1,6 @@
 use super::super::prelude::*;
 use super::Dash;
-use crate::user_interface::{self, Interface};
+use crate::user_interface::{self, gui::IMGUI_RESERVE, Interface};
 use glifparser::glif::{ContourOperations, DashCull};
 use imgui::Ui;
 use skulpin::skia_safe::{PaintCap, PaintJoin};
@@ -44,7 +44,7 @@ impl Dash {
                             .collect::<Vec<_>>()
                             .join(" ")
                     );
-                    dashes.reserve(32);
+                    dashes.reserve(IMGUI_RESERVE);
                     let mut new_dash_desc = data.dash_desc.clone();
                     let entered;
                     {

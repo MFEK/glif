@@ -1,5 +1,5 @@
+use super::{IMGUI_RESERVE, PROMPT_CLR, PROMPT_STR, TOOLBOX_HEIGHT, TOOLBOX_WIDTH};
 use crate::editor::Editor;
-use crate::user_interface::gui::{PROMPT_CLR, PROMPT_STR, TOOLBOX_HEIGHT, TOOLBOX_WIDTH};
 use crate::user_interface::{InputPrompt, Interface};
 use imgui::{Key, StyleVar};
 
@@ -67,7 +67,10 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ui: &mut imgui
             default,
             func,
         } => {
-            PROMPT_STR.with(|prompt_str| *prompt_str.borrow_mut() = imgui::ImString::new(default));
+            PROMPT_STR.with(|prompt_str| {
+                *prompt_str.borrow_mut() = imgui::ImString::new(default);
+                prompt_str.borrow_mut().reserve(IMGUI_RESERVE);
+            });
 
             imgui::Window::new(&imgui::im_str!("{}", label))
                 .bg_alpha(1.) // See comment on fn redraw_skia
@@ -91,7 +94,7 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ui: &mut imgui
                         if ui.is_key_down(Key::Enter) {
                             let final_string = prompt_str.borrow().to_string();
                             let mut new_string = imgui::ImString::new("");
-                            new_string.reserve(256);
+                            new_string.reserve(IMGUI_RESERVE);
                             prompt_str.replace(new_string);
                             func(v, final_string);
                             i.pop_prompt();

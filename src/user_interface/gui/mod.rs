@@ -15,6 +15,13 @@ pub const TOOLBOX_OFFSET_X: f32 = 10.;
 pub const TOOLBOX_OFFSET_Y: f32 = TOOLBOX_OFFSET_X;
 pub const TOOLBOX_WIDTH: f32 = 52.;
 
+/// How much space to reserve when initializing an imgui string?
+/// In practice, this means how much a user can type for a guideline name, etc., when first
+/// editing.
+/// It's expanded by this amount each open, unless the free space exceeds this amount, which is
+/// very possible as it increases in powers of 2.
+pub const IMGUI_RESERVE: usize = 1024;
+
 use enum_unitary::Bounded as _;
 use lazy_static::lazy_static;
 lazy_static! {
@@ -24,6 +31,8 @@ lazy_static! {
 
 pub const LAYERBOX_WIDTH: f32 = 250.;
 pub const LAYERBOX_HEIGHT: f32 = 250.;
+
+static ICON_FONT_TTF_DATA: &[u8] = include_bytes!("../../../resources/fonts/icons.ttf");
 
 use imgui::{self, Context, DrawData, FontId};
 use imgui_sdl2::ImguiSdl2;
@@ -65,8 +74,6 @@ impl ImguiManager {
         let scale_factor = 1.;
         let font_size = (16.0 * scale_factor) as f32;
         let icon_font_size = (36.0 * scale_factor) as f32;
-
-        static ICON_FONT_TTF_DATA: &[u8] = include_bytes!("../../../resources/fonts/icons.ttf");
 
         let id = imgui.fonts().add_font(&[
             imgui::FontSource::TtfData {
@@ -127,7 +134,7 @@ impl ImguiManager {
             ids.borrow_mut().push(id);
             ids.borrow_mut().push(id1);
         });
-        PROMPT_STR.with(|prompt_str| prompt_str.borrow_mut().reserve(256));
+        PROMPT_STR.with(|prompt_str| prompt_str.borrow_mut().reserve(IMGUI_RESERVE));
 
         let imgui_sdl2 = imgui_sdl2::ImguiSdl2::new(&mut imgui, &window);
         let imgui_renderer = Renderer::new(&mut imgui);

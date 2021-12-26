@@ -1,7 +1,7 @@
 use super::super::prelude::*;
 use super::{Guidelines, SplitGuidelines};
 use crate::tool_behaviors::add_guideline::AddGuideline;
-use crate::user_interface::gui::FONT_IDS;
+use crate::user_interface::gui::{FONT_IDS, IMGUI_RESERVE};
 use crate::user_interface::{self, icons, InputPrompt};
 use glifparser::IntegerOrFloat;
 use imgui::StyleColor;
@@ -92,7 +92,8 @@ impl Guidelines {
                             .unwrap_or_else(|| if gidx == 0 { String::from("Unnamed") } else { format!("Unnamed {}", gidx+1) });
 
                     let guideline_display = imgui::ImString::new(guideline_name.clone());
-                    let im_str = guideline_display;
+                    let mut im_str = guideline_display;
+                    im_str.reserve(IMGUI_RESERVE);
 
                     let font_token = ui.push_font(FONT_IDS.with(|ids| ids.borrow()[1]));
                     let custom_button_color = ui.push_style_color(
