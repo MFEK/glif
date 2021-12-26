@@ -199,6 +199,11 @@ impl Guidelines {
                                 glyph.guidelines[selected_i].angle = IntegerOrFloat::Float(angle);
                             });
                         }
+                        if guidelines[selected].0.data.as_guideline().right {
+                            v.with_glyph_mut(|glyph| {
+                                glyph.width = Some(at.x as u64);
+                            });
+                        }
                         v.end_modification();
                     }
                 });
