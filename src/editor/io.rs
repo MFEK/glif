@@ -8,6 +8,7 @@ use glifparser::glif::{
 use glifparser::Glif;
 use log;
 use plist::{self, Value as PlistValue};
+use MFEKmath::Fixup as _;
 
 use std::{
     fs, io,
@@ -68,7 +69,7 @@ impl Editor {
     pub fn load_glif_headless<F: AsRef<FsPath> + Clone>(&mut self, filename: F) {
         // TODO: Actually handle errors now that we have them.
         let glif = {
-            let mut tempglif: MFEKGlif<MFEKGlifPointData> = match filename
+            let mut tempglif: Glif<MFEKGlifPointData> = match filename
                 .as_ref()
                 .file_name()
                 .expect("No filename")
@@ -84,7 +85,13 @@ impl Editor {
                     .into(),
             };
             tempglif.filename = Some(filename.as_ref().to_path_buf());
-            tempglif
+            drop(
+                tempglif
+                    .outline
+                    .as_mut()
+                    .map(|o| o.assert_colocated_within(0.01)),
+            );
+            tempglif.into()
         };
 
         if *DEBUG_DUMP_GLYPH {
