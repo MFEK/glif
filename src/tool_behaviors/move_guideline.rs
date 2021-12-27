@@ -13,8 +13,7 @@ impl MoveGuideline {
             v.begin_modification("Move guideline.");
         }
 
-        let mp = self.mouse_info.position;
-        let delta = (mp.0 - mouse_info.position.0, mp.1 - mouse_info.position.1);
+        let mp = mouse_info.position;
         let selected = self.selected_idx;
 
         if self.global {
@@ -24,21 +23,21 @@ impl MoveGuideline {
                 self.mouse_info = mouse_info;
                 return;
             }
-            guideline.at.x -= delta.0;
-            guideline.at.y -= delta.1;
+            guideline.at.x = mp.0;
+            guideline.at.y = mp.1;
 
             if guideline.data.as_guideline().right {
                 v.with_glyph_mut(|glyph| {
                     if let Some(w) = glyph.width.as_mut() {
-                        *w = (*w as f32 - delta.0) as u64;
+                        *w = mp.0 as u64;
                     }
                 });
                 v.add_width_guidelines();
             }
         } else {
             v.with_glyph_mut(|glyph| {
-                glyph.guidelines[selected].at.x -= delta.0;
-                glyph.guidelines[selected].at.y -= delta.1;
+                glyph.guidelines[selected].at.x = mp.0;
+                glyph.guidelines[selected].at.y = mp.1;
             });
         }
 
