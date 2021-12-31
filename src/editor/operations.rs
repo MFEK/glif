@@ -69,7 +69,10 @@ impl Editor {
     }
 
     pub fn prepare_export(&self) -> MFEKGlif<MFEKGlifPointData> {
-        let glif = self.preview.as_ref().unwrap();
+        let glif = self
+            .preview
+            .as_ref()
+            .unwrap_or(self.glyph.as_ref().unwrap());
 
         // MFEKGlif always has a layer zero so this is safe. (No it isn't, it can be invisible. TODO: Fix this.)
         let mut last_combine_layer: Layer<MFEKGlifPointData> = glif.layers[0].clone();

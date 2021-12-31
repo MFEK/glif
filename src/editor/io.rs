@@ -1,19 +1,17 @@
 use super::{events::*, Editor};
 use crate::util::MFEKGlifPointData;
 
-use glifparser::glif::{
-    self,
-    mfek::{Layer, MFEKGlif},
-};
+//use fs2::FileExt as _; # TODO: Add file locking.
+use glifparser::glif::mfek::{traits::*, Layer, MFEKGlif};
 use glifparser::Glif;
-use glifparser::glif::mfek::traits::*; // (Up|Down)gradeOutline
 use log;
-use plist::{self, Value as PlistValue};
+use plist;
 use MFEKmath::Fixup as _;
 
 use std::{
+    ffi::OsString as Oss,
     fs, io,
-    path::{self, Path as FsPath},
+    path::{Path, PathBuf},
     rc::Rc,
 };
 
@@ -38,17 +36,11 @@ impl Editor {
         !self.just_saved() && self.history.undo_stack.last().is_some()
     }
 
-    pub fn filename_or_panic(&self) -> path::PathBuf {
-        self.glyph
-            .as_ref()
-            .unwrap()
-            .filename
-            .as_ref()
-            .unwrap()
-            .clone()
+    pub fn filename_or_panic(&self) -> PathBuf {
+        self.with_glyph(|g| g.filename.as_ref().unwrap().clone())
     }
 
-    pub fn load_glif<F: AsRef<FsPath> + Clone>(&mut self, interface: &mut Interface, filename: F) {
+    pub fn load_glif<F: AsRef<Path> + Clone>(&mut self, interface: &mut Interface, filename: F) {
         interface
             .set_window_title(&format!(
                 "MFEKglif — {}",
@@ -67,28 +59,35 @@ impl Editor {
         );
     }
 
-    pub fn load_glif_headless<F: AsRef<FsPath> + Clone>(&mut self, filename: F) {
+    pub fn load_glif_headless<F: AsRef<Path> + Clone>(&mut self, file: F) {
         // TODO: Actually handle errors now that we have them.
-        let glif: MFEKGlif<MFEKGlifPointData> = {
-            let mut tempglif: MFEKGlif<MFEKGlifPointData> = match filename
-                .as_ref()
-                .file_name()
-                .expect("No filename")
+        let glif: MFEKGlif<_> = {
+            let ext = file.as_ref().extension().map(|e| e.to_ascii_lowercase());
+            let ext_or = ext
+                .unwrap_or(Oss::from("glif"))
                 .to_string_lossy()
-                .ends_with(".glifjson")
-            {
-                true => serde_json::from_str(
-                    &fs::read_to_string(&filename).expect("Could not open file"),
-                )
-                .expect("Could not deserialize JSON MFEKGlif"),
-                false => glifparser::read_from_filename(&filename)
+                .into_owned();
+            let mut tempglif: MFEKGlif<_> = match ext_or.as_str() {
+                "glifjson" => {
+                    serde_json::from_str(&fs::read_to_string(&file).expect("Could not open file"))
+                        .expect("Could not deserialize JSON MFEKGlif")
+                }
+                "glif" => glifparser::read_from_filename(&file)
                     .expect("Invalid glif!")
                     .into(),
+                _ => {
+                    log::error!(
+                        "Refusing to write to a file with extension {}: {:?}",
+                        ext_or,
+                        file.as_ref()
+                    );
+                    return;
+                }
             };
-            tempglif.filename = Some(filename.as_ref().to_path_buf());
+            tempglif.filename = Some(file.as_ref().to_path_buf());
             for layer in tempglif.layers.iter_mut() {
                 if layer.outline.cleanly_downgradable() {
-                    let mut colo: glifparser::Outline<MFEKGlifPointData> = layer.outline.clone().downgrade();
+                    let mut colo: glifparser::Outline<_> = layer.outline.clone().downgrade();
                     colo.assert_colocated_within(0.01);
                     layer.outline = colo.upgrade();
                 }
@@ -104,10 +103,10 @@ impl Editor {
         self.initialize();
     }
 
-    pub fn save_glif(&mut self, rename: bool) -> Result<path::PathBuf, ()> {
+    pub fn save_glif(&mut self, rename: bool) -> Result<PathBuf, ()> {
         self.begin_modification("Saved glyph");
         let res = self.with_glyph_mut(|glyph| {
-            let filename: path::PathBuf = if rename {
+            let filename: PathBuf = if rename {
                 match filedialog::save_filename(Some("glifjson"), None) {
                     Some(f) => f,
                     None => return Err(()),
@@ -131,9 +130,15 @@ impl Editor {
         res
     }
 
-    pub fn flatten_glif(&mut self, i: &mut Interface, rename: bool) -> Result<path::PathBuf, ()> {
+    pub fn flatten_glif(
+        &mut self,
+        interface: Option<&mut Interface>,
+        rename: bool,
+    ) -> Result<PathBuf, ()> {
         self.mark_preview_dirty();
-        self.rebuild(i);
+        if let Some(i) = interface {
+            self.rebuild(i);
+        }
         let export = self.prepare_export();
         let layer = &export.layers[0];
         if export.layers.len() > 1 {
@@ -143,7 +148,7 @@ impl Editor {
         let glif_struct = self.glyph.as_ref().unwrap().to_exported(layer);
 
         let filename = self.with_glyph(|glyph| {
-            let mut filename: std::path::PathBuf = if rename {
+            let mut filename: PathBuf = if rename {
                 match filedialog::save_filename(Some("glif"), None) {
                     Some(f) => f,
                     None => return None,
@@ -154,7 +159,7 @@ impl Editor {
 
             filename.set_extension("glif");
 
-            glif::write_to_filename(&glif_struct, &filename)
+            glifparser::write_to_filename(&glif_struct, &filename)
                 .map(|()| log::info!("Requested flatten to {:?}", &filename))
                 .unwrap_or_else(|e| panic!("Failed to write glif: {:?}", e));
 
@@ -237,7 +242,7 @@ impl Editor {
             log::info!("Targeting {:?} to write {}", &target, &layer.name);
 
             let glif_struct = self.glyph.as_ref().unwrap().to_exported(layer);
-            glif::write_to_filename(&glif_struct, &target)
+            glifparser::write_to_filename(&glif_struct, &target)
                 .unwrap_or_else(|e| panic!("Failed to write glif: {:?}", e));
 
             if font_pb.is_none() {
@@ -269,12 +274,11 @@ impl Editor {
                 );
                 let mut layerinfo_p = None;
                 let mut current_layerinfo_p = None;
-                if path::Path::exists(&layerinfo) {
+                if Path::exists(&layerinfo) {
                     log::info!("Layer already has layerinfo, checking compatibility");
-                    current_layerinfo_p = Some(PlistValue::from_file(&layerinfo).expect(&format!(
-                        "Failed to deserialize layerinfo.plist in {:?}",
-                        &layerinfo
-                    )));
+                    current_layerinfo_p = Some(plist::Value::from_file(&layerinfo).expect(
+                        &format!("Failed to deserialize layerinfo.plist in {:?}", &layerinfo),
+                    ));
                 }
 
                 let layerinfo_plist = layer.to_layerinfo_plist();
@@ -308,9 +312,9 @@ impl Editor {
         let layercontents = font_pb;
         if let Some(mut layercontents_f) = layercontents {
             layercontents_f.push("layercontents.plist");
-            if path::Path::exists(&layercontents_f) {
+            if Path::exists(&layercontents_f) {
                 let current_layercontents_p =
-                    Some(PlistValue::from_file(&layercontents_f).expect(&format!(
+                    Some(plist::Value::from_file(&layercontents_f).expect(&format!(
                         "Failed to deserialize layercontents.plist in {:?}",
                         &layercontents_f
                     )));

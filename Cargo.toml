@@ -64,6 +64,9 @@ derivative = "2.2"
 # File dialog
 nfd = { git = "https://github.com/raphlinus/nfd-rs", rev = "5e09b79bf511e3a91ae8cefdb96e9734fa4a79c2" }
 
+# File locking
+fs2 = "0.4"
+
 # Command parsing for console
 regex = "1"
 

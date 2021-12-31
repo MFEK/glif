@@ -277,7 +277,7 @@ fn main() {
                             } else {
                                 IOEventType::FileFlattened
                             };
-                            match editor.flatten_glif(&mut interface, rename) {
+                            match editor.flatten_glif(Some(&mut interface), rename) {
                                 Ok(filename) => editor.dispatch_editor_event(
                                     &mut interface,
                                     EditorEvent::IOEvent {
