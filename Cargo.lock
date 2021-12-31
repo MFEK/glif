@@ -58,7 +58,7 @@ dependencies = [
 [[package]]
 name = "MFEKmath"
 version = "0.1.0"
-source = "git+https://github.com/MFEK/math.rlib?branch=main#23b26f949fee78b14def3bfddcd49b9a7a0b68ab"
+source = "git+https://github.com/MFEK/math.rlib?branch=main#08b002c939f2167e27e724b84e455c4e49855993"
 dependencies = [
  "flo_curves",
  "glifparser",
