@@ -6,6 +6,7 @@ use glifparser::glif::{
     mfek::{Layer, MFEKGlif},
 };
 use glifparser::Glif;
+use glifparser::glif::mfek::traits::*; // (Up|Down)gradeOutline
 use log;
 use plist::{self, Value as PlistValue};
 use MFEKmath::Fixup as _;
@@ -68,8 +69,8 @@ impl Editor {
 
     pub fn load_glif_headless<F: AsRef<FsPath> + Clone>(&mut self, filename: F) {
         // TODO: Actually handle errors now that we have them.
-        let glif = {
-            let mut tempglif: Glif<MFEKGlifPointData> = match filename
+        let glif: MFEKGlif<MFEKGlifPointData> = {
+            let mut tempglif: MFEKGlif<MFEKGlifPointData> = match filename
                 .as_ref()
                 .file_name()
                 .expect("No filename")
@@ -85,13 +86,14 @@ impl Editor {
                     .into(),
             };
             tempglif.filename = Some(filename.as_ref().to_path_buf());
-            drop(
-                tempglif
-                    .outline
-                    .as_mut()
-                    .map(|o| o.assert_colocated_within(0.01)),
-            );
-            tempglif.into()
+            for layer in tempglif.layers.iter_mut() {
+                if layer.outline.cleanly_downgradable() {
+                    let mut colo: glifparser::Outline<MFEKGlifPointData> = layer.outline.clone().downgrade();
+                    colo.assert_colocated_within(0.01);
+                    layer.outline = colo.upgrade();
+                }
+            }
+            tempglif
         };
 
         if *DEBUG_DUMP_GLYPH {
