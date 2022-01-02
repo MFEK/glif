@@ -54,11 +54,16 @@ MFEKglif is still alpha-quality software, and a numbered release hasn't been mad
 
 ## Building
 
+### For everyone
+
+* Download and install [`rustup`](https://rustup.rs/), selecting either the `nightly` or `stable` toolchain. MFEKglif builds on both as of 7 November 2021.
+* Download and install the [Vulkan SDK](https://vulkan.lunarg.com/).
+* Pull this repository, and finally…
+* Compile the project. An example command is in § Contributing; you may also find the provided `Makefile` helpful.
+
 ### Mac users
 
 Apple charges a fee to "notarize" applications and without this "notarization" MFEKglif will not run correctly, or in some cases, at all. So, for the foreseeable future, you must _build MFEKglif from source on OS X_. This is not as hard as it sounds! :-)
-
-* Download and install the [Vulkan SDK](https://vulkan.lunarg.com/).
 
 ### Linux users
 
@@ -75,12 +80,6 @@ I provide a `.desktop` shortcut in `resources/` as `MFEKglif.desktop`. To instal
 1. Copy the icon to `$XDG_HOME`. On my system, the command was `mkdir -p ~/.local/share/icons/hicolor/512x512/apps/ && cp resources/MFEKglif.png ~/.local/share/icons/hicolor/512x512/apps/MFEKglif.png`.
 2. Run `desktop-file-install --dir=~/.local/share/applications ~/MFEKglif.desktop` to install locally (also depends on `$XDG_HOME`, or run it as root without `--dir` to install the `.desktop` icon globally.
 3. Run `update-desktop-database` on the directory used in step 2.
-
-### For everyone
-
-* Download and install [`rustup`](https://rustup.rs/), selecting either the `nightly` or `stable` toolchain. MFEKglif builds on both as of 7 November 2021.
-* Pull this repository, and finally…
-* Compile the project. An example command is in § Contributing; you may also find the provided `Makefile` helpful.
 
 ### Errors?
 
