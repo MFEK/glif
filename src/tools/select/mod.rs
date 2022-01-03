@@ -94,13 +94,13 @@ impl Select {
     }
 
     fn nudge_selected(&mut self, v: &mut Editor, command: Command) {
-        let to_chain = if let (Some(ci), Some(pi)) = (v.contour_idx, v.point_idx) {
-            vec![(ci, pi)]
-        } else {
-            vec![]
-        };
-        for (ci, pi) in v.selected.clone().into_iter().chain(to_chain) {
-            v.begin_modification("Nudge selected points.");
+        let mut selected = v.selected.clone();
+        if let (Some(ci), Some(pi)) = (v.contour_idx, v.point_idx) {
+            selected.insert((ci, pi));
+        }
+        if selected.len() == 0 { return }
+        v.begin_modification("Nudge selected points.");
+        for (ci, pi) in selected {
             v.with_active_layer_mut(|layer| {
                 let point = &get_point!(layer, ci, pi);
                 let factor = PanBehavior::nudge_factor(command);
@@ -109,8 +109,8 @@ impl Select {
                 let y = point.y;
                 editor::util::move_point(&mut layer.outline, ci, pi, x - offset.0, y + offset.1);
             });
-            v.end_modification();
         }
+        v.end_modification();
     }
 
     fn reverse_selected(&mut self, v: &mut Editor) {
