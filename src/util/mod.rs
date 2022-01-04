@@ -4,7 +4,6 @@ pub mod math;
 
 use crate::editor::events::EditorEvent;
 
-#[cfg(debug)]
 use std::fs;
 use std::panic::set_hook;
 use std::{env, process};
@@ -57,7 +56,6 @@ pub fn hard_error(msg: &str) -> ! {
     process::exit(1)
 }
 
-#[cfg(debug)]
 fn now_epoch() -> u64 {
     use std::time::SystemTime;
     SystemTime::now()
@@ -91,7 +89,6 @@ pub fn set_panic_hook() {
             Err(_) => eprintln!("Failed to create error box!"),
         }
 
-        #[cfg(debug)]
         if env::var("RUST_BACKTRACE").is_ok() {
             let mut bt = backtrace::Backtrace::new();
             bt.resolve();
