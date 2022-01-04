@@ -98,7 +98,9 @@ impl Select {
         if let (Some(ci), Some(pi)) = (v.contour_idx, v.point_idx) {
             selected.insert((ci, pi));
         }
-        if selected.len() == 0 { return }
+        if selected.len() == 0 {
+            return;
+        }
         v.begin_modification("Nudge selected points.");
         for (ci, pi) in selected {
             v.with_active_layer_mut(|layer| {
