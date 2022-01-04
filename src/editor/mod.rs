@@ -295,6 +295,16 @@ impl Editor {
         ret
     }
 
+    // Do not use this function unless you're very sure it's right.
+    pub fn with_active_layer_mut_no_history<F, R>(&mut self, mut closure: F) -> R
+    where
+        F: FnMut(&mut Layer<MFEKGlifPointData>) -> R,
+    {
+        log::debug!("Used dangerous function: <editor as Editor>.with_active_layer_mut_no_history(|layer| {{…}})");
+        let glyph = self.glyph.as_mut().unwrap();
+        closure(&mut glyph.layers[self.layer_idx.unwrap()])
+    }
+
     /// Calls the supplied closure with a copy of the glif.
     pub fn with_glyph<F, R>(&self, mut closure: F) -> R
     where
@@ -317,10 +327,12 @@ impl Editor {
         closure(self.glyph.as_mut().unwrap())
     }
 
+    // Do not use this function unless you're very sure it's right.
     pub fn with_glyph_mut_no_history<F, R>(&mut self, mut closure: F) -> R
     where
         F: FnMut(&mut MFEKGlif<MFEKGlifPointData>) -> R,
     {
+        log::debug!("Used dangerous function: <editor as Editor>.with_glyph_mut_no_history(|glyph| {{…}})");
         closure(self.glyph.as_mut().unwrap())
     }
 }
