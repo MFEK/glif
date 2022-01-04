@@ -123,6 +123,12 @@ Contributions which do not work on at least GNU/Linux and Windows will be reject
 
 Contibutions will also be judged on how well they fit into the MFEK project as a whole. It's possible that your idea fits better into another module and not MFEKglif; we can help you figure out where it should go.
 
+### «Issues» vs. «Discussions»
+
+If you find a bug in MFEKglif, please open the bug against this repository in «[Issues](https://github.com/MFEK/glif/issues)». Your bug may be moved by a maintainer (as of 4 January 2022 Fred Brennan/@ctrlcctrlv is the only MFEK maintainer) to the bug tracker of another MFEK module or library, considering only where _the code resides_ that your issue concerns, not the module you're using. When in doubt as to which repository is correct, just use this one—let Fred figure it out.
+
+To discuss the MFEK project/offer ideas/report your experience, (good or bad!) and not report a bug, please open a thread in «[Discussions](https://github.com/MFEK/glif/discussions)». «Discussions» is not at all strict about repository hygeine, so you may discuss anything related to MFEK there.
+
 ## License
 
 ```
