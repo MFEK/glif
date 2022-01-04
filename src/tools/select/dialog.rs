@@ -5,14 +5,14 @@ use super::Select;
 use crate::contour_operations::ContourOperation;
 use crate::editor::macros::{get_contour_len, get_contour_type, get_point};
 use crate::editor::Editor;
+use crate::get_contour_mut;
 use crate::user_interface::util::{imgui_decimal_text_field, imgui_radius_theta};
 use crate::user_interface::Interface;
 use crate::util::MFEKGlifPointData;
-use crate::get_contour_mut;
 
 use glifparser::glif::{ContourOperations, MFEKOutline};
-use glifparser::{Handle, Point, PointType, WhichHandle};
 use glifparser::outline::RefigurePointTypes as _;
+use glifparser::{Handle, Point, PointType, WhichHandle};
 
 use imgui;
 

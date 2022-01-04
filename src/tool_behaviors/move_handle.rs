@@ -1,7 +1,7 @@
 use super::prelude::*;
 pub use crate::user_interface::follow::Follow;
-use MFEKmath::polar::PolarCoordinates as _;
 use glifparser::outline::RefigurePointTypes as _;
+use MFEKmath::polar::PolarCoordinates as _;
 
 #[derive(Clone, Debug)]
 pub struct MoveHandle {
