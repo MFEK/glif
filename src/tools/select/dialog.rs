@@ -8,10 +8,11 @@ use crate::editor::Editor;
 use crate::user_interface::util::{imgui_decimal_text_field, imgui_radius_theta};
 use crate::user_interface::Interface;
 use crate::util::MFEKGlifPointData;
+use crate::get_contour_mut;
 
 use glifparser::glif::{ContourOperations, MFEKOutline};
 use glifparser::{Handle, Point, PointType, WhichHandle};
-use MFEKmath::polar::PolarCoordinates;
+use glifparser::outline::RefigurePointTypes as _;
 
 use imgui;
 
@@ -172,15 +173,21 @@ impl Select {
                 if get_point!(layer, ci, pi).ptype == PointType::Move {
                     point.ptype = PointType::Move;
                 }
-                if should_make_next_point_curve {
-                    let ppi = if pi == contour_len - 1 { 0 } else { pi + 1 };
-                    if !(on_open_contour && ppi == 0) {
-                        get_point!(layer, ci, ppi).ptype = PointType::Curve;
-                    }
-                }
                 get_point!(layer, ci, pi) = point.clone();
+                get_contour_mut!(layer, ci).refigure_point_types();
             });
             v.end_modification();
         }
+
+        // unsafe function! OK here as these handles are always invalid and if we used history
+        // version then it would be an invalid begin_modification() (from dialog) inside a
+        // begin_modification() (from moving handles).
+        v.with_active_layer_mut_no_history(|layer| {
+            if on_first_open_point {
+                get_point!(layer, ci, pi).b = Handle::Colocated;
+            } else if on_last_open_point {
+                get_point!(layer, ci, pi).a = Handle::Colocated;
+            }
+        });
     }
 }

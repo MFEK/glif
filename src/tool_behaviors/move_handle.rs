@@ -1,6 +1,7 @@
 use super::prelude::*;
 pub use crate::user_interface::follow::Follow;
 use MFEKmath::polar::PolarCoordinates as _;
+use glifparser::outline::RefigurePointTypes as _;
 
 #[derive(Clone, Debug)]
 pub struct MoveHandle {
@@ -76,6 +77,8 @@ impl MoveHandle {
                 }
                 WhichHandle::Neither => unreachable!("Should've been matched above?!"),
             }
+
+            get_contour_mut!(layer, vci).refigure_point_types();
         });
     }
 
