@@ -52,18 +52,22 @@ pub fn imgui_decimal_text_field_f64(label: &str, ui: &imgui::Ui, data: &mut f64)
 pub fn imgui_radius_theta<PD: PointData>(
     label: &str,
     ui: &imgui::Ui,
-    ar: f32,
-    atheta: f32,
     wh: WhichHandle,
     point: &mut Point<PD>,
 ) {
+    let (radius, mut theta) = point.polar(wh);
+    theta = theta.to_degrees();
+    theta -= 180.;
+    if theta.is_sign_positive() && wh == WhichHandle::B {
+        theta = 360. - theta;
+    }
     let r_label = imgui::im_str!("{}r", label);
     let theta_label = imgui::im_str!("{}θ", label);
     // Ar
-    let mut ars = imgui::im_str!("{}", ar);
+    let mut radii = imgui::im_str!("{}", radius);
     let r_entered;
     {
-        let it = ui.input_text(&r_label, &mut ars);
+        let it = ui.input_text(&r_label, &mut radii);
         r_entered = it
             .enter_returns_true(true)
             .chars_decimal(true)
@@ -72,10 +76,10 @@ pub fn imgui_radius_theta<PD: PointData>(
             .build();
     }
     // AΘ
-    let mut athetas = imgui::im_str!("{}", atheta);
+    let mut thetas = imgui::im_str!("{}", theta);
     let theta_entered;
     {
-        let it = ui.input_text(&theta_label, &mut athetas);
+        let it = ui.input_text(&theta_label, &mut thetas);
         theta_entered = it
             .enter_returns_true(true)
             .chars_decimal(true)
@@ -85,12 +89,12 @@ pub fn imgui_radius_theta<PD: PointData>(
     }
     if r_entered || theta_entered {
         let mut new_r: f32 = f32::NAN;
-        if ars.to_str().len() > 0 {
-            new_r = ars.to_str().parse().unwrap();
+        if radii.to_str().len() > 0 {
+            new_r = radii.to_str().parse().unwrap();
         }
         let mut new_theta: f32 = f32::NAN;
-        if athetas.to_str().len() > 0 && athetas.to_str() != "NaN" {
-            new_theta = athetas.to_str().parse().unwrap();
+        if thetas.to_str().len() > 0 && thetas.to_str() != "NaN" {
+            new_theta = thetas.to_str().parse().unwrap();
         }
         if !f32::is_nan(new_r) && !f32::is_nan(new_theta) {
             point.set_polar(wh, (new_r, new_theta));

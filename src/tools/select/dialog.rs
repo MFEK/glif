@@ -1,5 +1,4 @@
 use std::collections::HashSet;
-use std::f32::consts::PI;
 
 use super::Select;
 
@@ -32,17 +31,15 @@ impl Select {
         let (tx, ty, tw, th) = i.get_tools_dialog_rect();
         let mut orig_point: Point<_> = Point::new();
         let mut point: Point<MFEKGlifPointData> = Point::new();
-        let mut should_make_next_point_curve: bool = false;
         let mut should_clear_contour_op = false;
         let mut should_apply_contour_op = false;
         let on_open_contour = v.with_active_layer(|l| get_contour_type!(l, ci) == PointType::Move);
         let contour_len = v.with_active_layer(|l| get_contour_len!(l, ci));
+        let on_last_open_point: bool = pi == contour_len - 1 && on_open_contour;
+        let on_first_open_point: bool = pi == 0 && on_open_contour;
         v.with_active_layer(|layer| {
             point = get_point!(layer, ci, pi).clone();
             orig_point = point.clone();
-
-            let on_last_open_point: bool = pi == contour_len - 1 && on_open_contour;
-            let on_first_open_point: bool = pi == 0 && on_open_contour;
 
             imgui::Window::new(&if multiple_points_selected {
                 imgui::ImString::new("Points")
@@ -74,8 +71,9 @@ impl Select {
                 // Y
                 imgui_decimal_text_field("Y", ui, &mut point.y, None);
 
-                // A
                 let mut a_colocated = point.a == Handle::Colocated;
+                let mut b_colocated = point.b == Handle::Colocated;
+                // A (next)
                 if !on_last_open_point {
                     ui.text(imgui::im_str!("Next off-curve point"));
                     ui.checkbox(imgui::im_str!("A Colocated"), &mut a_colocated);
@@ -89,19 +87,14 @@ impl Select {
                     if (ax, ay) != orig_axy {
                         point.a = Handle::At(ax, ay);
                         point.ptype = PointType::Curve;
-                        should_make_next_point_curve = true;
                     } else if a_colocated {
                         point.a = Handle::Colocated;
                     }
-                    // ArΘ
-                    let (ar, mut atheta) = point.polar(WhichHandle::A);
-                    atheta *= 180. / PI;
-                    atheta -= 180.;
-                    imgui_radius_theta("A", ui, ar, atheta, WhichHandle::A, &mut point);
+                    // Ar, AΘ
+                    imgui_radius_theta("A", ui, WhichHandle::A, &mut point);
                 }
 
-                // B
-                let mut b_colocated = point.b == Handle::Colocated;
+                // B (prev)
                 if !on_first_open_point {
                     ui.text(imgui::im_str!("Previous off-curve point"));
                     ui.checkbox(imgui::im_str!("B Colocated"), &mut b_colocated);
@@ -117,14 +110,8 @@ impl Select {
                     } else if b_colocated {
                         point.b = Handle::Colocated;
                     }
-                    // BrΘ
-                    let (br, mut btheta) = point.polar(WhichHandle::B);
-                    btheta *= 180. / PI;
-                    btheta -= 180.;
-                    if btheta.is_sign_positive() {
-                        btheta = 360. - btheta;
-                    }
-                    imgui_radius_theta("B", ui, br, btheta, WhichHandle::B, &mut point);
+                    // Br, BΘ
+                    imgui_radius_theta("B", ui, WhichHandle::B, &mut point);
                 }
 
                 if v.with_active_layer(|layer| layer.outline[ci].operation.is_some()) {
