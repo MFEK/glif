@@ -1,8 +1,8 @@
 // Utilities
-pub mod argparser;
 pub mod math;
 
 use crate::editor::events::EditorEvent;
+use crate::editor::headless::IS_HEADLESS;
 
 use std::fs;
 use std::panic::set_hook;
@@ -71,29 +71,41 @@ pub fn quit_next_frame() {
 
 pub fn set_panic_hook() {
     set_hook(Box::new(|info| {
+        let headless = IS_HEADLESS.with(|h| *h.borrow());
+
         let msg = info
             .payload()
             .downcast_ref::<String>()
             .map(|s| s.clone())
             .unwrap_or_else(|| info.to_string());
-        eprintln!("\n{}\n", msg.bright_red());
 
-        let err = msgbox::create(
-            "Uh oh! \u{2014} MFEKglif crashed",
-            info.to_string().as_str(),
-            IconType::Error,
-        );
-
-        match err {
-            Ok(_) => {}
-            Err(_) => eprintln!("Failed to create error box!"),
+        if env::var("MFEK_QUIET_CRASH").is_err() {
+            eprintln!("\n{}\n", msg.bright_red());
         }
 
-        if env::var("RUST_BACKTRACE").is_ok() {
-            let mut bt = backtrace::Backtrace::new();
-            bt.resolve();
-            eprintln!("Requested backtrace:\n{:?}", bt);
+        let quiet_msgbox =
+            env::var("MFEK_QUIET_CRASH").is_err() && env::var("MFEK_QUIET_CRASH_MSGBOX").is_err();
+        if !headless && !quiet_msgbox {
+            let err = msgbox::create(
+                "Uh oh! \u{2014} MFEKglif crashed",
+                info.to_string().as_str(),
+                IconType::Error,
+            );
 
+            match err {
+                Ok(_) => log::trace!("Opened crash msgbox successfully"),
+                Err(e) => log::error!("Failed to create error box! {:?}", e),
+            }
+        }
+
+        let mut bt = backtrace::Backtrace::new();
+        bt.resolve();
+
+        if env::var("RUST_BACKTRACE").is_ok() && env::var("MFEK_QUIET_CRASH").is_err() {
+            eprintln!("Requested backtrace:\n{:?}", bt);
+        }
+
+        if env::var("MFEK_BACKTRACE_NO_WRITE").is_err() && env::var("MFEK_QUIET_CRASH").is_err() {
             let mut pb = env::temp_dir();
             pb.push(format!("error_log_{}", now_epoch()));
             pb.set_extension("txt");
@@ -101,8 +113,8 @@ pub fn set_panic_hook() {
             let err = fs::write(pb.clone(), format!("{:?}", bt));
 
             match err {
-                Ok(_) => eprintln!("Wrote backtrace to {}", pb.display()),
-                Err(_) => eprintln!("Failed to write backtrace to file! {}", pb.display()),
+                Ok(_) => log::info!("Wrote backtrace to {}", pb.display()),
+                Err(_) => log::error!("Failed to write backtrace to file! {}", pb.display()),
             }
         }
     }));

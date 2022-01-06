@@ -1,7 +1,14 @@
-// Argument parser
+// Command line argument handling
 use git_version::git_version;
 
 use clap; //argparse lib
+
+#[derive(Clone, PartialEq, Eq, Debug)]
+pub struct Args {
+    pub filename: Option<String>,
+    pub headless_mode: HeadlessMode,
+    pub no_contour_ops: bool,
+}
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum HeadlessMode {
@@ -10,13 +17,6 @@ pub enum HeadlessMode {
     Export,
     Save,
     RunScript, // unused until scripting support added
-}
-
-#[derive(Clone, PartialEq, Eq, Debug)]
-pub struct Args {
-    pub filename: Option<String>,
-    pub headless_mode: HeadlessMode,
-    pub no_contour_ops: bool,
 }
 
 pub fn parse_args() -> Args {
@@ -84,9 +84,11 @@ pub fn parse_args() -> Args {
 
     let no_contour_ops = matches.is_present("no-contour-ops");
 
-    Args {
+    let args = Args {
         filename: matches.value_of("GLIF").map(|s| s.to_string()),
         headless_mode,
         no_contour_ops,
-    }
+    };
+
+    args
 }

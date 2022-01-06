@@ -1,3 +1,4 @@
+use crate::args::Args;
 use crate::util::MFEKGlifPointData;
 use crate::{
     ipc,
@@ -40,6 +41,7 @@ pub mod macros;
 /// The only state that should change not through the editor is the generation of previews for the purposes of drawing.
 #[derive(Debug)]
 pub struct Editor {
+    args: Args,
     glyph: Option<MFEKGlif<MFEKGlifPointData>>,
     modifying: bool, // a flag that is set when the active layer is currently being modified
 
@@ -74,9 +76,10 @@ pub struct Editor {
 }
 
 impl Editor {
-    pub fn new() -> Editor {
+    pub fn new(args: Args) -> Editor {
         let (fstx, fsrx) = std::sync::mpsc::channel();
-        Editor {
+        let mut self_o = Editor {
+            args,
             glyph: None,
             modifying: false,
             dirty: false,
@@ -105,7 +108,9 @@ impl Editor {
 
             filesystem_watch_tx: fstx,
             filesystem_watch_rx: fsrx,
-        }
+        };
+        self_o.headless();
+        self_o
     }
 
     /// This function MUST be called before calling with_active_<layer/glif>_mut or it will panic.

@@ -13,7 +13,6 @@ use editor::{
 use glifrenderer::toggles::{PointLabels, PreviewMode};
 use tools::ToolEnum;
 use user_interface::{ImguiManager, Interface};
-use util::argparser::HeadlessMode;
 
 use sdl2::event::{Event, WindowEvent};
 pub use skulpin::{rafx::api as RafxApi, skia_safe};
@@ -22,6 +21,7 @@ use crate::user_interface::mouse_input::MouseInfo;
 
 use enum_unitary::IntoEnumIterator;
 
+pub mod args;
 mod command;
 pub mod constants;
 mod contour_operations;
@@ -43,15 +43,11 @@ fn main() {
     util::init_env_logger();
     util::set_panic_hook();
 
-    let args = util::argparser::parse_args();
+    let args = args::parse_args();
+    let filename = args.filename.clone();
+    let mut editor = Editor::new(args);
 
-    let mut editor = Editor::new();
-
-    if args.headless_mode != HeadlessMode::None {
-        editor.headless(&args); // this function always calls exit()
-    }
-
-    let filename = filedialog::filename_or_panic(&args.filename, Some("glif"), None);
+    let filename = filedialog::filename_or_panic(&filename, Some("glif"), None);
     let mut interface = Interface::new(filename.to_str().unwrap());
     let mut imgui_manager = ImguiManager::new(&interface.sdl_window);
 

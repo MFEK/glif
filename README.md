@@ -113,6 +113,12 @@ We welcome all contributions! Please open an issue first so we can discuss befor
 
 It is possible to get even more debug output out of MFEKglif for figuring out where problems lie. To ask MFEKglif to dump the parsed .glif file on runtime, pass `MFEK_DEBUG_DUMP_GLYPH=Y`. To see every single `sdl2` event (warning: this will flood your stdout) pass `MFEK_DEBUG_EVENTS=Y`.
 
+### Backtrace logging
+
+By default, MFEKglif writes its backtraces to your temporary directory (it outputs the filename on crash as well). You should share these when reporting a crash; you may stop them from being written with the environment variable `MFEK_BACKTRACE_NO_WRITE=Y`.
+
+To quiet all potentially useful information from a crash, set `MFEK_QUIET_CRASH=Y`.
+
 ### Adding icons
 
 Icons are themselves `.glif` files, see `resources/fonts/MFEKglifIconFont.ufo/glyphs`. Once you add a glyph to the UFO, you can rebuild the font (provided you have `fontmake`) with `make iconfont`.

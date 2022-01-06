@@ -47,7 +47,7 @@ impl Editor {
                 filename.as_ref().to_str().unwrap()
             ))
             .expect("Failed to set SDL2 window title");
-        self.load_glif_headless(filename.clone());
+        self.load_glif_impl(filename.clone());
         self.mark_preview_dirty();
         self.rebuild(interface);
         self.dispatch_editor_event(
@@ -59,7 +59,7 @@ impl Editor {
         );
     }
 
-    pub fn load_glif_headless<F: AsRef<Path> + Clone>(&mut self, file: F) {
+    pub fn load_glif_impl<F: AsRef<Path> + Clone>(&mut self, file: F) {
         // TODO: Actually handle errors now that we have them.
         let glif: MFEKGlif<_> = {
             let ext = file.as_ref().extension().map(|e| e.to_ascii_lowercase());
