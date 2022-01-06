@@ -23,8 +23,8 @@ impl AddGuideline {
 
     pub fn mouse_released(&mut self, v: &mut Editor, mouse_info: MouseInfo) {
         let prev_guide = Guideline::from_x_y_angle(
-            calc_x(mouse_info.position.0),
-            calc_y(mouse_info.position.1),
+            mouse_info.position.0,
+            mouse_info.position.1,
             Float(self.angle),
         );
 
@@ -78,8 +78,8 @@ impl ToolBehavior for AddGuideline {
 
     fn draw(&self, _v: &Editor, i: &Interface, canvas: &mut Canvas) {
         let prev_guide = Guideline::<()>::from_x_y_angle(
-            calc_x(i.mouse_info.position.0),
-            calc_y(i.mouse_info.position.1),
+            i.mouse_info.position.0,
+            i.mouse_info.position.1,
             Float(self.angle),
         );
         draw_guideline(&i.viewport, canvas, &prev_guide, None)

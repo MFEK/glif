@@ -160,7 +160,7 @@ impl Select {
             let pivot = self
                 .pivot_point
                 .unwrap_or_else(|| v.get_selection_bounding_box_center());
-            let pivot_calc = (calc_x(pivot.0), calc_y(pivot.1));
+            let pivot_calc = (pivot.0, pivot.1);
             let pivot_vector = Vector::from_components(pivot_calc.0 as f64, pivot_calc.1 as f64);
             let mouse_vector =
                 Vector::from_components(mouse_info.position.0 as f64, mouse_info.position.1 as f64);
@@ -213,8 +213,7 @@ impl Select {
 
                 // if they clicked right mouse we set the pivot point that will be used by rotate_points behavior.
                 if mouse_info.button == MouseButton::Right {
-                    self.pivot_point =
-                        Some((mouse_info.position.0, rcalc_y(mouse_info.position.1)));
+                    self.pivot_point = Some((mouse_info.position.0, mouse_info.position.1));
                 } else if mouse_info.button == MouseButton::Left {
                     v.set_behavior(Box::new(SelectionBox::new(mouse_info)));
                 }
@@ -244,7 +243,7 @@ impl Select {
 
     fn draw_pivot_point(&self, _v: &Editor, i: &Interface, canvas: &mut Canvas) {
         if let Some(pivot) = self.pivot_point {
-            let pivot = (calc_x(pivot.0), calc_y(pivot.1));
+            let pivot = (pivot.0, pivot.1);
             let mut paint = Paint::default();
 
             paint.set_color(OUTLINE_STROKE);

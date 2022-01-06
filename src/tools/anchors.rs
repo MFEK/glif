@@ -56,7 +56,7 @@ impl Anchors {
                 let anchor = &glif.anchors[idx];
                 let mut paint = Paint::default();
                 paint.set_color(SELECTED_ANCHOR_COLOR);
-                canvas.draw_circle((calc_x(anchor.x), calc_y(anchor.y)), 2.5, &paint);
+                canvas.draw_circle((anchor.x, anchor.y), 2.5, &paint);
             });
         }
     }
@@ -163,10 +163,8 @@ impl Anchors {
                 let size = ((ANCHOR_RADIUS * 2.) + (ANCHOR_STROKE_THICKNESS * 2.))
                     * (1. / i.viewport.factor);
                 // Topleft corner of point
-                let anchor_tl = SkPoint::new(
-                    calc_x(anchor.x as f32) - (size / 2.),
-                    calc_y(anchor.y as f32) - (size / 2.),
-                );
+                let anchor_tl =
+                    SkPoint::new(anchor.x as f32 - (size / 2.), anchor.y as f32 - (size / 2.));
                 let anchor_rect = SkRect::from_point_and_size(anchor_tl, (size, size));
                 let sk_mpos =
                     SkPoint::new(mouse_info.position.0 as f32, mouse_info.position.1 as f32);
@@ -190,8 +188,8 @@ impl Anchors {
                 v.begin_modification("Add anchor.");
                 v.with_glyph_mut(|glif| {
                     let mut anchor = GlifAnchor::new();
-                    anchor.x = f32::floor(calc_x(position.0));
-                    anchor.y = f32::floor(calc_y(position.1));
+                    anchor.x = f32::floor(position.0);
+                    anchor.y = f32::floor(position.1);
                     anchor.class = string.clone();
                     glif.anchors.push(anchor);
                 });
@@ -212,8 +210,8 @@ impl Anchors {
 
             v.with_glyph_mut(|glif| {
                 // Anchors can't be non-integers in OT spec
-                glif.anchors[idx].x = f32::floor(calc_x(mouse_info.position.0));
-                glif.anchors[idx].y = f32::floor(calc_y(mouse_info.position.1));
+                glif.anchors[idx].x = f32::floor(mouse_info.position.0);
+                glif.anchors[idx].y = f32::floor(mouse_info.position.1);
             });
         }
     }

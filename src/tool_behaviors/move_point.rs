@@ -20,8 +20,8 @@ impl MovePoint {
     }
 
     pub fn mouse_moved(&mut self, v: &mut Editor, _i: &mut Interface, mouse_info: MouseInfo) {
-        let x = calc_x(mouse_info.position.0 as f32);
-        let y = calc_y(mouse_info.position.1 as f32);
+        let x = mouse_info.position.0 as f32;
+        let y = mouse_info.position.1 as f32;
 
         let (vci, vpi) = (v.contour_idx.unwrap(), v.point_idx.unwrap());
         if !v.is_modifying() {
@@ -135,7 +135,7 @@ impl ToolBehavior for MovePoint {
                             v.with_active_layer(|layer| get_contour!(layer, ci)[pi].clone());
                         draw_point(
                             &i.viewport,
-                            (calc_x(merge.x), calc_y(merge.y)),
+                            (merge.x, merge.y),
                             (merge.x, merge.y),
                             None,
                             UIPointType::Point((merge.a, merge.b)),

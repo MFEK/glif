@@ -26,7 +26,7 @@ impl RotateSelection {
         let rot = self.rotate_vector;
         let pivot = self.pivot_point;
         let raw_pivot_vector = Vector::from_components(pivot.0 as f64, pivot.1 as f64);
-        let pivot_vector = Vector::from_components(calc_x(pivot.0) as f64, calc_y(pivot.1) as f64);
+        let pivot_vector = Vector::from_components(pivot.0 as f64, pivot.1 as f64);
         let mouse_vector =
             Vector::from_components(mouse_info.position.0 as f64, mouse_info.position.1 as f64);
 

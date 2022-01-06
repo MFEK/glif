@@ -37,8 +37,8 @@ impl MoveHandle {
 
         self.mouse_info.modifiers = mouse_info.modifiers;
 
-        let x = calc_x(mouse_info.position.0 as f32);
-        let y = calc_y(mouse_info.position.1 as f32);
+        let x = mouse_info.position.0 as f32;
+        let y = mouse_info.position.1 as f32;
 
         let (vci, vpi) = (v.contour_idx.unwrap(), v.point_idx.unwrap());
 

@@ -43,7 +43,7 @@ pub fn mouse_coords_to_handle_space(v: &Editor, meta: MouseInfo, wh: WhichHandle
     let normal = Vector::from_components(tangent.y, -tangent.x).normalize();
 
     let mouse_vec =
-        start_pos - Vector::from_components(meta.position.0 as f64, calc_y(meta.position.1) as f64);
+        start_pos - Vector::from_components(meta.position.0 as f64, meta.position.1 as f64);
     let mouse_vec_normal = mouse_vec.normalize();
 
     //return mouse_vec_normal.dot(handle_vec) * mouse_vec.magnitude();
@@ -259,14 +259,14 @@ pub fn clicked_handle(
                     get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::B).2;
 
                 let handle_left_point = SkPoint::new(
-                    calc_x(handle_pos_left.x as f32) - (size / 2.),
-                    calc_y(handle_pos_left.y as f32) - (size / 2.),
+                    handle_pos_left.x as f32 - (size / 2.),
+                    handle_pos_left.y as f32 - (size / 2.),
                 );
                 let handle_left_rect = SkRect::from_point_and_size(handle_left_point, (size, size));
 
                 let handle_right_point = SkPoint::new(
-                    calc_x(handle_pos_right.x as f32) - (size / 2.),
-                    calc_y(handle_pos_right.y as f32) - (size / 2.),
+                    handle_pos_right.x as f32 - (size / 2.),
+                    handle_pos_right.y as f32 - (size / 2.),
                 );
                 let handle_right_rect =
                     SkRect::from_point_and_size(handle_right_point, (size, size));
@@ -289,14 +289,14 @@ pub fn clicked_handle(
                     get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::B).2;
 
                 let handle_left_point = SkPoint::new(
-                    calc_x(handle_pos_left.x as f32) - (size / 2.),
-                    calc_y(handle_pos_left.y as f32) - (size / 2.),
+                    handle_pos_left.x as f32 - (size / 2.),
+                    handle_pos_left.y as f32 - (size / 2.),
                 );
                 let handle_left_rect = SkRect::from_point_and_size(handle_left_point, (size, size));
 
                 let handle_right_point = SkPoint::new(
-                    calc_x(handle_pos_right.x as f32) - (size / 2.),
-                    calc_y(handle_pos_right.y as f32) - (size / 2.),
+                    handle_pos_right.x as f32 - (size / 2.),
+                    handle_pos_right.y as f32 - (size / 2.),
                 );
                 let handle_right_rect =
                     SkRect::from_point_and_size(handle_right_point, (size, size));

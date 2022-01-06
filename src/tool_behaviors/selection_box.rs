@@ -2,7 +2,6 @@ use std::collections::HashSet;
 
 use super::prelude::*;
 use glifrenderer::{
-    calc_x, calc_y,
     constants::{OUTLINE_STROKE, OUTLINE_STROKE_THICKNESS},
     points::draw_point,
 };
@@ -81,7 +80,7 @@ impl SelectionBox {
                 let point = &get_point!(layer, ci, pi);
                 draw_point(
                     &i.viewport,
-                    (calc_x(point.x), calc_y(point.y)),
+                    (point.x, point.y),
                     (point.x, point.y),
                     None,
                     UIPointType::Point((point.a, point.b)),

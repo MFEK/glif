@@ -126,7 +126,7 @@ impl Pen {
             if v.point_idx.unwrap() == contour_len - 1 {
                 v.point_idx = v.with_active_layer_mut(|layer| {
                     get_contour!(layer, contour_idx).push(Point::from_x_y_type(
-                        (calc_x(mouse_pos.0 as f32), calc_y(mouse_pos.1 as f32)),
+                        (mouse_pos.0 as f32, mouse_pos.1 as f32),
                         PointType::Curve,
                     ));
 
@@ -143,10 +143,7 @@ impl Pen {
                     }
                     get_contour!(layer, contour_idx).insert(
                         0,
-                        Point::from_x_y_type(
-                            (calc_x(mouse_pos.0 as f32), calc_y(mouse_pos.1 as f32)),
-                            point_type,
-                        ),
+                        Point::from_x_y_type((mouse_pos.0 as f32, mouse_pos.1 as f32), point_type),
                     );
 
                     layer.outline[contour_idx].operation =
@@ -160,7 +157,7 @@ impl Pen {
             v.contour_idx = v.with_active_layer_mut(|layer| {
                 let mut new_contour: Contour<MFEKGlifPointData> = Vec::new();
                 new_contour.push(Point::from_x_y_type(
-                    (calc_x(mouse_pos.0 as f32), calc_y(mouse_pos.1 as f32)),
+                    (mouse_pos.0 as f32, mouse_pos.1 as f32),
                     if mouse_info.modifiers.shift {
                         PointType::Curve
                     } else {
@@ -189,7 +186,7 @@ impl Pen {
         if let Some(info) = info {
             draw_point(
                 &i.viewport,
-                (calc_x(info.point.0), calc_y(info.point.1)),
+                (info.point.0, info.point.1),
                 info.point,
                 None,
                 UIPointType::Point((
@@ -225,7 +222,7 @@ impl Pen {
                         v.with_active_layer(|layer| get_contour!(layer, info_ci)[info_pi].clone());
                     draw_point(
                         &i.viewport,
-                        (calc_x(point.x), calc_y(point.y)),
+                        (point.x, point.y),
                         (point.x, point.y),
                         None,
                         UIPointType::Point((point.a, point.b)),

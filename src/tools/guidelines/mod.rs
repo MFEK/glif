@@ -145,12 +145,8 @@ impl Guidelines {
             // Create three points: the point at the guideline's location, and the point at the
             // guideline's location offset by its angle. This is for creating a line segment which
             // flo_curves turns into a `ray`, its word for an infinite line in Euclidean maths.
-            let p1 =
-                flo::geo::Coord2::from((calc_x(vec.x as f32) as f64, calc_y(vec.y as f32) as f64));
-            let p2 = flo::geo::Coord2::from((
-                calc_x(vec2.x as f32) as f64,
-                calc_y(vec2.y as f32) as f64,
-            ));
+            let p1 = flo::geo::Coord2::from((vec.x as f32 as f64, vec.y as f32 as f64));
+            let p2 = flo::geo::Coord2::from((vec2.x as f32 as f64, vec2.y as f32 as f64));
             let pp = flo::geo::Coord2::from((position.0, position.1));
             // Find the mouse's distance from the guideline in question, along perpendicular axes
             let inter = flo::line::ray_intersects_ray(

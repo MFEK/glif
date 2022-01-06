@@ -1,4 +1,3 @@
-use glifrenderer::points::calc::*;
 use sdl2::mouse::MouseButton;
 use skulpin::skia_safe as skia;
 
@@ -57,13 +56,13 @@ impl MouseInfo {
         let raw_mposition = mposition;
 
         if i.grid.show {
-            let mpos = (mposition.0, calc_y(mposition.1));
+            let mpos = (mposition.0, mposition.1);
 
             let mut candidates = vec![];
 
             let standard_snap = (
                 (mpos.0 / i.grid.spacing + i.grid.offset).round() * i.grid.spacing,
-                calc_y((mpos.1 / i.grid.spacing + i.grid.offset).round() * i.grid.spacing),
+                (mpos.1 / i.grid.spacing + i.grid.offset).round() * i.grid.spacing,
             );
 
             let dist = f32::sqrt(
@@ -80,8 +79,7 @@ impl MouseInfo {
                 let c = (x / s + 0.5).floor() * s;
                 let c2 = c * -slope;
 
-                let horizontal_candidate =
-                    ((rcalc_y(standard_snap.1) - c2) / slope, standard_snap.1);
+                let horizontal_candidate = ((standard_snap.1 - c2) / slope, standard_snap.1);
                 let dist = f32::sqrt(
                     f32::powi(horizontal_candidate.0 - mpos.0, 2)
                         + f32::powi(horizontal_candidate.1 - mposition.1, 2),
@@ -89,7 +87,7 @@ impl MouseInfo {
 
                 candidates.push((dist, horizontal_candidate));
 
-                let vertical_candidate = (standard_snap.0, rcalc_y(slope * standard_snap.0 + c2));
+                let vertical_candidate = (standard_snap.0, slope * standard_snap.0 + c2);
                 let dist = f32::sqrt(
                     f32::powi(vertical_candidate.0 - mpos.0, 2)
                         + f32::powi(vertical_candidate.1 - mposition.1, 2),

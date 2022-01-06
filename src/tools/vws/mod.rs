@@ -91,15 +91,9 @@ impl VWS {
                     paint.set_stroke_width(HANDLEBAR_THICKNESS * (1. / factor));
                     paint.set_style(PaintStyle::Stroke);
 
-                    path.move_to((
-                        calc_x(handle_pos_left.x as f32),
-                        calc_y(handle_pos_left.y as f32),
-                    ));
-                    path.line_to((calc_x(start_point.x as f32), calc_y(start_point.y as f32)));
-                    path.line_to((
-                        calc_x(handle_pos_right.x as f32),
-                        calc_y(handle_pos_right.y as f32),
-                    ));
+                    path.move_to((handle_pos_left.x as f32, handle_pos_left.y as f32));
+                    path.line_to((start_point.x as f32, start_point.y as f32));
+                    path.line_to((handle_pos_right.x as f32, handle_pos_right.y as f32));
 
                     canvas.draw_path(&path, &paint);
                 }
@@ -125,15 +119,9 @@ impl VWS {
                     paint.set_stroke_width(HANDLEBAR_THICKNESS * (1. / factor));
                     paint.set_style(PaintStyle::Stroke);
 
-                    path.move_to((
-                        calc_x(handle_pos_left.x as f32),
-                        calc_y(handle_pos_left.y as f32),
-                    ));
-                    path.line_to((calc_x(start_point.x as f32), calc_y(start_point.y as f32)));
-                    path.line_to((
-                        calc_x(handle_pos_right.x as f32),
-                        calc_y(handle_pos_right.y as f32),
-                    ));
+                    path.move_to((handle_pos_left.x as f32, handle_pos_left.y as f32));
+                    path.line_to((start_point.x as f32, start_point.y as f32));
+                    path.line_to((handle_pos_right.x as f32, handle_pos_right.y as f32));
 
                     canvas.draw_path(&path, &paint);
                 }

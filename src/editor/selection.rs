@@ -3,7 +3,6 @@ use glifparser::{
     outline::skia::ToSkiaPaths as _,
     Handle, PointType,
 };
-use glifrenderer::{calc_x, calc_y};
 use MFEKmath::{Rect, Vector};
 
 use arboard::{self, Clipboard};
@@ -136,7 +135,7 @@ impl Editor {
                     let comb = clipboard.outline.to_skia_paths(None).combined();
                     let b = comb.bounds();
                     let center = b.center();
-                    let dist = SkPoint::new(calc_x(mpos.0) - center.x, calc_y(mpos.1) - center.y);
+                    let dist = SkPoint::new(mpos.0 - center.x, mpos.1 - center.y);
                     for contour in clipboard.outline.iter_mut() {
                         for point in contour.inner.iter_mut() {
                             point.x += dist.x;

@@ -175,8 +175,8 @@ fn shape_direction(cx: f32) -> PathDirection {
 impl ShapeDrawer {
     fn calculate_radius(&self) -> (f32, f32, f32) {
         let (cx, cy) = (
-            self.from.0 - calc_x(self.mouse_info.position.0),
-            self.from.1 - calc_y(self.mouse_info.position.1),
+            self.from.0 - self.mouse_info.position.0,
+            self.from.1 - self.mouse_info.position.1,
         );
         (cx, cy, ((cx).powf(2.) + (cy).powf(2.)).sqrt())
     }
@@ -267,8 +267,8 @@ impl ShapeDrawer {
         let rect = Rect::new(
             self.from.0,
             self.from.1,
-            calc_x(self.mouse_info.position.0),
-            calc_y(self.mouse_info.position.1),
+            self.mouse_info.position.0,
+            self.mouse_info.position.1,
         );
         let (cx, _, _) = self.calculate_radius();
         let path = match stype {
@@ -291,7 +291,7 @@ impl Shapes {
     fn mouse_pressed(&mut self, v: &mut Editor, mouse_info: MouseInfo) {
         if !v.is_modifying() {
             v.begin_modification("Draw shape");
-            self.pressed_pos = Some((calc_x(mouse_info.position.0), calc_y(mouse_info.position.1)));
+            self.pressed_pos = Some((mouse_info.position.0, mouse_info.position.1));
         }
     }
 

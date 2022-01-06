@@ -11,7 +11,6 @@ use flo_curves::{
 };
 use glifparser::{glif::MFEKOutline, Handle, WhichHandle};
 use glifrenderer::constants::{POINT_RADIUS, POINT_STROKE_THICKNESS};
-use glifrenderer::{calc_x, calc_y};
 use skulpin::skia_safe::Contains;
 use skulpin::skia_safe::Point as SkPoint;
 use skulpin::skia_safe::Rect as SkRect;
@@ -84,18 +83,16 @@ pub fn clicked_point_or_handle(
 
                 let size = ((POINT_RADIUS * 2.) + (POINT_STROKE_THICKNESS * 2.)) * (1. / factor);
                 // Topleft corner of point
-                let point_tl = SkPoint::new(
-                    calc_x(point.x as f32) - (size / 2.),
-                    calc_y(point.y as f32) - (size / 2.),
-                );
+                let point_tl =
+                    SkPoint::new(point.x as f32 - (size / 2.), point.y as f32 - (size / 2.));
                 let point_rect = SkRect::from_point_and_size(point_tl, (size, size));
                 // Topleft corner of handle a
                 let a = point.handle_or_colocated(WhichHandle::A, |f| f, |f| f);
-                let a_tl = SkPoint::new(calc_x(a.0) - (size / 2.), calc_y(a.1) - (size / 2.));
+                let a_tl = SkPoint::new(a.0 - (size / 2.), a.1 - (size / 2.));
                 let a_rect = SkRect::from_point_and_size(a_tl, (size, size));
                 // Topleft corner of handle b
                 let b = point.handle_or_colocated(WhichHandle::B, |f| f, |f| f);
-                let b_tl = SkPoint::new(calc_x(b.0) - (size / 2.), calc_y(b.1) - (size / 2.));
+                let b_tl = SkPoint::new(b.0 - (size / 2.), b.1 - (size / 2.));
                 let b_rect = SkRect::from_point_and_size(b_tl, (size, size));
 
                 // winit::PhysicalPosition as an SkPoint
@@ -170,7 +167,7 @@ pub fn nearest_point_on_curve(
                     ),
                     Coord2(mbezier.w4.x, mbezier.w4.y),
                 );
-                let mouse_vec = Coord2(calc_x(position.0) as f64, calc_y(position.1 as f32) as f64);
+                let mouse_vec = Coord2(position.0 as f64, position.1 as f32 as f64);
                 let ct = solve_curve_for_t_along_axis(
                     &bezier,
                     &mouse_vec,
@@ -225,7 +222,7 @@ pub fn build_box_selection(
     let mut selected = HashSet::new();
     for (cidx, contour) in outline.iter().enumerate() {
         for (pidx, point) in contour.inner.iter().enumerate() {
-            if rect.contains(SkPoint::from((calc_x(point.x), calc_y(point.y)))) {
+            if rect.contains(SkPoint::from((point.x, point.y))) {
                 selected.insert((cidx, pidx));
             }
         }
