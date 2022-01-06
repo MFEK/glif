@@ -81,7 +81,6 @@ I provide a `.desktop` shortcut in `resources/` as `MFEKglif.desktop`. To instal
 * Download and install [`rustup`](https://rustup.rs/), selecting either the `nightly` or `stable` toolchain. MFEKglif builds on both as of 7 November 2021.
 * Pull this repository, and finally…
 * Compile the project. An example command is in § Contributing; you may also find the provided `Makefile` helpful.
-    * By default, without the [Vulkan SDK](https://vulkan.lunarg.com/) installed, [you will not be able to compile a debug build of MFEKglif](https://github.com/MFEK/glif/issues/229#issuecomment-1003817820) as of at least 4 January 2022 (see [MaikKlein/ash№544](https://github.com/MaikKlein/ash/issues/544)), so please either install it, *or*, specify `--release` when using `cargo build`/`cargo run`.
 
 ### Errors?
 
