@@ -10,7 +10,7 @@ dependencies = [
  "arboard",
  "atty",
  "backtrace",
- "clap 3.0.4",
+ "clap 3.0.5",
  "colored",
  "ctrlc",
  "derivative",
@@ -386,9 +386,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "3.0.4"
+version = "3.0.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d01c9347757e131122b19cd19a05c85805b68c2352a97b623efdc3c295290299"
+checksum = "f6f34b09b9ee8c7c7b400fe2f8df39cafc9538b03d6ba7f4ae13e4cb90bfbb7d"
 dependencies = [
  "atty",
  "bitflags",
@@ -1217,8 +1217,8 @@ dependencies = [
 
 [[package]]
 name = "glifparser"
-version = "1.1.0"
-source = "git+https://github.com/MFEK/glifparser.rlib?branch=master#59e61bdba9a3573d5adb04953ada99ba5b111862"
+version = "1.2.0"
+source = "git+https://github.com/MFEK/glifparser.rlib?branch=master#6aaf88012709fce8fd21ccf0b61d1074a95307a3"
 dependencies = [
  "image",
  "integer_or_float",
@@ -1234,7 +1234,7 @@ dependencies = [
 [[package]]
 name = "glifrenderer"
 version = "0.1.0"
-source = "git+https://github.com/MFEK/glifrenderer.rlib#47c68f5b7b67227c26777c0e7bc13c32783de428"
+source = "git+https://github.com/MFEK/glifrenderer.rlib#24382382e504546b46ad31f77640d2c4705dff66"
 dependencies = [
  "MFEKmath",
  "derive_more",
@@ -2758,9 +2758,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "1.0.84"
+version = "1.0.85"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ecb2e6da8ee5eb9a61068762a32fa9619cc591ceb055b3687f4cd4051ec2e06b"
+checksum = "a684ac3dcd8913827e18cd09a68384ee66c1de24157e3c556c9ab16d85695fb7"
 dependencies = [
  "proc-macro2",
  "quote",

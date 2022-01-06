@@ -4,7 +4,6 @@ pub use crate::tool_behaviors::ToolBehavior as _;
 
 // Renderer
 pub use glifrenderer::constants::*;
-pub use glifrenderer::points::calc::*;
 
 //Editor
 pub use crate::editor;

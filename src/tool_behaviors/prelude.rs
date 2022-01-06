@@ -8,7 +8,6 @@ pub use crate::editor::Editor;
 
 // Renderer
 pub use glifrenderer::constants::*;
-pub use glifrenderer::points::calc::*;
 pub use glifrenderer::points::draw_point;
 pub use glifrenderer::points::UIPointType;
 pub use glifrenderer::viewport::Viewport;
