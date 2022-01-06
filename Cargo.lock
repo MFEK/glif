@@ -1217,8 +1217,8 @@ dependencies = [
 
 [[package]]
 name = "glifparser"
-version = "1.1.0"
-source = "git+https://github.com/MFEK/glifparser.rlib?branch=master#59e61bdba9a3573d5adb04953ada99ba5b111862"
+version = "1.2.0"
+source = "git+https://github.com/MFEK/glifparser.rlib?branch=master#6aaf88012709fce8fd21ccf0b61d1074a95307a3"
 dependencies = [
  "image",
  "integer_or_float",
@@ -1234,7 +1234,7 @@ dependencies = [
 [[package]]
 name = "glifrenderer"
 version = "0.1.0"
-source = "git+https://github.com/MFEK/glifrenderer.rlib#47c68f5b7b67227c26777c0e7bc13c32783de428"
+source = "git+https://github.com/MFEK/glifrenderer.rlib#24382382e504546b46ad31f77640d2c4705dff66"
 dependencies = [
  "MFEKmath",
  "derive_more",
