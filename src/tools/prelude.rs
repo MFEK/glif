@@ -29,6 +29,7 @@ pub use std::cell::RefCell;
 pub use std::mem;
 
 //UI
+pub use crate::user_interface::gui;
 pub use crate::user_interface::{Interface, MouseInfo};
 pub use imgui::Ui;
 pub use sdl2::mouse::MouseButton;

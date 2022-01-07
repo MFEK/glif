@@ -75,6 +75,11 @@ impl VWS {
             let s_selection = idx_to_cap_type(s_current_selection);
             let e_selection = idx_to_cap_type(e_current_selection);
 
+            if s_selection == CapType::Custom || e_selection == CapType::Custom {
+                gui::error!("Cannot use custom caps at this time from MFEKglif.");
+                return;
+            }
+
             // we only update the contour and previews when our selection changes
             if old_s != s_current_selection || e_current_selection != old_e {
                 let mut new_data = vws_contour;

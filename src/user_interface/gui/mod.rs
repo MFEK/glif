@@ -39,6 +39,9 @@ use imgui_sdl2::ImguiSdl2;
 use imgui_skia_renderer::Renderer;
 use sdl2::{event::Event, mouse::MouseState, video::Window};
 
+#[macro_use]
+pub(crate) mod msgbox;
+pub(crate) use self::msgbox::gui_error as error;
 pub mod layer_list;
 pub mod prompts;
 
