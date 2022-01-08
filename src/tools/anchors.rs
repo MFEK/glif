@@ -185,6 +185,9 @@ impl Anchors {
             label: "Anchor name:".to_string(),
             default: "".to_string(),
             func: Rc::new(move |v, string| {
+                if string.is_empty() {
+                    return;
+                }
                 v.begin_modification("Add anchor.");
                 v.with_glyph_mut(|glif| {
                     let mut anchor = GlifAnchor::new();
