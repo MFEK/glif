@@ -4,7 +4,7 @@
 use std::collections::HashSet;
 
 use crate::get_contour_len;
-use crate::{tools::prelude::math::FlipIfRequired, user_interface::Interface};
+use crate::user_interface::Interface;
 use flo_curves::{
     bezier::{solve_curve_for_t_along_axis, Curve as FloCurve},
     geo::Coord2,
@@ -14,7 +14,7 @@ use glifrenderer::constants::{POINT_RADIUS, POINT_STROKE_THICKNESS};
 use skulpin::skia_safe::Contains;
 use skulpin::skia_safe::Point as SkPoint;
 use skulpin::skia_safe::Rect as SkRect;
-use MFEKmath::{Bezier, Piecewise, Primitive as MathPrimitive};
+use MFEKmath::{Bezier, Piecewise, Primitive as MathPrimitive, rect::FlipIfRequired as _};
 
 use super::Editor;
 use crate::util::MFEKGlifPointData;

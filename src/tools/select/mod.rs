@@ -4,7 +4,7 @@ use std::collections::HashSet;
 use super::{prelude::*, EditorEvent, MouseEventType, Tool};
 use crate::command::{Command, CommandType};
 use crate::tool_behaviors::rotate_selection::RotateSelection;
-use crate::util::math::ReverseContours as _;
+use glifparser::outline::Reverse as _;
 
 use MFEKmath::Vector;
 
@@ -126,7 +126,7 @@ impl Select {
         let point_idx = v.point_idx;
         v.point_idx = v.with_active_layer_mut(|layer| {
             let contour_len = layer.outline[ci].inner.len();
-            layer.outline[ci].inner = layer.outline[ci].inner.clone().reverse_contours();
+            layer.outline[ci].inner.reverse();
             if let Some(pi) = point_idx {
                 if layer.outline[ci].inner[0].ptype != PointType::Move {
                     if pi == 0 {

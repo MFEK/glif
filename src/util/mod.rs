@@ -1,6 +1,4 @@
 // Utilities
-pub mod math;
-
 use crate::editor::events::EditorEvent;
 use crate::editor::headless::IS_HEADLESS;
 
