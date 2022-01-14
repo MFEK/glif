@@ -1,7 +1,5 @@
 use super::prelude::*;
-use glifrenderer::{
-    constants::{OUTLINE_STROKE, OUTLINE_STROKE_THICKNESS},
-};
+use glifrenderer::constants::{OUTLINE_STROKE, OUTLINE_STROKE_THICKNESS};
 
 #[derive(Clone, Debug)]
 pub struct DrawPivot {
@@ -43,12 +41,12 @@ impl DrawPivot {
     fn mouse_pressed(&mut self, _v: &Editor, _i: &Interface, mouse_info: MouseInfo) {
         if let Some(cm) = self.command_mod {
             if cm != mouse_info.modifiers {
-                return
+                return;
             }
         }
 
         if self.button != mouse_info.button {
-            return
+            return;
         }
 
         self.pivot_point = Some(mouse_info.position);

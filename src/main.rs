@@ -8,8 +8,8 @@ use crate::editor::{
     events::{EditorEvent, IOEventType, MouseEventType},
     Editor,
 };
-use crate::tools::ToolEnum;
 use crate::tools::zoom::{zoom_in_factor, zoom_out_factor};
+use crate::tools::ToolEnum;
 use crate::user_interface::mouse_input::MouseInfo;
 use crate::user_interface::{ImguiManager, Interface};
 

@@ -14,7 +14,7 @@ use glifrenderer::constants::{POINT_RADIUS, POINT_STROKE_THICKNESS};
 use skulpin::skia_safe::Contains;
 use skulpin::skia_safe::Point as SkPoint;
 use skulpin::skia_safe::Rect as SkRect;
-use MFEKmath::{Bezier, Piecewise, Primitive as MathPrimitive, rect::FlipIfRequired as _};
+use MFEKmath::{rect::FlipIfRequired as _, Bezier, Piecewise, Primitive as MathPrimitive};
 
 use super::Editor;
 use crate::util::MFEKGlifPointData;

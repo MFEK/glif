@@ -308,7 +308,9 @@ impl Editor {
         static mut WARNED_HISTORY: bool = false;
         unsafe {
             if !WARNED_HISTORY {
-                log::debug!("Used dangerous function: editor.with_active_layer_mut_no_history(|layer|…)");
+                log::debug!(
+                    "Used dangerous function: editor.with_active_layer_mut_no_history(|layer|…)"
+                );
             }
             WARNED_HISTORY = true;
         }

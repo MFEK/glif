@@ -9,8 +9,8 @@ use glifparser::outline::Reverse as _;
 use MFEKmath::Vector;
 
 use crate::tool_behaviors::{
-    draw_pivot::DrawPivot, move_handle::MoveHandle, move_point::MovePoint, pan::PanBehavior, selection_box::SelectionBox,
-    zoom_scroll::ZoomScroll,
+    draw_pivot::DrawPivot, move_handle::MoveHandle, move_point::MovePoint, pan::PanBehavior,
+    selection_box::SelectionBox, zoom_scroll::ZoomScroll,
 };
 
 mod dialog;
@@ -21,7 +21,7 @@ mod dialog;
 #[derive(Clone, Debug, Default)]
 pub struct Select {
     pivot_point: Option<(f32, f32)>,
-    draw_pivot: DrawPivot, 
+    draw_pivot: DrawPivot,
 }
 
 impl Tool for Select {

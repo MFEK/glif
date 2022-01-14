@@ -6,16 +6,14 @@ use crate::tool_behaviors::selection_box::SelectionBox;
 use crate::user_interface::{self, Interface};
 
 use float_cmp::ApproxEq;
-use glifparser::outline::{Reverse, skia::FromSkiaPath as _, FromKurbo as _};
+use glifparser::outline::{skia::FromSkiaPath as _, FromKurbo as _, Reverse};
 use glifparser::{glif::MFEKContour, Outline};
 use imgui;
 use kurbo;
 use kurbo::Shape as _;
 use num;
 use num_derive::FromPrimitive;
-use skulpin::skia_safe::{
-    Matrix, Path, PathDirection, PathEffect, StrokeRec,
-};
+use skulpin::skia_safe::{Matrix, Path, PathDirection, PathEffect, StrokeRec};
 
 impl Tool for Shapes {
     fn event(&mut self, v: &mut Editor, _i: &mut Interface, event: EditorEvent) {
@@ -51,19 +49,19 @@ impl Tool for Shapes {
 
 // Do not modify w/o modifying ShapeType prev/next impl's!
 #[derive(Clone, Copy, derive_more::Display, Debug, PartialEq, FromPrimitive)]
-#[display(fmt="{}")]
+#[display(fmt = "{}")]
 pub enum ShapeType {
-    #[display(fmt="circle")]
+    #[display(fmt = "circle")]
     Circle,
-    #[display(fmt="oval")]
+    #[display(fmt = "oval")]
     Oval,
-    #[display(fmt="rectangle")]
+    #[display(fmt = "rectangle")]
     Rectangle,
-    #[display(fmt="rounded rectangle")]
+    #[display(fmt = "rounded rectangle")]
     RoundedRectangle,
-    #[display(fmt="polygon")]
+    #[display(fmt = "polygon")]
     Polygon,
-    #[display(fmt="star")]
+    #[display(fmt = "star")]
     Star,
 }
 
@@ -105,7 +103,12 @@ pub struct Shapes {
 }
 
 #[derive(Copy, Clone, Debug, derive_more::Display)]
-#[display(fmt="{}{}{}", "self.display_sides()", "self.display_angle()", "self.display_radius()")]
+#[display(
+    fmt = "{}{}{}",
+    "self.display_sides()",
+    "self.display_angle()",
+    "self.display_radius()"
+)]
 pub struct ShapeData {
     polygon_angle: f32,
     polygon_sides: u16,
@@ -121,7 +124,12 @@ impl ShapeData {
         format!("{}-sided", self.polygon_sides)
     }
     fn display_radius(&self) -> String {
-        Some(self.polygon_radius).into_iter().filter(|f|f.is_normal() && !f.is_nan() && !f.approx_eq(0.0f32, (f32::EPSILON, 10))).next().map(|f|format!(" (rounded w/radii {})", f)).unwrap_or(String::new())
+        Some(self.polygon_radius)
+            .into_iter()
+            .filter(|f| f.is_normal() && !f.is_nan() && !f.approx_eq(0.0f32, (f32::EPSILON, 10)))
+            .next()
+            .map(|f| format!(" (rounded w/radii {})", f))
+            .unwrap_or(String::new())
     }
 }
 
@@ -178,11 +186,7 @@ impl Shapes {
                     &mut self.stype,
                     ShapeType::Polygon,
                 );
-                ui.radio_button(
-                    imgui::im_str!("Star"),
-                    &mut self.stype,
-                    ShapeType::Star,
-                );
+                ui.radio_button(imgui::im_str!("Star"), &mut self.stype, ShapeType::Star);
 
                 match self.stype {
                     ShapeType::RoundedRectangle => {
@@ -197,7 +201,12 @@ impl Shapes {
                         imgui::Slider::new(imgui::im_str!("Roundness"))
                             .range(0f32..=1000f32)
                             .build(ui, &mut self.sdata.polygon_radius);
-                        user_interface::util::imgui_decimal_text_field("Angle", ui, &mut self.sdata.polygon_angle, None);
+                        user_interface::util::imgui_decimal_text_field(
+                            "Angle",
+                            ui,
+                            &mut self.sdata.polygon_angle,
+                            None,
+                        );
                     }
                     _ => (),
                 }
@@ -209,7 +218,7 @@ struct ShapeDrawer {
     mouse_info: MouseInfo,
     from: (f32, f32),
     sdata: ShapeData,
-    corners: Option<((f32, f32), (f32, f32))>
+    corners: Option<((f32, f32), (f32, f32))>,
 }
 
 fn shape_direction(cx: f32) -> PathDirection {
@@ -233,7 +242,11 @@ impl ShapeDrawer {
         let (cx, _cy, radius) = self.calculate_radius();
         let direction = shape_direction(cx);
         let kp_center = kurbo::Point::new(self.from.0 as f64, self.from.1 as f64);
-        let circle = kurbo::BezPath::from_vec(kurbo::Circle::new(kp_center, radius as f64).path_elements(1.0).collect());
+        let circle = kurbo::BezPath::from_vec(
+            kurbo::Circle::new(kp_center, radius as f64)
+                .path_elements(1.0)
+                .collect(),
+        );
         let mut gcircle = Outline::from_kurbo(&circle);
         if direction == PathDirection::CCW {
             gcircle.reverse();
@@ -296,7 +309,9 @@ impl ShapeDrawer {
         };
 
         for (i, side) in range_iter {
-            if i == 0 { continue }
+            if i == 0 {
+                continue;
+            }
             let pathbuild_func = if i == 1 { Path::move_to } else { Path::line_to };
             pathbuild_func(
                 &mut path,
@@ -335,10 +350,17 @@ impl ShapeDrawer {
             rect = kurbo::Rect::from_center_size(rect.origin(), (size, -size));
         }
         let (cx, _, _) = self.calculate_radius();
-        self.corners = Some(((rect.min_x() as f32, rect.min_y() as f32), (rect.max_x() as f32, rect.max_y() as f32)));
+        self.corners = Some((
+            (rect.min_x() as f32, rect.min_y() as f32),
+            (rect.max_x() as f32, rect.max_y() as f32),
+        ));
         let path = kurbo::BezPath::from_vec(match stype {
             ShapeType::Oval => kurbo::Ellipse::from_rect(rect).path_elements(1.0).collect(),
-            ShapeType::RoundedRectangle => kurbo::RoundedRect::from_rect(rect, self.sdata.rrect_radius as f64).path_elements(1.0).collect(),
+            ShapeType::RoundedRectangle => {
+                kurbo::RoundedRect::from_rect(rect, self.sdata.rrect_radius as f64)
+                    .path_elements(1.0)
+                    .collect()
+            }
             ShapeType::Rectangle => {
                 self.corners = None; // pointless
                 rect.path_elements(1.0).collect()
