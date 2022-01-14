@@ -61,7 +61,7 @@ impl Editor {
                 }
             }
             let mut mfekcur: MFEKContour<MFEKGlifPointData> = cur_contour.into();
-            mfekcur.operation = contour_operations::sub(contour, begin, contour.inner.len() - 1);
+            mfekcur.operation = contour_operations::sub(contour, begin, contour.inner.len());
             results.push(mfekcur);
 
             if results.len() > 1 && contour.inner.first().unwrap().ptype != PointType::Move {
@@ -201,7 +201,7 @@ impl Editor {
                 }
             }
             let mut mfekcur: MFEKContour<MFEKGlifPointData> = cur_contour.into();
-            mfekcur.operation = contour_operations::sub(contour, begin, contour.inner.len() - 1);
+            mfekcur.operation = contour_operations::sub(contour, begin, contour.inner.len());
             results.push(mfekcur);
 
             if results.len() > 1 && contour.inner.first().unwrap().ptype != PointType::Move {
