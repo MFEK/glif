@@ -62,8 +62,8 @@ pub fn parse_args() -> Args {
         .get_matches();
 
     eprint!(
-        "This is MFEKglif v{} (“{}”)",
-        env!("CARGO_PKG_VERSION"),
+        "This is MFEKglif {} (“{}”)",
+        git_version!(fallback = concat!("v", env!("CARGO_PKG_VERSION"))),
         env!("MFEK_REL_CODENAME")
     );
     if let Some(time) = option_env!("COMPILED_AT_PLAIN") {

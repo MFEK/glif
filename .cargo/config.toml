@@ -2,4 +2,4 @@
 #rustflags = ["-C", "link-arg=-fuse-ld=lld"]
 
 [env]
-MFEK_REL_CODENAME = "First Hurrah"
+MFEK_REL_CODENAME = "Metafontverse"

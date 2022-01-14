@@ -1,10 +1,12 @@
 [package]
 name = "MFEKglif"
-version = "1.1.0-beta2"
-authors = ["Fredrick Brennan <copypaste@kittens.ph>", "Matthew Blanchard <matthewrblanchard@gmail.com>"] # + MFEK authors
+version = "1.1.1-beta1"
+authors = ["Fredrick Brennan <copypaste@kittens.ph>", "Matthew Blanchard <matthewrblanchard@gmail.com>", "MFEK Authors"]
 edition = "2021"
+license = "Apache-2.0"
+keywords = ["ufo", "font-format", "glif", "fonts"]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+# Cargo.toml reference: https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 # For display
