@@ -70,13 +70,13 @@ impl ToolBehavior for AddGuideline {
                 ..
             } => {
                 self.next_angle_type(v); // usually the same as a "reversal"
-                *stop_after = true;
+                *stop_after.borrow_mut() = true;
             }
             _ => (),
         }
     }
 
-    fn draw(&self, _v: &Editor, i: &Interface, canvas: &mut Canvas) {
+    fn draw(&mut self, _v: &Editor, i: &Interface, canvas: &mut Canvas) {
         let prev_guide = Guideline::<()>::from_x_y_angle(
             i.mouse_info.position.0,
             i.mouse_info.position.1,

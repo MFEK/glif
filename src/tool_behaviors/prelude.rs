@@ -29,5 +29,6 @@ pub use skulpin::skia_safe::{
 pub use glifparser::{glif::MFEKGlif, Contour, Handle, Outline, Point, PointType, WhichHandle};
 
 //User interface
+pub use crate::command::CommandMod;
 pub use crate::user_interface::{Interface, MouseInfo};
 pub use skulpin::skia_safe::{Paint, PaintStyle, Path, Rect};

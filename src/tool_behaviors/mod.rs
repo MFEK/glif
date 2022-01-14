@@ -11,5 +11,5 @@ pub trait ToolBehavior: DynClone + std::fmt::Debug + Send {
     fn event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent);
 
     // Not every behavior draws so we provide an empty default implementation.
-    fn draw(&self, _v: &Editor, _i: &Interface, _canvas: &mut Canvas) {}
+    fn draw(&mut self, _v: &Editor, _i: &Interface, _canvas: &mut Canvas) {}
 }

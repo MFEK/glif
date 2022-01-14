@@ -7,7 +7,7 @@ use glifrenderer::{
 };
 use skulpin::skia_safe::dash_path_effect;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct SelectionBox {
     mouse_info: MouseInfo,
     corner: Option<(f32, f32)>,
@@ -52,10 +52,7 @@ impl SelectionBox {
         }
     }
 
-    pub fn draw_box(&self, i: &Interface, canvas: &mut Canvas) {
-        let c1 = self.mouse_info.position;
-        let c2 = self.corner.unwrap_or(self.mouse_info.position);
-
+    pub fn draw_box_impl(i: &Interface, canvas: &mut Canvas, (c1, c2): ((f32, f32), (f32, f32))) {
         let mut path = Path::new();
         let mut paint = Paint::default();
         let rect = Rect::from_point_and_size(
@@ -70,6 +67,12 @@ impl SelectionBox {
         let dash_offset = (1. / i.viewport.factor) * 2.;
         paint.set_path_effect(dash_path_effect::new(&[dash_offset, dash_offset], 0.0));
         canvas.draw_path(&path, &paint);
+    }
+
+    pub fn draw_box(&self, i: &Interface, canvas: &mut Canvas) {
+        let c1 = self.mouse_info.position;
+        let c2 = self.corner.unwrap_or(self.mouse_info.position);
+        Self::draw_box_impl(i, canvas, (c1, c2));
     }
 
     pub fn draw_selected(&self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
@@ -104,7 +107,7 @@ impl ToolBehavior for SelectionBox {
         }
     }
 
-    fn draw(&self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
+    fn draw(&mut self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
         self.draw_box(i, canvas);
         self.draw_selected(v, i, canvas)
     }

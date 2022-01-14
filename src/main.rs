@@ -3,23 +3,26 @@
 //! Apache 2.0 licensed. See AUTHORS.
 #![allow(non_snake_case)] // for our name MFEKglif
 
-use crate::tools::zoom::{zoom_in_factor, zoom_out_factor};
-use command::{Command, CommandInfo, CommandMod};
-use ctrlc;
-use editor::{
+use crate::command::{Command, CommandInfo, CommandMod};
+use crate::editor::{
     events::{EditorEvent, IOEventType, MouseEventType},
     Editor,
 };
-use glifrenderer::toggles::{PointLabels, PreviewMode};
-use tools::ToolEnum;
-use user_interface::{ImguiManager, Interface};
+use crate::tools::ToolEnum;
+use crate::tools::zoom::{zoom_in_factor, zoom_out_factor};
+use crate::user_interface::mouse_input::MouseInfo;
+use crate::user_interface::{ImguiManager, Interface};
 
+use ctrlc;
+use enum_unitary::IntoEnumIterator;
+use glifrenderer::toggles::{PointLabels, PreviewMode};
 use sdl2::event::{Event, WindowEvent};
 pub use skulpin::{rafx::api as RafxApi, skia_safe};
 
-use crate::user_interface::mouse_input::MouseInfo;
+#[macro_use]
+extern crate pub_mod;
 
-use enum_unitary::IntoEnumIterator;
+use std::cell::RefCell;
 
 pub mod args;
 mod command;
@@ -28,8 +31,6 @@ mod contour_operations;
 pub mod editor;
 mod filedialog;
 mod ipc;
-#[macro_use]
-extern crate pub_mod;
 mod render;
 pub mod settings;
 mod system_fonts;
@@ -124,16 +125,16 @@ fn main() {
                             None => continue,
                         };
 
-                    let mut delete_after = false;
+                    let delete_after = RefCell::new(false);
                     editor.dispatch_editor_event(
                         &mut interface,
                         EditorEvent::ToolCommand {
                             command: command_info.command,
                             command_mod: command_info.command_mod,
-                            stop_after: &mut delete_after,
+                            stop_after: delete_after.clone(),
                         },
                     );
-                    if delete_after {
+                    if *delete_after.borrow() {
                         continue;
                     }
 

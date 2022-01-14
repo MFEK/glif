@@ -31,11 +31,17 @@ impl Editor {
         }
     }
 
-    pub fn dispatch_tool_draw(&self, i: &Interface, canvas: &mut Canvas) {
-        for behavior in self.tool_behaviors.iter().rev() {
-            behavior.draw(self, i, canvas);
+    pub fn dispatch_tool_draw(&mut self, i: &Interface, canvas: &mut Canvas) {
+        if let Some(behavior) = self.tool_behaviors.pop() {
+            let mut active_behavior = dyn_clone::clone_box(&*behavior);
+            active_behavior.draw(self, i, canvas);
+
+            if !self.behavior_finished {
+                self.tool_behaviors.push(active_behavior)
+            }
         }
-        self.active_tool.draw(self, i, canvas)
+        let mut active_tool = dyn_clone::clone_box(&*self.active_tool);
+        active_tool.draw(self, i, canvas)
     }
 
     pub fn dispatch_tool_ui(&mut self, i: &mut Interface, ui: &mut Ui) {

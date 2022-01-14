@@ -73,6 +73,7 @@ regex = "1"
 serde_json = { version = "1.0" }
 serde = "1.0"
 
+float-cmp = "0.9"
 num = "0.4"
 num-traits = "0.2"
 num-derive = "0.3"

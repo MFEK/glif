@@ -30,7 +30,7 @@ impl Tool for VWS {
         }
     }
 
-    fn draw(&self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
+    fn draw(&mut self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
         self.draw_handles(v, i, canvas);
     }
 

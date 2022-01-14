@@ -74,7 +74,7 @@ impl ToolBehavior for PanBehavior {
                 ..
             } => {
                 if command.type_() == CommandType::Nudge {
-                    *stop_after = true;
+                    *stop_after.borrow_mut() = true;
                     let factor = PanBehavior::nudge_factor(command);
                     let offset = PanBehavior::nudge_offset(command, factor);
                     i.nudge_viewport(offset);

@@ -37,7 +37,7 @@ impl Tool for Image {
         }
     }
 
-    fn draw(&self, v: &Editor, _i: &Interface, canvas: &mut Canvas) {
+    fn draw(&mut self, v: &Editor, _i: &Interface, canvas: &mut Canvas) {
         if let Some(selected) = self.selected_idx {
             let mut selected_path = Path::new();
             let img_rect = self.get_image_rect(v, selected);

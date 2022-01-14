@@ -24,7 +24,7 @@ impl Tool for Pen {
         }
     }
 
-    fn draw(&self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
+    fn draw(&mut self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
         self.draw_merge_preview(v, i, canvas);
         self.draw_nearest_point(v, i, canvas);
     }

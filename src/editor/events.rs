@@ -1,6 +1,7 @@
 use crate::command::{Command, CommandMod};
 use crate::user_interface::MouseInfo;
 
+use std::cell::RefCell;
 use std::path::PathBuf;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -26,8 +27,8 @@ pub enum IOEventType {
     FontinfoReloaded,
 }
 
-#[derive(Debug)]
-pub enum EditorEvent<'frame> {
+#[derive(Clone, Debug, derive_more::IsVariant)]
+pub enum EditorEvent {
     MouseEvent {
         event_type: MouseEventType,
         mouse_info: MouseInfo,
@@ -50,6 +51,6 @@ pub enum EditorEvent<'frame> {
     ToolCommand {
         command: Command,
         command_mod: CommandMod,
-        stop_after: &'frame mut bool,
+        stop_after: RefCell<bool>,
     },
 }

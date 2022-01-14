@@ -95,7 +95,7 @@ impl Tool for Guidelines {
         }
     }
 
-    fn draw(&self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
+    fn draw(&mut self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
         self.draw_selected_guideline(i, v, canvas);
     }
 

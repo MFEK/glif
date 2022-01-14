@@ -3,6 +3,8 @@ use glifparser::glif::HistoryEntry;
 use super::Editor;
 use crate::util::MFEKGlifPointData;
 
+use std::mem;
+
 #[derive(Clone, Debug, Default)]
 pub struct History<PD: glifparser::PointData> {
     pub undo_stack: Vec<HistoryEntry<PD>>,
@@ -108,6 +110,28 @@ impl Editor {
             }
 
             self.history.undo_stack.push(entry);
+        }
+    }
+
+    /// Sometimes users might do things while a modification is in progress that fundamentally
+    /// change its nature to the degree the undo label originally bestowed no longer makes sense.
+    /// Use of this function should be done with care, but not avoided for convenience sake.
+    pub fn redescribe_modification(&mut self, mut description: String) {
+        if !self.modifying {
+            // History integrity in doubt!
+            log::error!("Tried to redescribe a modification when not modifying!");
+        } else {
+            match self.history.undo_stack.last_mut().as_mut() {
+                Some(he) => {
+                    if he.description == description {
+                        log::trace!("redescribe_modification(…): Requested history redescribe is a no-op…bailing");
+                    } else {
+                        mem::swap(&mut he.description, &mut description);
+                        log::debug!("Undo formerly “{}” now “{}”", &description, &he.description);
+                    }
+                }
+                None => log::error!("Nothing on undo stack — failed to swap!?"),
+            }
         }
     }
 }

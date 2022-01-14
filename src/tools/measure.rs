@@ -28,7 +28,7 @@ impl Tool for Measure {
         }
     }
 
-    fn draw(&self, _v: &Editor, i: &Interface, canvas: &mut Canvas) {
+    fn draw(&mut self, _v: &Editor, i: &Interface, canvas: &mut Canvas) {
         self.draw_line(i, canvas);
     }
 }

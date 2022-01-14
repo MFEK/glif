@@ -9,7 +9,7 @@ use glifparser::outline::Reverse as _;
 use MFEKmath::Vector;
 
 use crate::tool_behaviors::{
-    move_handle::MoveHandle, move_point::MovePoint, pan::PanBehavior, selection_box::SelectionBox,
+    draw_pivot::DrawPivot, move_handle::MoveHandle, move_point::MovePoint, pan::PanBehavior, selection_box::SelectionBox,
     zoom_scroll::ZoomScroll,
 };
 
@@ -18,13 +18,15 @@ mod dialog;
 // Select is a good example of a more complicated tool that keeps lots of state.
 // It has state for which handle it's selected, follow rules, selection box, and to track if it's currently
 // moving a point.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct Select {
     pivot_point: Option<(f32, f32)>,
+    draw_pivot: DrawPivot, 
 }
 
 impl Tool for Select {
     fn event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent) {
+        self.draw_pivot.event(v, i, event.clone());
         match event {
             EditorEvent::MouseEvent {
                 event_type,
@@ -39,7 +41,7 @@ impl Tool for Select {
                 stop_after,
                 ..
             } => {
-                *stop_after = true;
+                *stop_after.borrow_mut() = true;
                 self.select_all(v);
             }
             EditorEvent::ToolCommand {
@@ -47,7 +49,7 @@ impl Tool for Select {
                 stop_after,
                 ..
             } => {
-                *stop_after = true;
+                *stop_after.borrow_mut() = true;
                 self.reverse_selected(v);
             }
             EditorEvent::ToolCommand {
@@ -56,7 +58,7 @@ impl Tool for Select {
                 ..
             } => {
                 if command.type_() == CommandType::Nudge {
-                    *stop_after = true;
+                    *stop_after.borrow_mut() = true;
                     self.nudge_selected(v, command);
                 }
             }
@@ -66,8 +68,8 @@ impl Tool for Select {
         }
     }
 
-    fn draw(&self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
-        self.draw_pivot_point(v, i, canvas);
+    fn draw(&mut self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
+        self.draw_pivot.draw(v, i, canvas);
     }
 
     fn ui(&mut self, v: &mut Editor, i: &mut Interface, ui: &mut Ui) {
@@ -77,7 +79,7 @@ impl Tool for Select {
 
 impl Select {
     pub fn new() -> Self {
-        Self { pivot_point: None }
+        Self::default()
     }
 
     fn select_all(&mut self, v: &mut Editor) {
@@ -238,18 +240,6 @@ impl Select {
 
         for pi in 0..contour_len {
             v.selected.insert((ci, pi));
-        }
-    }
-
-    fn draw_pivot_point(&self, _v: &Editor, i: &Interface, canvas: &mut Canvas) {
-        if let Some(pivot) = self.pivot_point {
-            let pivot = (pivot.0, pivot.1);
-            let mut paint = Paint::default();
-
-            paint.set_color(OUTLINE_STROKE);
-            paint.set_style(PaintStyle::Stroke);
-            paint.set_stroke_width(OUTLINE_STROKE_THICKNESS * (1. / i.viewport.factor));
-            canvas.draw_circle(pivot, 5. * (1. / i.viewport.factor), &paint);
         }
     }
 }

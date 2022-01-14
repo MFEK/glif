@@ -305,7 +305,13 @@ impl Editor {
     where
         F: FnMut(&mut Layer<MFEKGlifPointData>) -> R,
     {
-        log::debug!("Used dangerous function: editor.with_active_layer_mut_no_history(|layer|…)");
+        static mut WARNED_HISTORY: bool = false;
+        unsafe {
+            if !WARNED_HISTORY {
+                log::debug!("Used dangerous function: editor.with_active_layer_mut_no_history(|layer|…)");
+            }
+            WARNED_HISTORY = true;
+        }
         let glyph = self.glyph.as_mut().unwrap();
         closure(&mut glyph.layers[self.layer_idx.unwrap()])
     }

@@ -39,7 +39,7 @@ impl Tool for Anchors {
         }
     }
 
-    fn draw(&self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
+    fn draw(&mut self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
         self.draw_selected(v, i, canvas);
     }
 
