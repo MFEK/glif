@@ -1,4 +1,4 @@
-use clap; //argparse lib
+use clap; // an argument parser
 
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub struct Args {
