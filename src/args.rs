@@ -1,6 +1,3 @@
-// Command line argument handling
-use git_version::git_version;
-
 use clap; //argparse lib
 
 #[derive(Clone, PartialEq, Eq, Debug)]
@@ -22,7 +19,7 @@ pub enum HeadlessMode {
 pub fn parse_args() -> Args {
     let matches = clap::App::new("MFEKglif")
         .setting(clap::AppSettings::DeriveDisplayOrder)
-        .version(git_version!(fallback=env!("CARGO_PKG_VERSION")))
+        .version(env!("MFEK_VERSION"))
         .author("Fredrick R. Brennan, Matthew Blanchard, MFEK Authors")
         .about("Glyph editor, Modular Font Editor K Project")
         .arg(
@@ -60,17 +57,6 @@ pub fn parse_args() -> Args {
                 .help(r#"For either the save or the export operation, remove all contour operations, don't apply them."#)
         )
         .get_matches();
-
-    eprint!(
-        "This is MFEKglif {} (“{}”)",
-        git_version!(fallback = concat!("v", env!("CARGO_PKG_VERSION"))),
-        env!("MFEK_REL_CODENAME")
-    );
-    if let Some(time) = option_env!("COMPILED_AT_PLAIN") {
-        eprintln!(", compiled @ {}", time);
-    } else {
-        eprintln!(".");
-    }
 
     let headless_mode = if matches.is_present("export") {
         HeadlessMode::Export

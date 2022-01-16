@@ -40,7 +40,7 @@ mod user_interface;
 pub mod util;
 
 fn main() {
-    mfek_ipc::display_header("glif");
+    ipc::header();
     util::init_env_logger();
     util::set_panic_hook();
 

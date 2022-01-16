@@ -8,7 +8,7 @@ use std::{
 };
 use std::{env, fs};
 
-use strum_macros::{Display, EnumString};
+use strum::{Display, EnumString};
 
 #[derive(Copy, Clone, EnumString, Hash, Display, Debug, PartialEq, Eq)]
 pub enum CommandType {

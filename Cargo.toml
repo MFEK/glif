@@ -5,6 +5,7 @@ authors = ["Fredrick Brennan <copypaste@kittens.ph>", "Matthew Blanchard <matthe
 edition = "2021"
 license = "Apache-2.0"
 keywords = ["ufo", "font-format", "glif", "fonts"]
+build = "build.rs"
 
 # Cargo.toml reference: https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -39,7 +40,6 @@ imgui-skia-renderer = {git = "https://github.com/MFEK/imgui-skia-renderer.rlib",
 
 # For argument parsing
 clap = "3.0"
-git-version = "0.3"
 
 # For UI toggles
 enum-iterator = "0.7.0"
@@ -108,8 +108,7 @@ dyn-clone = "1.0"
 directories = "4"
 
 #converting enums to strings
-strum = "0.23"
-strum_macros = "0.23"
+strum = { version = "0.23", features = ["derive"] }
 
 #for logo, could be used in future for background images
 image = { version = "0.23", features = ["png"], default-features = false }
@@ -130,8 +129,18 @@ backtrace = "0.3"
 [target.'cfg(windows)'.dependencies]
 winapi = "0.3"
 
+[build-dependencies]
+colored = "2.0"
+cfg-if = "1.0"
+cargo-emit = "0.2"
+git-version = "0.3"
+chrono = "0.4"
+
 [features]
-default = ["sdl2/bundled", "sdl2/static-link"]
+default = []
+sdl2-static = ["sdl2/bundled", "sdl2/static-link"]
+sdl2-dynamic = []
+reproducible-build = ["mfek-ipc/reproducible-build"]
 
 [profile.release]
 opt-level = 3

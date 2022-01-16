@@ -10,6 +10,9 @@ dependencies = [
  "arboard",
  "atty",
  "backtrace",
+ "cargo-emit",
+ "cfg-if 1.0.0",
+ "chrono",
  "clap 3.0.7",
  "colored",
  "ctrlc",
@@ -51,7 +54,6 @@ dependencies = [
  "skulpin",
  "skulpin-renderer",
  "strum 0.23.0",
- "strum_macros 0.23.1",
  "winapi 0.3.9",
  "xmltree",
 ]
@@ -154,7 +156,7 @@ version = "0.32.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "06063a002a77d2734631db74e8f4ce7148b77fe522e6bca46f2ae7774fd48112"
 dependencies = [
- "libloading 0.7.2",
+ "libloading 0.7.3",
 ]
 
 [[package]]
@@ -358,6 +360,34 @@ name = "chlorine"
 version = "1.0.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "75476fe966a8af7c0ceae2a3e514afa87d4451741fcdfab8bfaa07ad301842ec"
+
+[[package]]
+name = "chrono"
+version = "0.4.19"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "670ad68c9088c2a963aaa298cb369688cf3f9465ce5e2d4ca10e6e0098a1ce73"
+dependencies = [
+ "libc",
+ "num-integer",
+ "num-traits",
+ "time 0.1.43",
+ "winapi 0.3.9",
+]
+
+[[package]]
+name = "chrono_locale"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1cbf42d590cf2cd03df7910ef6e1cd46039ca566d0547341a3f9b6bfd9e3c491"
+dependencies = [
+ "chrono",
+ "lazy_static",
+ "num-integer",
+ "serde",
+ "serde_derive",
+ "serde_json",
+ "walkdir",
+]
 
 [[package]]
 name = "chunked_transfer"
@@ -1095,9 +1125,9 @@ dependencies = [
 
 [[package]]
 name = "gethostname"
-version = "0.2.1"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e692e296bfac1d2533ef168d0b60ff5897b8b70a4009276834014dd8924cc028"
+checksum = "4addc164932852d066774c405dbbdb7914742d2b39e39e1a7ca949c856d054d1"
 dependencies = [
  "libc",
  "winapi 0.3.9",
@@ -1234,7 +1264,7 @@ dependencies = [
 [[package]]
 name = "glifparser"
 version = "1.2.0"
-source = "git+https://github.com/MFEK/glifparser.rlib?branch=master#c5f901403fb719c982a1fba2b39ad420ffa57e28"
+source = "git+https://github.com/MFEK/glifparser.rlib?branch=master#2539d188f1d47238cafa9c669eb7f76900c5b739"
 dependencies = [
  "float-cmp",
  "image",
@@ -1495,7 +1525,7 @@ dependencies = [
 [[package]]
 name = "integer_or_float"
 version = "0.1.2"
-source = "git+https://github.com/MFEK/integer_or_float.rlib?branch=main#3e5da8bcb0e1231976f98e3dd5999274de78716e"
+source = "git+https://github.com/MFEK/integer_or_float.rlib?branch=main#2c9eb7e4bec353f5c395530dca26dd362cc25306"
 dependencies = [
  "autocfg",
  "cargo-emit",
@@ -1620,9 +1650,9 @@ dependencies = [
 
 [[package]]
 name = "libloading"
-version = "0.7.2"
+version = "0.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "afe203d669ec979b7128619bae5a63b7b42e9203c1b29146079ee05e2f604b52"
+checksum = "efbc0f03f9a775e9f6aed295c6a1ba2253c5757a9e03d55c6caa46a681abcddd"
 dependencies = [
  "cfg-if 1.0.0",
  "winapi 0.3.9",
@@ -1694,10 +1724,12 @@ dependencies = [
 [[package]]
 name = "mfek-ipc"
 version = "0.0.1-beta1"
-source = "git+https://github.com/MFEK/ipc.rlib#3e73d2376d8bd00f4bab37d0af1d66f56928229e"
+source = "git+https://github.com/MFEK/ipc.rlib#a1d16f23fce21d865d17aa1f46fcf13ac4a266b2"
 dependencies = [
  "ansi_term",
  "atty",
+ "chrono",
+ "chrono_locale",
  "colored",
  "figlet-rs",
  "glifparser",
@@ -2135,7 +2167,7 @@ dependencies = [
  "indexmap",
  "line-wrap",
  "serde",
- "time",
+ "time 0.3.5",
  "xml-rs",
 ]
 
@@ -2577,9 +2609,9 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.74"
+version = "1.0.75"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ee2bb9cd061c5865d345bb02ca49fcef1391741b672b54a0bf7b679badec3142"
+checksum = "c059c05b48c5c0067d4b4b2b4f0732dd65feb52daf7e0ea09cd87e7dadc1af79"
 dependencies = [
  "itoa 1.0.1",
  "ryu",
@@ -2764,6 +2796,9 @@ name = "strum"
 version = "0.23.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cae14b91c7d11c9a851d3fbc80a963198998c2a64eec840477fa92d8ce9b70bb"
+dependencies = [
+ "strum_macros 0.23.1",
+]
 
 [[package]]
 name = "strum_macros"
@@ -2880,6 +2915,16 @@ dependencies = [
  "jpeg-decoder",
  "miniz_oxide 0.4.4",
  "weezl",
+]
+
+[[package]]
+name = "time"
+version = "0.1.43"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ca8a50ef2360fbd1eeb0ecd46795a87a19024eb4b53c5dc916ca1fd95fe62438"
+dependencies = [
+ "libc",
+ "winapi 0.3.9",
 ]
 
 [[package]]

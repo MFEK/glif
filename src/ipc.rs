@@ -13,6 +13,14 @@ lazy_static::lazy_static! {
     pub static ref METADATA_AVAILABLE: Result<(module::Version<'static>, PathBuf), ()> = mfek_ipc::module::available("metadata", "0.0.2-beta1");
 }
 
+pub fn header() {
+    mfek_ipc::display_elaborate_header(
+        "glif",
+        env!("MFEK_VERSION"),
+        Some(env!("MFEK_COMPILED_AT").parse().unwrap()),
+    );
+}
+
 impl Editor {
     pub fn write_metrics(&mut self, interface: &mut Interface) {
         let exe = match &*METADATA_AVAILABLE {

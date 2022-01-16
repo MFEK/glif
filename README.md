@@ -62,11 +62,11 @@ Apple charges a fee to "notarize" applications and without this "notarization" M
 
 ### Linux users
 
-MFEKglif depends on GTK3 (for the open/save dialogs). If using X11 and not Wayland, it depends on the X11 C shape extension (`libxcb-shape.so.0`) and the xfixes extension (`libxcb-xfixes.so.0`). Their header files are also needed: `/usr/include/xcb/shape.h` and `/usr/include/xcb/xfixes.h`.
+MFEKglif depends on GTK3 (for the open/save dialogs) and SDL2 (for windowing). If using X11 and not Wayland, it depends on the X11 C shape extension (`libxcb-shape.so.0`) and the xfixes extension (`libxcb-xfixes.so.0`). Their header files are also needed: `/usr/include/xcb/shape.h` and `/usr/include/xcb/xfixes.h`.
 
-On Arch Linux, these two packages provide all the dependencies: `gtk3` `libxcb`
+On Arch Linux, these three packages provide all the dependencies: `gtk3` `libxcb` `sdl2`
 
-On Ubuntu, these three packages provide the dependencies: `libgtk-3-dev` `libxcb-shape0-dev` `libxcb-xfixes0-dev`
+On Ubuntu, these four packages provide the dependencies: `libgtk-3-dev` `libxcb-shape0-dev` `libxcb-xfixes0-dev` `sdl2-dev`
 
 #### Adding `.desktop` shortcut
 
@@ -88,7 +88,7 @@ If you previously pulled the repository and get errors related to `glifparser`, 
 
 ### Note on system SDL2
 
-By default, MFEKglif compiles and statically links to SDL2. If you have SDL2 installed, or find compiling it difficult for some reason and wish to link to a binary SDL2, you should provide the flag `--no-default-features` to `cargo build`. This will disable the features `sdl2/bundled` and `sdl2/static-link`, and your system will attempt to link to a dynamic [libSDL2](https://www.libsdl.org/).
+By default, MFEKglif compiles and statically links to SDL2 if not on Linux. If you have SDL2 installed, or find compiling it difficult for some reason and wish to link to a binary SDL2, you should provide the flag `--no-default-features` to `cargo build`. This will disable the features `sdl2/bundled` and `sdl2/static-link`, and your system will attempt to link to a dynamic [libSDL2](https://www.libsdl.org/).
 
 ## I/O Help
 
