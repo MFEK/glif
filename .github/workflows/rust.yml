@@ -45,9 +45,16 @@ jobs:
             ~/.cargo/git
             target/release
           key: cargo-${{ matrix.platform }}-${{ hashFiles('**/Cargo.lock') }}
-      - name: Run cargo build
+          restore-keys: |
+            cargo-${{ matrix.platform }}-
+      - if: matrix.platform == 'linux'
+        name: Run cargo build (Dynamic SDL2)
         run: |
           cargo build --release --locked
+      - if: matrix.platform != 'linux'
+        name: Run cargo build (Static SDL2)
+        run: |
+          cargo build --release --locked --features=sdl2-static
     # - name: Run cargo test
     #   run: |
     #     cargo test --release --locked

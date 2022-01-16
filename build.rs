@@ -28,8 +28,8 @@ fn main() {
                     warning!("Trying to statically link SDL2 is known to be buggy on Linux. Proceed with caution.");
                 }
             }
-        } else if #[cfg(all(any(not(feature = "sdl2-static"), any(target_family = "windows", target_family = "macos")), not(feature = "sdl2-dynamic")))] {
-            rustc_cfg!("features=\"{}\"", "sdl2-static");
+        } else if #[cfg(all(not(feature = "sdl2-static"), any(target_family = "windows", target_family = "macos"), not(feature = "sdl2-dynamic")))] {
+            compile_error!("Please pass either the flag --features=sdl2-static (recommended) or --features=sdl2-dynamic (requires you to download SDL2 link library from SDL.org)")
         } else if #[cfg(all(target_family = "windows", feature = "sdl2-dynamic"))] {
             warning!("It is neither recommended nor supported to compile MFEKglif on Windows w/dynamic SDL2.");
         }
