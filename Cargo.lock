@@ -2690,7 +2690,7 @@ dependencies = [
 [[package]]
 name = "skulpin"
 version = "0.14.1"
-source = "git+https://github.com/MFEK/skulpin#85555bdfc17ab83ca820363a898c4d509ef147eb"
+source = "git+https://github.com/MFEK/skulpin#9316bd567806771748ae8c15025e457921b20828"
 dependencies = [
  "log",
  "skulpin-renderer",
@@ -2699,7 +2699,7 @@ dependencies = [
 [[package]]
 name = "skulpin-renderer"
 version = "0.14.1"
-source = "git+https://github.com/MFEK/skulpin#85555bdfc17ab83ca820363a898c4d509ef147eb"
+source = "git+https://github.com/MFEK/skulpin#9316bd567806771748ae8c15025e457921b20828"
 dependencies = [
  "bincode",
  "lazy_static",
