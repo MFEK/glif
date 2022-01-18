@@ -119,7 +119,7 @@ impl Anchors {
                         v.end_modification();
                     }
                     // Class
-                    let mut class = imgui::im_str!("{}", &glif_copy.anchors[idx].class);
+                    let mut class = imgui::im_str!("{}", &glif_copy.anchors[idx].class.as_ref().map(|s|s.as_str()).unwrap_or(""));
                     let entered;
                     {
                         let it = ui.input_text(imgui::im_str!("Class"), &mut class);
@@ -132,7 +132,7 @@ impl Anchors {
                     if entered && !class.to_str().is_empty() {
                         v.begin_modification("Move anchor.");
                         v.with_glyph_mut(|glif| {
-                            glif.anchors[idx].class = class.to_str().to_string();
+                            glif.anchors[idx].class = Some(class.to_str().to_string());
                         });
                         v.end_modification();
                     }
@@ -190,10 +190,10 @@ impl Anchors {
                 }
                 v.begin_modification("Add anchor.");
                 v.with_glyph_mut(|glif| {
-                    let mut anchor = GlifAnchor::new();
+                    let mut anchor = GlifAnchor::default();
                     anchor.x = f32::floor(position.0);
                     anchor.y = f32::floor(position.1);
-                    anchor.class = string.clone();
+                    anchor.class = Some(string.clone());
                     glif.anchors.push(anchor);
                 });
                 v.end_modification();
