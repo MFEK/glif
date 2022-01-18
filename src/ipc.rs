@@ -10,7 +10,7 @@ use std::path::PathBuf;
 use std::process;
 
 lazy_static::lazy_static! {
-    pub static ref METADATA_AVAILABLE: Result<(module::Version<'static>, PathBuf), ()> = mfek_ipc::module::available("metadata", "0.0.2-beta1");
+    pub static ref METADATA_AVAILABLE: Result<(module::Version<'static>, PathBuf), ()> = mfek_ipc::module::available("metadata", "0.0.3-beta1");
 }
 
 pub fn header() {
