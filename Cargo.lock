@@ -4,7 +4,7 @@ version = 3
 
 [[package]]
 name = "MFEKglif"
-version = "1.1.1-beta1"
+version = "1.1.1-beta2"
 dependencies = [
  "MFEKmath",
  "arboard",
@@ -13,7 +13,7 @@ dependencies = [
  "cargo-emit",
  "cfg-if 1.0.0",
  "chrono",
- "clap 3.0.7",
+ "clap 3.0.9",
  "colored",
  "ctrlc",
  "derivative",
@@ -423,9 +423,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "3.0.7"
+version = "3.0.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "12e8611f9ae4e068fa3e56931fded356ff745e70987ff76924a6e0ab1c8ef2e3"
+checksum = "8c506244a13c87262f84bf16369740d0b7c3850901b6a642aa41b031a710c473"
 dependencies = [
  "atty",
  "bitflags",
@@ -1264,8 +1264,10 @@ dependencies = [
 [[package]]
 name = "glifparser"
 version = "1.2.0"
-source = "git+https://github.com/MFEK/glifparser.rlib?branch=master#2539d188f1d47238cafa9c669eb7f76900c5b739"
+source = "git+https://github.com/MFEK/glifparser.rlib?branch=master#01e0d08b87ac9c4ed5c9f2da4015f158f06ee91d"
 dependencies = [
+ "derivative",
+ "derive_more",
  "float-cmp",
  "image",
  "integer_or_float",
@@ -2690,7 +2692,7 @@ dependencies = [
 [[package]]
 name = "skulpin"
 version = "0.14.1"
-source = "git+https://github.com/MFEK/skulpin#85555bdfc17ab83ca820363a898c4d509ef147eb"
+source = "git+https://github.com/MFEK/skulpin#9316bd567806771748ae8c15025e457921b20828"
 dependencies = [
  "log",
  "skulpin-renderer",
@@ -2699,7 +2701,7 @@ dependencies = [
 [[package]]
 name = "skulpin-renderer"
 version = "0.14.1"
-source = "git+https://github.com/MFEK/skulpin#85555bdfc17ab83ca820363a898c4d509ef147eb"
+source = "git+https://github.com/MFEK/skulpin#9316bd567806771748ae8c15025e457921b20828"
 dependencies = [
  "bincode",
  "lazy_static",

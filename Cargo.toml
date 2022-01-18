@@ -1,6 +1,6 @@
 [package]
 name = "MFEKglif"
-version = "1.1.1-beta1"
+version = "1.1.1-beta2"
 authors = ["Fredrick Brennan <copypaste@kittens.ph>", "Matthew Blanchard <matthewrblanchard@gmail.com>", "MFEK Authors"]
 edition = "2021"
 license = "Apache-2.0"
