@@ -29,9 +29,13 @@ pub fn set_vws_contour(v: &mut Editor, contour_idx: usize, contour: VWSContour) 
     });
 }
 
-pub fn mouse_coords_to_handle_space(v: &Editor, meta: MouseInfo, wh: WhichHandle) -> (f64, f64) {
+pub fn mouse_coords_to_handle_space(
+    v: &Editor,
+    meta: MouseInfo,
+    wh: WhichHandle,
+) -> Result<(f64, f64), ()> {
     let (start_pos, tangent, _handle_pos) =
-        get_vws_handle_pos(v, v.contour_idx.unwrap(), v.point_idx.unwrap(), wh);
+        get_vws_handle_pos(v, v.contour_idx.unwrap(), v.point_idx.unwrap(), wh)?;
 
     let side_multiplier = match wh {
         WhichHandle::A => -1.,
@@ -53,7 +57,7 @@ pub fn mouse_coords_to_handle_space(v: &Editor, meta: MouseInfo, wh: WhichHandle
     );
     let tangent_offset = mouse_vec_normal.dot(tangent) * mouse_vec.magnitude();
 
-    (normal_offset, tangent_offset)
+    Ok((normal_offset, tangent_offset))
 }
 
 pub fn set_vws_handle(
@@ -154,12 +158,20 @@ pub fn get_vws_handle_pos(
     contour_idx: usize,
     handle_idx: usize,
     side: WhichHandle,
-) -> (Vector, Vector, Vector) {
+) -> Result<(Vector, Vector, Vector), ()> {
     v.with_active_layer(|layer| {
         let vws_contour =
             get_vws_contour(v, contour_idx).unwrap_or_else(|| generate_vws_contour(v, contour_idx));
         let contour_pw = Piecewise::from(&get_contour!(layer, contour_idx));
 
+        if handle_idx > vws_contour.handles.len() - 1 {
+            log::warn!(
+                "Failed to get requested VWS len position ({}/{}).",
+                handle_idx,
+                vws_contour.handles.len() - 1
+            );
+            return Err(());
+        }
         let vws_handle = vws_contour.handles[handle_idx];
 
         // if we've got an open contour and are dealing with the last handle we need special logic
@@ -195,7 +207,7 @@ pub fn get_vws_handle_pos(
             WhichHandle::Neither => panic!("Should be unreachable!"),
         };
 
-        match side {
+        Ok(match side {
             WhichHandle::A => (
                 start_point,
                 tangent,
@@ -211,7 +223,7 @@ pub fn get_vws_handle_pos(
                     + tangent * vws_handle.tangent_offset * scaled_tangent_offset,
             ),
             _ => unreachable!(),
-        }
+        })
     })
 }
 
@@ -253,10 +265,13 @@ pub fn clicked_handle(
 
             let size = ((POINT_RADIUS * 2.) + (POINT_STROKE_THICKNESS * 2.)) * (1. / factor);
             for vws_handle_idx in 0..contour_pw.segs.len() {
-                let handle_pos_left =
-                    get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::A).2;
-                let handle_pos_right =
-                    get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::B).2;
+                let (handle_pos_left, handle_pos_right) = match (
+                    get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::A),
+                    get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::B),
+                ) {
+                    (Ok(l), Ok(r)) => (l.2, r.2),
+                    (_e_l, _e_r) => return None,
+                };
 
                 let handle_left_point = SkPoint::new(
                     handle_pos_left.x as f32 - (size / 2.),
@@ -283,10 +298,13 @@ pub fn clicked_handle(
             if contour.inner.first().unwrap().ptype == glifparser::PointType::Move {
                 let vws_handle_idx = contour_pw.segs.len();
 
-                let handle_pos_left =
-                    get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::A).2;
-                let handle_pos_right =
-                    get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::B).2;
+                let (handle_pos_left, handle_pos_right) = match (
+                    get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::A),
+                    get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::B),
+                ) {
+                    (Ok(l), Ok(r)) => (l.2, r.2),
+                    (_e_l, _e_r) => return None,
+                };
 
                 let handle_left_point = SkPoint::new(
                     handle_pos_left.x as f32 - (size / 2.),

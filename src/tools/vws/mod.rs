@@ -78,10 +78,14 @@ impl VWS {
 
                 for (vws_handle_idx, bezier) in contour_pw.segs.iter().enumerate() {
                     let start_point = bezier.start_point();
-                    let handle_pos_left =
-                        get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::A).2;
-                    let handle_pos_right =
-                        get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::B).2;
+
+                    let (handle_pos_left, handle_pos_right) = match (
+                        get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::A),
+                        get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::B),
+                    ) {
+                        (Ok(l), Ok(r)) => (l.2, r.2),
+                        (_e_l, _e_r) => continue,
+                    };
 
                     let mut path = SkiaPath::new();
                     let mut paint = Paint::default();
@@ -99,17 +103,20 @@ impl VWS {
                 }
 
                 if contour.inner.first().unwrap().ptype == glifparser::PointType::Move {
-                    if contour_pw.segs.len() < 2 {
+                    if contour_pw.segs.len() < 1 {
                         continue;
                     };
                     let vws_handle_idx = contour_pw.segs.len();
                     let bezier = contour_pw.segs.last().unwrap();
                     let start_point = bezier.end_point();
 
-                    let handle_pos_left =
-                        get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::A).2;
-                    let handle_pos_right =
-                        get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::B).2;
+                    let (handle_pos_left, handle_pos_right) = match (
+                        get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::A),
+                        get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::B),
+                    ) {
+                        (Ok(l), Ok(r)) => (l.2, r.2),
+                        (_e_l, _e_r) => continue,
+                    };
 
                     let mut path = SkiaPath::new();
                     let mut paint = Paint::default();

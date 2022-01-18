@@ -38,7 +38,7 @@ fn idx_to_cap_type(idx: usize) -> CapType {
         0 => CapType::Round,
         1 => CapType::Square,
         2 => CapType::Custom,
-        _ => unreachable!(),
+        _ => CapType::Round,
     }
 }
 

@@ -33,7 +33,13 @@ impl MoveVWSHandle {
         }
 
         let (normal_offset, tangent_offset) =
-            mouse_coords_to_handle_space(v, mouse_info, self.handle);
+            match mouse_coords_to_handle_space(v, mouse_info, self.handle) {
+                Ok(r) => r,
+                Err(()) => {
+                    log::warn!("Failed to enter handle space!");
+                    return;
+                }
+            };
         // if shift is held down we scale all the points
         if self.all {
             set_all_vws_handles(v, self.handle, self.mirror, normal_offset)
