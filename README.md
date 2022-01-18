@@ -2,12 +2,12 @@
 
 Glyph editor for the Modular Font Editor K project. [![Build Status](https://img.shields.io/github/workflow/status/MFEK/glif/Rust?label=Rust&logo=Rust)](https://github.com/MFEK/glif/actions?workflow=Rust)
 
-**Current beta release: [v1.1.1ꞵ1 “ᴍᴇᴛᴀꜰᴏɴᴛverse”](https://github.com/MFEK/glif/releases/tag/v1.1.0b2)**
+**Current beta release: [v1.1.1ꞵ2 “ᴍᴇᴛᴀꜰᴏɴᴛverse”](https://github.com/MFEK/glif/releases/tag/v1.1.1b2)**
 
-#### Binaries (links in § [Artifacts](https://github.com/MFEK/glif/actions/runs/1703205967#artifacts))
-* [Linux](https://github.com/MFEK/glif/suites/4951048968/artifacts/143674673)
-* [Windows](https://github.com/MFEK/glif/suites/4951048968/artifacts/143674675)
-* [macOS](https://github.com/MFEK/glif/suites/4951048968/artifacts/143674674) (not notarized)
+#### Binaries (links in § [Artifacts](https://github.com/MFEK/glif/actions/runs/1711307059))
+* [Linux](https://github.com/MFEK/glif/suites/4969738325/artifacts/144842097)
+* [Windows](https://github.com/MFEK/glif/suites/4969738325/artifacts/144842099)
+* [macOS](https://github.com/MFEK/glif/suites/4969738325/artifacts/144842098) (not notarized)
 
 ![](https://raw.githubusercontent.com/MFEK/glif/master/doc/screenshot_main.png)
 
