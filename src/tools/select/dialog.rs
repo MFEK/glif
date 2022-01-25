@@ -79,7 +79,8 @@ impl Select {
                     ui.text(imgui::im_str!("Next off-curve point"));
                     ui.checkbox(imgui::im_str!("A Colocated"), &mut a_colocated);
                     // AX
-                    let (mut ax, mut ay) = point.handle_or_colocated(WhichHandle::A, |f| f, |f| f);
+                    let (mut ax, mut ay) =
+                        point.handle_or_colocated(WhichHandle::A, &|f| f, &|f| f);
                     let orig_axy = (ax, ay);
                     imgui_decimal_text_field("AX", ui, &mut ax, None);
                     // AY
@@ -100,7 +101,8 @@ impl Select {
                     ui.text(imgui::im_str!("Previous off-curve point"));
                     ui.checkbox(imgui::im_str!("B Colocated"), &mut b_colocated);
                     // BX
-                    let (mut bx, mut by) = point.handle_or_colocated(WhichHandle::B, |f| f, |f| f);
+                    let (mut bx, mut by) =
+                        point.handle_or_colocated(WhichHandle::B, &|f| f, &|f| f);
                     let orig_bxy = (bx, by);
                     imgui_decimal_text_field("BX", ui, &mut bx, None);
                     // BY

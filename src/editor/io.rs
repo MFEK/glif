@@ -121,9 +121,10 @@ impl Editor {
                 temp
             };
 
-            glyph.filename = Some(filename.clone());
+            glyph.filename = None;
             log::info!("Requested save to {:?}", &filename);
             fs::write(&filename, serde_json::to_vec_pretty(&glyph).unwrap()).expect("Write failed");
+            glyph.filename = Some(filename.clone());
             Ok(filename)
         });
         self.end_modification();

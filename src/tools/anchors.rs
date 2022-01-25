@@ -119,7 +119,14 @@ impl Anchors {
                         v.end_modification();
                     }
                     // Class
-                    let mut class = imgui::im_str!("{}", &glif_copy.anchors[idx].class.as_ref().map(|s|s.as_str()).unwrap_or(""));
+                    let mut class = imgui::im_str!(
+                        "{}",
+                        &glif_copy.anchors[idx]
+                            .class
+                            .as_ref()
+                            .map(|s| s.as_str())
+                            .unwrap_or("")
+                    );
                     let entered;
                     {
                         let it = ui.input_text(imgui::im_str!("Class"), &mut class);

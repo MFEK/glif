@@ -87,11 +87,11 @@ pub fn clicked_point_or_handle(
                     SkPoint::new(point.x as f32 - (size / 2.), point.y as f32 - (size / 2.));
                 let point_rect = SkRect::from_point_and_size(point_tl, (size, size));
                 // Topleft corner of handle a
-                let a = point.handle_or_colocated(WhichHandle::A, |f| f, |f| f);
+                let a = point.handle_or_colocated(WhichHandle::A, &|f| f, &|f| f);
                 let a_tl = SkPoint::new(a.0 - (size / 2.), a.1 - (size / 2.));
                 let a_rect = SkRect::from_point_and_size(a_tl, (size, size));
                 // Topleft corner of handle b
-                let b = point.handle_or_colocated(WhichHandle::B, |f| f, |f| f);
+                let b = point.handle_or_colocated(WhichHandle::B, &|f| f, &|f| f);
                 let b_tl = SkPoint::new(b.0 - (size / 2.), b.1 - (size / 2.));
                 let b_rect = SkRect::from_point_and_size(b_tl, (size, size));
 
