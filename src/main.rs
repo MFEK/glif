@@ -335,8 +335,13 @@ fn main() {
                     ..
                 } => {
                     let position = (x as f32, y as f32);
-                    let mouse_info =
-                        MouseInfo::new(&mut interface, Some(mouse_btn), position, Some(true), keymod);
+                    let mouse_info = MouseInfo::new(
+                        &mut interface,
+                        Some(mouse_btn),
+                        position,
+                        Some(true),
+                        keymod,
+                    );
                     editor.dispatch_editor_event(
                         &mut interface,
                         EditorEvent::MouseEvent {
@@ -352,8 +357,13 @@ fn main() {
                     mouse_btn, x, y, ..
                 } => {
                     let position = (x as f32, y as f32);
-                    let mouse_info =
-                        MouseInfo::new(&mut interface, Some(mouse_btn), position, Some(true), keymod);
+                    let mouse_info = MouseInfo::new(
+                        &mut interface,
+                        Some(mouse_btn),
+                        position,
+                        Some(true),
+                        keymod,
+                    );
                     editor.dispatch_editor_event(
                         &mut interface,
                         EditorEvent::MouseEvent {
@@ -369,8 +379,13 @@ fn main() {
                     mouse_btn, x, y, ..
                 } => {
                     let position = (x as f32, y as f32);
-                    let mouse_info =
-                        MouseInfo::new(&mut interface, Some(mouse_btn), position, Some(false), keymod);
+                    let mouse_info = MouseInfo::new(
+                        &mut interface,
+                        Some(mouse_btn),
+                        position,
+                        Some(false),
+                        keymod,
+                    );
                     editor.dispatch_editor_event(
                         &mut interface,
                         EditorEvent::MouseEvent {
@@ -396,11 +411,7 @@ fn main() {
                     WindowEvent::SizeChanged(x, y) | WindowEvent::Resized(x, y) => {
                         interface.viewport.winsize = (x as f32, y as f32);
                         interface.viewport.set_broken_flag();
-                        {
                         interface.adjust_viewport_by_os_dpi();
-                        let winsize = [interface.viewport.winsize.0, interface.viewport.winsize.1];
-                        imgui_manager.imgui_context.io_mut().display_size = winsize;
-                        }
                     }
                     _ => {}
                 },
