@@ -75,10 +75,10 @@ lazy_static! {
         FKFamilyName::Title("Segoe UI".to_string()),
         // Linux (fontconfig)
         FKFamilyName::SansSerif,
-        // macOS ??
-        FKFamilyName::Title("Helvetica".to_string()),
-        // macOS ??
+        // old macOS
         FKFamilyName::Title(".SFUIText".to_string()),
+        // new macOS (≈2016+)
+        FKFamilyName::Title("Helvetica".to_string()),
     ]);
     //TODO: Replace console.
     //pub static ref SYSTEMMONO: Font = load_font(CONSOLE_FONTS.as_slice());
