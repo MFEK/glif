@@ -50,7 +50,7 @@ fn main() {
 
     let filename = filedialog::filename_or_panic(&filename, Some("glif"), None);
     let mut interface = Interface::new(filename.to_str().unwrap());
-    let mut imgui_manager = ImguiManager::new(&interface.sdl_window);
+    let mut imgui_manager = ImguiManager::new(&mut interface);
 
     let mut skulpin_renderer = interface.initialize_skulpin_renderer(&interface.sdl_window);
 
@@ -315,7 +315,7 @@ fn main() {
 
                 Event::MouseMotion { x, y, .. } => {
                     let position = (x as f32, y as f32);
-                    let mouse_info = MouseInfo::new(&interface, None, position, None, keymod);
+                    let mouse_info = MouseInfo::new(&mut interface, None, position, None, keymod);
                     editor.dispatch_editor_event(
                         &mut interface,
                         EditorEvent::MouseEvent {
@@ -336,7 +336,7 @@ fn main() {
                 } => {
                     let position = (x as f32, y as f32);
                     let mouse_info =
-                        MouseInfo::new(&interface, Some(mouse_btn), position, Some(true), keymod);
+                        MouseInfo::new(&mut interface, Some(mouse_btn), position, Some(true), keymod);
                     editor.dispatch_editor_event(
                         &mut interface,
                         EditorEvent::MouseEvent {
@@ -353,7 +353,7 @@ fn main() {
                 } => {
                     let position = (x as f32, y as f32);
                     let mouse_info =
-                        MouseInfo::new(&interface, Some(mouse_btn), position, Some(true), keymod);
+                        MouseInfo::new(&mut interface, Some(mouse_btn), position, Some(true), keymod);
                     editor.dispatch_editor_event(
                         &mut interface,
                         EditorEvent::MouseEvent {
@@ -370,7 +370,7 @@ fn main() {
                 } => {
                     let position = (x as f32, y as f32);
                     let mouse_info =
-                        MouseInfo::new(&interface, Some(mouse_btn), position, Some(false), keymod);
+                        MouseInfo::new(&mut interface, Some(mouse_btn), position, Some(false), keymod);
                     editor.dispatch_editor_event(
                         &mut interface,
                         EditorEvent::MouseEvent {
@@ -396,6 +396,11 @@ fn main() {
                     WindowEvent::SizeChanged(x, y) | WindowEvent::Resized(x, y) => {
                         interface.viewport.winsize = (x as f32, y as f32);
                         interface.viewport.set_broken_flag();
+                        {
+                        interface.adjust_viewport_by_os_dpi();
+                        let winsize = [interface.viewport.winsize.0, interface.viewport.winsize.1];
+                        imgui_manager.imgui_context.io_mut().display_size = winsize;
+                        }
                     }
                     _ => {}
                 },

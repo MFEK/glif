@@ -37,7 +37,7 @@ static ICON_FONT_TTF_DATA: &[u8] = include_bytes!("../../../resources/fonts/icon
 use imgui::{self, Context, DrawData, FontId};
 use imgui_sdl2::ImguiSdl2;
 use imgui_skia_renderer::Renderer;
-use sdl2::{event::Event, mouse::MouseState, video::Window};
+use sdl2::{event::Event, mouse::MouseState};
 
 #[macro_use]
 pub(crate) mod msgbox;
@@ -52,7 +52,7 @@ pub struct ImguiManager {
 }
 
 impl ImguiManager {
-    pub fn new(window: &Window) -> Self {
+    pub fn new(interface: &mut Interface) -> Self {
         let mut imgui = Context::create();
         {
             // Fix incorrect colors with sRGB framebuffer
@@ -73,10 +73,8 @@ impl ImguiManager {
         imgui.set_ini_filename(None);
         imgui.style_mut().use_light_colors();
 
-        // TODO: Implement proper DPI scaling
-        let scale_factor = 1.;
-        let font_size = (16.0 * scale_factor) as f32;
-        let icon_font_size = (36.0 * scale_factor) as f32;
+        let font_size = 16.0;
+        let icon_font_size = 36.0;
 
         let id = imgui.fonts().add_font(&[
             imgui::FontSource::TtfData {
@@ -139,7 +137,7 @@ impl ImguiManager {
         });
         PROMPT_STR.with(|prompt_str| prompt_str.borrow_mut().reserve(IMGUI_RESERVE));
 
-        let imgui_sdl2 = imgui_sdl2::ImguiSdl2::new(&mut imgui, &window);
+        let imgui_sdl2 = imgui_sdl2::ImguiSdl2::new(&mut imgui, &interface.sdl_window);
         let imgui_renderer = Renderer::new(&mut imgui);
         return ImguiManager {
             imgui_context: imgui,

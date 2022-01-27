@@ -33,7 +33,7 @@ impl Default for MouseInfo {
 
 impl MouseInfo {
     pub fn new(
-        i: &Interface,
+        i: &mut Interface,
         button: Option<MouseButton>,
         position: (f32, f32),
         mousedown: Option<bool>,
@@ -43,12 +43,13 @@ impl MouseInfo {
             let factor = 1. / i.viewport.factor;
             let uoffset = i.viewport.offset;
             let offset = (uoffset.0, uoffset.1);
-            let absolute = skia::Point::new(position.0, position.1 - i.viewport.winsize.1);
+            let absolute = skia::Point::new(position.0 / i.os_dpi(), (position.1 - i.viewport.winsize.1) / i.os_dpi());
 
             let mut matrix = skia::Matrix::new_identity();
             matrix.set_scale((factor, -factor), None);
             let skp = matrix.map_point(absolute);
             let skp = (skp.x - (offset.0 * factor), skp.y + (offset.1 * factor));
+
             (skp, (absolute.x, absolute.y))
         };
 

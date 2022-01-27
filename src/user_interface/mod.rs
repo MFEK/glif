@@ -37,6 +37,7 @@ pub const PAPER_DRAW_GUIDELINES: bool = false;
 pub struct Interface {
     prompts: Vec<InputPrompt>,
     sdl_context: Sdl,
+    sdl_dpi: f32,
     pub sdl_window: Window,
 
     pub grid: Grid,
@@ -46,18 +47,31 @@ pub struct Interface {
 
 impl Interface {
     pub fn new(filename: &str) -> Self {
-        let viewport = Viewport::default();
-        let (sdl, window) = Self::initialize_sdl(filename, &viewport);
+        let mut viewport = Viewport::default();
+        let (sdl, window) = Self::initialize_sdl(filename, &mut viewport);
 
-        Interface {
+        #[allow(unused_mut)]
+        let mut iself = Interface {
             prompts: vec![],
             sdl_context: sdl,
             sdl_window: window,
+            sdl_dpi: f32::NAN,
 
             grid: Grid::default(),
             mouse_info: MouseInfo::default(),
             viewport: Viewport::default(),
-        }
+        };
+
+        #[cfg(target_os = "macos")]
+        iself.adjust_viewport_by_os_dpi();
+
+        iself
+    }
+
+    pub fn adjust_viewport_by_os_dpi(&mut self) {
+        let dpi = self.os_dpi();
+        self.viewport.winsize.0 /= dpi;
+        self.viewport.winsize.1 /= dpi;
     }
 
     pub fn active_prompts(&self) -> bool {
@@ -130,6 +144,25 @@ impl Interface {
     pub fn nudge_viewport(&mut self, offset: (f32, f32)) {
         let now_offset = self.viewport.offset;
         self.viewport.offset = (now_offset.0 + offset.0, now_offset.1 + offset.1);
+    }
+
+    fn set_dpi_from_os(&mut self) -> f32 {
+        let (w, h) = self.sdl_window.drawable_size();
+        let hdpi = self.viewport.winsize.0 / w as f32;
+        let vdpi = self.viewport.winsize.1 / h as f32;
+        if hdpi != vdpi {
+            log::warn!("Warning: DPI's not equal? {} != {}", hdpi, vdpi);
+        }
+        self.sdl_dpi = hdpi;
+        hdpi
+    }
+
+    pub fn os_dpi(&mut self) -> f32 {
+        if self.sdl_dpi.is_nan() {
+            self.set_dpi_from_os()
+        } else {
+            self.sdl_dpi
+        }
     }
 
     pub fn update_viewport(&mut self, offset: Option<(f32, f32)>, scale: Option<f32>) {

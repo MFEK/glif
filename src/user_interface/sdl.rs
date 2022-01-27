@@ -11,7 +11,8 @@ use sdl2::{pixels::PixelFormatEnum, surface::Surface, video::Window, Sdl};
 use skulpin::LogicalSize;
 
 impl Interface {
-    pub fn initialize_sdl(filename: &str, viewport: &Viewport) -> (Sdl, Window) {
+    // for macOS, we may mutate viewport.winsize. other OS don't (normally?) mutate viewport
+    pub fn initialize_sdl(filename: &str, viewport: &mut Viewport) -> (Sdl, Window) {
         // SDL initialization
         let sdl_context = sdl2::init().expect("Failed to initialize sdl2");
         let video_subsystem = sdl_context
