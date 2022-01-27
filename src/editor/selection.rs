@@ -12,6 +12,7 @@ use skulpin::skia_safe::Point as SkPoint;
 
 use super::Editor;
 use crate::contour_operations;
+use crate::user_interface::gui;
 use crate::util::MFEKGlifPointData;
 
 use std::collections::HashSet;
@@ -19,7 +20,7 @@ use std::fmt;
 
 #[derive(shrinkwraprs::Shrinkwrap)]
 #[shrinkwrap(mutable)]
-pub(crate) struct EditorClipboard(pub(crate) Clipboard);
+pub(crate) struct EditorClipboard(pub(crate) Result<Clipboard, String>);
 
 impl fmt::Debug for EditorClipboard {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
@@ -29,7 +30,33 @@ impl fmt::Debug for EditorClipboard {
 
 impl Default for EditorClipboard {
     fn default() -> Self {
-        EditorClipboard(Clipboard::new().expect("Failed to initialize clipboard"))
+        let cb = Clipboard::new();
+        Self(match cb {
+            Ok(cb) => Ok(cb),
+            Err(e) => {
+                gui::error!(
+                    "Failed to start OS clipboard! Wayland? (Restart compositor??) {}",
+                    &e
+                );
+                Err(e.to_string())
+            }
+        })
+    }
+}
+
+impl EditorClipboard {
+    /// Do something to OS clipboard if we can access it
+    pub fn with<F, T>(&mut self, f: F) -> Option<T>
+    where
+        F: for<'a> Fn(&'a mut Clipboard) -> T,
+    {
+        match &mut self.0 {
+            Ok(ref mut cb) => Some(f(cb)),
+            Err(e) => {
+                gui::error!("Cannot access clipboard! {:?}", &e);
+                None
+            }
+        }
     }
 }
 
@@ -98,79 +125,111 @@ impl Editor {
             .unwrap(),
         );
 
-        self.clipboard.as_mut().set_text(cliptext).unwrap();
+        self.clipboard
+            .with(|c| {
+                c.set_text(cliptext.clone()).unwrap_or_else(|e| {
+                    let e = e.to_string();
+                    gui::error!("Clipboard issue—couldn't copy! {}", e);
+                })
+            })
+            .unwrap_or(());
     }
 
     /// If `position` is provided, it means that the client is requesting that the layer outline be
     /// moved
     pub fn paste_selection(&mut self, position: Option<(f32, f32)>) {
-        if let Ok(clipboard) = self.clipboard.as_mut().get_text() {
-            let (mimetype, data) = if let Some((mimetype, data)) = clipboard.split_once('\t') {
-                (mimetype, data)
-            } else {
-                log::debug!("Tried to paste in a clipboard w/o tab (\\t) character");
-                return;
+        let mut clipboard: Layer<_> = if let Some(data) = self.clipboard.with(|clipboard: &mut Clipboard| {
+            let cbtext; // [For borrow checker!]
+            let (mimetype, data) = match clipboard.get_text() {
+                Ok(t) => {
+                    // [For borrow checker!] Hold a handle to clipboard text so not dropped at end of match {} block.
+                    cbtext = t;
+                    match cbtext.split_once('\t') {
+                        Some((mt, d)) => {
+                            (mt, d)
+                        },
+                        None => {
+                            log::debug!("Tried to paste in a clipboard w/o tab (\\t) character");
+                            return Err(());
+                        },
+                    }
+                }
+                Err(e) => {
+                    gui::error!("Failed to paste! {:?}", &e);
+                    return Err(());
+                }
             };
 
             if mimetype != "text/vnd.mfek.glifjson" {
                 log::warn!("We must've misrecognized data w/tab (\\t) character as ours, aborting");
-                return;
+                return Err(());
             }
 
-            let mut clipboard: Layer<_> = if let Ok(cdata) = serde_json::from_str(data) {
-                cdata
-            } else {
-                log::error!("Could not understand text/vnd.mfek.glifjson we think we produced. Mismatched MFEKglif versions running on same machine?");
-                return;
-            };
-            log::debug!("Got layer {} from clipboard", &clipboard.name);
+            match serde_json::from_str(data) {
+                Ok(d) => Ok(d),
+                Err(e) => {
+                    gui::error!("Could not understand text/vnd.mfek.glifjson we think we produced. Mismatched MFEKglif versions running on same machine? {:?}", &e);
+                    Err(())
+                }
+            }
+        }) {
+            match data {
+                Ok(d) => d,
+                Err(()) => {
+                    return;
+                }
+            }
+        } else {
+            return;
+        };
 
-            self.begin_modification("Paste clipboard.");
-            self.contour_idx = None;
-            self.point_idx = None;
-            self.selected.clear();
+        log::debug!("Got layer {} from clipboard", &clipboard.name);
 
-            let new_selected = self.with_active_layer_mut(|layer| {
-                if let Some(mpos) = position {
-                    let comb = clipboard.outline.to_skia_paths(None).combined();
-                    let b = comb.bounds();
-                    let center = b.center();
-                    let dist = SkPoint::new(mpos.0 - center.x, mpos.1 - center.y);
-                    for contour in clipboard.outline.iter_mut() {
-                        for point in contour.inner.iter_mut() {
-                            point.x += dist.x;
-                            point.y += dist.y;
-                            if let Handle::At(mut ax, mut ay) = point.a {
-                                ax += dist.x;
-                                ay += dist.y;
-                                point.a = Handle::At(ax, ay);
-                            }
-                            if let Handle::At(mut bx, mut by) = point.b {
-                                bx += dist.x;
-                                by += dist.y;
-                                point.b = Handle::At(bx, by);
-                            }
+        self.begin_modification("Paste clipboard.");
+        self.contour_idx = None;
+        self.point_idx = None;
+        self.selected.clear();
+
+        let new_selected = self.with_active_layer_mut(|layer| {
+            if let Some(mpos) = position {
+                let comb = clipboard.outline.to_skia_paths(None).combined();
+                let b = comb.bounds();
+                let center = b.center();
+                let dist = SkPoint::new(mpos.0 - center.x, mpos.1 - center.y);
+                for contour in clipboard.outline.iter_mut() {
+                    for point in contour.inner.iter_mut() {
+                        point.x += dist.x;
+                        point.y += dist.y;
+                        if let Handle::At(mut ax, mut ay) = point.a {
+                            ax += dist.x;
+                            ay += dist.y;
+                            point.a = Handle::At(ax, ay);
+                        }
+                        if let Handle::At(mut bx, mut by) = point.b {
+                            bx += dist.x;
+                            by += dist.y;
+                            point.b = Handle::At(bx, by);
                         }
                     }
                 }
+            }
 
-                let mut new_selected = HashSet::new();
+            let mut new_selected = HashSet::new();
 
-                for contour in clipboard.outline.iter_mut() {
-                    let cur_idx = layer.outline.len();
-                    for (point_selection, _) in contour.inner.iter().enumerate() {
-                        new_selected.insert((cur_idx, point_selection));
-                    }
-                    layer.outline.push(contour.clone());
+            for contour in clipboard.outline.iter_mut() {
+                let cur_idx = layer.outline.len();
+                for (point_selection, _) in contour.inner.iter().enumerate() {
+                    new_selected.insert((cur_idx, point_selection));
                 }
+                layer.outline.push(contour.clone());
+            }
 
-                new_selected
-            });
+            new_selected
+        });
 
-            self.selected.extend(new_selected);
+        self.selected.extend(new_selected);
 
-            self.end_modification();
-        }
+        self.end_modification();
     }
 
     pub fn delete_selection(&mut self) {
