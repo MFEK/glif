@@ -1,10 +1,9 @@
 use crate::args::Args;
+use crate::contour_operations;
+use crate::ipc;
+use crate::tool_behaviors::ToolBehavior;
+use crate::tools::{pan::Pan, Tool, ToolEnum};
 use crate::util::MFEKGlifPointData;
-use crate::{
-    ipc,
-    tool_behaviors::ToolBehavior,
-    tools::{pan::Pan, Tool, ToolEnum},
-};
 
 use glifparser::{
     glif::{HistoryEntry, Layer},
@@ -175,8 +174,11 @@ impl Editor {
         } else {
             // we're merging two open paths
             let (cidx, pidx) = self.with_active_layer_mut(|layer| {
+                layer.outline[end].operation =
+                    contour_operations::append(&layer.outline[start], &layer.outline[end]);
                 let mut startc = get_contour!(layer, start).clone();
                 let endc = get_contour_mut!(layer, end);
+
                 let mut end = end;
 
                 endc.last_mut().unwrap().b = startc[0].a;
