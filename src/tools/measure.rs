@@ -1,9 +1,6 @@
 use glifrenderer::constants::{self, OUTLINE_STROKE_THICKNESS};
-use glifrenderer::string::{pointfont_from_size_and_factor, POINTFONTS, POINTFONTSIZE};
-use num_traits::float::Float;
-use skulpin::skia_safe::{
-    dash_path_effect, AutoCanvasRestore, Canvas, Paint, Path, Point, TextBlob,
-};
+use glifrenderer::string::UiString;
+use skulpin::skia_safe::{dash_path_effect, Canvas, Paint, Path, Point};
 use MFEKmath::Vector;
 
 use crate::editor::Editor;
@@ -67,7 +64,6 @@ impl Measure {
 
             path.move_to(skpath_start);
             path.line_to(skpath_end);
-            path.close();
             paint.set_color(constants::MEASURE_STROKE);
             paint.set_style(skulpin::skia_safe::PaintStyle::Stroke);
             paint.set_stroke_width(OUTLINE_STROKE_THICKNESS * (1. / factor));
@@ -93,36 +89,7 @@ pub fn draw_measure_string(
     s: &str,
     canvas: &mut Canvas,
 ) {
-    let mut arc = AutoCanvasRestore::guard(canvas, true);
-    let factor = i.viewport.factor;
-    let mut paint = Paint::default();
-    paint.set_color(constants::MEASURE_STROKE);
-    paint.set_anti_alias(true);
+    let s = UiString::centered_with_colors(s, MEASURE_STROKE, None).rotated(angle.to_degrees());
 
-    let (blob, rect) = {
-        POINTFONTS.with(|f| {
-            let mut hm = f.borrow_mut();
-            let f = hm.get(&((POINTFONTSIZE * 1. / factor).integer_decode()));
-            let font = match f {
-                Some(fon) => fon,
-                None => {
-                    hm.insert(
-                        (POINTFONTSIZE * 1. / factor).integer_decode(),
-                        pointfont_from_size_and_factor(POINTFONTSIZE, factor),
-                    );
-                    hm.get(&((POINTFONTSIZE * 1. / factor).integer_decode()))
-                        .unwrap()
-                }
-            };
-
-            let blob = TextBlob::from_str(s, font).expect(&format!("Failed to shape {}", s));
-            let (_, rect) = font.measure_str(s, Some(&paint));
-            (blob, rect)
-        })
-    };
-
-    let center_at = (at.0 - rect.width() / 2., at.1 - rect.height() / 2.);
-
-    arc.rotate(angle.to_degrees(), Some(at.into()));
-    arc.draw_text_blob(&blob, center_at, &paint);
+    s.draw(&i.viewport, at, canvas);
 }
