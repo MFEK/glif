@@ -62,7 +62,6 @@ impl Interface {
             viewport: Viewport::default(),
         };
 
-        #[cfg(target_os = "macos")]
         iself.adjust_viewport_by_os_dpi();
 
         iself
@@ -104,12 +103,10 @@ impl Interface {
         )
     }
 
-    pub fn extents(&self) -> RafxExtents2D {
-        let (window_width, window_height) = self.sdl_window.vulkan_drawable_size();
-        RafxExtents2D {
-            width: window_width,
-            height: window_height,
-        }
+    pub fn extents(&mut self) -> RafxExtents2D {
+        let (window_width, window_height) = self.viewport.winsize;
+        let (width, height) = (window_width.ceil() as u32, window_height.ceil() as u32);
+        RafxExtents2D { width, height }
     }
 
     pub fn render(
@@ -129,7 +126,11 @@ impl Interface {
         // thus we've stubbed it out.
         let drew = skulpin.draw(self.extents(), 1.0, |canvas, _| {
             render::render_frame(v, self, canvas);
+            canvas.save();
+            let scale = 1. / self.os_dpi();
+            canvas.scale((scale, scale));
             imgui_renderer.render_imgui(canvas, dd);
+            canvas.restore();
         });
 
         if drew.is_err() {

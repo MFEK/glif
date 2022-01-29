@@ -233,8 +233,8 @@ pub fn build_imgui_ui<'ui>(
         )
         .position(
             [
-                i.viewport.winsize.0 as f32 - LAYERBOX_WIDTH - TOOLBOX_OFFSET_X,
-                i.viewport.winsize.1 as f32 - TOOLBOX_OFFSET_Y - LAYERBOX_HEIGHT,
+                (i.viewport.winsize.0 as f32 * i.os_dpi()) - LAYERBOX_WIDTH - TOOLBOX_OFFSET_X,
+                (i.viewport.winsize.1 as f32 * i.os_dpi()) - TOOLBOX_OFFSET_Y - LAYERBOX_HEIGHT,
             ],
             imgui::Condition::Always,
         )

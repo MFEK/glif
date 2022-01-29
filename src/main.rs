@@ -52,7 +52,7 @@ fn main() {
     let mut interface = Interface::new(filename.to_str().unwrap());
     let mut imgui_manager = ImguiManager::new(&mut interface);
 
-    let mut skulpin_renderer = interface.initialize_skulpin_renderer(&interface.sdl_window);
+    let mut skulpin_renderer = interface.initialize_skulpin_renderer();
 
     // Makes glyph available to on_load_glif events
     editor.load_glif(&mut interface, &filename);

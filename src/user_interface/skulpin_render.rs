@@ -1,13 +1,13 @@
-use sdl2::video::Window;
 use skulpin::{CoordinateSystem, Renderer, RendererBuilder};
 
 use super::Interface;
 
 impl Interface {
-    pub fn initialize_skulpin_renderer(&self, window: &Window) -> Renderer {
+    pub fn initialize_skulpin_renderer(&mut self) -> Renderer {
+        let extents = self.extents();
         let renderer = RendererBuilder::new()
             .coordinate_system(CoordinateSystem::None)
-            .build(window, self.extents());
+            .build(&self.sdl_window, extents);
 
         renderer.expect("Failed to initialize Skulpin")
     }

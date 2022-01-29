@@ -42,18 +42,15 @@ impl MouseInfo {
         let (mut mposition, absolute_mposition) = {
             let factor = 1. / i.viewport.factor;
             let uoffset = i.viewport.offset;
-            let offset = (uoffset.0, uoffset.1);
-            let absolute = skia::Point::new(
-                position.0 / i.os_dpi(),
-                (position.1 - i.viewport.winsize.1) / i.os_dpi(),
-            );
+            let offset = (-uoffset.0 * factor, uoffset.1 * factor);
+            let position = (position.0, (position.1 - i.viewport.winsize.1));
+            let absolute = skia::Matrix::scale((i.os_dpi(), i.os_dpi())).map_point(position);
 
-            let mut matrix = skia::Matrix::new_identity();
-            matrix.set_scale((factor, -factor), None);
+            let mut matrix = skia::Matrix::translate(offset);
+            matrix = matrix * skia::Matrix::scale((factor, -factor));
             let skp = matrix.map_point(absolute);
-            let skp = (skp.x - (offset.0 * factor), skp.y + (offset.1 * factor));
 
-            (skp, (absolute.x, absolute.y))
+            ((skp.x, skp.y), (absolute.x, absolute.y))
         };
 
         let raw_absolute_mposition = absolute_mposition;
