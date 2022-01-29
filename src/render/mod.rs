@@ -98,7 +98,7 @@ pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
     // TODO: let _path = glyph::draw_previews(v, canvas);
 
     match pm {
-        PreviewMode::None => {
+        PreviewMode::None | PreviewMode::NoUnselectedPoints => {
             let active_layer = v.get_active_layer();
             let cidx = v.contour_idx;
             let pidx = v.point_idx;
@@ -113,18 +113,22 @@ pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
                     pidx,
                     &selected,
                     canvas,
+                    pm != PreviewMode::None,
                 );
                 draw_anchors(glif, &i.viewport, canvas);
             });
 
             v.with_active_layer(|active_layer| {
-                points::draw_directions(&i.viewport, active_layer, canvas);
+                points::draw_directions(
+                    &i.viewport,
+                    active_layer,
+                    canvas,
+                    &selected,
+                    pm != PreviewMode::None,
+                );
             });
 
             v.dispatch_tool_draw(i, canvas);
-        }
-        PreviewMode::NoUnselectedPoints => {
-            //points::draw_selected(v, canvas);
         }
         PreviewMode::Paper => (),
     }
