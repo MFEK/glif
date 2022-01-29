@@ -83,8 +83,7 @@ impl SelectionBox {
                 let point = &get_point!(layer, ci, pi);
                 draw_point(
                     &i.viewport,
-                    (point.x, point.y),
-                    (point.x, point.y),
+                    &point,
                     None,
                     UIPointType::Point((point.a, point.b)),
                     true,

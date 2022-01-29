@@ -143,13 +143,13 @@ pub fn set_codepage_utf8() {
     }
 }
 
-#[derive(Clone, Copy, Debug, Default, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct MFEKGlifGuidelineInfo {
     pub fixed: bool,
     pub format: bool,
     pub right: bool,
 }
-#[derive(Clone, Copy, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub enum MFEKGlifPointData {
     Guideline(MFEKGlifGuidelineInfo),
 }

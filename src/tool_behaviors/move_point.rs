@@ -135,8 +135,7 @@ impl ToolBehavior for MovePoint {
                             v.with_active_layer(|layer| get_contour!(layer, ci)[pi].clone());
                         draw_point(
                             &i.viewport,
-                            (merge.x, merge.y),
-                            (merge.x, merge.y),
+                            &merge,
                             None,
                             UIPointType::Point((merge.a, merge.b)),
                             true,

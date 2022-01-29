@@ -277,17 +277,15 @@ impl Editor {
 }
 
 macro_rules! yield_glyph_or_panic {
-    ($self:ident) => {
-        {
-            if !$self.modifying {
-                panic!("A modification is not in progress!")
-            }
-
-            $self.dirty = true;
-            $self.mark_preview_dirty();
-            $self.glyph.as_mut().unwrap()
+    ($self:ident) => {{
+        if !$self.modifying {
+            panic!("A modification is not in progress!")
         }
-    }
+
+        $self.dirty = true;
+        $self.mark_preview_dirty();
+        $self.glyph.as_mut().unwrap()
+    }};
 }
 // with_active_layer and friends
 impl Editor {
@@ -315,7 +313,10 @@ impl Editor {
     where
         F: FnMut(&mut Layer<MFEKGlifPointData>, T) -> R,
     {
-        closure(&mut yield_glyph_or_panic!(self).layers[self.layer_idx.unwrap()], data)
+        closure(
+            &mut yield_glyph_or_panic!(self).layers[self.layer_idx.unwrap()],
+            data,
+        )
     }
 
     // Do not use this function unless you're very sure it's right.

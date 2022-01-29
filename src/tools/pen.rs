@@ -184,10 +184,9 @@ impl Pen {
         let info = nearest_point_on_curve(v, i, i.mouse_info.position);
 
         if let Some(info) = info {
-            draw_point(
+            draw_point::<()>(
                 &i.viewport,
-                (info.point.0, info.point.1),
-                info.point,
+                &Point::from_x_y_type(info.point, PointType::Curve),
                 None,
                 UIPointType::Point((
                     Handle::At(info.a.0, info.a.1),
@@ -222,8 +221,7 @@ impl Pen {
                         v.with_active_layer(|layer| get_contour!(layer, info_ci)[info_pi].clone());
                     draw_point(
                         &i.viewport,
-                        (point.x, point.y),
-                        (point.x, point.y),
+                        &point,
                         None,
                         UIPointType::Point((point.a, point.b)),
                         true,
