@@ -274,7 +274,23 @@ impl Editor {
         log::debug!("Images: {:?}", &self.images);
         ipc::fetch_metrics(self);
     }
+}
 
+macro_rules! yield_glyph_or_panic {
+    ($self:ident) => {
+        {
+            if !$self.modifying {
+                panic!("A modification is not in progress!")
+            }
+
+            $self.dirty = true;
+            $self.mark_preview_dirty();
+            $self.glyph.as_mut().unwrap()
+        }
+    }
+}
+// with_active_layer and friends
+impl Editor {
     /// Calls the supplied closure with an immutable reference to the active layer.
     pub fn with_active_layer<F, R>(&self, mut closure: F) -> R
     where
@@ -290,16 +306,16 @@ impl Editor {
     where
         F: FnMut(&mut Layer<MFEKGlifPointData>) -> R,
     {
-        if !self.modifying {
-            panic!("A modification is not in progress!")
-        }
+        closure(&mut yield_glyph_or_panic!(self).layers[self.layer_idx.unwrap()])
+    }
 
-        self.dirty = true;
-        let glyph = self.glyph.as_mut().unwrap();
-        let ret = closure(&mut glyph.layers[self.layer_idx.unwrap()]);
-
-        self.mark_preview_dirty();
-        ret
+    // This function is why yield_glyph_or_panic! macro exists. It's ugly, but optimizations often
+    // are. The purpose of this function is preventing expensive clone operations.
+    pub fn with_active_layer_mut_and_owned_data<F, R, T>(&mut self, mut closure: F, data: T) -> R
+    where
+        F: FnMut(&mut Layer<MFEKGlifPointData>, T) -> R,
+    {
+        closure(&mut yield_glyph_or_panic!(self).layers[self.layer_idx.unwrap()], data)
     }
 
     // Do not use this function unless you're very sure it's right.
@@ -319,7 +335,10 @@ impl Editor {
         let glyph = self.glyph.as_mut().unwrap();
         closure(&mut glyph.layers[self.layer_idx.unwrap()])
     }
+}
 
+// with_glyph and friends
+impl Editor {
     /// Calls the supplied closure with a copy of the glif.
     pub fn with_glyph<F, R>(&self, mut closure: F) -> R
     where
@@ -333,13 +352,17 @@ impl Editor {
     where
         F: FnMut(&mut MFEKGlif<MFEKGlifPointData>) -> R,
     {
-        if !self.modifying {
-            panic!("A modification is not in progress!")
-        }
+        closure(yield_glyph_or_panic!(self))
+    }
 
-        self.dirty = true;
+    // As for layers, the purpose of this function is preventing expensive clone operations.
+    pub fn with_glyph_mut_and_owned_data<F, R, T>(&mut self, mut closure: F, data: T) -> R
+    where
+        F: FnMut(&mut MFEKGlif<MFEKGlifPointData>, T) -> R,
+    {
+        let ret = closure(yield_glyph_or_panic!(self), data);
         self.mark_preview_dirty();
-        closure(self.glyph.as_mut().unwrap())
+        ret
     }
 
     // Do not use this function unless you're very sure it's right.
@@ -347,7 +370,7 @@ impl Editor {
     where
         F: FnMut(&mut MFEKGlif<MFEKGlifPointData>) -> R,
     {
-        log::debug!("Used dangerous function: editor.with_glyph_mut_no_history(|glyph|…)");
+        log::trace!("Used dangerous function: editor.with_glyph_mut_no_history(|glyph|…)");
         closure(self.glyph.as_mut().unwrap())
     }
 }
