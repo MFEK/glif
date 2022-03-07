@@ -817,9 +817,9 @@ dependencies = [
 
 [[package]]
 name = "flo_curves"
-version = "0.6.0"
+version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a7f49674e0905d093d0d4c6e88d868b8b066f4be51c9beedd0e3734268be8349"
+checksum = "9deedc0ff8e4848dbc1029e555af16390a8d2ff406f05a2f46c8bd14b2f4de4d"
 dependencies = [
  "itertools 0.10.3",
  "roots",
@@ -2448,9 +2448,9 @@ dependencies = [
 
 [[package]]
 name = "roots"
-version = "0.0.6"
+version = "0.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "84348444bd7ad45729d0c49a4240d7cdc11c9d512c06c5ad1835c1ad4acda6db"
+checksum = "1c36d2bbc763f480668d6d6790ae2fdd2e52ac0c21a3a26d156f3534a3d9eea9"
 
 [[package]]
 name = "rustc-demangle"
