@@ -57,10 +57,6 @@ Note: This is a basic list to get you started. A complete list can be found in `
 
 MFEKglif is still beta-quality software, and a numbered release hasn't been made yet. Before 1.0 is out, though, you can test it out with the artifacts function in GitHub. Go to [«Actions»](https://github.com/MFEK/glif/actions), choose a commit, and download the artifact for your OS. Three are uploaded: MFEKglif-linux, MFEKglif-windows, and MFEKglif-macos (not notarized).
 
-### Mac users
-
-MFEKglif does compile and run on M1 Macintoshes. However, if you have a “Retina” display, scaling/mouse events may be broken. A user tried some patches to fix this, but none worked. Until it can be fixed, please use e.g. [Display Menu](https://apps.apple.com/us/app/display-menu/id549083868?mt=12) to use 1:1 SDL pixels.
-
 ## Building
 
 ### Mac users
