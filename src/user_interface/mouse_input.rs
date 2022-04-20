@@ -43,8 +43,10 @@ impl MouseInfo {
             let factor = 1. / i.viewport.factor;
             let uoffset = i.viewport.offset;
             let offset = (-uoffset.0 * factor, uoffset.1 * factor);
-            let position = (position.0, (position.1 - i.viewport.winsize.1));
-            let absolute = skia::Matrix::scale((i.os_dpi(), i.os_dpi())).map_point(position);
+            let mut absolute: skia::Point = position.into();
+            absolute.x /= i.os_dpi();
+            absolute.y /= i.os_dpi();
+            absolute.y -= i.viewport.winsize.1 as f32;
 
             let mut matrix = skia::Matrix::translate(offset);
             matrix = matrix * skia::Matrix::scale((factor, -factor));
