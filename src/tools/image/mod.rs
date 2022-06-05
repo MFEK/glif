@@ -63,56 +63,15 @@ impl Image {
     }
 
     fn is_image_clicked(&self, v: &Editor, mouse_info: MouseInfo) -> Option<usize> {
-        v.with_active_layer(|layer| {
-            // we've got to take our current mouse position and translate that into 'image space' such that the mouse position
-            // is relative to 0,0 and the image forms an axis aligned bounding box
-            let iter = layer.images.iter().enumerate();
-            for (idx, (l_image, i_matrix)) in iter {
-                let image = &v.images[&l_image.filename];
-
-                let img_rect = image.img.bounds();
-
-                let origin_mat = i_matrix.to_skia_matrix();
-
-                let f_rect = SkRect::new(
-                    img_rect.left() as f32,
-                    img_rect.top() as f32,
-                    img_rect.right() as f32,
-                    img_rect.bottom() as f32,
-                );
-                let final_img_rect = origin_mat.map_rect(f_rect).0;
-
-                let local_mouse = SkPoint::new(mouse_info.position.0, mouse_info.position.1);
-
-                if final_img_rect.contains(local_mouse) {
-                    return Some(idx);
-                }
-            }
-
-            None
-        })
-    }
-
-    fn get_image_pivot(&self, v: &Editor, idx: usize) -> (f32, f32) {
-        v.with_active_layer(|layer| {
-            let image = &v.images[&layer.images[idx].0.filename];
-
-            let origin_mat = layer.images[idx].1.to_skia_matrix();
-            let img_rect = image.img.bounds();
-            let point =
-                origin_mat.map_xy(img_rect.width() as f32 / 2., img_rect.height() as f32 / 2.);
-
-            (point.x, point.y)
-        })
-    }
-
-    fn get_image_rect(&self, v: &Editor, idx: usize) -> SkRect {
-        v.with_active_layer(|layer| {
-            let image = &v.images[&layer.images[idx].0.filename];
+        // we've got to take our current mouse position and translate that into 'image space' such that the mouse position
+        // is relative to 0,0 and the image forms an axis aligned bounding box
+        let iter = v.get_active_layer_ref().images.iter().enumerate();
+        for (idx, (l_image, i_matrix)) in iter {
+            let image = &v.images[&l_image.filename];
 
             let img_rect = image.img.bounds();
 
-            let origin_mat = layer.images[idx].1.to_skia_matrix();
+            let origin_mat = i_matrix.to_skia_matrix();
 
             let f_rect = SkRect::new(
                 img_rect.left() as f32,
@@ -120,8 +79,45 @@ impl Image {
                 img_rect.right() as f32,
                 img_rect.bottom() as f32,
             );
-            origin_mat.map_rect(f_rect).0
-        })
+            let final_img_rect = origin_mat.map_rect(f_rect).0;
+
+            let local_mouse = SkPoint::new(mouse_info.position.0, mouse_info.position.1);
+
+            if final_img_rect.contains(local_mouse) {
+                return Some(idx);
+            }
+        }
+
+        None
+    }
+
+    fn get_image_pivot(&self, v: &Editor, idx: usize) -> (f32, f32) {
+        let layer = v.get_active_layer_ref();
+        let image = &v.images[&layer.images[idx].0.filename];
+
+        let origin_mat = layer.images[idx].1.to_skia_matrix();
+        let img_rect = image.img.bounds();
+        let point =
+            origin_mat.map_xy(img_rect.width() as f32 / 2., img_rect.height() as f32 / 2.);
+
+        (point.x, point.y)
+    }
+
+    fn get_image_rect(&self, v: &Editor, idx: usize) -> SkRect {
+        let layer = v.get_active_layer_ref();
+        let image = &v.images[&layer.images[idx].0.filename];
+
+        let img_rect = image.img.bounds();
+
+        let origin_mat = layer.images[idx].1.to_skia_matrix();
+
+        let f_rect = SkRect::new(
+            img_rect.left() as f32,
+            img_rect.top() as f32,
+            img_rect.right() as f32,
+            img_rect.bottom() as f32,
+        );
+        origin_mat.map_rect(f_rect).0
     }
 
     fn mouse_pressed(&mut self, v: &mut Editor, mouse_info: MouseInfo) {
@@ -157,9 +153,7 @@ impl Image {
         if let Some(idx) = self.selected_idx {
             v.begin_modification("Delete image from layer.");
             self.selected_idx = None;
-            v.with_active_layer_mut(|layer| {
-                layer.images.remove(idx);
-            });
+            v.get_active_layer_mut().images.remove(idx);
             v.recache_images();
             v.end_modification();
         }

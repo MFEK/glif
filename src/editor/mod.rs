@@ -133,6 +133,31 @@ impl Editor {
         self.modifying = true;
     }
 
+    /// When calling this family of functions the editor will become inaccessible because of the borrow on one of it's members.
+    /// It's best practice to call this function from within a block where the implicit drop will free the editor:
+    /// { 
+    ///     let layer = get_active_layer_mut
+    ///     //modify the layer here
+    ///     //implicit drop at the end of scope releases borrow on editor
+    /// }
+    /// 
+    /// You can also use this function in one-liners like: self.get_active_layer_mut().some_field = blah
+    /// The reference is implicitly dropped at the end of the statement.
+    pub fn get_active_layer_mut(&mut self) -> &mut Layer<MFEKGlifPointData> {
+        if !self.modifying {
+            panic!("A modification is not in progress!")
+        }
+
+        self.dirty = true;
+        self.mark_preview_dirty();
+        
+        return &mut self.glyph.as_mut().unwrap().layers[self.layer_idx.unwrap()]
+    }
+
+    pub fn get_active_layer_ref(&self) -> &Layer<MFEKGlifPointData> {
+        return &self.glyph.as_ref().unwrap().layers[self.layer_idx.unwrap()]
+    }
+
     /// This ends an ongoing modification and calls the proper events.
     pub fn end_modification(&mut self) {
         log::trace!("Ending modification…");
@@ -163,17 +188,19 @@ impl Editor {
     pub fn merge_contours(&mut self, start: usize, end: usize) {
         // we're closing an open path
         if start == end {
-            self.with_active_layer_mut(|layer| {
+            {
+                let layer = self.get_active_layer_mut();
                 let contour = get_contour_mut!(layer, start);
                 let last_point = contour.pop().unwrap();
 
                 contour.first_mut().unwrap().b = last_point.b;
                 contour.first_mut().unwrap().ptype = glifparser::PointType::Curve;
-            });
+            }
             self.point_idx = Some(0);
         } else {
             // we're merging two open paths
-            let (cidx, pidx) = self.with_active_layer_mut(|layer| {
+            let (cidx, pidx) = {
+                let layer = self.get_active_layer_mut();
                 layer.outline[end].operation =
                     contour_operations::append(&layer.outline[start], &layer.outline[end]);
                 let mut startc = get_contour!(layer, start).clone();
@@ -196,7 +223,7 @@ impl Editor {
                 }
 
                 (end, p_idx)
-            });
+            };
 
             self.contour_idx = Some(cidx);
             self.point_idx = Some(pidx);
@@ -289,36 +316,6 @@ macro_rules! yield_glyph_or_panic {
 }
 // with_active_layer and friends
 impl Editor {
-    /// Calls the supplied closure with an immutable reference to the active layer.
-    pub fn with_active_layer<F, R>(&self, mut closure: F) -> R
-    where
-        F: FnMut(&Layer<MFEKGlifPointData>) -> R,
-    {
-        closure(&self.glyph.as_ref().unwrap().layers[self.layer_idx.unwrap()])
-    }
-
-    /// Calls the closure with a mutable reference to the active layer as it's only argument.
-    /// This is the primary function you should use in tools and contour operations to make changes to the
-    /// glyph's state. This function will panic if you have not called begin_layer_modification!
-    pub fn with_active_layer_mut<F, R>(&mut self, mut closure: F) -> R
-    where
-        F: FnMut(&mut Layer<MFEKGlifPointData>) -> R,
-    {
-        closure(&mut yield_glyph_or_panic!(self).layers[self.layer_idx.unwrap()])
-    }
-
-    // This function is why yield_glyph_or_panic! macro exists. It's ugly, but optimizations often
-    // are. The purpose of this function is preventing expensive clone operations.
-    pub fn with_active_layer_mut_and_owned_data<F, R, T>(&mut self, mut closure: F, data: T) -> R
-    where
-        F: FnMut(&mut Layer<MFEKGlifPointData>, T) -> R,
-    {
-        closure(
-            &mut yield_glyph_or_panic!(self).layers[self.layer_idx.unwrap()],
-            data,
-        )
-    }
-
     // Do not use this function unless you're very sure it's right.
     pub fn with_active_layer_mut_no_history<F, R>(&mut self, mut closure: F) -> R
     where

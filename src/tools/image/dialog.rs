@@ -24,19 +24,15 @@ impl Image {
                     if ui.is_item_clicked(imgui::MouseButton::Left) {
                         i.push_prompt(InputPrompt::Color {
                             label: "Layer color:".to_string(),
-                            default: v
-                                .with_active_layer(|layer| {
-                                    layer.images[selected]
+                            default:
+                                v.get_active_layer_mut().images[selected]
                                         .0
                                         .color
                                         .unwrap_or_else(|| [1., 1., 1., 1.].into())
-                                })
                                 .into(),
                             func: Rc::new(move |editor, color| {
                                 editor.begin_modification("Changed image color.");
-                                editor.with_active_layer_mut(|layer| {
-                                    layer.images[selected].0.color = color.map(|c| c.into())
-                                });
+                                editor.get_active_layer_mut().images[selected].0.color = color.map(|c| c.into());
                                 editor.end_modification();
 
                                 editor.recache_images();
@@ -49,7 +45,7 @@ impl Image {
                     if ui.is_item_clicked(imgui::MouseButton::Left) {
                         let default_mat = kurbo::Affine::default();
                         v.begin_modification("Reset image transform.");
-                        v.with_active_layer_mut(|layer| layer.images[selected].1 = default_mat);
+                        v.get_active_layer_mut().images[selected].1 = default_mat;
                         v.end_modification();
                     }
                 }

@@ -31,11 +31,11 @@ impl Select {
         let multiple_points_selected = v.selected.len() > 1;
 
         let (tx, ty, tw, th) = i.get_tools_dialog_rect();
-        let orig_point: Point<_> = v.with_active_layer(|l| get_point!(l, ci, pi).clone());
+        let orig_point: Point<_> = get_point!(v.get_active_layer_ref(), ci, pi).clone();
         let mut should_clear_contour_op = false;
         let mut should_apply_contour_op = false;
-        let on_open_contour = v.with_active_layer(|l| get_contour_type!(l, ci) == PointType::Move);
-        let contour_len = v.with_active_layer(|l| get_contour_len!(l, ci));
+        let on_open_contour = get_contour_type!(v.get_active_layer_ref(), ci) == PointType::Move;
+        let contour_len = get_contour_len!(v.get_active_layer_ref(), ci);
         let on_last_open_point: bool = pi == contour_len - 1 && on_open_contour;
         let on_first_open_point: bool = pi == 0 && on_open_contour;
 
@@ -127,7 +127,7 @@ impl Select {
                 }
             }
 
-            if v.with_active_layer(|layer| layer.outline[ci].operation.is_some()) {
+            if v.get_active_layer_ref().outline[ci].operation.is_some() {
                 ui.button(imgui::im_str!("Reset Contour Operation"), [0., 0.]);
                 if ui.is_item_clicked(imgui::MouseButton::Left) {
                     should_clear_contour_op = true;
@@ -145,13 +145,14 @@ impl Select {
 
         if should_clear_contour_op {
             v.begin_modification("Reset contour op.");
-            v.with_active_layer_mut(|layer| layer.outline[ci].operation = None);
+            v.get_active_layer_mut().outline[ci].operation = None;
             v.end_modification();
         }
 
         if should_apply_contour_op {
             v.begin_modification("Apply contour op.");
-            v.with_active_layer_mut(|layer| {
+            {
+                let layer = v.get_active_layer_mut();
                 let op = &layer.outline[ci].operation.clone();
                 layer.outline[ci].operation = None;
                 let ol = match op {
@@ -170,7 +171,7 @@ impl Select {
                 for contour in ol {
                     layer.outline.push(contour);
                 }
-            });
+            };
             v.contour_idx = None;
             v.point_idx = None;
             v.selected = HashSet::new();
@@ -185,10 +186,11 @@ impl Select {
             || orig_point.ptype != point.ptype
         {
             v.begin_modification("Point properties changed (dialog)");
-            v.with_active_layer_mut_and_owned_data(|layer, point| {
+            {
+                let layer = v.get_active_layer_mut();
                 get_point!(layer, ci, pi) = point;
                 get_contour_mut!(layer, ci).refigure_point_types();
-            }, point);
+            }
             v.end_modification();
         }
 

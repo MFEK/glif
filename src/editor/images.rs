@@ -105,10 +105,9 @@ impl Editor {
                                // a pop up box or something should do but I'm not super concerned about this at the moment
         };
 
-        self.with_active_layer_mut(|layer| {
-            // this clone is a bit rough as this could be a -lot- of data
-            layer.images.push((image.clone(), image.matrix().into()))
-        });
+        let matrix = image.matrix();
+        self.get_active_layer_mut().images.push((image, matrix.into()));
+
         self.recache_images();
     }
 }

@@ -44,8 +44,9 @@ impl RotateImage {
 
         self.rotate_vector = normal_from_pivot.into();
 
-        v.with_active_layer_mut(|layer| {
-            let affine = layer.images[self.selected_idx].1.clone();
+        {
+            let layer = v.get_active_layer_mut();
+            let affine = layer.images[self.selected_idx].1;
             let raw_affine: Vec<f32> = affine.as_coeffs().iter().map(|x| *x as f32).collect();
 
             let sk_affine = Matrix::from_affine(&raw_affine.try_into().unwrap());
@@ -60,7 +61,7 @@ impl RotateImage {
                 let tra: Vec<f64> = tra.iter().map(|x| *x as f64).collect();
                 layer.images[self.selected_idx].1 = Affine::new(tra.try_into().unwrap());
             }
-        });
+        }
 
         return;
     }

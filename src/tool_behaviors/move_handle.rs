@@ -42,7 +42,8 @@ impl MoveHandle {
 
         let (vci, vpi) = (v.contour_idx.unwrap(), v.point_idx.unwrap());
 
-        v.with_active_layer_mut(|layer| {
+        {
+            let layer = v.get_active_layer_mut();
             let handle = match self.wh {
                 WhichHandle::A => get_point!(layer, vci, vpi).a,
                 WhichHandle::B => get_point!(layer, vci, vpi).b,
@@ -79,7 +80,7 @@ impl MoveHandle {
             }
 
             get_contour_mut!(layer, vci).refigure_point_types();
-        });
+        }
     }
 
     pub fn mouse_released(&mut self, v: &mut Editor, _i: &mut Interface, mouse_info: MouseInfo) {
