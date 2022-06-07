@@ -82,8 +82,7 @@ pub fn clicked_point_or_handle(
 
             let size = ((POINT_RADIUS * 2.) + (POINT_STROKE_THICKNESS * 2.)) * (1. / factor);
             // Topleft corner of point
-            let point_tl =
-                SkPoint::new(point.x as f32 - (size / 2.), point.y as f32 - (size / 2.));
+            let point_tl = SkPoint::new(point.x as f32 - (size / 2.), point.y as f32 - (size / 2.));
             let point_rect = SkRect::from_point_and_size(point_tl, (size, size));
             // Topleft corner of handle a
             let a = point.handle_or_colocated(WhichHandle::A, &|f| f, &|f| f);

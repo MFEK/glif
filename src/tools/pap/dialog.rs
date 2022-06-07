@@ -57,7 +57,9 @@ impl PAP {
                 };
                 let contour_idx = v.contour_idx.unwrap();
 
-                let operation = v.get_active_layer_ref().outline[contour_idx].operation.clone();
+                let operation = v.get_active_layer_ref().outline[contour_idx]
+                    .operation
+                    .clone();
 
                 // TODO: Clean this up. I could reduce the number of lines here by a lot if I make a few changes to how the function works,
                 // and add imgui utility functions for sliders and checkboxes.

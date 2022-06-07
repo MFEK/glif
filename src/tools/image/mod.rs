@@ -97,8 +97,7 @@ impl Image {
 
         let origin_mat = layer.images[idx].1.to_skia_matrix();
         let img_rect = image.img.bounds();
-        let point =
-            origin_mat.map_xy(img_rect.width() as f32 / 2., img_rect.height() as f32 / 2.);
+        let point = origin_mat.map_xy(img_rect.width() as f32 / 2., img_rect.height() as f32 / 2.);
 
         (point.x, point.y)
     }

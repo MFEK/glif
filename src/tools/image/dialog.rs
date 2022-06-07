@@ -24,15 +24,15 @@ impl Image {
                     if ui.is_item_clicked(imgui::MouseButton::Left) {
                         i.push_prompt(InputPrompt::Color {
                             label: "Layer color:".to_string(),
-                            default:
-                                v.get_active_layer_mut().images[selected]
-                                        .0
-                                        .color
-                                        .unwrap_or_else(|| [1., 1., 1., 1.].into())
+                            default: v.get_active_layer_mut().images[selected]
+                                .0
+                                .color
+                                .unwrap_or_else(|| [1., 1., 1., 1.].into())
                                 .into(),
                             func: Rc::new(move |editor, color| {
                                 editor.begin_modification("Changed image color.");
-                                editor.get_active_layer_mut().images[selected].0.color = color.map(|c| c.into());
+                                editor.get_active_layer_mut().images[selected].0.color =
+                                    color.map(|c| c.into());
                                 editor.end_modification();
 
                                 editor.recache_images();

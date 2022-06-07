@@ -106,7 +106,9 @@ impl Editor {
         };
 
         let matrix = image.matrix();
-        self.get_active_layer_mut().images.push((image, matrix.into()));
+        self.get_active_layer_mut()
+            .images
+            .push((image, matrix.into()));
 
         self.recache_images();
     }

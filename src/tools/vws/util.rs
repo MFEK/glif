@@ -8,7 +8,10 @@ use MFEKmath::{Evaluate, Piecewise, Vector};
 // This file holds utility functions for working with vws. Things like if a handle is clicked.
 
 pub fn get_vws_contour(v: &Editor, contour_idx: usize) -> Option<VWSContour> {
-    if let Some(contour_op) = v.get_active_layer_ref().outline[contour_idx].operation.clone() {
+    if let Some(contour_op) = v.get_active_layer_ref().outline[contour_idx]
+        .operation
+        .clone()
+    {
         return if let ContourOperations::VariableWidthStroke { data } = contour_op {
             Some(data)
         } else {
@@ -20,9 +23,10 @@ pub fn get_vws_contour(v: &Editor, contour_idx: usize) -> Option<VWSContour> {
 }
 
 pub fn set_vws_contour(v: &mut Editor, contour_idx: usize, contour: VWSContour) {
-    v.get_active_layer_mut().outline[contour_idx].operation = Some(ContourOperations::VariableWidthStroke {
-        data: contour.clone(),
-    });
+    v.get_active_layer_mut().outline[contour_idx].operation =
+        Some(ContourOperations::VariableWidthStroke {
+            data: contour.clone(),
+        });
 }
 
 pub fn mouse_coords_to_handle_space(
@@ -272,8 +276,7 @@ pub fn clicked_handle(
                 handle_pos_right.x as f32 - (size / 2.),
                 handle_pos_right.y as f32 - (size / 2.),
             );
-            let handle_right_rect =
-                SkRect::from_point_and_size(handle_right_point, (size, size));
+            let handle_right_rect = SkRect::from_point_and_size(handle_right_point, (size, size));
 
             let sk_mpos = SkPoint::new(mouse_pos.0 as f32, mouse_pos.1 as f32);
 
@@ -305,8 +308,7 @@ pub fn clicked_handle(
                 handle_pos_right.x as f32 - (size / 2.),
                 handle_pos_right.y as f32 - (size / 2.),
             );
-            let handle_right_rect =
-                SkRect::from_point_and_size(handle_right_point, (size, size));
+            let handle_right_rect = SkRect::from_point_and_size(handle_right_point, (size, size));
 
             let sk_mpos = SkPoint::new(meta.position.0 as f32, meta.position.1 as f32);
 
