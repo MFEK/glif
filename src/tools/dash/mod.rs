@@ -53,16 +53,17 @@ impl Dash {
                 Some(ContourOperations::DashAlongPath { .. }) => (),
                 None | Some(_) => {
                     v.begin_modification("Added dash contour.");
-                    v.get_active_layer_mut().outline[ci].operation = Some(ContourOperations::DashAlongPath {
-                        data: DashContour {
-                            stroke_width: 10.,
-                            cull: None,
-                            dash_desc: vec![10., 10.],
-                            include_last_path: false,
-                            paint_cap: PaintCap::Butt as u8,
-                            paint_join: PaintJoin::Miter as u8,
-                        },
-                    });
+                    v.get_active_layer_mut().outline[ci].operation =
+                        Some(ContourOperations::DashAlongPath {
+                            data: DashContour {
+                                stroke_width: 10.,
+                                cull: None,
+                                dash_desc: vec![10., 10.],
+                                include_last_path: false,
+                                paint_cap: PaintCap::Butt as u8,
+                                paint_join: PaintJoin::Miter as u8,
+                            },
+                        });
                     v.end_modification();
                 }
             }

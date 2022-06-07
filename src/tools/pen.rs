@@ -47,7 +47,8 @@ impl Pen {
         // If that is the case we merge them
         if let (Some(c_idx), Some(p_idx)) = (v.contour_idx, v.point_idx) {
             // we've clicked a point?
-            if let Some((info_ci, info_pi, _)) = clicked_point_or_handle(v, i, mouse_info.raw_position, None)
+            if let Some((info_ci, info_pi, _)) =
+                clicked_point_or_handle(v, i, mouse_info.raw_position, None)
             {
                 // we have the end of one contour active and clicked the start of another?
                 let end_is_active =
@@ -56,8 +57,10 @@ impl Pen {
                     get_contour_start_or_end(v, info_ci, info_pi) == Some(SelectPointInfo::Start);
 
                 // make sure these contours are open
-                let selected_open = get_contour_type!(v.get_active_layer_ref(), c_idx) == PointType::Move;
-                let target_open = get_contour_type!(v.get_active_layer_ref(), info_ci) == PointType::Move;
+                let selected_open =
+                    get_contour_type!(v.get_active_layer_ref(), c_idx) == PointType::Move;
+                let target_open =
+                    get_contour_type!(v.get_active_layer_ref(), info_ci) == PointType::Move;
                 if end_is_active && start_is_clicked && selected_open && target_open {
                     let new_point = get_point!(v.get_active_layer_ref(), info_ci, info_pi).clone();
                     get_contour_mut!(v.get_active_layer_mut(), c_idx).push(new_point);
@@ -208,8 +211,10 @@ impl Pen {
                     get_contour_start_or_end(v, info_ci, info_pi) == Some(SelectPointInfo::Start);
 
                 // make sure these contours are open
-                let selected_open = get_contour_type!(v.get_active_layer_ref(), c_idx) == PointType::Move;
-                let target_open = get_contour_type!(v.get_active_layer_ref(), info_ci) == PointType::Move;
+                let selected_open =
+                    get_contour_type!(v.get_active_layer_ref(), c_idx) == PointType::Move;
+                let target_open =
+                    get_contour_type!(v.get_active_layer_ref(), info_ci) == PointType::Move;
                 if end_is_active && start_is_clicked && selected_open && target_open {
                     let point = get_contour!(v.get_active_layer_ref(), info_ci)[info_pi].clone();
                     draw_point(

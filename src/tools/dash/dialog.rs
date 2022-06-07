@@ -24,7 +24,9 @@ impl Dash {
                 };
                 let contour_idx = v.contour_idx.unwrap();
 
-                let operation = v.get_active_layer_ref().outline[contour_idx].operation.clone();
+                let operation = v.get_active_layer_ref().outline[contour_idx]
+                    .operation
+                    .clone();
 
                 if let Some(ContourOperations::DashAlongPath { data }) = operation {
                     let mut new_width = data.stroke_width as f32;

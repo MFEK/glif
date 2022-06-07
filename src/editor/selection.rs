@@ -282,7 +282,7 @@ impl Editor {
                 }
             }
         }
-        
+
         self.get_active_layer_mut().outline = new_outline;
 
         self.contour_idx = None;

@@ -135,12 +135,12 @@ impl Editor {
 
     /// When calling this family of functions the editor will become inaccessible because of the borrow on one of it's members.
     /// It's best practice to call this function from within a block where the implicit drop will free the editor:
-    /// { 
+    /// {
     ///     let layer = get_active_layer_mut
     ///     //modify the layer here
     ///     //implicit drop at the end of scope releases borrow on editor
     /// }
-    /// 
+    ///
     /// You can also use this function in one-liners like: self.get_active_layer_mut().some_field = blah
     /// The reference is implicitly dropped at the end of the statement.
     pub fn get_active_layer_mut(&mut self) -> &mut Layer<MFEKGlifPointData> {
@@ -150,12 +150,12 @@ impl Editor {
 
         self.dirty = true;
         self.mark_preview_dirty();
-        
-        return &mut self.glyph.as_mut().unwrap().layers[self.layer_idx.unwrap()]
+
+        return &mut self.glyph.as_mut().unwrap().layers[self.layer_idx.unwrap()];
     }
 
     pub fn get_active_layer_ref(&self) -> &Layer<MFEKGlifPointData> {
-        return &self.glyph.as_ref().unwrap().layers[self.layer_idx.unwrap()]
+        return &self.glyph.as_ref().unwrap().layers[self.layer_idx.unwrap()];
     }
 
     /// This ends an ongoing modification and calls the proper events.
