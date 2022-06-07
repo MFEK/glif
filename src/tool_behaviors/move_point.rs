@@ -28,9 +28,14 @@ impl MovePoint {
             v.begin_modification("Move point.");
         }
 
-        let reference_point = v.with_active_layer(|layer| get_point!(layer, vci, vpi).clone());
+        let reference_point = {
+            let layer = v.get_active_layer_ref();
+            get_point!(layer, vci, vpi).clone()
+        };
+
         let selected = v.selected.clone();
-        v.with_active_layer_mut(|layer| {
+        {
+            let layer = v.get_active_layer_mut();
             if self.move_selected {
                 for (ci, pi) in &selected {
                     let (ci, pi) = (*ci, *pi);
@@ -42,7 +47,7 @@ impl MovePoint {
             }
 
             move_point(&mut layer.outline, vci, vpi, x, y);
-        });
+        }
     }
 
     pub fn mouse_released(&mut self, v: &mut Editor, i: &mut Interface, mouse_info: MouseInfo) {
@@ -60,10 +65,8 @@ impl MovePoint {
                     if let Some(info) = get_contour_start_or_end(v, vci, vpi) {
                         // is our current point the start or end of it's contour?
                         if let Some(target_info) = get_contour_start_or_end(v, ci, pi) {
-                            let info_type =
-                                v.with_active_layer(|layer| get_contour_type!(layer, vci));
-                            let target_type =
-                                v.with_active_layer(|layer| get_contour_type!(layer, ci));
+                            let info_type = get_contour_type!(v.get_active_layer_ref(), vci);
+                            let target_type = get_contour_type!(v.get_active_layer_ref(), ci);
 
                             // do we have two starts or two ends?
                             if info_type == PointType::Move
@@ -123,16 +126,15 @@ impl ToolBehavior for MovePoint {
             if let Some(info) = get_contour_start_or_end(v, vci, vpi) {
                 // is our current point the start or end of it's contour?
                 if let Some(target_info) = get_contour_start_or_end(v, ci, pi) {
-                    let info_type = v.with_active_layer(|layer| get_contour_type!(layer, vci));
-                    let target_type = v.with_active_layer(|layer| get_contour_type!(layer, ci));
+                    let info_type = get_contour_type!(v.get_active_layer_ref(), vci);
+                    let target_type = get_contour_type!(v.get_active_layer_ref(), ci);
 
                     // do we have two starts or two ends?
                     if info_type == PointType::Move
                         && target_type == PointType::Move
                         && target_info != info
                     {
-                        let merge =
-                            v.with_active_layer(|layer| get_contour!(layer, ci)[pi].clone());
+                        let merge = get_contour!(v.get_active_layer_ref(), ci)[pi].clone();
                         draw_point(
                             &i.viewport,
                             &merge,

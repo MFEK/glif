@@ -190,7 +190,8 @@ impl Editor {
         self.point_idx = None;
         self.selected.clear();
 
-        let new_selected = self.with_active_layer_mut(|layer| {
+        let new_selected = {
+            let layer = self.get_active_layer_mut();
             if let Some(mpos) = position {
                 let comb = clipboard.outline.to_skia_paths(None).combined();
                 let b = comb.bounds();
@@ -225,7 +226,7 @@ impl Editor {
             }
 
             new_selected
-        });
+        };
 
         self.selected.extend(new_selected);
 
@@ -281,8 +282,8 @@ impl Editor {
                 }
             }
         }
-
-        self.with_active_layer_mut(|layer| layer.outline = new_outline.clone());
+        
+        self.get_active_layer_mut().outline = new_outline;
 
         self.contour_idx = None;
         self.point_idx = None;
@@ -294,7 +295,7 @@ impl Editor {
     pub fn build_selection_bounding_box(&self) -> Rect {
         let mut points = vec![];
         for (ci, pi) in &self.selected {
-            let point = self.with_active_layer(|layer| layer.outline[*ci].inner[*pi].clone());
+            let point = self.get_active_layer_ref().outline[*ci].inner[*pi].clone();
             points.push(Vector {
                 x: point.x as f64,
                 y: point.y as f64,

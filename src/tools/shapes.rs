@@ -398,39 +398,36 @@ impl Shapes {
         if let Some(pos) = self.pressed_pos {
             self.locked_angle = mouse_info.modifiers.ctrl;
             if self.dropped_shape {
-                v.with_active_layer_mut(|layer| {
-                    if layer.outline.len() > 0 {
-                        layer.outline.remove(layer.outline.len() - 1);
-                    }
-                });
+                let layer = v.get_active_layer_mut();
+                if layer.outline.len() > 0 {
+                    layer.outline.remove(layer.outline.len() - 1);
+                }
             }
 
-            v.with_active_layer_mut(|layer| {
-                let mut sd = ShapeDrawer {
-                    mouse_info,
-                    from: pos,
-                    sdata: self.sdata,
-                    corners: None,
-                };
-                let o = match self.stype {
-                    ShapeType::Circle => sd.draw_circle(),
-                    ShapeType::Oval | ShapeType::Rectangle | ShapeType::RoundedRectangle => {
-                        sd.draw_fits_in_rect(self.stype)
+            let mut sd = ShapeDrawer {
+                mouse_info,
+                from: pos,
+                sdata: self.sdata,
+                corners: None,
+            };
+            let o = match self.stype {
+                ShapeType::Circle => sd.draw_circle(),
+                ShapeType::Oval | ShapeType::Rectangle | ShapeType::RoundedRectangle => {
+                    sd.draw_fits_in_rect(self.stype)
+                }
+                ShapeType::Polygon | ShapeType::Star => {
+                    if !self.locked_angle {
+                        self.sdata.polygon_angle = sd.polygon_angle();
                     }
-                    ShapeType::Polygon | ShapeType::Star => {
-                        if !self.locked_angle {
-                            self.sdata.polygon_angle = sd.polygon_angle();
-                        }
-                        sd.draw_polygon(self.stype)
-                    }
-                };
-                self.corners = sd.corners;
+                    sd.draw_polygon(self.stype)
+                }
+            };
+            self.corners = sd.corners;
 
-                let mfek_o: Vec<MFEKContour<MFEKGlifPointData>> =
-                    o.iter().map(|e| e.into()).collect();
-                layer.outline.extend(mfek_o);
-                self.dropped_shape = true;
-            });
+            let mfek_o: Vec<MFEKContour<MFEKGlifPointData>> =
+                o.iter().map(|e| e.into()).collect();
+            v.get_active_layer_mut().outline.extend(mfek_o);
+            self.dropped_shape = true;
         }
     }
 

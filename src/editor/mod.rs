@@ -188,17 +188,19 @@ impl Editor {
     pub fn merge_contours(&mut self, start: usize, end: usize) {
         // we're closing an open path
         if start == end {
-            self.with_active_layer_mut(|layer| {
+            {
+                let layer = self.get_active_layer_mut();
                 let contour = get_contour_mut!(layer, start);
                 let last_point = contour.pop().unwrap();
 
                 contour.first_mut().unwrap().b = last_point.b;
                 contour.first_mut().unwrap().ptype = glifparser::PointType::Curve;
-            });
+            }
             self.point_idx = Some(0);
         } else {
             // we're merging two open paths
-            let (cidx, pidx) = self.with_active_layer_mut(|layer| {
+            let (cidx, pidx) = {
+                let layer = self.get_active_layer_mut();
                 layer.outline[end].operation =
                     contour_operations::append(&layer.outline[start], &layer.outline[end]);
                 let mut startc = get_contour!(layer, start).clone();
@@ -221,7 +223,7 @@ impl Editor {
                 }
 
                 (end, p_idx)
-            });
+            };
 
             self.contour_idx = Some(cidx);
             self.point_idx = Some(pidx);

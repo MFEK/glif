@@ -36,7 +36,8 @@ impl RotateSelection {
         let rotation_angle = normal_from_pivot.angle(rot_vec);
 
         for (ci, pi) in &v.selected.clone() {
-            v.with_active_layer_mut(|layer| {
+            {
+                let layer = v.get_active_layer_mut();
                 let old_point = get_point!(layer, *ci, *pi).clone();
                 let point_vec = Vector::from_components(old_point.x as f64, old_point.y as f64);
                 let rotated_point = point_vec.rotate(raw_pivot_vector, rotation_angle);
@@ -76,7 +77,7 @@ impl RotateSelection {
                         rotated_b.y as f32,
                     )
                 }
-            });
+            }
         }
 
         self.rotate_vector = normal_from_pivot.into();

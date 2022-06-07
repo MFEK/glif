@@ -24,8 +24,7 @@ impl Dash {
                 };
                 let contour_idx = v.contour_idx.unwrap();
 
-                let operation =
-                    v.with_active_layer(|layer| layer.outline[contour_idx].operation.clone());
+                let operation = v.get_active_layer_ref().outline[contour_idx].operation.clone();
 
                 if let Some(ContourOperations::DashAlongPath { data }) = operation {
                     let mut new_width = data.stroke_width as f32;
@@ -158,9 +157,7 @@ impl Dash {
                         let new_op = ContourOperations::DashAlongPath { data: new_data };
 
                         v.begin_modification("Dash dialog modification.");
-                        v.with_active_layer_mut(|layer| {
-                            layer.outline[contour_idx].operation = Some(new_op.clone())
-                        });
+                        v.get_active_layer_mut().outline[contour_idx].operation = Some(new_op);
                         v.end_modification();
                     }
                 }

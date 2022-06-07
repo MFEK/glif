@@ -83,15 +83,12 @@ impl Select {
     }
 
     fn select_all(&mut self, v: &mut Editor) {
-        let points = v.with_active_layer(|layer| {
-            let mut points = HashSet::new();
-            for (ci, contour) in layer.outline.iter().enumerate() {
-                for (pi, _point) in contour.inner.iter().enumerate() {
-                    points.insert((ci, pi));
-                }
+        let mut points = HashSet::new();
+        for (ci, contour) in v.get_active_layer_ref().outline.iter().enumerate() {
+            for (pi, _point) in contour.inner.iter().enumerate() {
+                points.insert((ci, pi));
             }
-            points
-        });
+        }
         v.selected = points;
     }
 
@@ -105,14 +102,13 @@ impl Select {
         }
         v.begin_modification("Nudge selected points.");
         for (ci, pi) in selected {
-            v.with_active_layer_mut(|layer| {
-                let point = &get_point!(layer, ci, pi);
-                let factor = PanBehavior::nudge_factor(command);
-                let offset = PanBehavior::nudge_offset(command, factor);
-                let x = point.x;
-                let y = point.y;
-                editor::util::move_point(&mut layer.outline, ci, pi, x - offset.0, y + offset.1);
-            });
+            let layer = v.get_active_layer_mut();
+            let point = &get_point!(layer, ci, pi);
+            let factor = PanBehavior::nudge_factor(command);
+            let offset = PanBehavior::nudge_offset(command, factor);
+            let x = point.x;
+            let y = point.y;
+            editor::util::move_point(&mut layer.outline, ci, pi, x - offset.0, y + offset.1);
         }
         v.end_modification();
     }
@@ -126,7 +122,8 @@ impl Select {
 
         v.begin_modification("Reversing contours.");
         let point_idx = v.point_idx;
-        v.point_idx = v.with_active_layer_mut(|layer| {
+        v.point_idx = {
+            let layer = v.get_active_layer_mut();
             let contour_len = layer.outline[ci].inner.len();
             layer.outline[ci].inner.reverse();
             if let Some(pi) = point_idx {
@@ -142,7 +139,7 @@ impl Select {
             } else {
                 None
             }
-        });
+        };
         if !v.point_idx.is_some() {
             v.contour_idx = None;
         }
@@ -232,7 +229,7 @@ impl Select {
             return;
         };
 
-        let contour_len = v.with_active_layer(|layer| get_contour_len!(layer, ci));
+        let contour_len = get_contour_len!(v.get_active_layer_ref(), ci);
 
         if !mouse_info.modifiers.shift {
             v.selected = HashSet::new();

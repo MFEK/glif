@@ -118,15 +118,13 @@ pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
                 draw_anchors(glif, &i.viewport, canvas);
             });
 
-            v.with_active_layer(|active_layer| {
-                points::draw_directions(
-                    &i.viewport,
-                    active_layer,
-                    canvas,
-                    &selected,
-                    pm != PreviewMode::None,
-                );
-            });
+            points::draw_directions(
+                &i.viewport,
+                v.get_active_layer_ref(),
+                canvas,
+                &selected,
+                pm != PreviewMode::None,
+            );
 
             v.dispatch_tool_draw(i, canvas);
         }
