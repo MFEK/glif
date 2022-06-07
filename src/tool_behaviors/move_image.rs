@@ -30,22 +30,20 @@ impl MoveImage {
 
         self.mouse_info = mouse_info;
 
-        v.with_active_layer_mut(|layer| {
-            let affine = layer.images[self.selected_idx].1;
-            let raw_affine: Vec<f32> = affine.as_coeffs().iter().map(|x| *x as f32).collect();
+        let affine = v.get_active_layer_mut().images[self.selected_idx].1;
+        let raw_affine: Vec<f32> = affine.as_coeffs().iter().map(|x| *x as f32).collect();
 
-            let sk_affine = Matrix::from_affine(&raw_affine.try_into().unwrap());
-            let translate_mat = Matrix::translate((dx, dy));
+        let sk_affine = Matrix::from_affine(&raw_affine.try_into().unwrap());
+        let translate_mat = Matrix::translate((dx, dy));
 
-            let sk_affine = translate_mat * sk_affine;
+        let sk_affine = translate_mat * sk_affine;
 
-            let translated_raw_affine = sk_affine.to_affine();
+        let translated_raw_affine = sk_affine.to_affine();
 
-            if let Some(tra) = translated_raw_affine {
-                let tra: Vec<f64> = tra.iter().map(|x| *x as f64).collect();
-                layer.images[self.selected_idx].1 = Affine::new(tra.try_into().unwrap());
-            }
-        });
+        if let Some(tra) = translated_raw_affine {
+            let tra: Vec<f64> = tra.iter().map(|x| *x as f64).collect();
+            v.get_active_layer_mut().images[self.selected_idx].1 = Affine::new(tra.try_into().unwrap());
+        }
 
         self.last_position = mouse_info.position;
     }

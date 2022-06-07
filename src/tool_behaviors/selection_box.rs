@@ -25,7 +25,7 @@ impl SelectionBox {
 
     pub fn mouse_moved(&mut self, v: &mut Editor, _i: &mut Interface, mouse_info: MouseInfo) {
         self.corner = Some(mouse_info.position);
-        let selected = v.with_active_layer(|layer| {
+        let selected = {
             // we get out starting mouse position, and our current mouse position
             let c1 = self.mouse_info.position;
             let c2 = mouse_info.position;
@@ -35,8 +35,8 @@ impl SelectionBox {
                 ((c2.0 - c1.0) as f32, (c2.1 - c1.1) as f32),
             );
 
-            build_box_selection(rect, &layer.outline)
-        });
+            build_box_selection(rect, &v.get_active_layer_ref().outline)
+        };
 
         self.selected = selected
     }
@@ -79,7 +79,8 @@ impl SelectionBox {
         for (ci, pi) in &self.selected {
             let (ci, pi) = (*ci, *pi);
 
-            v.with_active_layer(|layer| {
+            {
+                let layer = v.get_active_layer_ref();
                 let point = &get_point!(layer, ci, pi);
                 draw_point(
                     &i.viewport,
@@ -89,7 +90,7 @@ impl SelectionBox {
                     true,
                     canvas,
                 )
-            });
+            }
         }
     }
 }

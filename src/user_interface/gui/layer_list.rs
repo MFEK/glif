@@ -98,7 +98,7 @@ pub fn build_and_check_layer_list(v: &mut Editor, i: &mut Interface, ui: &imgui:
             v.set_active_layer(layer);
 
             v.begin_modification("Toggled layer visibility.");
-            v.with_active_layer_mut(|layer| layer.visible = !layer.visible);
+            v.get_active_layer_mut().visible = !v.get_active_layer_ref().visible;
             v.end_modification();
 
             v.set_active_layer(active_layer);
@@ -118,7 +118,7 @@ pub fn build_and_check_layer_list(v: &mut Editor, i: &mut Interface, ui: &imgui:
                     editor.set_active_layer(layer);
 
                     editor.begin_modification("Renamed layer.");
-                    editor.with_active_layer_mut(|layer| layer.name = string.clone());
+                    editor.get_active_layer_mut().name = string;
                     editor.end_modification();
 
                     editor.set_active_layer(active_layer);
@@ -145,9 +145,7 @@ pub fn build_and_check_layer_list(v: &mut Editor, i: &mut Interface, ui: &imgui:
             let active_layer = v.get_active_layer();
             v.set_active_layer(layer);
             v.begin_modification("Changed layer operation.");
-            v.with_active_layer_mut(|layer| {
-                layer.operation = None;
-            });
+            v.get_active_layer_mut().operation = None;
             v.end_modification();
             v.set_active_layer(active_layer);
         }
@@ -165,9 +163,7 @@ pub fn build_and_check_layer_list(v: &mut Editor, i: &mut Interface, ui: &imgui:
             let active_layer = v.get_active_layer();
             v.set_active_layer(layer);
             v.begin_modification("Changed layer operation.");
-            v.with_active_layer_mut(|layer| {
-                layer.operation = new_operation.clone();
-            });
+            v.get_active_layer_mut().operation = new_operation;
             v.end_modification();
             v.set_active_layer(active_layer);
         }
@@ -196,7 +192,7 @@ pub fn build_and_check_layer_list(v: &mut Editor, i: &mut Interface, ui: &imgui:
                         editor.set_active_layer(layer);
 
                         editor.begin_modification("Changed layer color.");
-                        editor.with_active_layer_mut(|layer| layer.color = color.map(|c| c.into()));
+                        editor.get_active_layer_mut().color = color.map(|c| c.into());
                         editor.end_modification();
 
                         editor.set_active_layer(active_layer);

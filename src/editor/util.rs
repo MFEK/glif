@@ -72,43 +72,41 @@ pub fn clicked_point_or_handle(
     // point and both handles. It's just a bunch of floating point comparisons in a compiled
     // language, so I'm not too concerned about it, and even in the TT2020 case doesn't seem to
     // slow anything down.
-    v.with_active_layer(|layer| {
-        for (contour_idx, contour) in layer.outline.iter().enumerate() {
-            for (point_idx, point) in contour.inner.iter().enumerate() {
-                if let Some(mask) = mask {
-                    if contour_idx == mask.0 && point_idx == mask.1 {
-                        continue;
-                    }
-                };
-
-                let size = ((POINT_RADIUS * 2.) + (POINT_STROKE_THICKNESS * 2.)) * (1. / factor);
-                // Topleft corner of point
-                let point_tl =
-                    SkPoint::new(point.x as f32 - (size / 2.), point.y as f32 - (size / 2.));
-                let point_rect = SkRect::from_point_and_size(point_tl, (size, size));
-                // Topleft corner of handle a
-                let a = point.handle_or_colocated(WhichHandle::A, &|f| f, &|f| f);
-                let a_tl = SkPoint::new(a.0 - (size / 2.), a.1 - (size / 2.));
-                let a_rect = SkRect::from_point_and_size(a_tl, (size, size));
-                // Topleft corner of handle b
-                let b = point.handle_or_colocated(WhichHandle::B, &|f| f, &|f| f);
-                let b_tl = SkPoint::new(b.0 - (size / 2.), b.1 - (size / 2.));
-                let b_rect = SkRect::from_point_and_size(b_tl, (size, size));
-
-                // winit::PhysicalPosition as an SkPoint
-                let sk_mpos = SkPoint::new(position.0 as f32, position.1 as f32);
-
-                if point_rect.contains(sk_mpos) {
-                    return Some((contour_idx, point_idx, WhichHandle::Neither));
-                } else if a_rect.contains(sk_mpos) {
-                    return Some((contour_idx, point_idx, WhichHandle::A));
-                } else if b_rect.contains(sk_mpos) {
-                    return Some((contour_idx, point_idx, WhichHandle::B));
+    for (contour_idx, contour) in v.get_active_layer_ref().outline.iter().enumerate() {
+        for (point_idx, point) in contour.inner.iter().enumerate() {
+            if let Some(mask) = mask {
+                if contour_idx == mask.0 && point_idx == mask.1 {
+                    continue;
                 }
+            };
+
+            let size = ((POINT_RADIUS * 2.) + (POINT_STROKE_THICKNESS * 2.)) * (1. / factor);
+            // Topleft corner of point
+            let point_tl =
+                SkPoint::new(point.x as f32 - (size / 2.), point.y as f32 - (size / 2.));
+            let point_rect = SkRect::from_point_and_size(point_tl, (size, size));
+            // Topleft corner of handle a
+            let a = point.handle_or_colocated(WhichHandle::A, &|f| f, &|f| f);
+            let a_tl = SkPoint::new(a.0 - (size / 2.), a.1 - (size / 2.));
+            let a_rect = SkRect::from_point_and_size(a_tl, (size, size));
+            // Topleft corner of handle b
+            let b = point.handle_or_colocated(WhichHandle::B, &|f| f, &|f| f);
+            let b_tl = SkPoint::new(b.0 - (size / 2.), b.1 - (size / 2.));
+            let b_rect = SkRect::from_point_and_size(b_tl, (size, size));
+
+            // winit::PhysicalPosition as an SkPoint
+            let sk_mpos = SkPoint::new(position.0 as f32, position.1 as f32);
+
+            if point_rect.contains(sk_mpos) {
+                return Some((contour_idx, point_idx, WhichHandle::Neither));
+            } else if a_rect.contains(sk_mpos) {
+                return Some((contour_idx, point_idx, WhichHandle::A));
+            } else if b_rect.contains(sk_mpos) {
+                return Some((contour_idx, point_idx, WhichHandle::B));
             }
         }
-        None
-    })
+    }
+    None
 }
 
 /// Checks if the active point is the active contour's start or end. Does not modify.
@@ -117,7 +115,9 @@ pub fn get_contour_start_or_end(
     contour_idx: usize,
     point_idx: usize,
 ) -> Option<SelectPointInfo> {
-    let contour_len = v.with_active_layer(|layer| get_contour_len!(layer, contour_idx)) - 1;
+    let layer = v.get_active_layer_ref();
+    let contour_len = get_contour_len!(layer, contour_idx) - 1;
+
     match point_idx {
         0 => Some(SelectPointInfo::Start),
         idx => {
@@ -144,8 +144,8 @@ pub fn nearest_point_on_curve(
     i: &Interface,
     position: (f32, f32),
 ) -> Option<HoveredPointInfo> {
-    v.with_active_layer(|layer| {
-        let pw: Piecewise<Piecewise<Bezier>> = (&layer.outline).into();
+    {
+        let pw: Piecewise<Piecewise<Bezier>> = (&v.get_active_layer_ref().outline).into();
 
         let mut distance = f64::INFINITY;
         let mut current = None;
@@ -210,7 +210,7 @@ pub fn nearest_point_on_curve(
         } else {
             None
         }
-    })
+    }
 }
 
 pub fn build_box_selection(
