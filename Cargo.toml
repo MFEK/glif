@@ -39,7 +39,7 @@ imgui-skia-renderer = {git = "https://github.com/MFEK/imgui-skia-renderer.rlib",
 #imgui-skia-renderer = { path = "../imgui-skia-renderer.rlib" } # for development
 
 # For argument parsing
-clap = "3.0"
+clap = "3.2"
 
 # For UI toggles
 enum-iterator = "0.7.0"
