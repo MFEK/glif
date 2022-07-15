@@ -704,9 +704,9 @@ dependencies = [
 
 [[package]]
 name = "dyn-clone"
-version = "1.0.4"
+version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ee2626afccd7561a06cf1367e2950c4718ea04565e20fb5029b6c7d8ad09abcf"
+checksum = "435217f1b2d06f00513185fb991cd426271d9e4c3a9d9b25b919b8e5a03b282d"
 
 [[package]]
 name = "either"
