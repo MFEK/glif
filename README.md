@@ -13,6 +13,32 @@ Glyph editor for the Modular Font Editor K project. [![Build Status](https://img
 
 <img src="https://raw.githubusercontent.com/MFEK/glif/master/doc/screenshot.png" width="300"><img src="https://raw.githubusercontent.com/MFEK/glif/master/doc/screenshot2.png" width="300">
 
+## Table of Contents
+<!-- https://github.com/alexharv074/markdown_toc -->
+
+1. [Overview](#overview)
+2. [Keys](#keys)
+    * [I/O](#io)
+    * [Tools](#tools)
+    * [Selection](#selection)
+3. [Running from artifacts](#running-from-artifacts)
+4. [Building](#building)
+    * [Mac users](#mac-users)
+    * [Linux users](#linux-users)
+        - [Adding `.desktop` shortcut](#adding-desktop-shortcut)
+    * [For everyone](#for-everyone)
+    * [Note on system SDL2](#note-on-system-sdl2)
+        - [Mac users](#mac-users-2)
+    * [Errors?](#errors)
+5. [I/O Help](#io-help)
+6. [Contributing](#contributing)
+    * [More debug output](#more-debug-output)
+    * [Backtrace logging](#backtrace-logging)
+    * [Adding icons](#adding-icons)
+    * [Goals](#goals)
+    * [«Issues» vs. «Discussions»](#issues-vs-discussions)
+7. [License](#license)
+
 ## Overview
 
 MFEKglif mixes three technologies: Skia, a powerful path rasterizer and manipulation library; Dear ImGui, an immediate mode GUI toolkit; and Rust, a modern high-performance systems language.
