@@ -87,13 +87,23 @@ I provide a `.desktop` shortcut in `resources/` as `MFEKglif.desktop`. To instal
 * Pull this repository, and finally…
 * Compile the project. An example command is in § Contributing; you may also find the provided `Makefile` helpful.
 
-### Errors?
-
-If you previously pulled the repository and get errors related to `glifparser`, `mfek-ipc`, or another local unstable dependency, try running `cargo update` to force Cargo to pull the latest versions from GitHub.
-
 ### Note on system SDL2
 
 By default, MFEKglif compiles and statically links to SDL2 if not on Linux. If you have SDL2 installed, or find compiling it difficult for some reason and wish to link to a binary SDL2, you should provide the flag `--features=sdl2-dynamic` to `cargo build`. This will disable the features `sdl2/bundled` and `sdl2/static-link`, and your system will attempt to link to a dynamic [libSDL2](https://www.libsdl.org/).
+
+#### Mac users
+
+Mac users can install SDL2 via Homebrew if the automatic static linking of system SDL2 is not working well:
+
+```
+brew install sdl2
+```
+
+(It was found to have issues as recently as August 21, 2022; see [№&nbsp;321](https://github.com/MFEK/glif/issues/321).)
+
+### Errors?
+
+If you previously pulled the repository and get errors related to `glifparser`, `mfek-ipc`, or another local unstable dependency, try running `cargo update` to force Cargo to pull the latest versions from GitHub.
 
 ## I/O Help
 
