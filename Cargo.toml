@@ -136,7 +136,7 @@ chrono = "0.4"
 colored = "2.0"
 git-version = "0.3"
 log = "0.4"
-which = "4.2"
+which = "4.3"
 
 [features]
 default = []
