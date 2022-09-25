@@ -42,8 +42,7 @@ impl MoveImage {
 
         if let Some(tra) = translated_raw_affine {
             let tra: Vec<f64> = tra.iter().map(|x| *x as f64).collect();
-            v.get_active_layer_mut().images[self.selected_idx].1 =
-                Affine::new(tra.try_into().unwrap());
+            v.get_active_layer_mut().images[self.selected_idx].1 = Affine::new(tra.try_into().unwrap());
         }
 
         self.last_position = mouse_info.position;
