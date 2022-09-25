@@ -46,7 +46,7 @@ impl ContourOperation for Option<ContourOperations<MFEKGlifPointData>> {
         begin: usize,
         end: usize,
     ) {
-        if let Some(mut op) = self.as_mut() {
+        if let Some(op) = self.as_mut() {
             match op {
                 ContourOperations::VariableWidthStroke { ref mut data } => {data.sub(contour, begin, end)}
                 ContourOperations::PatternAlongPath { ref mut data } => {data.sub(contour, begin, end)}
