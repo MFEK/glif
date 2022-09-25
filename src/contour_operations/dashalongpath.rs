@@ -1,9 +1,9 @@
 use glifparser::glif::{DashContour, Glif, MFEKContour, MFEKOutline};
 
-use super::ContourOperation;
+use super::ContourOperationData;
 use crate::util::MFEKGlifPointData;
 
-impl ContourOperation for DashContour {
+impl ContourOperationData for DashContour {
     fn build(&self, contour: &MFEKContour<MFEKGlifPointData>) -> MFEKOutline<MFEKGlifPointData> {
         let mut glif = Glif::default();
         glif.outline = Some(vec![contour.inner.clone()]);
@@ -19,19 +19,16 @@ impl ContourOperation for DashContour {
         output
     }
 
-    fn sub(&self, _contour: &MFEKContour<MFEKGlifPointData>, _begin: usize, _end: usize) -> Self {
-        self.clone()
+    fn sub(&mut self, _contour: &MFEKContour<MFEKGlifPointData>, _begin: usize, _end: usize) {
     }
 
     fn append(
-        &self,
+        &mut self,
         _contour: &MFEKContour<MFEKGlifPointData>,
         _append: &MFEKContour<MFEKGlifPointData>,
-    ) -> Self {
-        self.clone()
+    ) {
     }
 
-    fn insert(&self, _contour: &MFEKContour<MFEKGlifPointData>, _point_idx: usize) -> Self {
-        self.clone()
+    fn insert(&mut self, _contour: &MFEKContour<MFEKGlifPointData>, _point_idx: usize) {
     }
 }

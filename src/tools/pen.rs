@@ -1,5 +1,6 @@
 use super::prelude::*;
-use crate::contour_operations;
+use crate::contour_operations::ContourOperation;
+
 use crate::tool_behaviors::{move_handle::MoveHandle, pan::PanBehavior, zoom_scroll::ZoomScroll};
 use crate::user_interface::Interface;
 use glifrenderer::points::draw_point;
@@ -62,7 +63,6 @@ impl Pen {
                     let new_point = get_point!(v.get_active_layer_ref(), info_ci, info_pi).clone();
                     get_contour_mut!(v.get_active_layer_mut(), c_idx).push(new_point);
                     v.merge_contours(info_ci, c_idx);
-                    v.end_modification();
                     return;
                 }
             }
@@ -106,10 +106,11 @@ impl Pen {
                         PointType::Curve,
                     ),
                 );
-                contour.operation = contour_operations::insert(contour, info.seg_idx);
+
+                let contour_clone = contour.clone();
+                contour.operation.insert_op(&contour_clone, info.seg_idx);
                 contour.inner.insert(info.seg_idx, point);
             }
-            v.end_modification();
         }
         // If we've got the end of a contour selected we'll continue drawing that contour.
         else if let Some(contour_idx) = v.contour_idx {
@@ -124,8 +125,8 @@ impl Pen {
                         PointType::Curve,
                     ));
 
-                    layer.outline[contour_idx].operation =
-                        contour_operations::insert(&layer.outline[contour_idx], contour_len);
+                    let contour = layer.outline[contour_idx].clone();
+                    layer.outline[contour_idx].operation.insert_op(&contour, contour_len);
                     Some(get_contour_len!(layer, contour_idx) - 1)
                 };
             } else if v.point_idx.unwrap() == 0 {
@@ -141,12 +142,13 @@ impl Pen {
                         Point::from_x_y_type((mouse_pos.0 as f32, mouse_pos.1 as f32), point_type),
                     );
 
-                    layer.outline[contour_idx].operation =
-                        contour_operations::insert(&layer.outline[contour_idx], 0);
+                    let contour = layer.outline[contour_idx].clone();
+                    layer.outline[contour_idx].operation.insert_op(&contour, 0);
                 };
                 v.end_modification();
             }
         } else {
+            println!("{0}", mouse_info.modifiers.shift);
             // Lastly if we get here we create a new contour.
             let mouse_pos = mouse_info.position;
             v.contour_idx = {
@@ -164,7 +166,6 @@ impl Pen {
                 layer.outline.push(new_contour.into());
                 Some(layer.outline.len() - 1)
             };
-            v.end_modification();
             v.point_idx = Some(0);
         }
 

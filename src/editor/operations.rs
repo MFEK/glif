@@ -1,4 +1,4 @@
-use crate::contour_operations;
+use crate::contour_operations::{ContourOperation};
 use crate::user_interface::Interface;
 use glifparser::outline::skia::{FromSkiaPath, ToSkiaPaths};
 use glifparser::FlattenedGlif;
@@ -42,7 +42,7 @@ impl Editor {
                     continue;
                 }
 
-                let build_result = contour_operations::build(glif_contour);
+                let build_result = glif_contour.operation.build(glif_contour);
 
                 for new_contour in build_result {
                     preview_outline.push(new_contour);

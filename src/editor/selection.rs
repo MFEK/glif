@@ -11,7 +11,7 @@ use shrinkwraprs;
 use skulpin::skia_safe::Point as SkPoint;
 
 use super::Editor;
-use crate::contour_operations;
+use crate::contour_operations::{ContourOperation};
 use crate::user_interface::gui;
 use crate::util::MFEKGlifPointData;
 
@@ -77,7 +77,7 @@ impl Editor {
 
                 if to_delete {
                     let mut mfekcur: MFEKContour<MFEKGlifPointData> = cur_contour.into();
-                    mfekcur.operation = contour_operations::sub(contour, begin, point_idx);
+                    mfekcur.operation.sub(contour, begin, point_idx);
                     results.push(mfekcur);
 
                     cur_contour = Vec::new();
@@ -88,13 +88,16 @@ impl Editor {
                 }
             }
             let mut mfekcur: MFEKContour<MFEKGlifPointData> = cur_contour.into();
-            mfekcur.operation = contour_operations::sub(contour, begin, contour.inner.len());
+            mfekcur.operation.sub(contour, begin, contour.inner.len());
             results.push(mfekcur);
 
             if results.len() > 1 && contour.inner.first().unwrap().ptype != PointType::Move {
                 let mut move_to_front = results.pop().unwrap().clone();
                 move_to_front.inner.append(&mut results[0].inner);
-                move_to_front.operation = contour_operations::append(&move_to_front, &results[0]);
+
+                let start = move_to_front.clone();
+                let end = results[0].clone();
+                move_to_front.operation.append(&start, &end);
                 results[0] = move_to_front;
             }
 
@@ -233,6 +236,24 @@ impl Editor {
         self.end_modification();
     }
 
+    pub fn simplify_selection(&mut self) {
+        self.begin_modification("Simplify selection.");
+        
+        let contour_idx = self.contour_idx.unwrap();
+        let point_idx = self.point_idx.unwrap();
+
+        let layer = self.get_active_layer_mut();
+        let contour = &mut layer.outline[contour_idx];
+
+        contour.inner.remove(point_idx);
+
+        self.contour_idx = None;
+        self.point_idx = None;
+        self.selected.clear();
+
+        self.end_modification();
+    }
+
     pub fn delete_selection(&mut self) {
         self.begin_modification("Delete selection.");
 
@@ -250,7 +271,7 @@ impl Editor {
 
                 if to_delete {
                     let mut mfekcur: MFEKContour<MFEKGlifPointData> = cur_contour.into();
-                    mfekcur.operation = contour_operations::sub(contour, begin, point_idx);
+                    mfekcur.operation.sub(contour, begin, point_idx);
                     results.push(mfekcur);
 
                     cur_contour = Vec::new();
@@ -261,13 +282,17 @@ impl Editor {
                 }
             }
             let mut mfekcur: MFEKContour<MFEKGlifPointData> = cur_contour.into();
-            mfekcur.operation = contour_operations::sub(contour, begin, contour.inner.len());
+            mfekcur.operation.sub(contour, begin, contour.inner.len());
             results.push(mfekcur);
 
             if results.len() > 1 && contour.inner.first().unwrap().ptype != PointType::Move {
                 let mut move_to_front = results.pop().unwrap().clone();
                 move_to_front.inner.append(&mut results[0].inner);
-                move_to_front.operation = contour_operations::append(&move_to_front, &results[0]);
+
+                let start = move_to_front.clone();
+                let end = results[0].clone();
+                move_to_front.operation.append(&start, &end);
+
                 results[0] = move_to_front;
             }
 
