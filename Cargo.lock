@@ -30,7 +30,7 @@ dependencies = [
  "git-version",
  "glifparser",
  "glifrenderer",
- "image",
+ "image 0.24.4",
  "imgui",
  "imgui-sdl2",
  "imgui-skia-renderer",
@@ -126,7 +126,7 @@ checksum = "1d76e1fe0171b6d0857afca5671db12a44e71e80823db13ab39f776fb09ad079"
 dependencies = [
  "clipboard-win",
  "core-graphics",
- "image",
+ "image 0.23.14",
  "log",
  "objc",
  "objc-foundation",
@@ -1270,7 +1270,7 @@ dependencies = [
  "derivative",
  "derive_more",
  "float-cmp",
- "image",
+ "image 0.23.14",
  "integer_or_float",
  "itertools 0.10.3",
  "kurbo",
@@ -1436,8 +1436,22 @@ dependencies = [
  "num-iter",
  "num-rational 0.3.2",
  "num-traits",
- "png",
+ "png 0.16.8",
  "tiff",
+]
+
+[[package]]
+name = "image"
+version = "0.24.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bd8e4fb07cf672b1642304e731ef8a6a4c7891d67bb4fd4f5ce58cd6ed86803c"
+dependencies = [
+ "bytemuck",
+ "byteorder",
+ "color_quant",
+ "num-rational 0.4.0",
+ "num-traits",
+ "png 0.17.6",
 ]
 
 [[package]]
@@ -1765,6 +1779,15 @@ checksum = "a92518e98c078586bc6c934028adcca4c92a53d6a958196de835170a01d84e4b"
 dependencies = [
  "adler",
  "autocfg",
+]
+
+[[package]]
+name = "miniz_oxide"
+version = "0.5.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "96590ba8f175222643a85693f33d26e9c8a015f599c216509b1a6894af675d34"
+dependencies = [
+ "adler",
 ]
 
 [[package]]
@@ -2193,6 +2216,18 @@ dependencies = [
  "crc32fast",
  "deflate",
  "miniz_oxide 0.3.7",
+]
+
+[[package]]
+name = "png"
+version = "0.17.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8f0e7f4c94ec26ff209cee506314212639d6c91b80afb82984819fafce9df01c"
+dependencies = [
+ "bitflags",
+ "crc32fast",
+ "flate2",
+ "miniz_oxide 0.5.4",
 ]
 
 [[package]]
