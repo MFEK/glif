@@ -29,6 +29,6 @@ impl ContourOperationData for DashContour {
     ) {
     }
 
-    fn insert(&mut self, _contour: &MFEKContour<MFEKGlifPointData>, _point_idx: usize) {
-    }
+    fn insert(&mut self, _contour: &MFEKContour<MFEKGlifPointData>, _point_idx: usize) {}
+    fn remove(&mut self, _contour: &MFEKContour<MFEKGlifPointData>, _point_idx: usize) {}
 }
