@@ -246,6 +246,7 @@ impl Editor {
         let contour = &mut layer.outline[contour_idx];
 
         contour.inner.remove(point_idx);
+        contour.operation.remove_op(&contour.clone(), point_idx);
 
         self.contour_idx = None;
         self.point_idx = None;
@@ -255,6 +256,11 @@ impl Editor {
     }
 
     pub fn delete_selection(&mut self) {
+        if self.selected.is_empty() && self.point_idx.is_some() {
+            self.simplify_selection();
+            return;
+        }
+
         self.begin_modification("Delete selection.");
 
         let layer = &self.glyph.as_ref().unwrap().layers[self.layer_idx.unwrap()];
