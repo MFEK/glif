@@ -46,7 +46,15 @@ impl SelectionBox {
             if mouse_info.modifiers.shift {
                 v.selected = &v.selected ^ &self.selected;
             } else {
-                v.selected = self.selected.clone();
+                if self.selected.len() == 1 {
+                    for (cidx, pidx) in &self.selected {
+                        println!("{0} {1}", cidx, pidx);
+                        v.contour_idx = Some(*cidx);
+                        v.point_idx = Some(*pidx);
+                    }
+                } else {
+                    v.selected = self.selected.clone();
+                }
             }
             v.pop_behavior();
         }
