@@ -298,7 +298,7 @@ impl Editor {
         match left_bezier_characteristics {
             flo_curves::bezier::CurveFeatures::Arch => {},
             flo_curves::bezier::CurveFeatures::Parabolic => {},
-            flo_curves::bezier::CurveFeatures::SingleInflectionPoint(f64) => {},
+            flo_curves::bezier::CurveFeatures::SingleInflectionPoint(_) => {},
             _ => {
                 self.delete_single_point();
                 return;
@@ -308,7 +308,7 @@ impl Editor {
         match right_bezier_characteristics {
             flo_curves::bezier::CurveFeatures::Arch => {},
             flo_curves::bezier::CurveFeatures::Parabolic => {},
-            flo_curves::bezier::CurveFeatures::SingleInflectionPoint(f64) => {},
+            flo_curves::bezier::CurveFeatures::SingleInflectionPoint(_) => {},
             _ => {
                 self.delete_single_point();
                 return;
