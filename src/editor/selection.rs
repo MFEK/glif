@@ -1,9 +1,10 @@
+use flo_curves::{BezierCurve, bezier::fit_curve_cubic};
 use glifparser::{
     glif::{Layer, MFEKContour},
     outline::skia::ToSkiaPaths as _,
-    Handle, PointType,
+    Handle, PointType, Point,
 };
-use MFEKmath::{Rect, Vector};
+use MFEKmath::{Rect, Vector, Evaluate, Bezier};
 
 use arboard::{self, Clipboard};
 use serde_json;
@@ -11,11 +12,11 @@ use shrinkwraprs;
 use skulpin::skia_safe::Point as SkPoint;
 
 use super::Editor;
-use crate::contour_operations::{ContourOperation};
+use crate::contour_operations::{ContourOperation, self};
 use crate::user_interface::gui;
 use crate::util::MFEKGlifPointData;
 
-use std::collections::HashSet;
+use std::{collections::HashSet, borrow::BorrowMut};
 use std::fmt;
 
 #[derive(shrinkwraprs::Shrinkwrap)]
@@ -236,9 +237,9 @@ impl Editor {
         self.end_modification();
     }
 
-    pub fn simplify_selection(&mut self) {
-        self.begin_modification("Simplify selection.");
-        
+    pub fn delete_single_point(&mut self) {
+        self.begin_modification("Delete selection.");
+
         let contour_idx = self.contour_idx.unwrap();
         let point_idx = self.point_idx.unwrap();
 
@@ -251,7 +252,137 @@ impl Editor {
         self.contour_idx = None;
         self.point_idx = None;
         self.selected.clear();
+        self.end_modification();
+    }
 
+    pub fn simplify_selection(&mut self) {      
+        let contour_idx = self.contour_idx.unwrap();
+        let point_idx = self.point_idx.unwrap();
+
+        let layer = self.get_active_layer_ref();
+        let contour = &layer.outline[contour_idx];
+
+        // if we have less than three points in our contour there's nothing to work with so we just delete
+        // the point
+        if contour.inner.len() < 3 {
+            self.delete_single_point();
+            return
+        }
+
+        // if the contour is open and previous or next are out of bounds we're working with the start or end of the contour
+        // so we abort and just delete the selection
+        if point_idx == 0 || point_idx == contour.inner.len() - 1 && contour.inner.first().unwrap().ptype == PointType::Move {
+            self.delete_selection();
+            return
+        }
+
+        let previous_point = contour.inner.get(point_idx - 1);
+        let next_point = contour.inner.get(point_idx + 1);
+
+        // now that we know that the contour is closed we're going to wrap our prev and next points
+        let previous_point = previous_point.unwrap_or(&contour.inner[contour.inner.len()-1]);
+        let next_point = next_point.unwrap_or(&contour.inner[0]);
+        let point = &contour.inner[point_idx];
+
+        let left_bezier = MFEKmath::Bezier::from(previous_point, point);
+        let right_bezier = MFEKmath::Bezier::from(point, next_point);
+
+        let left_bezier_characteristics = flo_curves::bezier::features_for_curve(&left_bezier, 0.1);
+        let right_bezier_characteristics = flo_curves::bezier::features_for_curve(&right_bezier, 0.1);
+
+        // if both of the beziers are not simple arches that do not change direction we abort and delete the 
+        // point instead
+        match left_bezier_characteristics {
+            flo_curves::bezier::CurveFeatures::Arch => {},
+            flo_curves::bezier::CurveFeatures::Parabolic => {},
+            flo_curves::bezier::CurveFeatures::SingleInflectionPoint(f64) => {},
+            _ => {
+                self.delete_single_point();
+                return;
+            }
+        }
+
+        match right_bezier_characteristics {
+            flo_curves::bezier::CurveFeatures::Arch => {},
+            flo_curves::bezier::CurveFeatures::Parabolic => {},
+            flo_curves::bezier::CurveFeatures::SingleInflectionPoint(f64) => {},
+            _ => {
+                self.delete_single_point();
+                return;
+            }
+        }
+
+        // we know that both are simple arches/linear beziers with no inflections, cusps, etc so next we're gonna see what
+        // the total change in tangent over the course of the curves is and if that exceeds 90 degrees
+        let start_tangent = left_bezier.tangent_at(0.0);
+        let mid_left_tangent = left_bezier.tangent_at(1.0);
+        let mid_right_tangent = right_bezier.tangent_at(0.0);
+        let end_tangent = right_bezier.tangent_at(1.0);
+
+        // if the difference between these tangents is greater than some small epsilon we abort and delete the point instead
+        // because there's a sudden change in direction
+        if mid_left_tangent.normalize().distance(mid_right_tangent.normalize()) > 0.01 {
+            println!("{:?} {:?}", mid_left_tangent, mid_right_tangent);
+            self.delete_single_point();
+            return;
+        }
+
+        let mid_tangent = mid_left_tangent;
+        let mut total_angle_change = 0.0;
+
+        total_angle_change += start_tangent.angle(mid_tangent);
+        total_angle_change += mid_tangent.angle(end_tangent);
+
+        // Abort if the angle exceeds 90 + some small epsilon
+        if total_angle_change > f64::to_radians(180.) {
+            println!("{0}", total_angle_change);
+            self.delete_single_point();
+            return;
+        }
+
+        // we've finally handled all the cases in which we won't simplify we now need to build an array of points that
+        // lie on the two beziers seperated by some small chord length
+        let mut sample_points = Vec::new();
+
+        for point in flo_curves::bezier::walk_curve_evenly(&left_bezier, 0.01, 0.001) {
+            sample_points.push(point.start_point());
+        }
+
+        for point in flo_curves::bezier::walk_curve_evenly(&right_bezier, 0.01, 0.001) {
+            sample_points.push(point.start_point());
+        }
+
+        let mut max_error = 10.;
+        println!("YEET");
+        let mut fitted_curve: Vec<Bezier> = fit_curve_cubic(&sample_points, &start_tangent, &-end_tangent, max_error);
+
+        while fitted_curve.len() > 1 {
+            println!("YEET");
+            max_error = max_error + 1.;
+            fitted_curve = fit_curve_cubic(&sample_points, &start_tangent, &-end_tangent, max_error);
+        }
+
+        let fitted_curve = fitted_curve[0].clone();
+
+        self.begin_modification("Simplify selection.");
+        let layer = self.get_active_layer_mut();
+        let contour = &mut layer.outline[contour_idx];
+        
+        let prev_point = contour.inner.get(point_idx-1);
+        let next_point = contour.inner.get(point_idx+1);
+
+        let prev_point_idx = if prev_point.is_none() { contour.inner.len() - 1 } else { point_idx - 1};
+        let next_point_idx = if next_point.is_none() { 0 } else { point_idx + 1};
+
+        contour.inner[prev_point_idx].a = Handle::At(fitted_curve.w2.x as f32, fitted_curve.w2.y as f32);
+        contour.inner[next_point_idx].b = Handle::At(fitted_curve.w3.x as f32, fitted_curve.w3.y as f32);
+
+        contour.inner.remove(point_idx);
+        contour.operation.remove_op(&contour.clone(), point_idx);
+
+        self.contour_idx = None;
+        self.point_idx = None;
+        self.selected.clear();
         self.end_modification();
     }
 
