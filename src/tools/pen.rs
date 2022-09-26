@@ -148,7 +148,6 @@ impl Pen {
                 v.end_modification();
             }
         } else {
-            println!("{0}", mouse_info.modifiers.shift);
             // Lastly if we get here we create a new contour.
             let mouse_pos = mouse_info.position;
             v.contour_idx = {
