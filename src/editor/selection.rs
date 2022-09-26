@@ -271,16 +271,19 @@ impl Editor {
 
         // if the contour is open and previous or next are out of bounds we're working with the start or end of the contour
         // so we abort and just delete the selection
-        if point_idx == 0 || point_idx == contour.inner.len() - 1 && contour.inner.first().unwrap().ptype == PointType::Move {
+        if (point_idx == 0 || point_idx == contour.inner.len() - 1) && contour.inner.first().unwrap().ptype == PointType::Move {
             self.delete_selection();
             return
         }
 
-        let previous_point = contour.inner.get(point_idx - 1);
-        let next_point = contour.inner.get(point_idx + 1);
+        let prev_idx = if point_idx == 0 {contour.inner.len() - 1} else {point_idx - 1};
+        let next_idx = if point_idx == contour.inner.len() - 1 { 0 } else { point_idx + 1};
+
+        let previous_point = contour.inner.get(prev_idx);
+        let next_point = contour.inner.get(next_idx);
 
         // now that we know that the contour is closed we're going to wrap our prev and next points
-        let previous_point = previous_point.unwrap_or(&contour.inner[contour.inner.len()-1]);
+        let previous_point = previous_point.unwrap();
         let next_point = next_point.unwrap_or(&contour.inner[0]);
         let point = &contour.inner[point_idx];
 
@@ -322,7 +325,6 @@ impl Editor {
         // if the difference between these tangents is greater than some small epsilon we abort and delete the point instead
         // because there's a sudden change in direction
         if mid_left_tangent.normalize().distance(mid_right_tangent.normalize()) > 0.01 {
-            println!("{:?} {:?}", mid_left_tangent, mid_right_tangent);
             self.delete_single_point();
             return;
         }
@@ -335,7 +337,6 @@ impl Editor {
 
         // Abort if the angle exceeds 90 + some small epsilon
         if total_angle_change > f64::to_radians(180.) {
-            println!("{0}", total_angle_change);
             self.delete_single_point();
             return;
         }
@@ -353,11 +354,9 @@ impl Editor {
         }
 
         let mut max_error = 10.;
-        println!("YEET");
         let mut fitted_curve: Vec<Bezier> = fit_curve_cubic(&sample_points, &start_tangent, &-end_tangent, max_error);
 
         while fitted_curve.len() > 1 {
-            println!("YEET");
             max_error = max_error + 1.;
             fitted_curve = fit_curve_cubic(&sample_points, &start_tangent, &-end_tangent, max_error);
         }
@@ -367,15 +366,10 @@ impl Editor {
         self.begin_modification("Simplify selection.");
         let layer = self.get_active_layer_mut();
         let contour = &mut layer.outline[contour_idx];
-        
-        let prev_point = contour.inner.get(point_idx-1);
-        let next_point = contour.inner.get(point_idx+1);
 
-        let prev_point_idx = if prev_point.is_none() { contour.inner.len() - 1 } else { point_idx - 1};
-        let next_point_idx = if next_point.is_none() { 0 } else { point_idx + 1};
 
-        contour.inner[prev_point_idx].a = Handle::At(fitted_curve.w2.x as f32, fitted_curve.w2.y as f32);
-        contour.inner[next_point_idx].b = Handle::At(fitted_curve.w3.x as f32, fitted_curve.w3.y as f32);
+        contour.inner[prev_idx].a = Handle::At(fitted_curve.w2.x as f32, fitted_curve.w2.y as f32);
+        contour.inner[next_idx].b = Handle::At(fitted_curve.w3.x as f32, fitted_curve.w3.y as f32);
 
         contour.inner.remove(point_idx);
         contour.operation.remove_op(&contour.clone(), point_idx);
