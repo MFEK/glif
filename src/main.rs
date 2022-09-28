@@ -214,7 +214,11 @@ fn main() {
                             });
                         }*/
                         Command::DeleteSelection => {
-                            editor.delete_selection();
+                            if editor.selected.is_empty() && editor.point_idx.is_some() {
+                                editor.simplify_selection();
+                            } else {
+                                editor.delete_selection();
+                            }
                         }
                         Command::SelectAll => {} // handled by select tool, only when select active
                         Command::CopySelection => {

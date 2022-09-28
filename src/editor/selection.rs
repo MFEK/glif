@@ -2,7 +2,7 @@ use flo_curves::{BezierCurve, bezier::fit_curve_cubic};
 use glifparser::{
     glif::{Layer, MFEKContour},
     outline::skia::ToSkiaPaths as _,
-    Handle, PointType, Point,
+    Handle, PointType,
 };
 use MFEKmath::{Rect, Vector, Evaluate, Bezier};
 
@@ -12,11 +12,11 @@ use shrinkwraprs;
 use skulpin::skia_safe::Point as SkPoint;
 
 use super::Editor;
-use crate::contour_operations::{ContourOperation, self};
+use crate::contour_operations::{ContourOperation};
 use crate::user_interface::gui;
 use crate::util::MFEKGlifPointData;
 
-use std::{collections::HashSet, borrow::BorrowMut};
+use std::collections::HashSet;
 use std::fmt;
 
 #[derive(shrinkwraprs::Shrinkwrap)]
@@ -381,11 +381,6 @@ impl Editor {
     }
 
     pub fn delete_selection(&mut self) {
-        if self.selected.is_empty() && self.point_idx.is_some() {
-            self.simplify_selection();
-            return;
-        }
-
         self.begin_modification("Delete selection.");
 
         let layer = &self.glyph.as_ref().unwrap().layers[self.layer_idx.unwrap()];
