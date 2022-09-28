@@ -1,4 +1,4 @@
-use crate::contour_operations::{ContourOperation};
+use crate::contour_operations::ContourOperation;
 use crate::user_interface::Interface;
 use glifparser::outline::skia::{FromSkiaPath, ToSkiaPaths};
 use glifparser::FlattenedGlif;

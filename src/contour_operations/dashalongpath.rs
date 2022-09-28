@@ -19,8 +19,7 @@ impl ContourOperationData for DashContour {
         output
     }
 
-    fn sub(&mut self, _contour: &MFEKContour<MFEKGlifPointData>, _begin: usize, _end: usize) {
-    }
+    fn sub(&mut self, _contour: &MFEKContour<MFEKGlifPointData>, _begin: usize, _end: usize) {}
 
     fn append(
         &mut self,

@@ -4,7 +4,7 @@ use glifparser::{
 };
 use MFEKmath::{variable_width_stroke, Piecewise, VWSSettings};
 
-use super::{ContourOperationData};
+use super::ContourOperationData;
 use crate::util::MFEKGlifPointData;
 
 impl ContourOperationData for VWSContour {
@@ -29,7 +29,7 @@ impl ContourOperationData for VWSContour {
     fn sub(&mut self, _contour: &MFEKContour<MFEKGlifPointData>, begin: usize, end: usize) {
         let temp_handles = self.handles.split_at(begin);
         let (final_handles, _) = temp_handles.1.split_at(end + 1 - begin);
-        
+
         self.handles = final_handles.into();
     }
 
@@ -86,5 +86,4 @@ impl ContourOperationData for VWSContour {
     fn remove(&mut self, _contour: &MFEKContour<MFEKGlifPointData>, point_idx: usize) {
         self.handles.remove(point_idx);
     }
-
 }

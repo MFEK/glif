@@ -18,14 +18,15 @@ impl ContourOperationData for PAPContour<MFEKGlifPointData> {
         output
     }
 
-    fn sub(&mut self, _contour: &MFEKContour<MFEKGlifPointData>, _begin: usize, _end: usize) { }
+    fn sub(&mut self, _contour: &MFEKContour<MFEKGlifPointData>, _begin: usize, _end: usize) {}
 
     fn append(
         &mut self,
         _contour: &MFEKContour<MFEKGlifPointData>,
         _append: &MFEKContour<MFEKGlifPointData>,
-    ) { }
+    ) {
+    }
 
-    fn insert(&mut self, _contour: &MFEKContour<MFEKGlifPointData>, _point_idx: usize) { }
-    fn remove(&mut self, _contour: &MFEKContour<MFEKGlifPointData>, _point_idx: usize) { }
+    fn insert(&mut self, _contour: &MFEKContour<MFEKGlifPointData>, _point_idx: usize) {}
+    fn remove(&mut self, _contour: &MFEKContour<MFEKGlifPointData>, _point_idx: usize) {}
 }

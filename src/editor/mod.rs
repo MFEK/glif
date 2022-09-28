@@ -201,8 +201,8 @@ impl Editor {
             // we're merging two open paths
             let (cidx, pidx) = {
                 let layer = self.get_active_layer_mut();
-                
-                let start= layer.outline[start_idx].clone();
+
+                let start = layer.outline[start_idx].clone();
                 let end = layer.outline[end_idx].clone();
                 layer.outline[end_idx].operation.append(&start, &end);
 
