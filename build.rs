@@ -37,7 +37,7 @@ fn main() {
                 }
             }
         } else if #[cfg(all(not(feature = "sdl2-static"), any(target_family = "windows", target_family = "macos"), not(feature = "sdl2-dynamic")))] {
-            compile_error!("Please pass either the flag --features=sdl2-static (recommended) or --features=sdl2-dynamic (requires you to download SDL2 link library from SDL.org)")
+            println!("cargo:rustc-cfg=feature=\"sdl2-static\"");
         } else if #[cfg(all(target_family = "windows", feature = "sdl2-dynamic"))] {
             warning!("It is neither recommended nor supported to compile MFEKglif on Windows w/dynamic SDL2.");
         }

@@ -1,5 +1,5 @@
 use crate::args::Args;
-use crate::contour_operations;
+use crate::contour_operations::ContourOperation;
 use crate::ipc;
 use crate::tool_behaviors::ToolBehavior;
 use crate::tools::{pan::Pan, Tool, ToolEnum};
@@ -185,12 +185,12 @@ impl Editor {
 
     /// This function merges contour gracefully. This should be used over merging them yourself as it will automatically
     /// deal with contour operations. This can only be called during a modification
-    pub fn merge_contours(&mut self, start: usize, end: usize) {
+    pub fn merge_contours(&mut self, start_idx: usize, end_idx: usize) {
         // we're closing an open path
-        if start == end {
+        if start_idx == end_idx {
             {
                 let layer = self.get_active_layer_mut();
-                let contour = get_contour_mut!(layer, start);
+                let contour = get_contour_mut!(layer, start_idx);
                 let last_point = contour.pop().unwrap();
 
                 contour.first_mut().unwrap().b = last_point.b;
@@ -201,12 +201,15 @@ impl Editor {
             // we're merging two open paths
             let (cidx, pidx) = {
                 let layer = self.get_active_layer_mut();
-                layer.outline[end].operation =
-                    contour_operations::append(&layer.outline[start], &layer.outline[end]);
-                let mut startc = get_contour!(layer, start).clone();
-                let endc = get_contour_mut!(layer, end);
 
-                let mut end = end;
+                let start = layer.outline[start_idx].clone();
+                let end = layer.outline[end_idx].clone();
+                layer.outline[end_idx].operation.append(&start, &end);
+
+                let mut startc = get_contour!(layer, start_idx).clone();
+                let endc = get_contour_mut!(layer, end_idx);
+
+                let mut end_idx = end_idx;
 
                 endc.last_mut().unwrap().b = startc[0].a;
 
@@ -216,13 +219,13 @@ impl Editor {
                     endc.push(point);
                 }
 
-                layer.outline.remove(start);
+                layer.outline.remove(start_idx);
 
-                if end > layer.outline.len() - 1 {
-                    end = start;
+                if end_idx > layer.outline.len() - 1 {
+                    end_idx = start_idx;
                 }
 
-                (end, p_idx)
+                (end_idx, p_idx)
             };
 
             self.contour_idx = Some(cidx);

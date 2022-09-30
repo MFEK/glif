@@ -4,10 +4,10 @@ use glifparser::{
 };
 use MFEKmath::{variable_width_stroke, Piecewise, VWSSettings};
 
-use super::ContourOperation;
+use super::ContourOperationData;
 use crate::util::MFEKGlifPointData;
 
-impl ContourOperation for VWSContour {
+impl ContourOperationData for VWSContour {
     fn build(&self, contour: &MFEKContour<MFEKGlifPointData>) -> MFEKOutline<MFEKGlifPointData> {
         let contour_pw = Piecewise::from(&contour.inner);
 
@@ -26,24 +26,18 @@ impl ContourOperation for VWSContour {
         output
     }
 
-    fn sub(&self, _contour: &MFEKContour<MFEKGlifPointData>, begin: usize, end: usize) -> Self {
+    fn sub(&mut self, _contour: &MFEKContour<MFEKGlifPointData>, begin: usize, end: usize) {
         let temp_handles = self.handles.split_at(begin);
         let (final_handles, _) = temp_handles.1.split_at(end + 1 - begin);
-        VWSContour {
-            handles: final_handles.into(),
-            join_type: self.join_type,
-            cap_start_type: self.cap_start_type,
-            cap_end_type: self.cap_end_type,
-            remove_internal: self.remove_internal,
-            remove_external: self.remove_external,
-        }
+
+        self.handles = final_handles.into();
     }
 
     fn append(
-        &self,
+        &mut self,
         _contour: &MFEKContour<MFEKGlifPointData>,
         append: &MFEKContour<MFEKGlifPointData>,
-    ) -> Self {
+    ) {
         let mut temp_handles = self.handles.clone();
 
         match append.operation.clone() {
@@ -74,35 +68,22 @@ impl ContourOperation for VWSContour {
             }
         }
 
-        VWSContour {
-            handles: temp_handles,
-            join_type: self.join_type,
-            cap_start_type: self.cap_start_type,
-            cap_end_type: self.cap_end_type,
-            remove_internal: self.remove_internal,
-            remove_external: self.remove_external,
-        }
+        self.handles = temp_handles;
     }
 
-    fn insert(&self, _contour: &MFEKContour<MFEKGlifPointData>, point_idx: usize) -> Self {
-        let mut temp_handles = self.handles.clone();
-        temp_handles.insert(
+    fn insert(&mut self, _contour: &MFEKContour<MFEKGlifPointData>, point_idx: usize) {
+        self.handles.insert(
             point_idx,
             VWSHandle {
-                left_offset: temp_handles[point_idx].left_offset,
-                right_offset: temp_handles[point_idx].right_offset,
-                tangent_offset: temp_handles[point_idx].tangent_offset,
-                interpolation: temp_handles[point_idx].interpolation,
+                left_offset: self.handles[point_idx].left_offset,
+                right_offset: self.handles[point_idx].right_offset,
+                tangent_offset: self.handles[point_idx].tangent_offset,
+                interpolation: self.handles[point_idx].interpolation,
             },
         );
+    }
 
-        VWSContour {
-            handles: temp_handles,
-            join_type: self.join_type,
-            cap_start_type: self.cap_start_type,
-            cap_end_type: self.cap_end_type,
-            remove_internal: self.remove_internal,
-            remove_external: self.remove_external,
-        }
+    fn remove(&mut self, _contour: &MFEKContour<MFEKGlifPointData>, point_idx: usize) {
+        self.handles.remove(point_idx);
     }
 }

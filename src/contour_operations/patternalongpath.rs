@@ -1,10 +1,10 @@
 use glifparser::glif::{MFEKContour, MFEKOutline, PAPContour};
 use MFEKmath::{pattern_along_path_mfek, Piecewise};
 
-use super::ContourOperation;
+use super::ContourOperationData;
 use crate::util::MFEKGlifPointData;
 
-impl ContourOperation for PAPContour<MFEKGlifPointData> {
+impl ContourOperationData for PAPContour<MFEKGlifPointData> {
     fn build(&self, contour: &MFEKContour<MFEKGlifPointData>) -> MFEKOutline<MFEKGlifPointData> {
         let contour_pw = Piecewise::from(&contour.inner);
 
@@ -18,19 +18,15 @@ impl ContourOperation for PAPContour<MFEKGlifPointData> {
         output
     }
 
-    fn sub(&self, _contour: &MFEKContour<MFEKGlifPointData>, _begin: usize, _end: usize) -> Self {
-        self.clone()
-    }
+    fn sub(&mut self, _contour: &MFEKContour<MFEKGlifPointData>, _begin: usize, _end: usize) {}
 
     fn append(
-        &self,
+        &mut self,
         _contour: &MFEKContour<MFEKGlifPointData>,
         _append: &MFEKContour<MFEKGlifPointData>,
-    ) -> Self {
-        self.clone()
+    ) {
     }
 
-    fn insert(&self, _contour: &MFEKContour<MFEKGlifPointData>, _point_idx: usize) -> Self {
-        self.clone()
-    }
+    fn insert(&mut self, _contour: &MFEKContour<MFEKGlifPointData>, _point_idx: usize) {}
+    fn remove(&mut self, _contour: &MFEKContour<MFEKGlifPointData>, _point_idx: usize) {}
 }

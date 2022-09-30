@@ -11,7 +11,6 @@ use crate::user_interface::util::{imgui_decimal_text_field, imgui_radius_theta};
 use crate::user_interface::Interface;
 use crate::util::MFEKGlifPointData;
 
-use glifparser::glif::{ContourOperations, MFEKOutline};
 use glifparser::outline::RefigurePointTypes as _;
 use glifparser::{Handle, Point, PointType, WhichHandle};
 
@@ -161,18 +160,7 @@ impl Select {
                 let layer = v.get_active_layer_mut();
                 let op = &layer.outline[ci].operation.clone();
                 layer.outline[ci].operation = None;
-                let ol = match op {
-                    Some(ContourOperations::DashAlongPath { data }) => {
-                        data.build(&layer.outline[ci])
-                    }
-                    Some(ContourOperations::PatternAlongPath { data }) => {
-                        data.build(&layer.outline[ci])
-                    }
-                    Some(ContourOperations::VariableWidthStroke { data }) => {
-                        data.build(&layer.outline[ci])
-                    }
-                    _ => (MFEKOutline::new()),
-                };
+                let ol = op.build(&layer.outline[ci]);
                 layer.outline.remove(ci);
                 for contour in ol {
                     layer.outline.push(contour);
