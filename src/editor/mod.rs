@@ -183,6 +183,18 @@ impl Editor {
         self.modifying
     }
 
+    /// Use when you thought you were going to make a bona fide modification but an edge case
+    /// prevents you from making any valid modification.
+    pub fn cancel_modification(&mut self) {
+        if !self.modifying {
+            panic!("Canceled a modification that was not in progress!")
+        }
+
+        self.modifying = false;
+        self.undo();
+        self.history.redo_stack.pop(); // Removes the "Undo" item added by above call.
+    }
+
     /// This function merges contour gracefully. This should be used over merging them yourself as it will automatically
     /// deal with contour operations. This can only be called during a modification
     pub fn merge_contours(&mut self, start_idx: usize, end_idx: usize) {

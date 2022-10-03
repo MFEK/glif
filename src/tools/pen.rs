@@ -113,11 +113,11 @@ impl Pen {
             }
         }
         // If we've got the end of a contour selected we'll continue drawing that contour.
-        else if let Some(contour_idx) = v.contour_idx {
+        else if let (Some(contour_idx), Some(point_idx)) = (v.contour_idx, v.point_idx) {
             let mouse_pos = mouse_info.position;
             let contour_len = get_contour_len!(v.get_active_layer_ref(), contour_idx);
 
-            if v.point_idx.unwrap() == contour_len - 1 {
+            if point_idx == contour_len - 1 {
                 v.point_idx = {
                     let layer = v.get_active_layer_mut();
                     get_contour!(layer, contour_idx).push(Point::from_x_y_type(
@@ -129,7 +129,7 @@ impl Pen {
                     layer.outline[contour_idx].operation.insert_op(&contour, contour_len);
                     Some(get_contour_len!(layer, contour_idx) - 1)
                 };
-            } else if v.point_idx.unwrap() == 0 {
+            } else if point_idx == 0 {
                 {
                     let layer = v.get_active_layer_mut();
                     let point_type = get_point!(layer, contour_idx, 0).ptype;
@@ -146,6 +146,12 @@ impl Pen {
                     layer.outline[contour_idx].operation.insert_op(&contour, 0);
                 };
                 v.end_modification();
+            } else { // force a deselect and redo the event. Cf. GitHub issue №337.
+                v.cancel_modification();
+                v.contour_idx = None;
+                v.point_idx = None;
+                v.selected.clear();
+                return self.mouse_pressed(v, i, mouse_info);
             }
         } else {
             // Lastly if we get here we create a new contour.
@@ -169,7 +175,7 @@ impl Pen {
         }
 
         // No matter how you move the point we want you to be able to manipulate it so we push the MoveHandle
-        // vehavior onto the editor's behavior stack.
+        // behavior onto the editor's behavior stack.
         v.push_behavior(Box::new(MoveHandle::new(WhichHandle::A, mouse_info, true)));
     }
 
