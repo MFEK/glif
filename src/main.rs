@@ -213,12 +213,11 @@ fn main() {
                                 c.borrow_mut().active = true;
                             });
                         }*/
+                        Command::SimplifySelection => {
+                            editor.simplify_selection();
+                        }
                         Command::DeleteSelection => {
-                            if editor.selected.is_empty() && editor.point_idx.is_some() {
-                                editor.simplify_selection();
-                            } else {
-                                editor.delete_selection();
-                            }
+                            editor.delete_selection();
                         }
                         Command::SelectAll => {} // handled by select tool, only when select active
                         Command::CopySelection => {

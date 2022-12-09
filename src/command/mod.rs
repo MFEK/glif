@@ -68,6 +68,7 @@ pub enum Command {
     ToolImages,
 
     // selection
+    SimplifySelection,
     DeleteSelection,
     SelectAll,
     CopySelection,
@@ -114,7 +115,8 @@ impl Command {
             | ToolMeasure | ToolAnchors | ToolShapes | ToolGuidelines | ToolImages => {
                 CommandType::ToolSelect
             }
-            DeleteSelection
+            SimplifySelection
+            | DeleteSelection
             | SelectAll
             | CopySelection
             | PasteSelection
