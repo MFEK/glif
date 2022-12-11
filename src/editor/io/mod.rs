@@ -1,12 +1,12 @@
 use super::{events::*, Editor};
-use crate::util::MFEKGlifPointData;
 
+use MFEKmath::mfek::ResolveCubic;
+use glifparser::glif::contour::MFEKContourCommon;
 //use fs2::FileExt as _; # TODO: Add file locking.
-use glifparser::glif::mfek::{traits::*, Layer, MFEKGlif};
-use glifparser::Glif;
+use glifparser::glif::mfek::{Layer, MFEKGlif};
+use glifparser::{Glif, MFEKPointData};
 use log;
 use plist;
-use MFEKmath::Fixup as _;
 
 use std::{
     ffi::OsString as Oss,
@@ -67,7 +67,7 @@ impl Editor {
                 .unwrap_or(Oss::from("glif"))
                 .to_string_lossy()
                 .into_owned();
-            let mut tempglif: MFEKGlif<_> = match ext_or.as_str() {
+            let tempglif: MFEKGlif<_> = match ext_or.as_str() {
                 "glifjson" => {
                     serde_json::from_str(&fs::read_to_string(&file).expect("Could not open file"))
                         .expect("Could not deserialize JSON MFEKGlif")
@@ -84,14 +84,7 @@ impl Editor {
                     return;
                 }
             };
-            tempglif.filename = Some(file.as_ref().to_path_buf());
-            for layer in tempglif.layers.iter_mut() {
-                if layer.outline.cleanly_downgradable() {
-                    let mut colo: glifparser::Outline<_> = layer.outline.clone().downgrade();
-                    colo.assert_colocated_within(0.01);
-                    layer.outline = colo.upgrade();
-                }
-            }
+
             tempglif
         };
 
@@ -367,14 +360,16 @@ impl Editor {
 }
 
 pub trait ExportLayer {
-    fn to_exported(&self, layer: &Layer<MFEKGlifPointData>) -> Glif<MFEKGlifPointData>;
+    fn to_exported(&self, layer: &Layer<MFEKPointData>) -> Glif<MFEKPointData>;
 }
 
 /// Warning: You should always use this from MFEKglif with glif.preview.layers. If you use it with
 /// the normal MFEKGlif type's layers, then you will need to apply contour operations yourself!
-impl ExportLayer for MFEKGlif<MFEKGlifPointData> {
-    fn to_exported(&self, layer: &Layer<MFEKGlifPointData>) -> Glif<MFEKGlifPointData> {
-        let contours: Vec<_> = layer.outline.iter().map(|c| c.inner.clone()).collect();
+impl ExportLayer for MFEKGlif<MFEKPointData> {
+    fn to_exported(&self, layer: &Layer<MFEKPointData>) -> Glif<MFEKPointData> {
+        let contours: Vec<_> = layer.outline.iter().map(|c| 
+            c.resolve_to_cubic().cubic_mut().unwrap().clone()
+        ).collect();
         let mut ret = Glif::new();
         ret.outline = Some(contours);
         ret.anchors = self.anchors.clone();

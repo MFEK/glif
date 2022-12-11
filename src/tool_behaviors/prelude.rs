@@ -16,9 +16,8 @@ pub use glifrenderer::viewport::Viewport;
 pub use sdl2::mouse::MouseButton;
 
 // Util + Macros
-pub use crate::util::MFEKGlifPointData;
 pub use crate::util::*;
-pub use crate::{get_contour, get_contour_len, get_contour_mut, get_contour_type, get_point};
+pub use crate::{get_contour, get_contour_len, get_contour_mut, is_contour_open, get_point};
 
 // Skia/Winit stuff
 pub use skulpin::skia_safe::Contains as _;

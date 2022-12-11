@@ -1,6 +1,7 @@
 mod dialog;
 
-use glifparser::glif::{ContourOperations, DashContour};
+use glifparser::glif::contour_operations::ContourOperations;
+use glifparser::glif::contour_operations::dash::DashContour;
 use skulpin::skia_safe::{PaintCap, PaintJoin};
 
 use super::prelude::*;

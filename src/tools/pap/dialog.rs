@@ -1,8 +1,7 @@
 use super::super::prelude::*;
 use super::PAP;
 use crate::user_interface::{self, Interface};
-use glifparser::glif::PatternStretch;
-use glifparser::glif::{ContourOperations, PatternCopies, PatternSubdivide};
+use glifparser::glif::contour_operations::{pap::{PatternStretch, PatternCopies, PatternSubdivide}, ContourOperations};
 use imgui::Ui;
 
 fn repeat_type_to_idx(rt: PatternCopies) -> usize {

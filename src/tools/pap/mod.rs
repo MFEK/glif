@@ -2,9 +2,8 @@ mod dialog;
 
 use std::rc::Rc;
 
-use glifparser::glif::{
-    ContourOperations, PAPContour, PatternCopies, PatternStretch, PatternSubdivide,
-};
+use glifparser::glif::contour_operations::ContourOperations;
+use glifparser::glif::contour_operations::pap::{PAPContour, PatternCopies, PatternSubdivide, PatternStretch};
 
 use super::prelude::*;
 use crate::tool_behaviors::zoom_scroll::ZoomScroll;

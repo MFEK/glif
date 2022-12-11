@@ -83,19 +83,19 @@ ctrlc = "3.2"
 
 ## Our crates
 # parses .glif files and gives us a place to put arbitrary data
-glifparser = { git = "https://github.com/MFEK/glifparser.rlib", branch = "master", features=["skia", "mfek"] }
-#glifparser = { path = "../glifparser.rlib", features=["skia", "mfek"] } # for development
+#glifparser = { git = "https://github.com/MFEK/glifparser.rlib", branch = "master", features=["skia", "mfek"] }
+glifparser = { path = "../glifparser.rlib", features=["skia", "mfek"] } # for development
 
-MFEKmath = { git = "https://github.com/MFEK/math.rlib", branch = "main" }
-#MFEKmath = { path = "../math.rlib" } # for development
+#MFEKmath = { git = "https://github.com/MFEK/math.rlib", branch = "main" }
+MFEKmath = { path = "../math.rlib" } # for development
 
 pub-mod = { git = "https://github.com/MFEK/pub_mod.rlib" }
 
-mfek-ipc = { git = "https://github.com/MFEK/ipc.rlib" }
-#mfek-ipc = { path = "../ipc.rlib" } # for development
+#mfek-ipc = { git = "https://github.com/MFEK/ipc.rlib" }
+mfek-ipc = { path = "../ipc.rlib" } # for development
 
-glifrenderer = { git = "https://github.com/MFEK/glifrenderer.rlib" }
-#glifrenderer = { path = "../glifrenderer.rlib" } # for development
+#glifrenderer = { git = "https://github.com/MFEK/glifrenderer.rlib" }
+glifrenderer = { path = "../glifrenderer.rlib" } # for development
 
 
 #xml parsing

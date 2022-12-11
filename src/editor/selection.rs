@@ -1,20 +1,18 @@
 use flo_curves::{bezier::fit_curve_cubic, BezierCurve};
 use glifparser::{
-    glif::{Layer, MFEKContour},
+    glif::{Layer, MFEKContour, contour::{MFEKContourCommon, MFEKCommonOuter}, contour_operations::ContourOperation, inner::MFEKCommonInner},
     outline::skia::ToSkiaPaths as _,
-    Handle, PointType,
+    Handle, contour::State, MFEKPointData, WhichHandle,
 };
-use MFEKmath::{Bezier, Evaluate, Rect, Vector};
+use MFEKmath::{Bezier, Evaluate, Vector, Rect};
 
 use arboard::{self, Clipboard};
 use serde_json;
 use shrinkwraprs;
-use skulpin::skia_safe::Point as SkPoint;
 
 use super::Editor;
-use crate::contour_operations::ContourOperation;
 use crate::user_interface::gui;
-use crate::util::MFEKGlifPointData;
+
 
 use std::collections::HashSet;
 use std::fmt;
@@ -62,50 +60,52 @@ impl EditorClipboard {
 }
 
 impl Editor {
+    pub fn set_selected(&mut self, cidx: usize, pidx: usize) {
+        self.contour_idx = Some(cidx);
+        self.point_idx = Some(pidx);
+    }
+    pub fn selected_point(&self) -> Option<(usize, usize)> {
+        if let (Some(ci), Some(pi)) = (self.contour_idx, self.point_idx) {
+            Some((ci, pi))
+        } else {
+            None
+        }
+    }
+
     /// Copy the current selection and put it in our clipboard.
     pub fn copy_selection(&mut self) {
         let layer = &self.glyph.as_ref().unwrap().layers[self.layer_idx.unwrap()];
-        let mut new_outline: Vec<MFEKContour<MFEKGlifPointData>> = Vec::new();
+        let mut new_outline: Vec<MFEKContour<MFEKPointData>> = Vec::new();
         for (contour_idx, contour) in layer.outline.iter().enumerate() {
             let mut results = Vec::new();
-            let mut cur_contour = Vec::new();
-
             let mut begin = 0;
 
             let mut deleted = false;
-            for (point_idx, point) in contour.inner.iter().enumerate() {
+            for (point_idx, _) in contour.inner.iter().enumerate() {
                 let to_delete = !self.point_selected(contour_idx, point_idx);
 
                 if to_delete {
-                    let mut mfekcur: MFEKContour<MFEKGlifPointData> = cur_contour.into();
-                    mfekcur.operation.sub(contour, begin, point_idx);
+                    let mfekcur: MFEKContour<MFEKPointData> = contour.sub(begin, point_idx);
                     results.push(mfekcur);
 
-                    cur_contour = Vec::new();
                     deleted = true;
                     begin = point_idx + 1;
-                } else {
-                    cur_contour.push(point.clone());
                 }
             }
-            let mut mfekcur: MFEKContour<MFEKGlifPointData> = cur_contour.into();
-            mfekcur.operation.sub(contour, begin, contour.inner.len());
+            let mfekcur: MFEKContour<MFEKPointData> = contour.sub(begin, contour.len());
             results.push(mfekcur);
 
-            if results.len() > 1 && contour.inner.first().unwrap().ptype != PointType::Move {
+            if results.len() > 1 && !contour.inner.is_open() {
                 let mut move_to_front = results.pop().unwrap().clone();
-                move_to_front.inner.append(&mut results[0].inner);
+                let _ = move_to_front.inner.append(&mut results[0].inner);
 
-                let start = move_to_front.clone();
-                let end = results[0].clone();
-                move_to_front.operation.append(&start, &end);
                 results[0] = move_to_front;
             }
 
             for mut result in results {
                 if !result.inner.is_empty() {
                     if deleted {
-                        result.inner.first_mut().unwrap().ptype = PointType::Move;
+                        result.inner.set_open();
                     }
                     new_outline.push(result);
                 }
@@ -194,43 +194,31 @@ impl Editor {
         self.point_idx = None;
         self.selected.clear();
 
-        let new_selected = {
-            let layer = self.get_active_layer_mut();
-            if let Some(mpos) = position {
-                let comb = clipboard.outline.to_skia_paths(None).combined();
-                let b = comb.bounds();
-                let center = b.center();
-                let dist = SkPoint::new(mpos.0 - center.x, mpos.1 - center.y);
-                for contour in clipboard.outline.iter_mut() {
-                    for point in contour.inner.iter_mut() {
-                        point.x += dist.x;
-                        point.y += dist.y;
-                        if let Handle::At(mut ax, mut ay) = point.a {
-                            ax += dist.x;
-                            ay += dist.y;
-                            point.a = Handle::At(ax, ay);
-                        }
-                        if let Handle::At(mut bx, mut by) = point.b {
-                            bx += dist.x;
-                            by += dist.y;
-                            point.b = Handle::At(bx, by);
-                        }
-                    }
-                }
-            }
-
-            let mut new_selected = HashSet::new();
-
+        let layer = self.get_active_layer_mut();
+        if let Some(mpos) = position {
+            let comb = clipboard.outline.to_skia_paths(None).combined();
+            let b = comb.bounds();
+            let center = b.center();
+            let dist = (mpos.0 - center.x, mpos.1 - center.y);
             for contour in clipboard.outline.iter_mut() {
-                let cur_idx = layer.outline.len();
-                for (point_selection, _) in contour.inner.iter().enumerate() {
-                    new_selected.insert((cur_idx, point_selection));
+                // TODO: Figure out lending iterators to clean stuff like this up.
+                for i in 0..contour.len() {
+                    let point = contour.get_point_mut(i).unwrap();
+                    let (px, py) = point.get_position();
+                    point.set_position(px + dist.0, py + dist.1);
                 }
-                layer.outline.push(contour.clone());
             }
+        }
 
-            new_selected
-        };
+        let mut new_selected = HashSet::new();
+
+        for contour in clipboard.outline.iter_mut() {
+            let cur_idx = layer.outline.len();
+            for (point_selection, _) in contour.iter().enumerate() {
+                new_selected.insert((cur_idx, point_selection));
+            }
+            layer.outline.push(contour.clone());
+        }
 
         self.selected.extend(new_selected);
 
@@ -246,8 +234,8 @@ impl Editor {
         let layer = self.get_active_layer_mut();
         let contour = &mut layer.outline[contour_idx];
 
-        contour.inner.remove(point_idx);
-        contour.operation.remove_op(&contour.clone(), point_idx);
+        contour.inner.delete(point_idx);
+        contour.operation.remove_op(point_idx);
 
         self.contour_idx = None;
         self.point_idx = None;
@@ -255,47 +243,46 @@ impl Editor {
         self.end_modification();
     }
 
-    pub fn simplify_selection(&mut self) {
+    pub fn simplify_cubic_selection(&mut self) {
         let contour_idx = self.contour_idx.unwrap();
         let point_idx = self.point_idx.unwrap();
 
         let layer = self.get_active_layer_ref();
-        let contour = &layer.outline[contour_idx];
+        let contour = layer.outline[contour_idx].cubic().unwrap();
 
         // if we have less than three points in our contour there's nothing to work with so we just delete
         // the point
-        if contour.inner.len() < 3 {
+        if contour.len() < 3 {
             self.delete_single_point();
             return;
         }
 
         // if the contour is open and previous or next are out of bounds we're working with the start or end of the contour
         // so we abort and just delete the selection
-        if (point_idx == 0 || point_idx == contour.inner.len() - 1)
-            && contour.inner.first().unwrap().ptype == PointType::Move
+        if (point_idx == 0 || point_idx == contour.len() - 1) && contour.is_open()
         {
             self.delete_selection();
             return;
         }
 
         let prev_idx = if point_idx == 0 {
-            contour.inner.len() - 1
+            contour.len() - 1
         } else {
             point_idx - 1
         };
-        let next_idx = if point_idx == contour.inner.len() - 1 {
+        let next_idx = if point_idx == contour.len() - 1 {
             0
         } else {
             point_idx + 1
         };
 
-        let previous_point = contour.inner.get(prev_idx);
-        let next_point = contour.inner.get(next_idx);
+        let previous_point = contour.get(prev_idx);
+        let next_point = contour.get(next_idx);
 
         // now that we know that the contour is closed we're going to wrap our prev and next points
         let previous_point = previous_point.unwrap();
-        let next_point = next_point.unwrap_or(&contour.inner[0]);
-        let point = &contour.inner[point_idx];
+        let next_point = next_point.unwrap_or(&contour[0]);
+        let point = &contour[point_idx];
 
         let left_bezier = MFEKmath::Bezier::from(previous_point, point);
         let right_bezier = MFEKmath::Bezier::from(point, next_point);
@@ -382,13 +369,13 @@ impl Editor {
 
         self.begin_modification("Simplify selection.");
         let layer = self.get_active_layer_mut();
-        let contour = &mut layer.outline[contour_idx];
+        let contour = layer.outline[contour_idx].cubic_mut().unwrap();
 
-        contour.inner[prev_idx].a = Handle::At(fitted_curve.w2.x as f32, fitted_curve.w2.y as f32);
-        contour.inner[next_idx].b = Handle::At(fitted_curve.w3.x as f32, fitted_curve.w3.y as f32);
+        contour[prev_idx].a = Handle::At(fitted_curve.w2.x as f32, fitted_curve.w2.y as f32);
+        contour[next_idx].b = Handle::At(fitted_curve.w3.x as f32, fitted_curve.w3.y as f32);
 
-        contour.inner.remove(point_idx);
-        contour.operation.remove_op(&contour.clone(), point_idx);
+        contour.remove(point_idx);
+        layer.outline[contour_idx].operation.remove_op(point_idx);
 
         self.contour_idx = None;
         self.point_idx = None;
@@ -400,40 +387,30 @@ impl Editor {
         self.begin_modification("Delete selection.");
 
         let layer = &self.glyph.as_ref().unwrap().layers[self.layer_idx.unwrap()];
-        let mut new_outline: Vec<MFEKContour<MFEKGlifPointData>> = Vec::new();
+        let mut new_outline: Vec<MFEKContour<MFEKPointData>> = Vec::new();
         for (contour_idx, contour) in layer.outline.iter().enumerate() {
             let mut results = Vec::new();
-            let mut cur_contour = Vec::new();
-
             let mut begin = 0;
 
             let mut deleted = false;
-            for (point_idx, point) in contour.inner.iter().enumerate() {
+            for (point_idx, _) in contour.inner.iter().enumerate() {
                 let to_delete = self.point_selected(contour_idx, point_idx);
 
                 if to_delete {
-                    let mut mfekcur: MFEKContour<MFEKGlifPointData> = cur_contour.into();
-                    mfekcur.operation.sub(contour, begin, point_idx);
+                    let mfekcur: MFEKContour<MFEKPointData> = contour.sub(begin, point_idx);
                     results.push(mfekcur);
 
-                    cur_contour = Vec::new();
                     deleted = true;
                     begin = point_idx + 1;
-                } else {
-                    cur_contour.push(point.clone());
                 }
             }
-            let mut mfekcur: MFEKContour<MFEKGlifPointData> = cur_contour.into();
-            mfekcur.operation.sub(contour, begin, contour.inner.len());
+
+            let mfekcur: MFEKContour<MFEKPointData> = contour.sub(begin, contour.len());
             results.push(mfekcur);
 
-            if results.len() > 1 && contour.inner.first().unwrap().ptype != PointType::Move {
+            if results.len() > 1 && contour.is_closed() {
                 let mut move_to_front = results.pop().unwrap().clone();
-                move_to_front.inner.append(&mut results[0].inner);
-
-                let start = move_to_front.clone();
-                let end = results[0].clone();
-                move_to_front.operation.append(&start, &end);
+                let _ = move_to_front.append(&mut results[0]); // this is appending a part of itself so .append will always succeed
 
                 results[0] = move_to_front;
             }
@@ -441,7 +418,7 @@ impl Editor {
             for mut result in results {
                 if !result.inner.is_empty() {
                     if deleted {
-                        result.inner.first_mut().unwrap().ptype = PointType::Move;
+                        result.inner.set_open();
                         //result.inner.first_mut().unwrap().b = Handle::Colocated;
                         //result.inner.last_mut().unwrap().a = Handle::Colocated;
                     }
@@ -458,56 +435,6 @@ impl Editor {
         self.end_modification();
     }
 
-    pub fn build_selection_bounding_box(&self) -> Rect {
-        let mut points = vec![];
-        for (ci, pi) in &self.selected {
-            let point = self.get_active_layer_ref().outline[*ci].inner[*pi].clone();
-            points.push(Vector {
-                x: point.x as f64,
-                y: point.y as f64,
-            });
-
-            if let Handle::At(x, y) = point.a {
-                points.push(Vector {
-                    x: x as f64,
-                    y: y as f64,
-                });
-            }
-
-            if let Handle::At(x, y) = point.b {
-                points.push(Vector {
-                    x: x as f64,
-                    y: y as f64,
-                });
-            }
-        }
-
-        Rect::AABB_from_points(points)
-    }
-
-    pub fn get_selection_bounding_box_center(&self) -> (f32, f32) {
-        let bounding_box = self.build_selection_bounding_box();
-
-        let half_width = ((bounding_box.left - bounding_box.right) / 2.) as f32;
-        let half_height = ((bounding_box.top - bounding_box.bottom) / 2.) as f32;
-        (
-            bounding_box.left as f32 - half_width,
-            bounding_box.top as f32 - half_height,
-        )
-    }
-
-    pub fn selected(&self) -> Option<(usize, usize)> {
-        if let (Some(ci), Some(pi)) = (self.contour_idx, self.point_idx) {
-            // single click
-            Some((ci, pi))
-        } else if let Some((ci, pi)) = self.selected.iter().next() {
-            // selbox
-            Some((*ci, *pi))
-        } else {
-            None
-        }
-    }
-
     pub fn point_selected(&self, contour_idx: usize, point_idx: usize) -> bool {
         if let Some(editor_pidx) = self.point_idx {
             let editor_cidx = self.contour_idx.unwrap();
@@ -518,5 +445,79 @@ impl Editor {
         }
 
         self.selected.contains(&(contour_idx, point_idx))
+    }
+
+    pub fn build_selection_bounding_box(&self) -> Rect {
+        let mut points = vec![];
+        for (ci, pi) in &self.selected {
+            let point = self.get_active_layer_ref().outline[*ci].get_point(*pi).unwrap();
+            points.push(Vector {
+                x: point.x() as f64,
+                y: point.y() as f64,
+            });
+    
+            if let Some(Handle::At(x, y)) = point.get_handle(WhichHandle::A) {
+                points.push(Vector {
+                    x: x as f64,
+                    y: y as f64,
+                });
+            }
+    
+            if let Some(Handle::At(x, y)) = point.get_handle(WhichHandle::B) {
+                points.push(Vector {
+                    x: x as f64,
+                    y: y as f64,
+                });
+            }
+        }
+    
+        Rect::AABB_from_points(points)
+    }
+    
+    pub fn get_selection_bounding_box_center(&self) -> (f32, f32) {
+        let bounding_box = self.build_selection_bounding_box();
+    
+        let half_width = ((bounding_box.left - bounding_box.right) / 2.) as f32;
+        let half_height = ((bounding_box.top - bounding_box.bottom) / 2.) as f32;
+        (
+            bounding_box.left as f32 - half_width,
+            bounding_box.top as f32 - half_height,
+        )
+    }
+
+    
+    pub fn merge_contours(&mut self, start_contour: usize, end_contour: usize) {
+        let (cidx, pidx) = {
+            let layer = self.get_active_layer_mut();
+
+            // start is the contour who's start is being merged and end is the contour who's end is being merged
+            let mut start = layer.outline[start_contour].clone();
+            let end = &mut layer.outline[end_contour];
+
+            if start.get_type() != end.get_type() {
+                return;
+            }
+
+            // kind oof a messy detail this makes sure there's not a floating move point
+            start.set_closed();
+
+            let p_idx = end.len() - 1;
+            end.delete(end.len() - 1);
+
+            // we already checked the typing on this
+            let _ = end.append(&mut start);
+
+            layer.outline.remove(start_contour);
+
+            let mut selected = end_contour;
+            if end_contour > start_contour {
+                selected = end_contour - 1
+            }
+
+            (selected, p_idx)
+        };
+
+        self.contour_idx = Some(cidx);
+        self.point_idx = Some(pidx);
     }
 }

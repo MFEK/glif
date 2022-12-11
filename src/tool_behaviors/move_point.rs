@@ -1,5 +1,7 @@
-use super::prelude::*;
+use crate::get_point_mut;
 
+use super::{prelude::*, move_handle::MoveHandle};
+use glifparser::glif::{mfek::contour::MFEKContourCommon, contour::MFEKCommonOuter};
 #[derive(Clone, Debug)]
 pub struct MovePoint {
     // we hold on to a clone of the mouse info when the behavior gets put on the stack
@@ -23,30 +25,29 @@ impl MovePoint {
         let x = mouse_info.position.0 as f32;
         let y = mouse_info.position.1 as f32;
 
-        let (vci, vpi) = (v.contour_idx.unwrap(), v.point_idx.unwrap());
+        let (vci, vpi) = v.selected_point().unwrap();
         if !v.is_modifying() {
             v.begin_modification("Move point.");
         }
 
-        let reference_point = {
-            let layer = v.get_active_layer_ref();
-            get_point!(layer, vci, vpi).clone()
-        };
+        let layer = v.get_active_layer_mut();
+        let point = get_point_mut!(layer, vci, vpi).unwrap();
+        let previous_position = point.get_position();
 
+        point.set_position(x, y);
         let selected = v.selected.clone();
         {
             let layer = v.get_active_layer_mut();
             if self.move_selected {
                 for (ci, pi) in &selected {
+                    if *ci == vci && *pi == vpi { continue; }
                     let (ci, pi) = (*ci, *pi);
-                    let point = &get_point!(layer, ci, pi);
-                    let offset_x = point.x - reference_point.x;
-                    let offset_y = point.y - reference_point.y;
-                    move_point(&mut layer.outline, ci, pi, x + offset_x, y + offset_y);
+                    let point = get_point_mut!(layer, ci, pi).unwrap();
+                    let offset_x = x - previous_position.0;
+                    let offset_y = y - previous_position.1;
+                    point.set_position(point.x() + offset_x, point.y() + offset_y);
                 }
             }
-
-            move_point(&mut layer.outline, vci, vpi, x, y);
         }
     }
 
@@ -65,13 +66,10 @@ impl MovePoint {
                     if let Some(info) = get_contour_start_or_end(v, vci, vpi) {
                         // is our current point the start or end of it's contour?
                         if let Some(target_info) = get_contour_start_or_end(v, ci, pi) {
-                            let info_type = get_contour_type!(v.get_active_layer_ref(), vci);
-                            let target_type = get_contour_type!(v.get_active_layer_ref(), ci);
+                            let layer = v.get_active_layer_ref();
 
                             // do we have two starts or two ends?
-                            if info_type == PointType::Move
-                                && target_type == PointType::Move
-                                && target_info != info
+                            if get_contour!(layer, vci).is_open() && get_contour!(layer, ci).is_open() && target_info != info
                             {
                                 let start = if info == SelectPointInfo::Start {
                                     vci
@@ -83,11 +81,23 @@ impl MovePoint {
                                 } else {
                                     ci
                                 };
-                                v.merge_contours(start, end);
+
+                                if vci == ci {
+                                    {
+                                        let layer = v.get_active_layer_mut();
+                                        let contour = get_contour_mut!(layer, vci);
+                                        
+                                        contour.delete(contour.len() - 1);
+                                        contour.set_closed();
+                                        v.set_selected(vci, 0);
+                                    }
+                                } else {
+                                    v.merge_contours(start, end);
+                                }
                             }
                         }
                     }
-                }
+                } 
                 v.end_modification();
             }
 
@@ -126,20 +136,16 @@ impl ToolBehavior for MovePoint {
             if let Some(info) = get_contour_start_or_end(v, vci, vpi) {
                 // is our current point the start or end of it's contour?
                 if let Some(target_info) = get_contour_start_or_end(v, ci, pi) {
-                    let info_type = get_contour_type!(v.get_active_layer_ref(), vci);
-                    let target_type = get_contour_type!(v.get_active_layer_ref(), ci);
+                    let layer = v.get_active_layer_ref();
 
                     // do we have two starts or two ends?
-                    if info_type == PointType::Move
-                        && target_type == PointType::Move
-                        && target_info != info
+                    if get_contour!(layer, vci).is_open() && get_contour!(layer, ci).is_open() && target_info != info
                     {
-                        let merge = get_contour!(v.get_active_layer_ref(), ci)[pi].clone();
+                        let merge = get_contour!(v.get_active_layer_ref(), ci).get_point(pi).unwrap();
                         draw_point(
                             &i.viewport,
-                            &merge,
+                            merge,
                             None,
-                            UIPointType::Point((merge.a, merge.b)),
                             true,
                             canvas,
                         );

@@ -1,7 +1,7 @@
 use super::super::prelude::*;
 use super::Dash;
 use crate::user_interface::{self, gui::IMGUI_RESERVE, Interface};
-use glifparser::glif::{ContourOperations, DashCull};
+use glifparser::glif::contour_operations::{ContourOperations, dash::DashCull};
 use imgui::Ui;
 use skulpin::skia_safe::{PaintCap, PaintJoin};
 

@@ -7,8 +7,6 @@ extern crate cargo_emit;
 #[macro_use]
 extern crate git_version;
 
-use chrono;
-use log;
 use which::which;
 
 use std::process::Command;

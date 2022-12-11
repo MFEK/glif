@@ -1,9 +1,10 @@
 use super::super::prelude::*;
 use glifparser::{
-    glif::{ContourOperations, InterpolationType, VWSHandle},
-    CapType, JoinType, VWSContour, WhichHandle,
+    CapType, JoinType, VWSContour, WhichHandle, glif::contour_operations::{ContourOperations, vws::{VWSHandle, InterpolationType}}, MFEKPointData,
 };
-use MFEKmath::{Evaluate, Piecewise, Vector};
+use MFEKmath::{Piecewise, Vector, Evaluate, mfek::ResolveCubic};
+use glifparser::glif::mfek::contour::MFEKContourCommon;
+
 
 // This file holds utility functions for working with vws. Things like if a handle is clicked.
 
@@ -67,14 +68,13 @@ pub fn set_vws_handle(
     let contour_idx = v.contour_idx.unwrap();
     let point_idx = v.point_idx.unwrap();
 
+    let contour: &dyn MFEKContourCommon<MFEKPointData> = &get_contour!(v.get_active_layer_ref(), contour_idx);
     let contour_op = get_vws_contour(v, contour_idx);
     let mut vws_contour = if let Some(op) = contour_op {
         op
     } else {
         generate_vws_contour(v, contour_idx)
     };
-
-    let contour_pw = Piecewise::from(&get_contour!(v.get_active_layer_ref(), contour_idx));
 
     let side_multiplier = match side {
         WhichHandle::A => 1.,
@@ -89,7 +89,7 @@ pub fn set_vws_handle(
     };
 
     // if we're editing the first point we need to mirror it in the 'imaginary' last point
-    if point_idx == 0 && contour_pw.is_closed() {
+    if point_idx == 0 && contour.is_closed() {
         let last_handle = vws_contour.handles.len() - 1;
 
         match side {
@@ -155,7 +155,9 @@ pub fn get_vws_handle_pos(
 ) -> Result<(Vector, Vector, Vector), ()> {
     let vws_contour =
         get_vws_contour(v, contour_idx).unwrap_or_else(|| generate_vws_contour(v, contour_idx));
-    let contour_pw = Piecewise::from(&get_contour!(v.get_active_layer_ref(), contour_idx));
+
+    //TODO: Support non-cubic paths.
+    let contour_pw = Piecewise::from(&get_contour!(v.get_active_layer_ref(), contour_idx).resolve_to_cubic());
 
     if handle_idx > vws_contour.handles.len() - 1 {
         log::warn!(
@@ -250,7 +252,7 @@ pub fn clicked_handle(
     let mouse_pos = meta.position;
 
     for (contour_idx, contour) in v.get_active_layer_ref().outline.iter().enumerate() {
-        let contour_pw = Piecewise::from(contour);
+        let contour_pw = Piecewise::from(contour.resolve_to_cubic());
 
         let size = ((POINT_RADIUS * 2.) + (POINT_STROKE_THICKNESS * 2.)) * (1. / factor);
         for vws_handle_idx in 0..contour_pw.segs.len() {
@@ -284,7 +286,7 @@ pub fn clicked_handle(
             }
         }
 
-        if contour.inner.first().unwrap().ptype == glifparser::PointType::Move {
+        if contour.inner.is_open() {
             let vws_handle_idx = contour_pw.segs.len();
 
             let (handle_pos_left, handle_pos_right) = match (

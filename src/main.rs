@@ -13,7 +13,6 @@ use crate::tools::ToolEnum;
 use crate::user_interface::mouse_input::MouseInfo;
 use crate::user_interface::{ImguiManager, Interface};
 
-use ctrlc;
 use enum_unitary::IntoEnumIterator;
 use glifrenderer::toggles::{PointLabels, PreviewMode};
 use sdl2::event::{Event, WindowEvent};
@@ -214,11 +213,7 @@ fn main() {
                             });
                         }*/
                         Command::DeleteSelection => {
-                            if editor.selected.is_empty() && editor.point_idx.is_some() {
-                                editor.simplify_selection();
-                            } else {
-                                editor.delete_selection();
-                            }
+                            editor.delete_selection();
                         }
                         Command::SelectAll => {} // handled by select tool, only when select active
                         Command::CopySelection => {

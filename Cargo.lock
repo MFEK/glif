@@ -62,7 +62,6 @@ dependencies = [
 [[package]]
 name = "MFEKmath"
 version = "0.1.0"
-source = "git+https://github.com/MFEK/math.rlib?branch=main#bd3ee6bd3b30298a6c7f2b1db6877b24f3c95c37"
 dependencies = [
  "flo_curves",
  "glifparser",
@@ -704,9 +703,9 @@ dependencies = [
 
 [[package]]
 name = "dyn-clone"
-version = "1.0.4"
+version = "1.0.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ee2626afccd7561a06cf1367e2950c4718ea04565e20fb5029b6c7d8ad09abcf"
+checksum = "4f94fa09c2aeea5b8839e414b7b841bf429fd25b9c522116ac97ee87856d88b2"
 
 [[package]]
 name = "either"
@@ -1264,11 +1263,11 @@ dependencies = [
 
 [[package]]
 name = "glifparser"
-version = "1.2.0"
-source = "git+https://github.com/MFEK/glifparser.rlib?branch=master#2c884abab26974487078527206d41006e90e4aff"
+version = "1.2.1"
 dependencies = [
  "derivative",
  "derive_more",
+ "dyn-clone",
  "float-cmp",
  "image",
  "integer_or_float",
@@ -1285,7 +1284,6 @@ dependencies = [
 [[package]]
 name = "glifrenderer"
 version = "0.1.2"
-source = "git+https://github.com/MFEK/glifrenderer.rlib#e7f61a57cb5d63dbdc2aa586b63b78caca9a6933"
 dependencies = [
  "MFEKmath",
  "derive_more",
@@ -1542,7 +1540,6 @@ dependencies = [
  "derive_more",
  "float-cmp",
  "indoc",
- "num-traits",
  "serde",
 ]
 
@@ -1727,7 +1724,6 @@ dependencies = [
 [[package]]
 name = "mfek-ipc"
 version = "0.0.1-beta1"
-source = "git+https://github.com/MFEK/ipc.rlib#a1d16f23fce21d865d17aa1f46fcf13ac4a266b2"
 dependencies = [
  "ansi_term",
  "atty",

@@ -80,6 +80,5 @@ lazy_static! {
         // new macOS (≈2016+)
         FKFamilyName::Title("Helvetica".to_string()),
     ]);
-    //TODO: Replace console.
     //pub static ref SYSTEMMONO: Font = load_font(CONSOLE_FONTS.as_slice());
 }

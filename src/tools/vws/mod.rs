@@ -4,10 +4,10 @@ pub mod util;
 use crate::tool_behaviors::{move_vws_handle::MoveVWSHandle, zoom_scroll::ZoomScroll};
 use crate::user_interface::Interface;
 
-use glifparser::glif::ContourOperations;
+use glifparser::glif::contour::MFEKContourCommon;
+use glifparser::glif::contour_operations::ContourOperations;
 use sdl2::mouse::MouseButton;
 use skulpin::skia_safe::{Canvas, Paint, PaintStyle, Path as SkiaPath};
-use MFEKmath::{Evaluate, Piecewise};
 
 use self::util::{clicked_handle, get_vws_handle_pos};
 
@@ -73,10 +73,7 @@ impl VWS {
         let factor = i.viewport.factor;
 
         for (contour_idx, contour) in v.get_active_layer_ref().outline.iter().enumerate() {
-            let contour_pw = Piecewise::from(contour);
-
-            for (vws_handle_idx, bezier) in contour_pw.segs.iter().enumerate() {
-                let start_point = bezier.start_point();
+            for (vws_handle_idx, point) in contour.iter().enumerate() {
 
                 let (handle_pos_left, handle_pos_right) = match (
                     get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::A),
@@ -95,19 +92,18 @@ impl VWS {
                 paint.set_style(PaintStyle::Stroke);
 
                 path.move_to((handle_pos_left.x as f32, handle_pos_left.y as f32));
-                path.line_to((start_point.x as f32, start_point.y as f32));
+                path.line_to((point.x(), point.y()));
                 path.line_to((handle_pos_right.x as f32, handle_pos_right.y as f32));
 
                 canvas.draw_path(&path, &paint);
             }
 
-            if contour.inner.first().unwrap().ptype == glifparser::PointType::Move {
-                if contour_pw.segs.len() < 1 {
+            if contour.is_open() {
+                if contour.len() < 1 {
                     continue;
                 };
-                let vws_handle_idx = contour_pw.segs.len();
-                let bezier = contour_pw.segs.last().unwrap();
-                let start_point = bezier.end_point();
+                let vws_handle_idx = contour.len() - 1;
+                let point = contour.get_point(contour.len()-1).unwrap();
 
                 let (handle_pos_left, handle_pos_right) = match (
                     get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::A),
@@ -126,7 +122,7 @@ impl VWS {
                 paint.set_style(PaintStyle::Stroke);
 
                 path.move_to((handle_pos_left.x as f32, handle_pos_left.y as f32));
-                path.line_to((start_point.x as f32, start_point.y as f32));
+                path.line_to((point.x(), point.y()));
                 path.line_to((handle_pos_right.x as f32, handle_pos_right.y as f32));
 
                 canvas.draw_path(&path, &paint);

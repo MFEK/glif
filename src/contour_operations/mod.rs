@@ -2,81 +2,16 @@ pub mod dashalongpath;
 pub mod patternalongpath;
 pub mod variablewidthstroke;
 
-use crate::util::MFEKGlifPointData;
+use glifparser::glif::{MFEKContour, MFEKOutline};
+use glifparser::glif::contour_operations::{ContourOperations, unknown_op_outline};
+use glifparser::MFEKPointData;
 
-use glifparser::glif::{ContourOperations, MFEKContour, MFEKOutline};
-
-use log;
-
-fn unknown_op() {
-    log::warn!("Found unknown contour operation attached to contour. File was generated with newer MFEKglif, please upgrade to edit properly.");
+pub trait ContourOperationBuild {
+    fn build(&self, contour: &MFEKContour<MFEKPointData>) -> MFEKOutline<MFEKPointData>;
 }
 
-fn unknown_op_outline() -> MFEKOutline<MFEKGlifPointData> {
-    unknown_op();
-    MFEKOutline::new()
-}
-
-pub trait ContourOperationData {
-    fn build(&self, contour: &MFEKContour<MFEKGlifPointData>) -> MFEKOutline<MFEKGlifPointData>;
-    fn sub(&mut self, contour: &MFEKContour<MFEKGlifPointData>, begin: usize, end: usize);
-    fn append(
-        &mut self,
-        contour: &MFEKContour<MFEKGlifPointData>,
-        append: &MFEKContour<MFEKGlifPointData>,
-    );
-    fn remove(&mut self, contour: &MFEKContour<MFEKGlifPointData>, idx: usize);
-    fn insert(&mut self, contour: &MFEKContour<MFEKGlifPointData>, idx: usize);
-}
-
-pub trait ContourOperation {
-    fn build(&self, contour: &MFEKContour<MFEKGlifPointData>) -> MFEKOutline<MFEKGlifPointData>;
-    fn sub(&mut self, contour: &MFEKContour<MFEKGlifPointData>, begin: usize, end: usize);
-    fn append(
-        &mut self,
-        contour: &MFEKContour<MFEKGlifPointData>,
-        append: &MFEKContour<MFEKGlifPointData>,
-    );
-    fn remove_op(&mut self, contour: &MFEKContour<MFEKGlifPointData>, idx: usize);
-    fn insert_op(&mut self, contour: &MFEKContour<MFEKGlifPointData>, idx: usize);
-}
-
-impl ContourOperation for Option<ContourOperations<MFEKGlifPointData>> {
-    fn sub(&mut self, contour: &MFEKContour<MFEKGlifPointData>, begin: usize, end: usize) {
-        if let Some(op) = self.as_mut() {
-            match op {
-                ContourOperations::VariableWidthStroke { ref mut data } => {
-                    data.sub(contour, begin, end)
-                }
-                ContourOperations::PatternAlongPath { ref mut data } => {
-                    data.sub(contour, begin, end)
-                }
-                ContourOperations::DashAlongPath { ref mut data } => data.sub(contour, begin, end),
-                _ => unknown_op(),
-            }
-        }
-    }
-
-    fn append(
-        &mut self,
-        contour: &MFEKContour<MFEKGlifPointData>,
-        append: &MFEKContour<MFEKGlifPointData>,
-    ) {
-        if let Some(op) = self.as_mut() {
-            match op {
-                ContourOperations::VariableWidthStroke { ref mut data } => {
-                    data.append(contour, append)
-                }
-                ContourOperations::PatternAlongPath { ref mut data } => {
-                    data.append(contour, append)
-                }
-                ContourOperations::DashAlongPath { ref mut data } => data.append(contour, append),
-                _ => unknown_op(),
-            }
-        }
-    }
-
-    fn build(&self, contour: &MFEKContour<MFEKGlifPointData>) -> MFEKOutline<MFEKGlifPointData> {
+impl ContourOperationBuild for Option<ContourOperations<MFEKPointData>> {
+    fn build(&self, contour: &MFEKContour<MFEKPointData>) -> MFEKOutline<MFEKPointData> {
         let op = contour.operation.clone();
         if op.is_none() {
             return vec![contour.clone()];
@@ -87,32 +22,6 @@ impl ContourOperation for Option<ContourOperations<MFEKGlifPointData>> {
             ContourOperations::PatternAlongPath { data } => data.build(contour),
             ContourOperations::DashAlongPath { data } => data.build(contour),
             _ => unknown_op_outline(),
-        }
-    }
-
-    fn insert_op(&mut self, contour: &MFEKContour<MFEKGlifPointData>, idx: usize) {
-        if let Some(op) = self.as_mut() {
-            match op {
-                ContourOperations::VariableWidthStroke { ref mut data } => {
-                    data.insert(contour, idx)
-                }
-                ContourOperations::PatternAlongPath { ref mut data } => data.insert(contour, idx),
-                ContourOperations::DashAlongPath { ref mut data } => data.insert(contour, idx),
-                _ => unknown_op(),
-            }
-        }
-    }
-
-    fn remove_op(&mut self, contour: &MFEKContour<MFEKGlifPointData>, idx: usize) {
-        if let Some(op) = self.as_mut() {
-            match op {
-                ContourOperations::VariableWidthStroke { ref mut data } => {
-                    data.remove(contour, idx)
-                }
-                ContourOperations::PatternAlongPath { ref mut data } => data.remove(contour, idx),
-                ContourOperations::DashAlongPath { ref mut data } => data.remove(contour, idx),
-                _ => unknown_op(),
-            }
         }
     }
 }

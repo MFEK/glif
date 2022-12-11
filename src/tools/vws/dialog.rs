@@ -1,10 +1,13 @@
+use glifparser::CapType;
+use glifparser::JoinType;
+use glifparser::glif::contour_operations::ContourOperations;
+
 use super::super::prelude::*;
 use super::util::*;
 use super::VWS;
 use crate::user_interface::util::imgui_decimal_text_field;
 use crate::user_interface::util::imgui_decimal_text_field_f64;
 use crate::user_interface::Interface;
-use glifparser::glif::{CapType, ContourOperations, JoinType};
 
 fn join_type_to_idx(jt: JoinType) -> usize {
     match jt {

@@ -6,6 +6,7 @@ use crate::tool_behaviors::selection_box::SelectionBox;
 use crate::user_interface::{self, Interface};
 
 use float_cmp::ApproxEq;
+use glifparser::MFEKPointData;
 use glifparser::outline::{skia::FromSkiaPath as _, FromKurbo as _, Reverse};
 use glifparser::{glif::MFEKContour, Outline};
 use imgui;
@@ -238,7 +239,7 @@ impl ShapeDrawer {
         (cx, cy, ((cx).powf(2.) + (cy).powf(2.)).sqrt())
     }
 
-    fn draw_circle(&self) -> Outline<MFEKGlifPointData> {
+    fn draw_circle(&self) -> Outline<MFEKPointData> {
         let (cx, _cy, radius) = self.calculate_radius();
         let direction = shape_direction(cx);
         let kp_center = kurbo::Point::new(self.from.0 as f64, self.from.1 as f64);
@@ -268,7 +269,7 @@ impl ShapeDrawer {
     }
 
     // Odd even causes a pentagram at 5, and interesting connected shapes at odd numbers above 5.
-    fn draw_polygon(&self, polygon: ShapeType) -> Outline<MFEKGlifPointData> {
+    fn draw_polygon(&self, polygon: ShapeType) -> Outline<MFEKPointData> {
         let (sides, oddeven) = match polygon {
             ShapeType::Polygon => (self.sdata.polygon_sides, false),
             ShapeType::Star => (self.sdata.polygon_sides, true),
@@ -335,7 +336,7 @@ impl ShapeDrawer {
         }
     }
 
-    fn draw_fits_in_rect(&mut self, stype: ShapeType) -> Outline<MFEKGlifPointData> {
+    fn draw_fits_in_rect(&mut self, stype: ShapeType) -> Outline<MFEKPointData> {
         let (fx, fy, mx, my) = (
             self.from.0 as f64,
             self.from.1 as f64,
@@ -424,7 +425,7 @@ impl Shapes {
             };
             self.corners = sd.corners;
 
-            let mfek_o: Vec<MFEKContour<MFEKGlifPointData>> =
+            let mfek_o: Vec<MFEKContour<MFEKPointData>> =
                 o.iter().map(|e| e.into()).collect();
             v.get_active_layer_mut().outline.extend(mfek_o);
             self.dropped_shape = true;

@@ -1,3 +1,5 @@
+use glifparser::MFEKPointData;
+
 use super::prelude::*;
 
 #[derive(Clone, Default, derivative::Derivative)]
@@ -5,7 +7,7 @@ use super::prelude::*;
 pub struct MoveGlyph {
     mouse_info: Option<MouseInfo>,
     #[derivative(Debug = "ignore")]
-    glyph: Option<MFEKGlif<MFEKGlifPointData>>,
+    glyph: Option<MFEKGlif<MFEKPointData>>,
 }
 
 impl MoveGlyph {

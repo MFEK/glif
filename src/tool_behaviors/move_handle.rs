@@ -1,7 +1,10 @@
 use super::prelude::*;
+use crate::get_point_mut;
 pub use crate::user_interface::follow::Follow;
-use glifparser::outline::RefigurePointTypes as _;
 use MFEKmath::polar::PolarCoordinates as _;
+use glifparser::PointData;
+use glifparser::glif::contour::MFEKContourCommon;
+use glifparser::glif::point::MFEKPointCommon;
 
 #[derive(Clone, Debug)]
 pub struct MoveHandle {
@@ -37,25 +40,19 @@ impl MoveHandle {
 
         self.mouse_info.modifiers = mouse_info.modifiers;
 
-        let x = mouse_info.position.0 as f32;
-        let y = mouse_info.position.1 as f32;
+        let (x, y) = mouse_info.position;
 
         let (vci, vpi) = (v.contour_idx.unwrap(), v.point_idx.unwrap());
 
         {
             let layer = v.get_active_layer_mut();
-            let handle = match self.wh {
-                WhichHandle::A => get_point!(layer, vci, vpi).a,
-                WhichHandle::B => get_point!(layer, vci, vpi).b,
-                WhichHandle::Neither => {
-                    panic!("MoveHandle cannot be created with a WhichHandle::Neither!")
-                }
-            };
+            let point = get_point_mut!(layer, vci, vpi).unwrap();
+            let handle = point.get_handle(self.wh).unwrap();
 
             // Current x, current y
             let (cx, cy) = match handle {
                 Handle::At(cx, cy) => (cx, cy),
-                Handle::Colocated => (get_point!(layer, vci, vpi).x, get_point!(layer, vci, vpi).y),
+                Handle::Colocated => (point.x(), point.y()),
             };
 
             // Difference in x, difference in y
@@ -69,17 +66,17 @@ impl MoveHandle {
 
             match self.wh {
                 WhichHandle::A | WhichHandle::B => {
-                    get_point!(layer, vci, vpi).set_handle(self.wh, Handle::At(x, y));
+                    point.set_handle(self.wh, Handle::At(x, y));
                     match follow {
-                        Follow::Mirror => self.mirror(&mut get_point!(layer, vci, vpi), (dx, dy)),
-                        Follow::ForceLine => self.force_line(&mut get_point!(layer, vci, vpi)),
+                        Follow::Mirror => self.mirror(point, (dx, dy)),
+                        Follow::ForceLine => self.force_line(point),
                         Follow::No => (),
                     }
                 }
                 WhichHandle::Neither => unreachable!("Should've been matched above?!"),
             }
 
-            get_contour_mut!(layer, vci).refigure_point_types();
+            //get_contour_mut!(layer, vci).refigure_point_types();
         }
     }
 
@@ -93,22 +90,19 @@ impl MoveHandle {
 
 // Implementations of Follow::* behaviors
 impl MoveHandle {
-    fn mirror(&self, point: &mut Point<MFEKGlifPointData>, (dx, dy): (f32, f32)) {
-        let (hx, hy) = match point.handle(self.wh.opposite()) {
-            Handle::At(hx, hy) => (hx, hy),
-            Handle::Colocated => {
-                // Initialize control point currently marked as being colocated
-                point.set_handle(self.wh.opposite(), Handle::At(point.x, point.y));
-                (point.x, point.y)
-            }
-        };
-        point.set_handle(self.wh.opposite(), Handle::At(hx + dx, hy + dy));
+    fn mirror<PD: PointData>(&self, point: &mut dyn MFEKPointCommon<PD>, (dx, dy): (f32, f32)) {
+        if let Some(Handle::At(hx, hy)) = point.get_handle(self.wh.opposite()) {
+            point.set_handle(self.wh.opposite(), Handle::At(hx + dx, hy + dy));
+        } else if let Some(Handle::Colocated) = point.get_handle(self.wh.opposite()) {
+            point.set_handle(self.wh.opposite(), Handle::At(point.x() + dx, point.y() + dy));
+        }
     }
 
-    fn force_line(&mut self, point: &mut Point<MFEKGlifPointData>) {
-        let (r, _) = point.polar(self.wh.opposite());
+    fn force_line<PD: PointData>(&mut self, point: &mut dyn MFEKPointCommon<PD>) {
+        // TODO: Fix this? I have zero clue why this errors. It's forcing point to `static.
+        /*let (r, _) = point.polar(self.wh.opposite());
         let (_, theta) = point.polar(self.wh);
-        match point.handle(self.wh.opposite()) {
+        match point.get_handle(self.wh.opposite()).unwrap() {
             Handle::At(..) => point.set_polar(self.wh.opposite(), (r, theta.to_degrees())),
             Handle::Colocated => {
                 if !self.warned_force_line {
@@ -118,7 +112,7 @@ impl MoveHandle {
                 }
                 self.warned_force_line = true;
             }
-        }
+        }*/
     }
 }
 

@@ -10,6 +10,7 @@ use std::rc::Rc;
 
 use crate::render;
 use crate::user_interface::gui::build_imgui_ui;
+use glifparser::MFEKPointData;
 use glifrenderer::grid::Grid;
 use glifrenderer::viewport::Viewport;
 use imgui::{self, Context};
@@ -20,7 +21,6 @@ use skulpin::Renderer;
 
 use crate::editor::Editor;
 pub use crate::user_interface::mouse_input::MouseInfo;
-use crate::util::MFEKGlifPointData;
 
 use glifparser::glif::Layer;
 use sdl2::{video::Window, Sdl};
@@ -201,6 +201,6 @@ pub enum InputPrompt {
     },
     Layer {
         label: String,
-        func: Rc<dyn Fn(&mut Editor, Layer<MFEKGlifPointData>)>,
+        func: Rc<dyn Fn(&mut Editor, Layer<MFEKPointData>)>,
     },
 }

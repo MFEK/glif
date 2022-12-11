@@ -7,7 +7,6 @@ use std::panic::set_hook;
 use std::{env, process};
 
 use colored::Colorize;
-use glifparser::PointData;
 use lazy_static::lazy_static;
 use log;
 use msgbox::IconType;
@@ -142,37 +141,3 @@ pub fn set_codepage_utf8() {
         debug_assert!(winapi::um::wincon::SetConsoleOutputCP(winapi::um::winnls::CP_UTF8) == 1);
     }
 }
-
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
-pub struct MFEKGlifGuidelineInfo {
-    pub fixed: bool,
-    pub format: bool,
-    pub right: bool,
-}
-#[derive(Clone, Copy, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
-pub enum MFEKGlifPointData {
-    Guideline(MFEKGlifGuidelineInfo),
-}
-impl Default for MFEKGlifPointData {
-    fn default() -> Self {
-        MFEKGlifPointData::Guideline(MFEKGlifGuidelineInfo::default())
-    }
-}
-impl MFEKGlifPointData {
-    pub fn new_guideline_data(fixed: bool, format: bool, right: bool) -> Self {
-        Self::Guideline(MFEKGlifGuidelineInfo {
-            fixed,
-            format,
-            right,
-        })
-    }
-    pub fn as_guideline(&self) -> MFEKGlifGuidelineInfo {
-        #[allow(irrefutable_let_patterns)]
-        if let MFEKGlifPointData::Guideline(guide) = self {
-            *guide
-        } else {
-            panic!("Tried to unwrap non-guideline as guideline")
-        }
-    }
-}
-impl PointData for MFEKGlifPointData {}

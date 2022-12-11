@@ -3,8 +3,9 @@ use std::collections::HashSet;
 // Select
 use super::{prelude::*, EditorEvent, MouseEventType, Tool};
 use crate::command::{Command, CommandType};
+use crate::get_point_mut;
 use crate::tool_behaviors::rotate_selection::RotateSelection;
-use glifparser::outline::Reverse as _;
+use glifparser::glif::mfek::contour::MFEKContourCommon;
 
 use MFEKmath::Vector;
 
@@ -85,7 +86,7 @@ impl Select {
     fn select_all(&mut self, v: &mut Editor) {
         let mut points = HashSet::new();
         for (ci, contour) in v.get_active_layer_ref().outline.iter().enumerate() {
-            for (pi, _point) in contour.inner.iter().enumerate() {
+            for (pi, _) in contour.inner.iter().enumerate() {
                 points.insert((ci, pi));
             }
         }
@@ -103,18 +104,17 @@ impl Select {
         v.begin_modification("Nudge selected points.");
         for (ci, pi) in selected {
             let layer = v.get_active_layer_mut();
-            let point = &get_point!(layer, ci, pi);
+            let point = get_point_mut!(layer, ci, pi).unwrap();
             let factor = PanBehavior::nudge_factor(command);
             let offset = PanBehavior::nudge_offset(command, factor);
-            let x = point.x;
-            let y = point.y;
-            editor::util::move_point(&mut layer.outline, ci, pi, x - offset.0, y + offset.1);
+            
+            point.set_position(point.x() - offset.0, point.y() + offset.1);
         }
         v.end_modification();
     }
 
     fn reverse_selected(&mut self, v: &mut Editor) {
-        let ci = if let Some((ci, _)) = v.selected() {
+        let ci = if let Some((ci, _)) = v.selected_point() {
             ci
         } else {
             return;
@@ -127,7 +127,7 @@ impl Select {
             let contour_len = layer.outline[ci].inner.len();
             layer.outline[ci].inner.reverse();
             if let Some(pi) = point_idx {
-                if layer.outline[ci].inner[0].ptype != PointType::Move {
+                if !get_contour!(layer, ci).is_open() {
                     if pi == 0 {
                         Some(0)
                     } else {
@@ -172,6 +172,7 @@ impl Select {
             )));
             return;
         }
+        
 
         // if we found a point or handle we're going to start a drag operation
         match clicked_point_or_handle(v, i, mouse_info.position, None) {

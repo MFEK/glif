@@ -37,15 +37,13 @@ pub fn build_and_check_layer_list(v: &mut Editor, i: &mut Interface, ui: &imgui:
         unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icons::ARROWUP) },
         [0., 0.],
     );
-    if ui.is_item_clicked(imgui::MouseButton::Left) {
-        if active_layer != 0 {
-            let _start_layer_type =
-                v.with_glyph(|glif| glif.layers[active_layer].operation.clone());
-            let _target_layer_type =
-                v.with_glyph(|glif| glif.layers[active_layer - 1].operation.clone());
+    if ui.is_item_clicked(imgui::MouseButton::Left) && active_layer != 0 {
+        let _start_layer_type =
+            v.with_glyph(|glif| glif.layers[active_layer].operation.clone());
+        let _target_layer_type =
+            v.with_glyph(|glif| glif.layers[active_layer - 1].operation.clone());
 
-            v.swap_layers(active_layer, active_layer - 1, true);
-        }
+        v.swap_layers(active_layer, active_layer - 1, true);
     }
 
     let layer_count = v.get_layer_count();
@@ -54,10 +52,8 @@ pub fn build_and_check_layer_list(v: &mut Editor, i: &mut Interface, ui: &imgui:
         unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icons::ARROWDOWN) },
         [0., 0.],
     );
-    if ui.is_item_clicked(imgui::MouseButton::Left) {
-        if active_layer != layer_count - 1 {
-            v.swap_layers(active_layer, active_layer + 1, true);
-        }
+    if ui.is_item_clicked(imgui::MouseButton::Left) && active_layer != layer_count - 1 {
+        v.swap_layers(active_layer, active_layer + 1, true);
     }
 
     pop_me.pop(ui);

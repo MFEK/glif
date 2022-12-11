@@ -1,10 +1,8 @@
-use glifparser::{Guideline, IntegerOrFloat};
-use log;
+use glifparser::{Guideline, IntegerOrFloat, MFEKPointData};
 use mfek_ipc::{self, module, IPCInfo};
 
 use crate::editor::{events::*, Editor};
 use crate::user_interface::Interface;
-use crate::util::MFEKGlifPointData;
 
 use std::path::PathBuf;
 use std::process;
@@ -138,7 +136,7 @@ pub fn fetch_metrics(v: &mut Editor) {
             let (fixed, format, right) = (false, true, false);
             let guideline = Guideline::from_x_y_angle(0., metric, IntegerOrFloat::default())
                 .name(NAMES[i].to_string())
-                .data(MFEKGlifPointData::new_guideline_data(fixed, format, right));
+                .data(MFEKPointData::new_guideline_data(fixed, format, right));
             log::trace!("Adding metrics guideline: {:?}", &guideline);
             v.guidelines.push(guideline);
         }
