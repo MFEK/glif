@@ -1,8 +1,8 @@
 mod modes;
-use std::collections::HashMap;
 
 use self::modes::PenMode;
 use self::modes::cubic::CubicMode;
+use self::modes::hyper::HyperMode;
 use self::modes::quad::QuadMode;
 
 use super::prelude::*;
@@ -10,7 +10,6 @@ use super::prelude::*;
 use crate::is_contour_open;
 use crate::tool_behaviors::{move_handle::MoveHandle, pan::PanBehavior, zoom_scroll::ZoomScroll};
 use crate::user_interface::Interface;
-use glifparser::MFEKPointData;
 use glifparser::glif::inner::MFEKContourInnerType;
 use glifrenderer::points::draw_point;
 use glifparser::glif::mfek::contour::MFEKContourCommon;
@@ -22,7 +21,8 @@ use editor::util::get_contour_start_or_end;
 pub struct Pen {
     mode: MFEKContourInnerType,
     cubic: CubicMode,
-    quad: QuadMode
+    quad: QuadMode,
+    hyper: HyperMode,
 }
 
 
@@ -59,6 +59,7 @@ impl Tool for Pen {
             let options = [
                 imgui::im_str!("Cubic"),
                 imgui::im_str!("Quad"),
+                imgui::im_str!("Hyper"),
             ];
 
             let mut mode = contour_type_to_string(self.mode.clone());
@@ -72,6 +73,7 @@ impl Tool for Pen {
             self.mode = match mode {
                 0 => MFEKContourInnerType::Cubic,
                 1 => MFEKContourInnerType::Quad,
+                2 => MFEKContourInnerType::Hyper,
                 _ => unreachable!()
             }
         })
@@ -88,7 +90,8 @@ impl Pen {
         Self {
             mode: MFEKContourInnerType::Cubic,
             cubic: CubicMode {  },
-            quad: QuadMode {  }
+            quad: QuadMode {  },
+            hyper: HyperMode { },
         }
     }
 
@@ -212,8 +215,9 @@ impl Pen {
 
     fn get_mode_by_type(&mut self, kind: MFEKContourInnerType) -> &mut dyn PenMode {
         match kind {
-            glifparser::glif::inner::MFEKContourInnerType::Cubic => &mut self.cubic,
-            glifparser::glif::inner::MFEKContourInnerType::Quad => &mut self.quad,
+            MFEKContourInnerType::Cubic => &mut self.cubic,
+            MFEKContourInnerType::Quad => &mut self.quad,
+            MFEKContourInnerType::Hyper => &mut self.hyper,
         }
     }
 }
@@ -241,5 +245,6 @@ fn contour_type_to_string(mode: MFEKContourInnerType) -> usize {
     match mode {
         MFEKContourInnerType::Cubic => 0,
         MFEKContourInnerType::Quad => 1,
+        MFEKContourInnerType::Hyper => 2,
     }
 }

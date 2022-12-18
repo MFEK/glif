@@ -1,7 +1,7 @@
 use crate::get_point_mut;
 
-use super::{prelude::*, move_handle::MoveHandle};
-use glifparser::glif::{mfek::contour::MFEKContourCommon, contour::MFEKCommonOuter};
+use super::prelude::*;
+use glifparser::glif::{mfek::contour::MFEKContourCommon};
 #[derive(Clone, Debug)]
 pub struct MovePoint {
     // we hold on to a clone of the mouse info when the behavior gets put on the stack

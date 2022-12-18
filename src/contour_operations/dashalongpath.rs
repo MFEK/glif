@@ -1,5 +1,6 @@
 use MFEKmath::mfek::ResolveCubic;
 use glifparser::glif::contour::MFEKContourCommon;
+use glifparser::glif::inner::MFEKContourInner;
 use glifparser::glif::{MFEKContour, MFEKOutline, contour_operations::dash::DashContour};
 use glifparser::{MFEKPointData, Glif};
 
@@ -11,7 +12,7 @@ impl ContourOperationBuild for DashContour {
         let mut glif = Glif::default();
         
         // TODO: Get rid of this call to resolve to cubic and use some internal cache.
-        glif.outline = Some(vec![contour.resolve_to_cubic().cubic().unwrap().clone()]);
+        glif.outline = Some(vec![contour.to_cubic().cubic().unwrap().clone()]);
         let dash_output = MFEKmath::dash_along_glif(&glif, self);
 
         let mut output: MFEKOutline<MFEKPointData> = Vec::new();

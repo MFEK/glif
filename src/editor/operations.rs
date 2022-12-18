@@ -34,19 +34,20 @@ impl Editor {
 
         //self.fix_contour_ops();
         let mut preview_layers = Vec::new();
-        for layer in &self.glyph.as_ref().unwrap().layers {
+        for layer in &self.glyph.as_mut().unwrap().layers {
             let mut preview_outline = Vec::new();
 
             for (_idx, glif_contour) in layer.outline.iter().enumerate() {
-                if glif_contour.inner.len() <= 1 {
-                    preview_outline.push(glif_contour.resolve_to_cubic());
+                if glif_contour.inner().len() <= 1 {
+                    preview_outline.push(glif_contour.to_cubic());
                     continue;
                 }
 
-                let build_result = glif_contour.operation.build(glif_contour);
+                let (_, resolved) = glif_contour.resolve();
+                let build_result = resolved.operation().build(&resolved);
 
                 for new_contour in build_result {
-                    preview_outline.push(new_contour.resolve_to_cubic());
+                    preview_outline.push(new_contour.to_cubic());
                 }
             }
 
@@ -74,7 +75,7 @@ impl Editor {
             .glyph
             .as_ref()
             .expect("Illegally tried to export a null glyph!");
-        if glyph.layers.len() == 1 && glyph.layers[0].outline.iter().all(|c| c.operation == None) {
+        if glyph.layers.len() == 1 && glyph.layers[0].outline.iter().all(|c| c.operation().clone() == None) {
             return glyph.clone();
         }
 

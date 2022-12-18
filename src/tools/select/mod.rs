@@ -86,7 +86,7 @@ impl Select {
     fn select_all(&mut self, v: &mut Editor) {
         let mut points = HashSet::new();
         for (ci, contour) in v.get_active_layer_ref().outline.iter().enumerate() {
-            for (pi, _) in contour.inner.iter().enumerate() {
+            for (pi, _) in contour.inner().iter().enumerate() {
                 points.insert((ci, pi));
             }
         }
@@ -124,8 +124,8 @@ impl Select {
         let point_idx = v.point_idx;
         v.point_idx = {
             let layer = v.get_active_layer_mut();
-            let contour_len = layer.outline[ci].inner.len();
-            layer.outline[ci].inner.reverse();
+            let contour_len = layer.outline[ci].len();
+            layer.outline[ci].reverse_points();
             if let Some(pi) = point_idx {
                 if !get_contour!(layer, ci).is_open() {
                     if pi == 0 {

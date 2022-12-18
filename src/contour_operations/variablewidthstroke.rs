@@ -1,5 +1,7 @@
 use MFEKmath::mfek::ResolveCubic;
 use glifparser::MFEKPointData;
+use glifparser::glif::contour::MFEKContourCommon;
+use glifparser::glif::inner::MFEKContourInner;
 use glifparser::glif::{MFEKContour, MFEKOutline};
 use glifparser::glif::contour_operations::vws::{VWSContour};
 use MFEKmath::{variable_width_stroke, Piecewise, VWSSettings};
@@ -8,7 +10,7 @@ use super::ContourOperationBuild;
 
 impl ContourOperationBuild for VWSContour {
     fn build(&self, contour: &MFEKContour<MFEKPointData>) -> MFEKOutline<MFEKPointData> {
-        let contour_pw = Piecewise::from(contour.resolve_to_cubic());
+        let contour_pw = Piecewise::from(contour.to_cubic());
 
         let settings = VWSSettings::<MFEKPointData> {
             cap_custom_start: None,

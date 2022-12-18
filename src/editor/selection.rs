@@ -1,8 +1,8 @@
 use flo_curves::{bezier::fit_curve_cubic, BezierCurve};
 use glifparser::{
-    glif::{Layer, MFEKContour, contour::{MFEKContourCommon, MFEKCommonOuter}, contour_operations::ContourOperation, inner::MFEKCommonInner},
+    glif::{Layer, MFEKContour, contour::MFEKContourCommon, contour_operations::ContourOperation, inner::MFEKCommonInner},
     outline::skia::ToSkiaPaths as _,
-    Handle, contour::State, MFEKPointData, WhichHandle,
+    Handle, MFEKPointData, WhichHandle,
 };
 use MFEKmath::{Bezier, Evaluate, Vector, Rect};
 
@@ -81,7 +81,7 @@ impl Editor {
             let mut begin = 0;
 
             let mut deleted = false;
-            for (point_idx, _) in contour.inner.iter().enumerate() {
+            for (point_idx, _) in contour.inner().iter().enumerate() {
                 let to_delete = !self.point_selected(contour_idx, point_idx);
 
                 if to_delete {
@@ -95,17 +95,17 @@ impl Editor {
             let mfekcur: MFEKContour<MFEKPointData> = contour.sub(begin, contour.len());
             results.push(mfekcur);
 
-            if results.len() > 1 && !contour.inner.is_open() {
+            if results.len() > 1 && !contour.inner().is_open() {
                 let mut move_to_front = results.pop().unwrap().clone();
-                let _ = move_to_front.inner.append(&mut results[0].inner);
+                let _ = move_to_front.inner_mut().append(&mut results[0].inner());
 
                 results[0] = move_to_front;
             }
 
             for mut result in results {
-                if !result.inner.is_empty() {
+                if !result.inner().is_empty() {
                     if deleted {
-                        result.inner.set_open();
+                        result.inner_mut().set_open();
                     }
                     new_outline.push(result);
                 }
@@ -234,8 +234,8 @@ impl Editor {
         let layer = self.get_active_layer_mut();
         let contour = &mut layer.outline[contour_idx];
 
-        contour.inner.delete(point_idx);
-        contour.operation.remove_op(point_idx);
+        contour.inner_mut().delete(point_idx);
+        contour.operation_mut().remove_op(point_idx);
 
         self.contour_idx = None;
         self.point_idx = None;
@@ -375,7 +375,7 @@ impl Editor {
         contour[next_idx].b = Handle::At(fitted_curve.w3.x as f32, fitted_curve.w3.y as f32);
 
         contour.remove(point_idx);
-        layer.outline[contour_idx].operation.remove_op(point_idx);
+        layer.outline[contour_idx].operation_mut().remove_op(point_idx);
 
         self.contour_idx = None;
         self.point_idx = None;
@@ -393,7 +393,7 @@ impl Editor {
             let mut begin = 0;
 
             let mut deleted = false;
-            for (point_idx, _) in contour.inner.iter().enumerate() {
+            for (point_idx, _) in contour.inner().iter().enumerate() {
                 let to_delete = self.point_selected(contour_idx, point_idx);
 
                 if to_delete {
@@ -416,9 +416,9 @@ impl Editor {
             }
 
             for mut result in results {
-                if !result.inner.is_empty() {
+                if !result.inner().is_empty() {
                     if deleted {
-                        result.inner.set_open();
+                        result.inner_mut().set_open();
                         //result.inner.first_mut().unwrap().b = Handle::Colocated;
                         //result.inner.last_mut().unwrap().a = Handle::Colocated;
                     }

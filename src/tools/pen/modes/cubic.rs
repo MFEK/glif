@@ -1,5 +1,5 @@
 use MFEKmath::{Bezier, Primitive};
-use glifparser::{glif::{contour::MFEKContourCommon, contour_operations::ContourOperation}, Point, PointType, WhichHandle, contour::State, Contour, MFEKPointData};
+use glifparser::{glif::{contour::MFEKContourCommon, contour_operations::ContourOperation}, Point, PointType, WhichHandle, Contour, MFEKPointData};
 use glifrenderer::points::draw_point;
 
 use crate::{editor::{Editor, util::{HoveredPointInfo}}, user_interface::MouseInfo, get_contour_len, tool_behaviors::move_handle::MoveHandle};
@@ -44,7 +44,7 @@ impl PenMode for CubicMode {
         if v.point_idx.unwrap() == contour_len - 1 {
             v.point_idx = {
                 let layer = v.get_active_layer_mut();
-                layer.outline[contour_idx].operation.insert_op(contour_len);
+                layer.outline[contour_idx].operation_mut().insert_op(contour_len);
                 let contour = layer.outline[contour_idx].cubic_mut().unwrap();
                 contour.push(Point::from_x_y_type(
                     (mouse_pos.0 as f32, mouse_pos.1 as f32),
@@ -68,7 +68,7 @@ impl PenMode for CubicMode {
                     Point::from_x_y_type((mouse_pos.0 as f32, mouse_pos.1 as f32), point_type),
                 );
 
-                layer.outline[contour_idx].operation.insert_op( 0);
+                layer.outline[contour_idx].operation_mut().insert_op( 0);
             };
             v.end_modification();
         }
@@ -88,7 +88,7 @@ impl PenMode for CubicMode {
     fn subdivide_curve(&self, v: &mut Editor, info: HoveredPointInfo) {
         let mut second_idx_zero = false;
         let layer = v.get_active_layer_mut();
-        layer.outline[info.contour_idx].operation.insert_op( info.seg_idx);
+        layer.outline[info.contour_idx].operation_mut().insert_op( info.seg_idx);
         let contour = layer.outline[info.contour_idx].cubic_mut().unwrap();
         let mut point = contour.remove(info.seg_idx);
         let mut next_point = if info.seg_idx == contour.len() {

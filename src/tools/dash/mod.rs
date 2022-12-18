@@ -26,7 +26,7 @@ impl Tool for Dash {
 
     fn ui(&mut self, v: &mut Editor, i: &mut Interface, ui: &mut Ui) {
         let show_dialog = match v.contour_idx {
-            Some(ci) => match v.get_active_layer_ref().outline[ci].operation {
+            Some(ci) => match v.get_active_layer_ref().outline[ci].operation() {
                 Some(ContourOperations::DashAlongPath { .. }) => true,
                 _ => false,
             },
@@ -46,7 +46,7 @@ impl Dash {
 
     fn mouse_pressed(&mut self, v: &mut Editor, i: &mut Interface, mouse_info: MouseInfo) {
         if let Some((ci, pi, _wh)) = clicked_point_or_handle(v, i, mouse_info.raw_position, None) {
-            let layer_op = v.get_active_layer_ref().outline[ci].operation.clone();
+            let layer_op = v.get_active_layer_ref().outline[ci].operation().clone();
             v.contour_idx = Some(ci);
             v.point_idx = Some(pi);
 
@@ -54,7 +54,7 @@ impl Dash {
                 Some(ContourOperations::DashAlongPath { .. }) => (),
                 None | Some(_) => {
                     v.begin_modification("Added dash contour.");
-                    v.get_active_layer_mut().outline[ci].operation = Some(ContourOperations::DashAlongPath {
+                    v.get_active_layer_mut().outline[ci].set_operation(Some(ContourOperations::DashAlongPath {
                         data: DashContour {
                             stroke_width: 10.,
                             cull: None,
@@ -63,7 +63,7 @@ impl Dash {
                             paint_cap: PaintCap::Butt as u8,
                             paint_join: PaintJoin::Miter as u8,
                         },
-                    });
+                    }));
                     v.end_modification();
                 }
             }

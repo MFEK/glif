@@ -24,7 +24,7 @@ impl Editor {
             let glyph = self.glyph.as_mut().unwrap();
             for layer in glyph.layers.iter_mut() {
                 for contour in layer.outline.iter_mut() {
-                    contour.operation = None;
+                    contour.set_operation(None);
                 }
             }
         }

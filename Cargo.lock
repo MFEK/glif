@@ -30,12 +30,12 @@ dependencies = [
  "git-version",
  "glifparser",
  "glifrenderer",
- "image",
+ "image 0.23.14",
  "imgui",
  "imgui-sdl2",
  "imgui-skia-renderer",
  "itertools 0.10.3",
- "kurbo",
+ "kurbo 0.9.0",
  "lazy_static",
  "log",
  "mfek-ipc",
@@ -53,6 +53,7 @@ dependencies = [
  "shrinkwraprs",
  "skulpin",
  "skulpin-renderer",
+ "spline 0.3.0 (git+https://github.com/linebender/spline)",
  "strum 0.23.0",
  "which",
  "winapi 0.3.9",
@@ -65,10 +66,11 @@ version = "0.1.0"
 dependencies = [
  "flo_curves",
  "glifparser",
- "kurbo",
+ "kurbo 0.9.0",
  "log",
  "plist",
  "skia-safe",
+ "spline 0.3.0",
  "xmltree",
 ]
 
@@ -125,7 +127,7 @@ checksum = "1d76e1fe0171b6d0857afca5671db12a44e71e80823db13ab39f776fb09ad079"
 dependencies = [
  "clipboard-win",
  "core-graphics",
- "image",
+ "image 0.23.14",
  "log",
  "objc",
  "objc-foundation",
@@ -1263,20 +1265,21 @@ dependencies = [
 
 [[package]]
 name = "glifparser"
-version = "1.2.1"
+version = "1.2.4"
 dependencies = [
  "derivative",
  "derive_more",
  "dyn-clone",
  "float-cmp",
- "image",
+ "image 0.24.5",
  "integer_or_float",
  "itertools 0.10.3",
- "kurbo",
+ "kurbo 0.9.0",
  "log",
  "plist",
  "serde",
  "skia-safe",
+ "spline 0.3.0",
  "trees",
  "xmltree",
 ]
@@ -1292,7 +1295,7 @@ dependencies = [
  "flo_curves",
  "font-kit",
  "glifparser",
- "kurbo",
+ "kurbo 0.8.3",
  "lazy_static",
  "log",
  "num-traits",
@@ -1434,8 +1437,22 @@ dependencies = [
  "num-iter",
  "num-rational 0.3.2",
  "num-traits",
- "png",
+ "png 0.16.8",
  "tiff",
+]
+
+[[package]]
+name = "image"
+version = "0.24.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "69b7ea949b537b0fd0af141fff8c77690f2ce96f4f41f042ccb6c69c6c965945"
+dependencies = [
+ "bytemuck",
+ "byteorder",
+ "color_quant",
+ "num-rational 0.4.0",
+ "num-traits",
+ "png 0.17.7",
 ]
 
 [[package]]
@@ -1617,6 +1634,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7a53776d271cfb873b17c618af0298445c88afc52837f3e948fa3fafd131f449"
 dependencies = [
  "arrayvec 0.7.2",
+]
+
+[[package]]
+name = "kurbo"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e119590a03caff1f7a582e8ee8c2164ddcc975791701188132fd1d1b518d3871"
+dependencies = [
+ "arrayvec 0.7.2",
  "serde",
 ]
 
@@ -1761,6 +1787,15 @@ checksum = "a92518e98c078586bc6c934028adcca4c92a53d6a958196de835170a01d84e4b"
 dependencies = [
  "adler",
  "autocfg",
+]
+
+[[package]]
+name = "miniz_oxide"
+version = "0.6.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b275950c28b37e794e8c55d88aeb5e139d0ce23fdbbeda68f8d7174abdf9e8fa"
+dependencies = [
+ "adler",
 ]
 
 [[package]]
@@ -2189,6 +2224,18 @@ dependencies = [
  "crc32fast",
  "deflate",
  "miniz_oxide 0.3.7",
+]
+
+[[package]]
+name = "png"
+version = "0.17.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5d708eaf860a19b19ce538740d2b4bdeeb8337fa53f7738455e706623ad5c638"
+dependencies = [
+ "bitflags",
+ "crc32fast",
+ "flate2",
+ "miniz_oxide 0.6.2",
 ]
 
 [[package]]
@@ -2775,6 +2822,21 @@ name = "spirv-types"
 version = "0.4.0-alpha.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "71cc4b8f7ec707459fdeddb4f137109947045592f5b0c139f7bf1360058bac6b"
+
+[[package]]
+name = "spline"
+version = "0.3.0"
+dependencies = [
+ "kurbo 0.9.0",
+]
+
+[[package]]
+name = "spline"
+version = "0.3.0"
+source = "git+https://github.com/linebender/spline#19fc88988f1ac465fcedd11562f9b860f68f99f0"
+dependencies = [
+ "kurbo 0.8.3",
+]
 
 [[package]]
 name = "str-buf"

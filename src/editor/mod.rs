@@ -271,6 +271,17 @@ macro_rules! yield_glyph_or_panic {
 // with_active_layer and friends
 impl Editor {
     // Do not use this function unless you're very sure it's right.
+    pub fn get_active_layer_mut_no_history(&mut self) -> &mut Layer<MFEKPointData> {
+        if !self.modifying {
+            panic!("A modification is not in progress!")
+        }
+
+        self.dirty = true;
+        self.mark_preview_dirty();
+
+        return &mut self.glyph.as_mut().unwrap().layers[self.layer_idx.unwrap()];
+    }
+
     pub fn with_active_layer_mut_no_history<F, R>(&mut self, mut closure: F) -> R
     where
         F: FnMut(&mut Layer<MFEKPointData>) -> R,

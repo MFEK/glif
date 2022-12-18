@@ -27,7 +27,7 @@ impl Tool for PAP {
 
     fn ui(&mut self, v: &mut Editor, i: &mut Interface, ui: &mut Ui) {
         let show_dialog = match v.contour_idx {
-            Some(ci) => match v.get_active_layer_ref().outline[ci].operation {
+            Some(ci) => match v.get_active_layer_ref().outline[ci].operation() {
                 Some(ContourOperations::PatternAlongPath { .. }) => true,
                 _ => false,
             },
@@ -50,7 +50,7 @@ impl PAP {
             v.contour_idx = Some(ci);
             v.point_idx = Some(pi);
 
-            let layer_op = v.get_active_layer_ref().outline[ci].operation.clone();
+            let layer_op = v.get_active_layer_ref().outline[ci].operation().clone();
 
             match layer_op {
                 Some(ContourOperations::PatternAlongPath { .. }) => (),
@@ -59,7 +59,7 @@ impl PAP {
                         label: "Select a pattern.".to_string(),
                         func: Rc::new(move |editor, source_layer| {
                             editor.begin_modification("Added PAP contour.");
-                            editor.get_active_layer_mut().outline[ci].operation =
+                            editor.get_active_layer_mut().outline[ci].set_operation(
                                 Some(ContourOperations::PatternAlongPath {
                                     // TODO: Default() implementation for many of our structs.
                                     data: PAPContour {
@@ -79,7 +79,8 @@ impl PAP {
                                         reverse_path: false,
                                         reverse_culling: false,
                                     },
-                                });
+                                })
+                            );
                             editor.end_modification();
                         }),
                     });

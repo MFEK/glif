@@ -1,15 +1,8 @@
-use MFEKmath::{Bezier, Primitive};
-use glifparser::{glif::{contour::MFEKContourCommon, contour_operations::ContourOperation, point::quad::QPoint, MFEKContour, inner::MFEKContourInner}, Point, PointType, WhichHandle, contour::State, Contour, MFEKPointData, Handle};
-use glifrenderer::points::draw_point;
+use glifparser::{glif::{contour::MFEKContourCommon, contour_operations::ContourOperation, point::quad::QPoint, MFEKContour, inner::MFEKContourInner},PointType, WhichHandle, MFEKPointData, Handle};
 
 use crate::{editor::{Editor, util::{HoveredPointInfo}}, user_interface::MouseInfo, get_contour_len, tool_behaviors::move_handle::MoveHandle};
 use super::PenMode;
 
-/// This is the cubic specific pen implementation, and should serve as an example of the new pen API.
-/// One of the biggest things of note is that these mode structs should -not- contain modification specific state.
-/// State like that should be handled purely inside ToolBehaviors implemented for the mode. You can have state in these
-/// top level modes like UI state where a user might select a point type e.g. Spiro, but these modes are instantiated with
-/// Pen so the state will carry across modifications, and mode changes.
 #[derive(Clone, Debug)]
 pub struct QuadMode {
     // cubic requires no state unlike a mode like Spiro
@@ -39,10 +32,10 @@ impl PenMode for QuadMode {
                 data: None,
             });
 
-            let contour_outer: MFEKContour<MFEKPointData> = MFEKContour {
-                inner: MFEKContourInner::Quad(new_contour),
-                operation: None,
-            };
+            let contour_outer: MFEKContour<MFEKPointData> = MFEKContour::new(
+                MFEKContourInner::Quad(new_contour),
+                None,
+            );
 
             layer.outline.push(contour_outer);
             Some(layer.outline.len() - 1)
@@ -58,7 +51,7 @@ impl PenMode for QuadMode {
         if v.point_idx.unwrap() == contour_len - 1 {
             v.point_idx = {
                 let layer = v.get_active_layer_mut();
-                layer.outline[contour_idx].operation.insert_op(contour_len);
+                layer.outline[contour_idx].operation_mut().insert_op(contour_len);
                 let contour = layer.outline[contour_idx].quad_mut().unwrap();
                 contour.push(QPoint::from_x_y_type(
                     (mouse_pos.0 as f32, mouse_pos.1 as f32),
@@ -82,7 +75,7 @@ impl PenMode for QuadMode {
                     QPoint::from_x_y_type((mouse_pos.0 as f32, mouse_pos.1 as f32), point_type),
                 );
 
-                layer.outline[contour_idx].operation.insert_op( 0);
+                layer.outline[contour_idx].operation_mut().insert_op( 0);
             };
             v.end_modification();
         }
@@ -91,6 +84,6 @@ impl PenMode for QuadMode {
 
     // TODO: Implement these for quadratic! Would take a bit more work in math.rlib
     // These functions are safe to be stubbed for now
-    fn draw_nearest_point(&self, i: &crate::user_interface::Interface, canvas: &mut MFEKmath::skia_safe::Canvas, info: HoveredPointInfo) {}
-    fn subdivide_curve(&self, v: &mut Editor, info: HoveredPointInfo) {}
+    fn draw_nearest_point(&self, _i: &crate::user_interface::Interface, _canvas: &mut MFEKmath::skia_safe::Canvas, _info: HoveredPointInfo) {}
+    fn subdivide_curve(&self, _v: &mut Editor, _info: HoveredPointInfo) {}
 }

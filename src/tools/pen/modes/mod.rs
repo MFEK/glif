@@ -1,5 +1,7 @@
 pub mod cubic;
 pub mod quad;
+pub mod hyper;
+
 use MFEKmath::skia_safe::Canvas;
 use dyn_clone::DynClone;
 use crate::{editor::{Editor, util::HoveredPointInfo}, user_interface::{Interface, MouseInfo}};

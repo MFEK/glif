@@ -128,7 +128,7 @@ pub fn build_box_selection(
 
     let mut selected = HashSet::new();
     for (cidx, contour) in outline.iter().enumerate() {
-        for (pidx, point) in contour.inner.iter().enumerate() {
+        for (pidx, point) in contour.inner().iter().enumerate() {
             if rect.contains(SkPoint::from((point.x(), point.y()))) {
                 selected.insert((cidx, pidx));
             }

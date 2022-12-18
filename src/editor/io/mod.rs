@@ -133,11 +133,13 @@ impl Editor {
         if let Some(i) = interface {
             self.rebuild(i);
         }
-        let export = self.prepare_export();
-        let layer = &export.layers[0];
+        
+        let mut export = self.prepare_export();
         if export.layers.len() > 1 {
             log::warn!("In a flatten operation, layers not in the topmost group will be discarded and not in your chosen file. You may want to export (Ctrl+E) and not flatten.");
         }
+        let layer = &mut export.layers[0];
+
 
         let glif_struct = self.glyph.as_ref().unwrap().to_exported(layer);
 
@@ -187,7 +189,7 @@ impl Editor {
         //
         // In the first phase, we iterate flattened layer groups ("previews") and write the glyph
         // data.
-        let export = self.prepare_export();
+        let mut export = self.prepare_export();
 
         let font_pb = if let Some(ref font) = ipc_info.font {
             Some(font.clone())
@@ -201,7 +203,7 @@ impl Editor {
             return Err(());
         };
 
-        for (i, layer) in export.layers.iter().enumerate() {
+        for (i, layer) in export.layers.iter_mut().enumerate() {
             if !layer.visible {
                 continue;
             }
@@ -360,15 +362,15 @@ impl Editor {
 }
 
 pub trait ExportLayer {
-    fn to_exported(&self, layer: &Layer<MFEKPointData>) -> Glif<MFEKPointData>;
+    fn to_exported(&self, layer: &mut Layer<MFEKPointData>) -> Glif<MFEKPointData>;
 }
 
 /// Warning: You should always use this from MFEKglif with glif.preview.layers. If you use it with
 /// the normal MFEKGlif type's layers, then you will need to apply contour operations yourself!
 impl ExportLayer for MFEKGlif<MFEKPointData> {
-    fn to_exported(&self, layer: &Layer<MFEKPointData>) -> Glif<MFEKPointData> {
-        let contours: Vec<_> = layer.outline.iter().map(|c| 
-            c.resolve_to_cubic().cubic_mut().unwrap().clone()
+    fn to_exported(&self, layer: &mut Layer<MFEKPointData>) -> Glif<MFEKPointData> {
+        let contours: Vec<_> = layer.outline.iter_mut().map(|c| 
+            c.to_cubic().cubic_mut().unwrap().clone()
         ).collect();
         let mut ret = Glif::new();
         ret.outline = Some(contours);

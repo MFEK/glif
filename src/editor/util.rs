@@ -71,7 +71,7 @@ pub fn clicked_point_or_handle(
     // language, so I'm not too concerned about it, and even in the TT2020 case doesn't seem to
     // slow anything down.
     for (contour_idx, contour) in v.get_active_layer_ref().outline.iter().enumerate() {
-        for (point_idx, point) in contour.inner.iter().enumerate() {
+        for (point_idx, point) in contour.inner().iter().enumerate() {
             if let Some(mask) = mask {
                 if contour_idx == mask.0 && point_idx == mask.1 {
                     continue;
@@ -221,7 +221,7 @@ pub fn move_all_layers(v: &mut Editor, mut x: f32, mut y: f32) {
     v.with_glyph_mut(|glyph| {
         for li in 0..glyph.layers.len() {
             for ci in 0..glyph.layers[li].outline.len() {
-                for pi in 0..glyph.layers[li].outline[ci].inner.len() {
+                for pi in 0..glyph.layers[li].outline[ci].inner().len() {
                     let point = get_point_mut!(glyph.layers[li], ci, pi).unwrap();
                     let (cx, cy) = point.get_position();
 

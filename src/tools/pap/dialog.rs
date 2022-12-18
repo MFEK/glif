@@ -57,7 +57,7 @@ impl PAP {
                 let contour_idx = v.contour_idx.unwrap();
 
                 let operation = v.get_active_layer_ref().outline[contour_idx]
-                    .operation
+                    .operation()
                     .clone();
 
                 // TODO: Clean this up. I could reduce the number of lines here by a lot if I make a few changes to how the function works,
@@ -83,7 +83,7 @@ impl PAP {
                         let new_op = ContourOperations::PatternAlongPath { data: new_data };
 
                         v.begin_modification("PAP dialog modification.");
-                        v.get_active_layer_mut().outline[contour_idx].operation = Some(new_op);
+                        v.get_active_layer_mut().outline[contour_idx].set_operation(Some(new_op));
                         v.end_modification();
                     }
 
@@ -117,7 +117,7 @@ impl PAP {
                         let new_op = ContourOperations::PatternAlongPath { data: new_data };
 
                         v.begin_modification("PAP dialog modification.");
-                        v.get_active_layer_mut().outline[contour_idx].operation = Some(new_op);
+                        v.get_active_layer_mut().outline[contour_idx].set_operation(Some(new_op));
                         v.end_modification();
                     }
 
@@ -129,7 +129,7 @@ impl PAP {
                         let new_op = ContourOperations::PatternAlongPath { data: new_data };
 
                         v.begin_modification("PAP dialog modification.");
-                        v.get_active_layer_mut().outline[contour_idx].operation = Some(new_op);
+                        v.get_active_layer_mut().outline[contour_idx].set_operation(Some(new_op));
                         v.end_modification();
                     }
 
@@ -154,7 +154,7 @@ impl PAP {
                         let new_op = ContourOperations::PatternAlongPath { data: new_data };
 
                         v.begin_modification("PAP dialog modification.");
-                        v.get_active_layer_mut().outline[contour_idx].operation = Some(new_op);
+                        v.get_active_layer_mut().outline[contour_idx].set_operation(Some(new_op));
                         v.end_modification();
                     }
 
@@ -167,7 +167,7 @@ impl PAP {
                         let new_op = ContourOperations::PatternAlongPath { data: new_data };
 
                         v.begin_modification("PAP dialog modification.");
-                        v.get_active_layer_mut().outline[contour_idx].operation = Some(new_op);
+                        v.get_active_layer_mut().outline[contour_idx].set_operation(Some(new_op));
                         v.end_modification();
                     }
 
@@ -185,7 +185,7 @@ impl PAP {
                         let new_op = ContourOperations::PatternAlongPath { data: new_data };
 
                         v.begin_modification("PAP dialog modification.");
-                        v.get_active_layer_mut().outline[contour_idx].operation = Some(new_op);
+                        v.get_active_layer_mut().outline[contour_idx].set_operation(Some(new_op));
                         v.end_modification();
                     }
 
@@ -203,7 +203,7 @@ impl PAP {
                         let new_op = ContourOperations::PatternAlongPath { data: new_data };
 
                         v.begin_modification("PAP dialog modification.");
-                        v.get_active_layer_mut().outline[contour_idx].operation = Some(new_op);
+                        v.get_active_layer_mut().outline[contour_idx].set_operation(Some(new_op));
                         v.end_modification();
                     }
 
@@ -221,7 +221,7 @@ impl PAP {
                         let new_op = ContourOperations::PatternAlongPath { data: new_data };
 
                         v.begin_modification("PAP dialog modification.");
-                        v.get_active_layer_mut().outline[contour_idx].operation = Some(new_op);
+                        v.get_active_layer_mut().outline[contour_idx].set_operation(Some(new_op));
                         v.end_modification();
                     }
 
@@ -247,7 +247,7 @@ impl PAP {
                         let new_op = ContourOperations::PatternAlongPath { data: new_data };
 
                         v.begin_modification("PAP dialog modification.");
-                        v.get_active_layer_mut().outline[contour_idx].operation = Some(new_op);
+                        v.get_active_layer_mut().outline[contour_idx].set_operation(Some(new_op));
                         v.end_modification();
                     }
 
@@ -262,7 +262,7 @@ impl PAP {
                         let new_op = ContourOperations::PatternAlongPath { data: new_data };
 
                         v.begin_modification("PAP overdraw changed.");
-                        v.get_active_layer_mut().outline[contour_idx].operation = Some(new_op);
+                        v.get_active_layer_mut().outline[contour_idx].set_operation(Some(new_op));
                         v.end_modification();
                         v.collapse_history_entries();
                     }
@@ -276,7 +276,7 @@ impl PAP {
                         let new_op = ContourOperations::PatternAlongPath { data: new_data };
 
                         v.begin_modification("PAP dialog modification.");
-                        v.get_active_layer_mut().outline[contour_idx].operation = Some(new_op);
+                        v.get_active_layer_mut().outline[contour_idx].set_operation(Some(new_op));
                         v.end_modification();
                     }
 
@@ -288,7 +288,7 @@ impl PAP {
                         let new_op = ContourOperations::PatternAlongPath { data: new_data };
 
                         v.begin_modification("PAP dialog modification.");
-                        v.get_active_layer_mut().outline[contour_idx].operation = Some(new_op);
+                        v.get_active_layer_mut().outline[contour_idx].set_operation(Some(new_op));
                         v.end_modification();
                     }
 
@@ -301,7 +301,7 @@ impl PAP {
                         let new_op = ContourOperations::PatternAlongPath { data: new_data };
 
                         v.begin_modification("PAP dialog modification.");
-                        v.get_active_layer_mut().outline[contour_idx].operation = Some(new_op);
+                        v.get_active_layer_mut().outline[contour_idx].set_operation(Some(new_op));
                         v.end_modification();
                     }
                 }

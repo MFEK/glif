@@ -138,7 +138,7 @@ impl Select {
                 }
             }
 
-            if v.get_active_layer_ref().outline[ci].operation.is_some() {
+            if v.get_active_layer_ref().outline[ci].operation().is_some() {
                 ui.button(imgui::im_str!("Reset Contour Operation"), [0., 0.]);
                 if ui.is_item_clicked(imgui::MouseButton::Left) {
                     should_clear_contour_op = true;
@@ -156,7 +156,7 @@ impl Select {
 
         if should_clear_contour_op {
             v.begin_modification("Reset contour op.");
-            v.get_active_layer_mut().outline[ci].operation = None;
+            v.get_active_layer_mut().outline[ci].set_operation(None);
             v.end_modification();
         }
 
@@ -164,8 +164,8 @@ impl Select {
             v.begin_modification("Apply contour op.");
             {
                 let layer = v.get_active_layer_mut();
-                let op = &layer.outline[ci].operation.clone();
-                layer.outline[ci].operation = None;
+                let op = &layer.outline[ci].operation().clone();
+                layer.outline[ci].set_operation(None);
                 let ol = op.build(&layer.outline[ci]);
                 layer.outline.remove(ci);
                 for contour in ol {
@@ -188,7 +188,7 @@ impl Select {
             v.begin_modification("Point properties changed (dialog)");
             {
                 let layer = v.get_active_layer_mut();
-                match &mut layer.outline[ci].inner {
+                match &mut layer.outline[ci].inner_mut() {
                     MFEKContourInner::Cubic(contour) => contour[pi] = new_point,
                     _ => panic!("Unsupported")
                 } 
@@ -201,12 +201,12 @@ impl Select {
         // begin_modification() (from moving handles).
         v.with_active_layer_mut_no_history(|layer| {
             if on_first_open_point {
-                match &mut layer.outline[ci].inner {
+                match &mut layer.outline[ci].inner_mut() {
                     MFEKContourInner::Cubic(contour) => contour[pi].b = Handle::Colocated,
                     _ => unreachable!()
                 } 
             } else if on_last_open_point {
-                match &mut layer.outline[ci].inner {
+                match &mut layer.outline[ci].inner_mut() {
                     MFEKContourInner::Cubic(contour) => contour[pi].a = Handle::Colocated,
                     _ => unreachable!()
                 }             }

@@ -36,7 +36,7 @@ impl Tool for VWS {
 
     fn ui(&mut self, v: &mut Editor, i: &mut Interface, ui: &mut Ui) {
         let show_dialog = match v.contour_idx {
-            Some(ci) => match v.get_active_layer_ref().outline[ci].operation {
+            Some(ci) => match v.get_active_layer_ref().outline[ci].operation() {
                 Some(ContourOperations::VariableWidthStroke { .. }) => true,
                 _ => false,
             },
