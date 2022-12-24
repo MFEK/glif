@@ -32,13 +32,25 @@
             vulkan-loader
             vulkan-tools
         ];
+
       in rec {
         name = "MFEKglif";
         description = "Glyph editor for the Modular Font Editor K project.";
 
         defaultPackage = naersk-lib.buildPackage {
           pname = name;
+          inherit description;
+
           root = ./.;
+          buildInputs = with pkgs; [
+            pkg-config
+            glibc
+            gn
+            ninja
+          ];
+
+          LD_LIBRARY_PATH = "${pkgs.lib.makeLibraryPath (with pkgs; [ pkg-config ] ++ vulkan-dev)}:$LD_LIBRARY_PATH";
+          PKG_CONFIG_PATH = "${pkgs.glibc}:PKG_CONFIG_PATH";
         };
 
         devShells.default = pkgs.mkShell {
