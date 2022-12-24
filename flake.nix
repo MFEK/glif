@@ -1,9 +1,4 @@
-let
-  name = "MFEKglif";
-  description = "Glyph editor for the Modular Font Editor K project.";
-in {
-  inherit name description;
-
+{
   inputs = {
     nixpkgs.url      = github:nixos/nixpkgs/release-22.05;
     utils.url        = github:numtide/flake-utils;
@@ -37,7 +32,10 @@ in {
             vulkan-loader
             vulkan-tools
         ];
-      in {
+      in rec {
+        name = "MFEKglif";
+        description = "Glyph editor for the Modular Font Editor K project.";
+
         defaultPackage = naersk-lib.buildPackage {
           pname = name;
           root = ./.;
