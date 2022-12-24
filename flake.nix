@@ -1,6 +1,6 @@
 let
   name = "MFEKglif";
-  description = "glyph editor";
+  description = "Glyph editor for the Modular Font Editor K project.";
 in {
   inherit name description;
 
