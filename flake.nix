@@ -1,5 +1,5 @@
 let
-  name = "glif";
+  name = "MFEKglif";
   description = "glyph editor";
 in {
   inherit name description;
