@@ -1,6 +1,6 @@
 use super::super::prelude::*;
 use glifparser::{
-    CapType, JoinType, VWSContour, WhichHandle, glif::{contour_operations::{ContourOperations, vws::{VWSHandle, InterpolationType}}, MFEKContour}, MFEKPointData,
+    CapType, JoinType, VWSContour, WhichHandle, glif::{contour_operations::{ContourOperations, vws::{VWSHandle, InterpolationType}}}, MFEKPointData,
 };
 use MFEKmath::{Piecewise, Vector, Evaluate, mfek::ResolveCubic};
 use glifparser::glif::mfek::contour::MFEKContourCommon;
@@ -171,6 +171,10 @@ pub fn get_vws_handle_pos(
     //TODO: Support non-cubic paths.
     let contour_pw = Piecewise::from(resolved_contour.cubic().unwrap());
 
+    if contour_pw.segs.len() == 0 {
+        return Err(());
+    }
+
     let handle_idx = index_map[handle_idx];
 
     if handle_idx > vws_contour.handles.len() - 1 {
@@ -181,6 +185,7 @@ pub fn get_vws_handle_pos(
         );
         return Err(());
     }
+
     let vws_handle = vws_contour.handles[handle_idx];
 
     // if we've got an open contour and are dealing with the last handle we need special logic
