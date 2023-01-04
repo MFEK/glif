@@ -6,6 +6,7 @@ use glifparser::glif::contour::MFEKContourCommon;
 use glifparser::glif::mfek::{Layer, MFEKGlif};
 use glifparser::{Glif, MFEKPointData};
 use log;
+use mfek_ipc::IPCInfo;
 use plist;
 
 use std::{
@@ -182,7 +183,7 @@ impl Editor {
             temp.file_name().unwrap().to_owned()
         };
         let glif_name = self.with_glyph(|g| g.name.clone());
-        let ipc_info = self.ipc_info.clone().expect("Cannot export w/o IPC data");
+        let ipc_info = self.ipc_info.clone().unwrap_or(IPCInfo::default());
 
         // `self.preview` contains flattened versions of all the layers, which are always cubic Bézier
         // splines. We know it's Some(_) because we rebuilt above.
