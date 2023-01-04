@@ -1,6 +1,6 @@
-use glifparser::{glif::{MFEKContour, MFEKOutline, inner::MFEKContourInner, contour::MFEKContourCommon}, MFEKPointData};
+use glifparser::{glif::{MFEKContour, MFEKOutline, contour::MFEKContourCommon}, MFEKPointData};
 use glifparser::glif::contour_operations::pap::PAPContour;
-use MFEKmath::{pattern_along_path_mfek, Piecewise, mfek::ResolveCubic};
+use MFEKmath::{pattern_along_path_mfek, Piecewise};
 
 use super::{ContourOperationBuild};
 

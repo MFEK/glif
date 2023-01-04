@@ -2,7 +2,6 @@ pub mod dashalongpath;
 pub mod patternalongpath;
 pub mod variablewidthstroke;
 
-use glifparser::glif::inner::MFEKContourInner;
 use glifparser::glif::{MFEKContour, MFEKOutline};
 use glifparser::glif::contour_operations::{ContourOperations, unknown_op_outline};
 use glifparser::MFEKPointData;

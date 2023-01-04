@@ -1,7 +1,6 @@
 use super::prelude::*;
 use crate::get_point_mut;
 pub use crate::user_interface::follow::Follow;
-use MFEKmath::polar::PolarCoordinates as _;
 use glifparser::PointData;
 use glifparser::glif::contour::MFEKContourCommon;
 use glifparser::glif::point::MFEKPointCommon;
@@ -98,7 +97,7 @@ impl MoveHandle {
         }
     }
 
-    fn force_line<PD: PointData>(&mut self, point: &mut dyn MFEKPointCommon<PD>) {
+    fn force_line<PD: PointData>(&mut self, _point: &mut dyn MFEKPointCommon<PD>) {
         // TODO: Fix this? I have zero clue why this errors. It's forcing point to `static.
         /*let (r, _) = point.polar(self.wh.opposite());
         let (_, theta) = point.polar(self.wh);

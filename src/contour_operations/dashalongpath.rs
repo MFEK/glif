@@ -1,6 +1,5 @@
 use MFEKmath::mfek::ResolveCubic;
 use glifparser::glif::contour::MFEKContourCommon;
-use glifparser::glif::inner::MFEKContourInner;
 use glifparser::glif::{MFEKContour, MFEKOutline, contour_operations::dash::DashContour};
 use glifparser::{MFEKPointData, Glif};
 
