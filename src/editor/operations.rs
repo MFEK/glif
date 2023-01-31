@@ -8,7 +8,7 @@ use glifparser::{
     glif::{Layer, LayerOperation},
     MFEKGlif, Outline,
 };
-use skulpin::skia_safe::PathOp;
+use skia_safe::PathOp;
 
 use super::Editor;
 

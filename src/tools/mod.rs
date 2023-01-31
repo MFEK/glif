@@ -9,7 +9,7 @@ use self::{
 };
 
 use dyn_clone::DynClone;
-use imgui::Ui;
+use egui::Ui;
 
 use crate::editor::Editor;
 use crate::user_interface::Interface;

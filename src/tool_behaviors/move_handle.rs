@@ -34,7 +34,7 @@ impl MoveHandle {
 
     pub fn mouse_moved(&mut self, v: &mut Editor, _i: &mut Interface, mouse_info: MouseInfo) {
         if !v.is_modifying() {
-            v.begin_modification("Move handle.");
+            v.begin_modification("Move handle.", false);
         }
 
         self.mouse_info.modifiers = mouse_info.modifiers;

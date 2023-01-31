@@ -30,7 +30,7 @@ impl RotateImage {
 
     pub fn mouse_moved(&mut self, v: &mut Editor, _i: &mut Interface, mouse_info: MouseInfo) {
         if !v.is_modifying() {
-            v.begin_modification("Rotate image.")
+            v.begin_modification("Rotate image.", false)
         }
         let pivot_vector = Vector::from_components(self.pivot.0 as f64, self.pivot.1 as f64);
         let mouse_vector =

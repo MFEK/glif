@@ -12,7 +12,7 @@ pub struct MoveGlyph {
 
 impl MoveGlyph {
     pub fn mouse_pressed(&mut self, v: &mut Editor, _i: &mut Interface, mouse_info: MouseInfo) {
-        v.begin_modification("Move glyph.");
+        v.begin_modification("Move glyph.", false);
 
         self.mouse_info = Some(mouse_info);
         self.glyph = Some(v.with_glyph(|glyph| glyph.clone()));

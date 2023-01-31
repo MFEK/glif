@@ -7,8 +7,8 @@ use glifrenderer::viewport::Viewport;
 use image;
 use sdl2::keyboard::Keycode;
 use sdl2::EventPump;
+use sdl2::video::GLProfile;
 use sdl2::{pixels::PixelFormatEnum, surface::Surface, video::Window, Sdl};
-use skulpin::LogicalSize;
 
 impl Interface {
     // for macOS, we may mutate viewport.winsize. other OS don't (normally?) mutate viewport
@@ -19,22 +19,21 @@ impl Interface {
             .video()
             .expect("Failed to create sdl video subsystem");
 
+        let gl_attr = video_subsystem.gl_attr();
+        gl_attr.set_context_profile(GLProfile::Core);
+        gl_attr.set_context_version(3, 3);
+        
         video_subsystem.text_input().start();
-
-        let logical_size = LogicalSize {
-            width: viewport.winsize.0 as u32,
-            height: viewport.winsize.1 as u32,
-        };
-
+        
         let mut window = video_subsystem
             .window(
                 &format!("MFEKglif — {}", filename),
-                logical_size.width,
-                logical_size.height,
+                viewport.winsize.0 as u32,
+                viewport.winsize.1 as u32,
             )
+            .opengl()
             .position_centered()
             .allow_highdpi()
-            .vulkan()
             .resizable()
             .build()
             .expect("Failed to create SDL Window");
@@ -62,6 +61,10 @@ impl Interface {
         window.set_icon(surface);
 
         (sdl_context, window)
+    }
+
+    fn create_gl_context(&mut self) {
+        
     }
 
     pub fn set_window_title(&mut self, title: &str) -> Result<(), NulError> {

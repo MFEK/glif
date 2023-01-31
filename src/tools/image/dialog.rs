@@ -3,10 +3,11 @@ use std::rc::Rc;
 use super::super::prelude::*;
 use super::Image;
 use crate::user_interface::{InputPrompt, Interface};
-use imgui::Ui;
+use egui::Ui;
 
 impl Image {
     pub fn tool_dialog(&mut self, v: &mut Editor, i: &mut Interface, ui: &Ui) {
+        /*
         let (tx, ty, tw, th) = i.get_tools_dialog_rect();
 
         imgui::Window::new(&imgui::ImString::new("Image"))
@@ -50,5 +51,6 @@ impl Image {
                     }
                 }
             });
+        */
     }
 }

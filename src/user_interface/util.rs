@@ -1,6 +1,7 @@
 use glifparser::{Point, PointData, WhichHandle};
 use MFEKmath::polar::PolarCoordinates;
 
+/*
 pub fn imgui_decimal_text_field(
     label: &str,
     ui: &imgui::Ui,
@@ -101,3 +102,4 @@ pub fn imgui_radius_theta<PD: PointData>(
         }
     }
 }
+*/

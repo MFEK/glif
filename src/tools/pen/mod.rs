@@ -40,6 +40,7 @@ impl Tool for Pen {
     }
 
     fn ui(&mut self, _v: &mut Editor, _i: &mut Interface, ui: &mut Ui) {
+        /* 
         imgui::Window::new(imgui::im_str!("Points"))
         .bg_alpha(1.)
         .flags(
@@ -77,6 +78,7 @@ impl Tool for Pen {
                 _ => unreachable!()
             }
         })
+        */
     }
 
     fn draw(&mut self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
@@ -101,7 +103,7 @@ impl Pen {
             return;
         };
 
-        v.begin_modification("Add point.");
+        v.begin_modification("Add point.", false);
 
         // We check if we have a point selected and are clicking on the beginning of another contour.
         // If that is the case we merge them

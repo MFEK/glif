@@ -11,12 +11,15 @@ use crate::editor::{
 use crate::tools::zoom::{zoom_in_factor, zoom_out_factor};
 use crate::tools::ToolEnum;
 use crate::user_interface::mouse_input::MouseInfo;
-use crate::user_interface::{ImguiManager, Interface};
+use crate::user_interface::Interface;
 
 use enum_unitary::IntoEnumIterator;
 use glifrenderer::toggles::{PointLabels, PreviewMode};
 use sdl2::event::{Event, WindowEvent};
-pub use skulpin::{rafx::api as RafxApi, skia_safe};
+use sdl2::mouse::MouseButton;
+use tools::prelude::clicked_point_or_handle;
+use user_interface::egui_manager::EguiManager;
+use user_interface::gui::window::WindowManager;
 
 #[macro_use]
 extern crate pub_mod;
@@ -49,9 +52,9 @@ fn main() {
 
     let filename = filedialog::filename_or_panic(&filename, Some("glif"), None);
     let mut interface = Interface::new(filename.to_str().unwrap());
-    let mut imgui_manager = ImguiManager::new(&mut interface);
-
-    let mut skulpin_renderer = interface.initialize_skulpin_renderer();
+    let mut window_manager = WindowManager::new();
+    let mut egui_manager = EguiManager::new(&mut interface);
+    let mut sk_surface = interface.create_surface();
 
     // Makes glyph available to on_load_glif events
     editor.load_glif(&mut interface, &filename);
@@ -81,27 +84,13 @@ fn main() {
                 editor.quit(&mut interface);
             }
 
-            if imgui_manager.handle_imgui_event(&event) {
-                continue;
-            }
-            if interface.active_prompts() {
+            if egui_manager.wants_event(&interface.sdl_window, &event) {
                 continue;
             }
 
-            // we're gonna handle console text input here as this should steal input from the command system
-            /* TODO: Replace console!
-            match &event {
-                Event::TextInput { text, .. } => {
-                    if CONSOLE.with(|c| return c.borrow_mut().active) {
-                        for ch in text.chars() {
-                            CONSOLE.with(|c| c.borrow_mut().handle_ch(ch));
-                        }
-                        continue;
-                    }
-                }
-                _ => {}
+            if interface.active_prompts() {
+                continue;
             }
-            */
 
             match event {
                 Event::KeyDown { keycode, .. } => {
@@ -110,12 +99,6 @@ fn main() {
                         continue;
                     }
                     let keycode = keycode.unwrap();
-
-                    /* TODO: Replace console!
-                    tools::console::set_state(&mut editor, &mut interface, keycode, keymod);
-                    if CONSOLE.with(|c| c.borrow_mut().active) {
-                        continue;
-                    } */
 
                     // check if we've got a command
                     let command_info: CommandInfo =
@@ -354,7 +337,11 @@ fn main() {
 
                 Event::MouseButtonDown {
                     mouse_btn, x, y, ..
-                } => {
+                } => {                    
+                    if !editor.is_modifying() && mouse_btn == MouseButton::Right {
+                        interface.context = Some((x as f32, y as f32));
+                        continue;
+                    }
                     let position = (x as f32, y as f32);
                     let mouse_info = MouseInfo::new(
                         &mut interface,
@@ -411,6 +398,7 @@ fn main() {
                         interface.viewport.winsize = (x as f32, y as f32);
                         interface.viewport.set_broken_flag();
                         interface.adjust_viewport_by_os_dpi();
+                        sk_surface = interface.create_surface(  );
                     }
                     _ => {}
                 },
@@ -421,11 +409,9 @@ fn main() {
         editor.rebuild(&mut interface);
         interface.render(
             &mut editor,
-            &mut imgui_manager.imgui_context,
-            &mut imgui_manager.imgui_sdl2,
-            &mut imgui_manager.imgui_renderer,
-            &mut skulpin_renderer,
-            &event_pump.mouse_state(),
+            &mut window_manager,
+            &mut egui_manager,
+            &mut sk_surface
         );
     }
 }

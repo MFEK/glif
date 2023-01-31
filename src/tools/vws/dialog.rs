@@ -5,8 +5,6 @@ use glifparser::glif::contour_operations::ContourOperations;
 use super::super::prelude::*;
 use super::util::*;
 use super::VWS;
-use crate::user_interface::util::imgui_decimal_text_field;
-use crate::user_interface::util::imgui_decimal_text_field_f64;
 use crate::user_interface::Interface;
 
 fn join_type_to_idx(jt: JoinType) -> usize {
@@ -46,7 +44,8 @@ fn idx_to_cap_type(idx: usize) -> CapType {
 }
 
 impl VWS {
-    fn build_and_check_vws_cap_combo(&self, v: &mut Editor, ui: &imgui::Ui) {
+    fn build_and_check_vws_cap_combo(&self, v: &mut Editor, ui: &egui::Ui) {
+        /*
         let contour_idx = v.contour_idx.unwrap();
 
         let _vws_contour = get_vws_contour(v, contour_idx);
@@ -96,9 +95,11 @@ impl VWS {
                 v.end_modification();
             }
         }
+        */
     }
 
-    fn build_and_check_vws_join_combo(&self, v: &mut Editor, ui: &imgui::Ui) {
+    fn build_and_check_vws_join_combo(&self, v: &mut Editor, ui: &egui::Ui) {
+        /* 
         let contour_idx = v.contour_idx.unwrap();
 
         let _vws_contour = get_vws_contour(v, contour_idx);
@@ -129,9 +130,11 @@ impl VWS {
                 v.end_modification();
             }
         }
+        */
     }
 
-    pub fn tool_dialog(&self, v: &mut Editor, i: &Interface, ui: &mut imgui::Ui) {
+    pub fn tool_dialog(&self, v: &mut Editor, i: &Interface, ui: &mut egui::Ui) {
+        /*
         let (tx, ty, tw, th) = i.get_tools_dialog_rect();
 
         // if we don't have a contour selected we don't draw this
@@ -190,5 +193,6 @@ impl VWS {
                     }
                 }
             });
+            */
     }
 }

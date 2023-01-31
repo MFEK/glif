@@ -1,6 +1,6 @@
 use glifrenderer::constants::{self, OUTLINE_STROKE_THICKNESS};
 use glifrenderer::string::UiString;
-use skulpin::skia_safe::{dash_path_effect, Canvas, Paint, Path, Point};
+use skia_safe::{dash_path_effect, Canvas, Paint, Path, Point};
 use MFEKmath::Vector;
 
 use crate::editor::Editor;
@@ -65,7 +65,7 @@ impl Measure {
             path.move_to(skpath_start);
             path.line_to(skpath_end);
             paint.set_color(constants::MEASURE_STROKE);
-            paint.set_style(skulpin::skia_safe::PaintStyle::Stroke);
+            paint.set_style(skia_safe::PaintStyle::Stroke);
             paint.set_stroke_width(OUTLINE_STROKE_THICKNESS * (1. / factor));
             let dash_offset = (1. / factor) * 5.;
             paint.set_path_effect(dash_path_effect::new(&[dash_offset, dash_offset], 0.0));

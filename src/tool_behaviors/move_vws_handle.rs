@@ -29,7 +29,7 @@ impl MoveVWSHandle {
 
     fn mouse_moved(&self, v: &mut Editor, _i: &Interface, mouse_info: MouseInfo) {
         if !v.is_modifying() {
-            v.begin_modification("Move VWS handle.")
+            v.begin_modification("Move VWS handle.", false)
         }
 
         let (normal_offset, tangent_offset) =

@@ -189,7 +189,7 @@ impl Editor {
 
         log::debug!("Got layer {} from clipboard", &clipboard.name);
 
-        self.begin_modification("Paste clipboard.");
+        self.begin_modification("Paste clipboard.", false);
         self.contour_idx = None;
         self.point_idx = None;
         self.selected.clear();
@@ -226,7 +226,7 @@ impl Editor {
     }
 
     pub fn delete_single_point(&mut self) {
-        self.begin_modification("Delete selection.");
+        self.begin_modification("Delete selection.", false);
 
         let contour_idx = self.contour_idx.unwrap();
         let point_idx = self.point_idx.unwrap();
@@ -367,7 +367,7 @@ impl Editor {
 
         let fitted_curve = fitted_curve[0].clone();
 
-        self.begin_modification("Simplify selection.");
+        self.begin_modification("Simplify selection.", false);
         let layer = self.get_active_layer_mut();
         let contour = layer.outline[contour_idx].cubic_mut().unwrap();
 
@@ -384,7 +384,7 @@ impl Editor {
     }
 
     pub fn delete_selection(&mut self) {
-        self.begin_modification("Delete selection.");
+        self.begin_modification("Delete selection.", false);
 
         let layer = &self.glyph.as_ref().unwrap().layers[self.layer_idx.unwrap()];
         let mut new_outline: Vec<MFEKContour<MFEKPointData>> = Vec::new();

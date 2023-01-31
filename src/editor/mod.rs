@@ -9,8 +9,8 @@ use glifparser::{
     Guideline, IntegerOrFloat, MFEKGlif,
 };
 
-pub use skulpin::skia_safe::Contains as _;
-pub use skulpin::skia_safe::{Canvas, Matrix, Path as SkPath, Point as SkPoint, Rect as SkRect};
+pub use skia_safe::Contains as _;
+pub use skia_safe::{Canvas, Matrix, Path as SkPath, Point as SkPoint, Rect as SkRect};
 
 use std::collections::HashSet;
 use std::path;
@@ -115,10 +115,21 @@ impl Editor {
 
     /// This function MUST be called before calling with_active_<layer/glif>_mut or it will panic.
     /// Pushes a clone of the current layer onto the history stack and puts the editor in a modifying state.
-    pub fn begin_modification(&mut self, description: &str) {
+    /// When the fold argument is set to true the editor won't create new HistoryEntrys if the entry 
+    /// below has the same description.
+    pub fn begin_modification(&mut self, description: &str, fold: bool) {
         log::trace!("Modification begun: {}", description);
         if self.modifying {
             panic!("Began a new modification with one in progress!")
+        }
+
+        self.modifying = true;
+
+        if let Some(last_entry) = self.history.undo_stack.last() {
+            if fold && description.to_owned() == last_entry.description {
+                return;
+            }
+
         }
 
         self.history.add_undo_entry(HistoryEntry {
@@ -131,7 +142,6 @@ impl Editor {
             glyph: self.glyph.as_ref().unwrap().clone(),
         });
 
-        self.modifying = true;
     }
 
     /// When calling this family of functions the editor will become inaccessible because of the borrow on one of it's members.

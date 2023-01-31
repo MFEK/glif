@@ -58,7 +58,7 @@ impl PAP {
                     i.push_prompt(InputPrompt::Layer {
                         label: "Select a pattern.".to_string(),
                         func: Rc::new(move |editor, source_layer| {
-                            editor.begin_modification("Added PAP contour.");
+                            editor.begin_modification("Added PAP contour.", false);
                             editor.get_active_layer_mut().outline[ci].set_operation(
                                 Some(ContourOperations::PatternAlongPath {
                                     // TODO: Default() implementation for many of our structs.

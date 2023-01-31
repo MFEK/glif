@@ -1,6 +1,6 @@
-use imgui::Ui;
+use egui::Ui;
 use log;
-use skulpin::skia_safe::Canvas;
+use skia_safe::Canvas;
 
 use super::{events::EditorEvent, Editor};
 use crate::{

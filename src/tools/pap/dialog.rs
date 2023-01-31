@@ -2,7 +2,7 @@ use super::super::prelude::*;
 use super::PAP;
 use crate::user_interface::{self, Interface};
 use glifparser::glif::contour_operations::{pap::{PatternStretch, PatternCopies, PatternSubdivide}, ContourOperations};
-use imgui::Ui;
+use egui::Ui;
 
 fn repeat_type_to_idx(rt: PatternCopies) -> usize {
     match rt {
@@ -39,6 +39,7 @@ fn stretch_type_to_idx(idx: PatternStretch) -> usize {
 
 impl PAP {
     pub fn tool_dialog(&mut self, v: &mut Editor, i: &Interface, ui: &Ui) {
+        /*
         let (tx, ty, tw, th) = i.get_tools_dialog_rect();
 
         imgui::Window::new(&imgui::ImString::new("Pattern Along Path"))
@@ -306,5 +307,6 @@ impl PAP {
                     }
                 }
             });
+            */
     }
 }

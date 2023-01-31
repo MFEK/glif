@@ -28,7 +28,7 @@ impl AddGuideline {
             Float(self.angle),
         );
 
-        v.begin_modification("Add guideline.");
+        v.begin_modification("Add guideline.", false);
         if self.global {
             v.guidelines.push(prev_guide.clone());
         } else {

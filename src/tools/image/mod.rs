@@ -7,7 +7,7 @@ use crate::tool_behaviors::{
 };
 use crate::user_interface::{Interface, MouseInfo};
 use glifparser::matrix::ToSkiaMatrix;
-use skulpin::skia_safe::{Paint, PaintStyle, Path};
+use skia_safe::{Paint, PaintStyle, Path, Contains};
 
 mod dialog;
 
@@ -142,7 +142,7 @@ impl Image {
                 None => return,
             };
 
-            v.begin_modification("Add image to layer.");
+            v.begin_modification("Add image to layer.", false);
             v.add_image_to_active_layer(filename);
             v.end_modification();
         }
@@ -150,7 +150,7 @@ impl Image {
 
     fn delete_selected(&mut self, v: &mut Editor) {
         if let Some(idx) = self.selected_idx {
-            v.begin_modification("Delete image from layer.");
+            v.begin_modification("Delete image from layer.", false);
             self.selected_idx = None;
             v.get_active_layer_mut().images.remove(idx);
             v.recache_images();

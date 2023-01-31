@@ -1,10 +1,9 @@
 use super::super::prelude::*;
 use super::{Guidelines, SplitGuidelines};
 use crate::tool_behaviors::add_guideline::AddGuideline;
-use crate::user_interface::gui::{FONT_IDS, IMGUI_RESERVE};
+//use crate::user_interface::gui::{FONT_IDS, IMGUI_RESERVE};
 use crate::user_interface::{self, icons, InputPrompt};
 use glifparser::IntegerOrFloat;
-use imgui::StyleColor;
 use std::rc::Rc;
 
 lazy_static::lazy_static! {
@@ -12,7 +11,8 @@ lazy_static::lazy_static! {
 }
 
 impl Guidelines {
-    pub fn tool_dialog(&mut self, v: &mut Editor, i: &mut Interface, ui: &imgui::Ui) {
+    pub fn tool_dialog(&mut self, v: &mut Editor, i: &mut Interface, ui: &egui::Ui) {
+        /*
         let (tx, ty, tw, th) = i.get_tools_dialog_rect();
 
         imgui::Window::new(&imgui::ImString::new("Guidelines"))
@@ -209,5 +209,6 @@ impl Guidelines {
                     }
                 });
         }
+        */
     }
 }

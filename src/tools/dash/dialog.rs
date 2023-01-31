@@ -1,12 +1,13 @@
 use super::super::prelude::*;
 use super::Dash;
-use crate::user_interface::{self, gui::IMGUI_RESERVE, Interface};
+use crate::user_interface::{self, Interface};
 use glifparser::glif::contour_operations::{ContourOperations, dash::DashCull};
-use imgui::Ui;
-use skulpin::skia_safe::{PaintCap, PaintJoin};
+use egui::Ui;
+use skia_safe::{PaintCap, PaintJoin};
 
 impl Dash {
     pub fn tool_dialog(&mut self, v: &mut Editor, i: &Interface, ui: &Ui) {
+        /*
         let (tx, ty, tw, th) = i.get_tools_dialog_rect();
 
         imgui::Window::new(&imgui::ImString::new("Dash Along Path"))
@@ -164,5 +165,6 @@ impl Dash {
                     }
                 }
             });
+            */
     }
 }

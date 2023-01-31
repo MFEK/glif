@@ -1,5 +1,5 @@
 use sdl2::mouse::MouseButton;
-use skulpin::skia_safe as skia;
+use skia_safe as skia;
 
 use crate::{command::CommandMod, user_interface::Interface};
 

@@ -10,7 +10,7 @@ pub struct MoveGuideline {
 impl MoveGuideline {
     pub fn mouse_moved(&mut self, v: &mut Editor, _i: &mut Interface, mouse_info: MouseInfo) {
         if !v.is_modifying() {
-            v.begin_modification("Move guideline.");
+            v.begin_modification("Move guideline.", false);
         }
 
         let mp = mouse_info.position;

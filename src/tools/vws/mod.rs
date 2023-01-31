@@ -7,7 +7,7 @@ use crate::user_interface::Interface;
 use glifparser::glif::contour::MFEKContourCommon;
 use glifparser::glif::contour_operations::ContourOperations;
 use sdl2::mouse::MouseButton;
-use skulpin::skia_safe::{Canvas, Paint, PaintStyle, Path as SkiaPath};
+use skia_safe::{Canvas, Paint, PaintStyle, Path as SkiaPath};
 
 use self::util::{clicked_handle, get_vws_handle_pos};
 

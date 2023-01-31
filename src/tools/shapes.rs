@@ -9,12 +9,11 @@ use float_cmp::ApproxEq;
 use glifparser::MFEKPointData;
 use glifparser::outline::{skia::FromSkiaPath as _, FromKurbo as _, Reverse};
 use glifparser::{glif::MFEKContour, Outline};
-use imgui;
 use kurbo;
 use kurbo::Shape as _;
 use num;
 use num_derive::FromPrimitive;
-use skulpin::skia_safe::{Matrix, Path, PathDirection, PathEffect, StrokeRec};
+use skia_safe::{Matrix, Path, PathDirection, PathEffect, StrokeRec};
 
 impl Tool for Shapes {
     fn event(&mut self, v: &mut Editor, _i: &mut Interface, event: EditorEvent) {
@@ -158,7 +157,8 @@ impl Shapes {
         }
     }
 
-    fn shape_settings(&mut self, i: &mut Interface, ui: &imgui::Ui) {
+    fn shape_settings(&mut self, i: &mut Interface, ui: &egui::Ui) {
+        /*
         let (tx, ty, tw, th) = i.get_tools_dialog_rect();
         imgui::Window::new(imgui::im_str!("Shape Settings"))
             .bg_alpha(1.) // See comment on fn redraw_skia
@@ -212,6 +212,7 @@ impl Shapes {
                     _ => (),
                 }
             });
+            */
     }
 }
 
@@ -389,7 +390,7 @@ impl Shapes {
 
     fn mouse_pressed(&mut self, v: &mut Editor, mouse_info: MouseInfo) {
         if !v.is_modifying() {
-            v.begin_modification(&self.describe_history_entry());
+            v.begin_modification(&self.describe_history_entry(), false);
             self.pressed_pos = Some((mouse_info.position.0, mouse_info.position.1));
             self.locked_angle = mouse_info.modifiers.ctrl;
         }

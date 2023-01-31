@@ -27,7 +27,7 @@ impl MovePoint {
 
         let (vci, vpi) = v.selected_point().unwrap();
         if !v.is_modifying() {
-            v.begin_modification("Move point.");
+            v.begin_modification("Move point.", false);
         }
 
         let layer = v.get_active_layer_mut();

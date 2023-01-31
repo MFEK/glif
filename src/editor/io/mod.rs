@@ -98,7 +98,7 @@ impl Editor {
     }
 
     pub fn save_glif(&mut self, rename: bool) -> Result<PathBuf, ()> {
-        self.begin_modification("Saved glyph");
+        self.begin_modification("Saved glyph", true);
         let res = self.with_glyph_mut(|glyph| {
             let filename: PathBuf = if rename {
                 match filedialog::save_filename(Some("glifjson"), None) {
@@ -164,7 +164,7 @@ impl Editor {
         });
         match filename {
             Some(filename) => {
-                self.begin_modification("Flattened glyph");
+                self.begin_modification("Flattened glyph", true);
                 self.end_modification();
                 Ok(filename)
             }
@@ -327,7 +327,7 @@ impl Editor {
                 ));
             log::info!("Wrote glyph {}'s layercontents.plist.", &glif_name);
         }
-        self.begin_modification("Exported glyph");
+        self.begin_modification("Exported glyph", true);
         self.end_modification();
         Ok(())
     }

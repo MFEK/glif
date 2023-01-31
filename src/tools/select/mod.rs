@@ -101,7 +101,7 @@ impl Select {
         if selected.len() == 0 {
             return;
         }
-        v.begin_modification("Nudge selected points.");
+        v.begin_modification("Nudge selected points.", false);
         for (ci, pi) in selected {
             let layer = v.get_active_layer_mut();
             let point = get_point_mut!(layer, ci, pi).unwrap();
@@ -120,7 +120,7 @@ impl Select {
             return;
         };
 
-        v.begin_modification("Reversing contours.");
+        v.begin_modification("Reversing contours.", false);
         let point_idx = v.point_idx;
         v.point_idx = {
             let layer = v.get_active_layer_mut();

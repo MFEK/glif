@@ -8,7 +8,7 @@ use glifrenderer::{
     constants::{OUTLINE_STROKE, OUTLINE_STROKE_THICKNESS},
     points::draw_point,
 };
-use skulpin::skia_safe::dash_path_effect;
+use skia_safe::dash_path_effect;
 
 #[derive(Clone, Debug, Default)]
 pub struct SelectionBox {

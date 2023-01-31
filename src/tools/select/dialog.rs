@@ -1,27 +1,15 @@
-use std::collections::HashSet;
-
 use super::Select;
 
-use crate::contour_operations::ContourOperationBuild;
-use crate::editor::macros::{get_contour_len, is_contour_open};
 use crate::editor::Editor;
-use crate::{get_point};
-use crate::user_interface::gui::IMGUI_RESERVE;
-use crate::user_interface::util::{imgui_decimal_text_field, imgui_radius_theta};
 use crate::user_interface::Interface;
 
-use glifparser::glif::inner::MFEKContourInnerType;
-use glifparser::{Handle, Point, PointType, WhichHandle, MFEKPointData};
-use glifparser::glif::mfek::contour::MFEKContourCommon;
-use glifparser::glif::mfek::inner::MFEKContourInner;
-
-use imgui;
 
 const DIALOG_ADDITIONAL_HEIGHT: f32 = 150.;
 
 // Make dialog box at right
 impl Select {
-    pub fn select_settings(&self, v: &mut Editor, i: &Interface, ui: &imgui::Ui) {
+    pub fn select_settings(&self, v: &mut Editor, i: &Interface, ui: &egui::Ui) {
+        /*
         let (ci, pi) = if let Some((ci, pi)) = v.selected_point() {
             (ci, pi)
         } else {
@@ -211,5 +199,6 @@ impl Select {
                     _ => unreachable!()
                 }             }
         });
+        */
     }
 }

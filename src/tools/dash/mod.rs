@@ -2,7 +2,7 @@ mod dialog;
 
 use glifparser::glif::contour_operations::ContourOperations;
 use glifparser::glif::contour_operations::dash::DashContour;
-use skulpin::skia_safe::{PaintCap, PaintJoin};
+use skia_safe::{PaintCap, PaintJoin};
 
 use super::prelude::*;
 use crate::editor::Editor;
@@ -53,7 +53,7 @@ impl Dash {
             match layer_op {
                 Some(ContourOperations::DashAlongPath { .. }) => (),
                 None | Some(_) => {
-                    v.begin_modification("Added dash contour.");
+                    v.begin_modification("Added dash contour.", false);
                     v.get_active_layer_mut().outline[ci].set_operation(Some(ContourOperations::DashAlongPath {
                         data: DashContour {
                             stroke_width: 10.,

@@ -1,9 +1,9 @@
-use super::{IMGUI_RESERVE, PROMPT_CLR, PROMPT_STR, TOOLBOX_HEIGHT, TOOLBOX_WIDTH};
+//use super::{IMGUI_RESERVE, PROMPT_CLR, PROMPT_STR, TOOLBOX_HEIGHT, TOOLBOX_WIDTH};
 use crate::editor::Editor;
 use crate::user_interface::{InputPrompt, Interface};
-use imgui::{Key, StyleVar};
 
-pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ui: &mut imgui::Ui) {
+pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ui: &mut egui::Ui) {
+    /*
     if !i.active_prompts() {
         return;
     };
@@ -210,4 +210,5 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ui: &mut imgui
                 });
         }
     }
+    */
 }

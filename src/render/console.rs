@@ -30,7 +30,7 @@ impl Console {
     }
 }
 
-use skulpin::skia_safe::{Data, Font, FontStyle, Matrix, Typeface};
+use skia_safe::{Data, Font, FontStyle, Matrix, Typeface};
 
 use crate::system_fonts;
 lazy_static! {
@@ -55,7 +55,7 @@ lazy_static! {
     };
 }
 
-use skulpin::skia_safe::{Canvas, Paint, PaintStyle, Path, Rect, TextBlob};
+use skia_safe::{Canvas, Paint, PaintStyle, Path, Rect, TextBlob};
 impl Console {
     pub fn draw(&mut self, i: &Interface, canvas: &mut Canvas) {
         if !self.active {
