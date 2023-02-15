@@ -1,15 +1,23 @@
+use std::collections::HashMap;
+
 use egui::{Context, Ui};
 use crate::{editor::Editor, user_interface::{Interface, gui::window::GlifWindow}, get_point};
 use glifparser::{glif::{contour::MFEKContourCommon, point::MFEKPointCommon}, Point, MFEKPointData, PointData, WhichHandle, Handle};
 
+use super::egui_parsed_textfield;
+
 pub struct InspectionWindow {
     // is this window open?
     open: bool,
+    edit_buf: HashMap<String, String>,
 }
 
 impl InspectionWindow {
     pub fn new() -> Self {
-        InspectionWindow { open: false }
+        InspectionWindow { 
+            open: false,
+            edit_buf: HashMap::new()
+        }
     }
 }
 
@@ -29,7 +37,7 @@ impl GlifWindow for InspectionWindow {
             .open(&mut self.open)
             .enabled(!v.is_modifying())
             .default_width(64.)
-            .default_pos([1000000., 25.])
+            .default_pos([80., 25.])
             .constrain(true)
             .show(ctx, |ui| {
                 if let Some(selected_point) = v.selected_point() {
@@ -45,7 +53,7 @@ impl GlifWindow for InspectionWindow {
                         if let Some(op) = contour.operation() {
                             ui.label(format!("Operation: {:?}", op));
                             if ui.button("Apply Contour Operation").clicked() {
-                                
+
                             }
                         }
 
@@ -66,15 +74,18 @@ impl GlifWindow for InspectionWindow {
                     });
                     ui.collapsing("Point", |ui| {
                         ui.label("Position:");
-                        point.set_position(egui_coordinate_helper(ui, point.x()), egui_coordinate_helper(ui, point.y()));
+                        point.set_position(
+                            egui_parsed_textfield(ui, "px", point.x(), &mut self.edit_buf),
+                            egui_parsed_textfield(ui, "py", point.y(), &mut self.edit_buf),
+                        );
     
                         ui.collapsing("Handles", |ui| {
                             if point.has_handle(WhichHandle::A) {
                                 ui.label("Handle A:");
                                 if let Some(handle_a_pos) = point.get_handle_position(WhichHandle::A) {
                                     point.set_handle_position(WhichHandle::A,
-                                        egui_coordinate_helper(ui, handle_a_pos.0), 
-                                        egui_coordinate_helper(ui, handle_a_pos.1)
+                                        egui_parsed_textfield(ui, "hax", handle_a_pos.0, &mut self.edit_buf),
+                                        egui_parsed_textfield(ui, "hay", handle_a_pos.1, &mut self.edit_buf),
                                     )
                                 }
     
@@ -99,8 +110,8 @@ impl GlifWindow for InspectionWindow {
                                 ui.label("Handle B:");
                                 if let Some(handle_b_pos) = point.get_handle_position(WhichHandle::B) {
                                     point.set_handle_position(WhichHandle::B,
-                                        egui_coordinate_helper(ui, handle_b_pos.0), 
-                                        egui_coordinate_helper(ui, handle_b_pos.1)
+                                        egui_parsed_textfield(ui, "hbx", handle_b_pos.0, &mut self.edit_buf), 
+                                        egui_parsed_textfield(ui, "hby", handle_b_pos.1, &mut self.edit_buf)
                                     )
                                 }
                                 let prev_checked = point.get_handle(WhichHandle::B).unwrap() == Handle::Colocated;
@@ -157,16 +168,7 @@ fn point_equivalent<PD:PointData>(a: &dyn MFEKPointCommon<PD>, b: &dyn MFEKPoint
     a.get_handle_position(WhichHandle::A) == b.get_handle_position(WhichHandle::A) &&
     a.get_handle_position(WhichHandle::B) == b.get_handle_position(WhichHandle::B)
 }
-fn egui_coordinate_helper(ui: &mut Ui, coord: f32) -> f32 {
-    let mut coord_string = coord.to_string();
-    if ui.text_edit_singleline(&mut coord_string).changed() {
-        if let Ok(x) = coord_string.parse::<f32>() {
-            return x
-        }
-    }
 
-    coord
-}
  /*
         let (ci, pi) = if let Some((ci, pi)) = v.selected_point() {
             (ci, pi)

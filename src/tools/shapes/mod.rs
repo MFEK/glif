@@ -1,8 +1,12 @@
+mod dialog;
+
+use std::collections::HashMap;
 use std::f32::consts::PI;
 
 use super::prelude::*;
 use crate::tool_behaviors::draw_pivot::DrawPivot;
 use crate::tool_behaviors::selection_box::SelectionBox;
+use crate::user_interface::gui::textedit_buffer::EditBuffer;
 use crate::user_interface::{self, Interface};
 
 use float_cmp::ApproxEq;
@@ -14,6 +18,23 @@ use kurbo::Shape as _;
 use num;
 use num_derive::FromPrimitive;
 use skia_safe::{Matrix, Path, PathDirection, PathEffect, StrokeRec};
+
+
+#[derive(Clone, Debug)]
+pub struct Shapes {
+    pressed_pos: Option<(f32, f32)>,
+    dropped_shape: bool,
+    // Because of imgui, we can't have associated types on the ShapeType enum. Thus, this
+    // compromise.
+    stype: ShapeType,
+    sdata: ShapeData,
+    corners: Option<((f32, f32), (f32, f32))>,
+    draw_pivot: DrawPivot,
+    locked_angle: bool,
+
+    //ui
+    edit_buf: HashMap<String, String>,
+}
 
 impl Tool for Shapes {
     fn event(&mut self, v: &mut Editor, _i: &mut Interface, event: EditorEvent) {
@@ -32,8 +53,9 @@ impl Tool for Shapes {
         }
     }
 
-    fn ui(&mut self, _v: &mut Editor, i: &mut Interface, ui: &mut Ui) {
+    fn dialog(&mut self, _v: &mut Editor, i: &mut Interface, ui: &mut Ui) -> bool {
         self.shape_settings(i, ui);
+        true
     }
 
     fn draw(&mut self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
@@ -89,18 +111,6 @@ impl ShapeType {
     }
 }
 
-#[derive(Clone, Debug)]
-pub struct Shapes {
-    pressed_pos: Option<(f32, f32)>,
-    dropped_shape: bool,
-    // Because of imgui, we can't have associated types on the ShapeType enum. Thus, this
-    // compromise.
-    stype: ShapeType,
-    sdata: ShapeData,
-    corners: Option<((f32, f32), (f32, f32))>,
-    draw_pivot: DrawPivot,
-    locked_angle: bool,
-}
 
 #[derive(Copy, Clone, Debug, derive_more::Display)]
 #[display(
@@ -154,65 +164,8 @@ impl Shapes {
             corners: None,
             draw_pivot: DrawPivot::default(),
             locked_angle: false,
+            edit_buf: HashMap::new(),
         }
-    }
-
-    fn shape_settings(&mut self, i: &mut Interface, ui: &egui::Ui) {
-        /*
-        let (tx, ty, tw, th) = i.get_tools_dialog_rect();
-        imgui::Window::new(imgui::im_str!("Shape Settings"))
-            .bg_alpha(1.) // See comment on fn redraw_skia
-            .flags(
-                imgui::WindowFlags::NO_RESIZE
-                    | imgui::WindowFlags::NO_MOVE
-                    | imgui::WindowFlags::NO_COLLAPSE,
-            )
-            .position([tx, ty], imgui::Condition::Always)
-            .size([tw, th], imgui::Condition::Always)
-            .build(ui, || {
-                ui.radio_button(imgui::im_str!("Circle"), &mut self.stype, ShapeType::Circle);
-                ui.radio_button(imgui::im_str!("Oval"), &mut self.stype, ShapeType::Oval);
-                ui.radio_button(
-                    imgui::im_str!("Rectangle"),
-                    &mut self.stype,
-                    ShapeType::Rectangle,
-                );
-                ui.radio_button(
-                    imgui::im_str!("Rounded Rectangle"),
-                    &mut self.stype,
-                    ShapeType::RoundedRectangle,
-                );
-                ui.radio_button(
-                    imgui::im_str!("Polygon"),
-                    &mut self.stype,
-                    ShapeType::Polygon,
-                );
-                ui.radio_button(imgui::im_str!("Star"), &mut self.stype, ShapeType::Star);
-
-                match self.stype {
-                    ShapeType::RoundedRectangle => {
-                        imgui::Slider::new(imgui::im_str!("Roundness"))
-                            .range(1f32..=200f32)
-                            .build(ui, &mut self.sdata.rrect_radius);
-                    }
-                    ShapeType::Polygon | ShapeType::Star => {
-                        imgui::Slider::new(imgui::im_str!("Sides"))
-                            .range(3u16..=50u16)
-                            .build(ui, &mut self.sdata.polygon_sides);
-                        imgui::Slider::new(imgui::im_str!("Roundness"))
-                            .range(0f32..=1000f32)
-                            .build(ui, &mut self.sdata.polygon_radius);
-                        user_interface::util::imgui_decimal_text_field(
-                            "Angle",
-                            ui,
-                            &mut self.sdata.polygon_angle,
-                            None,
-                        );
-                    }
-                    _ => (),
-                }
-            });
-            */
     }
 }
 

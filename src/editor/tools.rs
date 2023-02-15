@@ -44,10 +44,18 @@ impl Editor {
         active_tool.draw(self, i, canvas)
     }
 
-    pub fn dispatch_tool_ui(&mut self, i: &mut Interface, ui: &mut Ui) {
+    pub fn dispatch_ui(&mut self, i: &mut Interface, ctx: &egui::Context) {
         let mut active_tool = dyn_clone::clone_box(&*self.active_tool);
-        active_tool.ui(self, i, ui);
+        active_tool.ui(self, i, ctx);
         self.active_tool = active_tool;
+    }
+
+    pub fn dispatch_tool_ui(&mut self, i: &mut Interface, ui: &mut Ui) -> bool {
+        let mut active_tool = dyn_clone::clone_box(&*self.active_tool);
+        let populated_ui = active_tool.dialog(self, i, ui);
+        self.active_tool = active_tool;
+
+        return populated_ui;
     }
 
     /// Get the active tool by enum.

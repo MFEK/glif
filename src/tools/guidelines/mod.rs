@@ -98,8 +98,9 @@ impl Tool for Guidelines {
         self.draw_selected_guideline(i, v, canvas);
     }
 
-    fn ui(&mut self, v: &mut Editor, i: &mut Interface, ui: &mut Ui) {
-        self.tool_dialog(v, i, ui)
+    fn dialog(&mut self, v: &mut Editor, i: &mut Interface, ui: &mut Ui) -> bool {
+        self.tool_dialog(v, i, ui);
+        return true;
     }
 }
 

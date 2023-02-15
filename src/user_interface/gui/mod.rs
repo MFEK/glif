@@ -1,10 +1,9 @@
-pub mod layer_list;
 pub mod prompts;
 pub mod menu_bar;
 pub mod tool_bar;
-pub mod canvas_context;
 pub mod window;
 pub mod windows;
+pub mod textedit_buffer;
 
 #[macro_use]
 pub(crate) mod msgbox;
@@ -27,14 +26,13 @@ pub fn build_ui(
     egui.run(egsdl2.take_egui_input(&i.sdl_window), |ctx| {
         tool_bar::tool_bar(ctx, v, i);
         menu_bar::menu_bar(ctx, v, i, wm);
-        layer_list::layer_list(ctx, v, i);
 
         // windows
+        wm.layer_list.build(ctx, v, i);
         wm.inspector.build(ctx, v, i);
-
-        if i.context.is_some() {
-            canvas_context::canvas_context(ctx, v, i);
-        }
+        wm.grid.build(ctx, v, i);
+        wm.tool.build(ctx, v, i);
+        v.dispatch_ui(i, ctx);
     });
 }
 

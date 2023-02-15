@@ -10,6 +10,7 @@ use super::prelude::*;
 use crate::is_contour_open;
 use crate::tool_behaviors::{move_handle::MoveHandle, pan::PanBehavior, zoom_scroll::ZoomScroll};
 use crate::user_interface::Interface;
+use egui::{Align2, Color32};
 use glifparser::glif::inner::MFEKContourInnerType;
 use glifrenderer::points::draw_point;
 use glifparser::glif::mfek::contour::MFEKContourCommon;
@@ -39,46 +40,50 @@ impl Tool for Pen {
         }
     }
 
-    fn ui(&mut self, _v: &mut Editor, _i: &mut Interface, ui: &mut Ui) {
-        /* 
-        imgui::Window::new(imgui::im_str!("Points"))
-        .bg_alpha(1.)
-        .flags(
-            imgui::WindowFlags::NO_RESIZE
-                | imgui::WindowFlags::NO_MOVE
-                | imgui::WindowFlags::NO_COLLAPSE,
-        )
-        .position(
-            [0., 100.],
-            imgui::Condition::Always,
-        )
-        .size(
-            [100., 100.],
-            imgui::Condition::Always,
-        )
-        .build(ui, || {
-            let options = [
-                imgui::im_str!("Cubic"),
-                imgui::im_str!("Quad"),
-                imgui::im_str!("Hyper"),
-            ];
+    fn ui(&mut self, _v: &mut Editor, _i: &mut Interface, ctx: &egui::Context) {
+        egui::Window::new("Mode Select")
+            .title_bar(false)
+            .anchor(Align2::LEFT_TOP, [35., 0.])
+            .resizable(false)
+            .show(ctx, |ui| {
+                ui.horizontal(|ui| {
+                    let cubic_button = egui::Button::new("C");
 
-            let mut mode = contour_type_to_string(self.mode.clone());
+                    let cubic_button = if self.mode == MFEKContourInnerType::Cubic {
+                        cubic_button.stroke(egui::Stroke::new(2., Color32::from_rgb(9, 82, 128)))
+                    } else {
+                        cubic_button
+                    };
 
-            imgui::ComboBox::new(imgui::im_str!("Subdivisions")).build_simple_string(
-                ui,
-                &mut mode,
-                &options,
-            );
+                    if ui.add(cubic_button).clicked() {
+                        self.mode = MFEKContourInnerType::Cubic
+                    }
 
-            self.mode = match mode {
-                0 => MFEKContourInnerType::Cubic,
-                1 => MFEKContourInnerType::Quad,
-                2 => MFEKContourInnerType::Hyper,
-                _ => unreachable!()
-            }
-        })
-        */
+                    let quad_button = egui::Button::new("Q");
+
+                    let quad_button = if self.mode == MFEKContourInnerType::Quad {
+                        quad_button.stroke(egui::Stroke::new(2., Color32::from_rgb(9, 82, 128)))
+                    } else {
+                        quad_button
+                    };
+
+                    if ui.add(quad_button).clicked() {
+                        self.mode = MFEKContourInnerType::Quad
+                    }
+
+                    let hyper_button = egui::Button::new("H");
+
+                    let hyper_button = if self.mode == MFEKContourInnerType::Hyper {
+                        hyper_button.stroke(egui::Stroke::new(2., Color32::from_rgb(9, 82, 128)))
+                    } else {
+                        hyper_button
+                    };
+        
+                    if ui.add(hyper_button).clicked() {
+                        self.mode = MFEKContourInnerType::Hyper
+                    }
+                });
+            });
     }
 
     fn draw(&mut self, v: &Editor, i: &Interface, canvas: &mut Canvas) {

@@ -1,15 +1,23 @@
+use std::collections::HashMap;
+
 use egui::{Context, Ui};
 use crate::{editor::Editor, user_interface::{Interface, gui::window::GlifWindow}, get_point};
 use glifparser::{glif::{contour::MFEKContourCommon, point::MFEKPointCommon}, Point, MFEKPointData, PointData, WhichHandle, Handle};
 
+use super::egui_parsed_textfield;
+
 pub struct GridWindow {
     // is this window open?
     open: bool,
+    edit_buf: HashMap<String, String>
 }
 
 impl GridWindow {
     pub fn new() -> Self {
-        Self { open: false }
+        Self { 
+            open: false,
+            edit_buf: HashMap::new()
+        }
     }
 }
 
@@ -23,95 +31,46 @@ impl GlifWindow for GridWindow {
     }
 
     fn build(&mut self, ctx: &Context, v: &mut Editor, i: &mut Interface) {
-        egui::Window::new("Inspector")
+        egui::Window::new("Grid")
         .resizable(true)
         .collapsible(true)
         .open(&mut self.open)
         .enabled(!v.is_modifying())
         .constrain(true)
+        .default_width(100.)
         .show(ctx, |ui| {
-                    /*
-        let (tx, ty, tw, th) = i.get_tools_dialog_rect();
+                ui.checkbox(&mut i.grid.show, "Active");
 
-        imgui::Window::new(&imgui::ImString::new("Grid"))
-            .bg_alpha(1.) // See comment on fn redraw_skia
-            .flags(
-                imgui::WindowFlags::NO_RESIZE
-                    | imgui::WindowFlags::NO_MOVE
-                    | imgui::WindowFlags::NO_COLLAPSE,
-            )
-            .position([tx, ty], imgui::Condition::Always)
-            .size([tw, th], imgui::Condition::Always)
-            .build(ui, || {
-                let old_active = i.grid.show;
-                let mut active = old_active;
+                ui.separator();
 
-                ui.checkbox(imgui::im_str!("Active"), &mut active);
+                ui.horizontal(|ui| {
+                    ui.label("Spacing");
+                    i.grid.spacing = egui_parsed_textfield(ui, "spacing", i.grid.spacing, &mut self.edit_buf);
+                });
 
-                if !active {
-                    i.grid.show = false;
-                } else if !old_active && active {
-                    i.grid.show = true;
+                ui.horizontal(|ui| {
+                    ui.label("Offset");
+                    i.grid.offset = egui_parsed_textfield(ui, "offset", i.grid.spacing, &mut self.edit_buf);
+                });
+
+                let prev_italic = i.grid.slope.is_some();
+                let mut italic = i.grid.slope.is_some();
+                ui.checkbox(&mut italic, "Italic");
+
+                if italic != prev_italic && italic {
+                    i.grid.slope = Some(0.5);
+                } else if italic != prev_italic && !italic {
+                    i.grid.slope = None;
                 }
 
-                if i.grid.show {
-                    user_interface::util::imgui_decimal_text_field(
-                        "Spacing",
-                        ui,
-                        &mut i.grid.spacing,
-                        None,
-                    );
-                    user_interface::util::imgui_decimal_text_field(
-                        "Offset",
-                        ui,
-                        &mut i.grid.offset,
-                        None,
-                    );
+                if let Some(slope) = i.grid.slope {
+                    i.grid.slope = Some(egui_parsed_textfield(ui, "slope", slope, &mut self.edit_buf));
 
-                    let old_italic = i.grid.slope.is_some();
-                    let mut italic = i.grid.slope.is_some();
-                    ui.checkbox(imgui::im_str!("Italic"), &mut italic);
-                    if italic != old_italic && italic {
-                        i.grid.slope = Some(0.5);
-                    } else if italic != old_italic && !italic {
-                        i.grid.slope = None;
-                    }
-
-                    if let Some(slope) = i.grid.slope {
-                        let old_slope = slope;
-
-                        let mut new_slope = slope;
-                        user_interface::util::imgui_decimal_text_field(
-                            "Slope",
-                            ui,
-                            &mut new_slope,
-                            None,
-                        );
-
-                        if old_slope != new_slope {
-                            i.grid.slope = Some(new_slope);
-                        };
-
-                        let old_angle =
-                            (f32::to_degrees(f32::atan(slope)) * 10000.).round() / 10000.;
-                        let mut new_angle = old_angle;
-
-                        user_interface::util::imgui_decimal_text_field(
-                            "Degrees",
-                            ui,
-                            &mut new_angle,
-                            None,
-                        );
-
-                        if old_angle != new_angle {
-                            i.grid.slope = Some(f32::tan(f32::to_radians(new_angle)));
-                        }
-                    }
-
-                    i.grid.offset %= i.grid.spacing;
+                    let mut angle = (f32::to_degrees(f32::atan(slope)) * 10000.).round() / 10000.;
+                    angle = egui_parsed_textfield(ui, "spacing", angle, &mut self.edit_buf);
                 }
-            });
-            */
-        };
+
+                i.grid.offset %= i.grid.spacing;
+        });
     }
 }

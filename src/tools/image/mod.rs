@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use super::prelude::*;
 use crate::command::Command;
 use crate::editor::Editor;
@@ -5,6 +7,7 @@ use crate::filedialog;
 use crate::tool_behaviors::{
     move_image::MoveImage, rotate_image::RotateImage, zoom_scroll::ZoomScroll,
 };
+use crate::user_interface::gui::textedit_buffer::EditBuffer;
 use crate::user_interface::{Interface, MouseInfo};
 use glifparser::matrix::ToSkiaMatrix;
 use skia_safe::{Paint, PaintStyle, Path, Contains};
@@ -17,6 +20,8 @@ mod dialog;
 #[derive(Clone, Debug)]
 pub struct Image {
     selected_idx: Option<usize>,
+
+    edit_buf: HashMap<String, String>,
 }
 
 impl Tool for Image {
@@ -51,15 +56,19 @@ impl Tool for Image {
         }
     }
 
-    fn ui(&mut self, v: &mut Editor, i: &mut Interface, ui: &mut Ui) {
-        self.tool_dialog(v, i, ui)
+    fn dialog(&mut self, v: &mut Editor, i: &mut Interface, ui: &mut Ui) -> bool {
+        self.tool_dialog(v, i, ui);
+        return true;
     }
 }
 
 // Here you can implement behaviors for events.
 impl Image {
     pub fn new() -> Self {
-        Self { selected_idx: None }
+        Self { 
+            selected_idx: None,
+            edit_buf: HashMap::new(),
+        }
     }
 
     fn is_image_clicked(&self, v: &Editor, mouse_info: MouseInfo) -> Option<usize> {

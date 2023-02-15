@@ -17,6 +17,7 @@ use enum_unitary::IntoEnumIterator;
 use glifrenderer::toggles::{PointLabels, PreviewMode};
 use sdl2::event::{Event, WindowEvent};
 use sdl2::mouse::MouseButton;
+use tool_behaviors::pan::PanBehavior;
 use tools::prelude::clicked_point_or_handle;
 use user_interface::egui_manager::EguiManager;
 use user_interface::gui::window::WindowManager;
@@ -166,9 +167,6 @@ fn main() {
                         }
                         Command::ToolGuidelines => {
                             editor.set_tool(ToolEnum::Guidelines);
-                        }
-                        Command::ToolGrid => {
-                            editor.set_tool(ToolEnum::Grid);
                         }
                         Command::ToolImages => {
                             editor.set_tool(ToolEnum::Image);
@@ -338,10 +336,6 @@ fn main() {
                 Event::MouseButtonDown {
                     mouse_btn, x, y, ..
                 } => {                    
-                    if !editor.is_modifying() && mouse_btn == MouseButton::Right {
-                        interface.context = Some((x as f32, y as f32));
-                        continue;
-                    }
                     let position = (x as f32, y as f32);
                     let mouse_info = MouseInfo::new(
                         &mut interface,
@@ -350,6 +344,12 @@ fn main() {
                         Some(true),
                         keymod,
                     );
+
+                    if mouse_btn == MouseButton::Middle {
+                        editor.push_behavior(Box::new(PanBehavior::new(interface.viewport.clone(), mouse_info)));
+                        continue;
+                    }
+                    
                     editor.dispatch_editor_event(
                         &mut interface,
                         EditorEvent::MouseEvent {

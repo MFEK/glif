@@ -24,7 +24,7 @@ impl Tool for Dash {
         }
     }
 
-    fn ui(&mut self, v: &mut Editor, i: &mut Interface, ui: &mut Ui) {
+    fn dialog(&mut self, v: &mut Editor, i: &mut Interface, ui: &mut Ui) -> bool {
         let show_dialog = match v.contour_idx {
             Some(ci) => match v.get_active_layer_ref().outline[ci].operation() {
                 Some(ContourOperations::DashAlongPath { .. }) => true,
@@ -35,7 +35,10 @@ impl Tool for Dash {
 
         if show_dialog {
             self.tool_dialog(v, i, ui);
+            return true;
         }
+
+        return false;
     }
 }
 

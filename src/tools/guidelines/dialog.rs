@@ -11,75 +11,53 @@ lazy_static::lazy_static! {
 }
 
 impl Guidelines {
-    pub fn tool_dialog(&mut self, v: &mut Editor, i: &mut Interface, ui: &egui::Ui) {
+    pub fn tool_dialog(&mut self, v: &mut Editor, i: &mut Interface, ui: &mut egui::Ui) {
+        let (mut guidelines, _guidelines_len, local_guidelines_len, _global_guidelines_len) = SplitGuidelines::new(v).as_tuple();
+
+        ui.horizontal(|ui| {
+            if ui.button("➕").clicked() {
+                v.push_behavior(Box::new(AddGuideline::new(0., false)));
+            }
+
+            if ui.button("🌏").clicked() {
+                v.push_behavior(Box::new(AddGuideline::new(0., true)));
+            }
+
+            if ui.button("🌐").clicked() {
+                v.write_metrics(i);
+            }
+            
+            if let Some(selected) = self.selected_idx {
+                //log::trace!("Selected {}; global len {}", selected, global_guidelines_len);
+                let selected_i = if guidelines[selected].1 {selected - local_guidelines_len} else {selected};
+                //log::trace!("Selected index {}", selected_i);
+
+                if guidelines[selected].1 && guidelines[selected].0.data.as_guideline().format {
+                    ui.label("Format defined.");
+                } else {
+                    if ui.button("➖").clicked() {
+                        v.begin_modification(&format!("Remove {} guideline.", if guidelines[selected].1 { "global" } else { "local" }), false);
+                        self.selected_idx = None;
+                        if guidelines[selected].1 {
+                            v.guidelines.remove(selected_i);
+                        } else {
+                            v.with_glyph_mut(|glyph| {
+                                glyph.guidelines.remove(selected_i);
+                            });
+                        }
+                        v.end_modification();
+                    }
+                }
+            } else {
+                ui.label("No guideline selected.");
+            }
+        });
+        
         /*
-        let (tx, ty, tw, th) = i.get_tools_dialog_rect();
 
-        imgui::Window::new(&imgui::ImString::new("Guidelines"))
-            .bg_alpha(1.) // See comment on fn redraw_skia
-            .flags(
-                imgui::WindowFlags::NO_RESIZE
-                    | imgui::WindowFlags::NO_MOVE
-                    | imgui::WindowFlags::NO_COLLAPSE,
-            )
-            .position([tx, ty], imgui::Condition::Always)
-            .size([tw, th], imgui::Condition::Always)
-            .build(ui, || {
-                let (mut guidelines, _guidelines_len, local_guidelines_len, _global_guidelines_len) = SplitGuidelines::new(v).as_tuple();
-
-                let pop_me = ui.push_style_color(imgui::StyleColor::Button, [0., 0., 0., 0.2]);
-
-                ui.button(
-                    unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icons::PLUS) },
-                    [0., 0.],
-                );
-
-                if ui.is_item_clicked(imgui::MouseButton::Left) {
-                    v.push_behavior(Box::new(AddGuideline::new(0., false)));
-                }
-
-                ui.same_line(0.);
-                ui.button(
-                    unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(&PLUS_GLOBE) },
-                    [0., 0.],
-                );
-
-                if ui.is_item_clicked(imgui::MouseButton::Left) {
-                    v.push_behavior(Box::new(AddGuideline::new(0., true)));
-                }
-
-                ui.same_line(0.);
-                ui.button(&imgui::im_str!("Write {}", unsafe { String::from_utf8_unchecked(icons::GLOBE.to_vec()) }), [0., 0.]);
-                if ui.is_item_clicked(imgui::MouseButton::Left) {
-                    v.write_metrics(i);
-                }
 
                 if let Some(selected) = self.selected_idx {
-                    //log::trace!("Selected {}; global len {}", selected, global_guidelines_len);
-                    let selected_i = if guidelines[selected].1 {selected - local_guidelines_len} else {selected};
-                    //log::trace!("Selected index {}", selected_i);
 
-                    ui.same_line(0.);
-                    if guidelines[selected].1 && guidelines[selected].0.data.as_guideline().format {
-                        ui.text(imgui::ImString::new("Format defined."));
-                    } else {
-                        ui.button(
-                            unsafe { imgui::ImStr::from_utf8_with_nul_unchecked(icons::MINUS) },
-                            [0., 0.],
-                        );
-                        if ui.is_item_clicked(imgui::MouseButton::Left) {
-                            v.begin_modification(&format!("Remove {} guideline.", if guidelines[selected].1 { "global" } else { "local" }));
-                            self.selected_idx = None;
-                            if guidelines[selected].1 {
-                                v.guidelines.remove(selected_i);
-                            } else {
-                                v.with_glyph_mut(|glyph| {
-                                    glyph.guidelines.remove(selected_i);
-                                });
-                            }
-                            v.end_modification();
-                        }
-                    }
                 }
 
                 pop_me.pop(ui);

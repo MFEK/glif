@@ -1,8 +1,11 @@
 mod dialog;
 pub mod util;
 
+use std::collections::HashMap;
+
 use crate::tool_behaviors::{move_vws_handle::MoveVWSHandle, zoom_scroll::ZoomScroll};
 use crate::user_interface::Interface;
+use crate::user_interface::gui::textedit_buffer::EditBuffer;
 
 use glifparser::glif::contour::MFEKContourCommon;
 use glifparser::glif::contour_operations::ContourOperations;
@@ -15,7 +18,9 @@ use super::prelude::*;
 
 #[allow(clippy::upper_case_acronyms)]
 #[derive(Clone, Debug)]
-pub struct VWS {}
+pub struct VWS {
+    edit_buf: HashMap<String, String>,
+}
 
 impl Tool for VWS {
     #[rustfmt::skip]
@@ -34,7 +39,7 @@ impl Tool for VWS {
         self.draw_handles(v, i, canvas);
     }
 
-    fn ui(&mut self, v: &mut Editor, i: &mut Interface, ui: &mut Ui) {
+    fn dialog(&mut self, v: &mut Editor, i: &mut Interface, ui: &mut Ui) -> bool{
         let show_dialog = match v.contour_idx {
             Some(ci) => match v.get_active_layer_ref().outline[ci].operation() {
                 Some(ContourOperations::VariableWidthStroke { .. }) => true,
@@ -42,15 +47,21 @@ impl Tool for VWS {
             },
             _ => false,
         };
+
         if show_dialog {
             self.tool_dialog(v, i, ui);
+            return true;
         }
+
+        false
     }
 }
 
 impl VWS {
     pub fn new() -> Self {
-        VWS {}
+        VWS {
+            edit_buf: HashMap::new()
+        }
     }
 
     fn mouse_pressed(&mut self, v: &mut Editor, i: &Interface, mouse_info: MouseInfo) {

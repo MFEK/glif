@@ -9,7 +9,7 @@ use glifparser::glif::point::MFEKPointCommon;
 pub struct MoveHandle {
     // we hold on to a clone of the mouse info when the behavior gets put on the stack
     // on mouse released we check for the same button found here and if we find it we pop ourselves
-    // this is a common process among toolbehaviors and allows the behavior to be independent of bindings
+    // this is a common convention among toolbehaviors and allows the behavior to be independent of bindings
     mouse_info: MouseInfo,
 
     // the index of the point that has the handle we're moving

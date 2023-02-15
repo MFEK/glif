@@ -32,7 +32,6 @@ pub fn tool_bar(ctx: &Context, v: &mut Editor, i: &mut Interface) {
             ui.separator();
             build_button(v, ui, "🔎", ToolEnum::Zoom);
             build_button(v, ui, "📏", ToolEnum::Measure);
-            build_button(v, ui, "⛶", ToolEnum::Grid);
             ui.separator();
             build_button(v, ui, "⚡", ToolEnum::VWS);
             build_button(v, ui, "〰", ToolEnum::PAP);

@@ -1,4 +1,5 @@
 use egui::Context;
+use glifrenderer::toggles::PreviewMode;
 
 use crate::{filedialog, editor::Editor, user_interface::Interface};
 
@@ -41,12 +42,46 @@ pub fn menu_bar(ctx: &Context, v: &mut Editor, i: &mut Interface, wm: &mut Windo
             });
 
             //
+            // View
+            //
+            ui.menu_button("View", |ui| {
+                ui.menu_button("Mode", |ui| {
+                    let mut edit = i.viewport.preview_mode == PreviewMode::None;
+                    ui.checkbox(&mut edit, "None");
+
+                    if edit {
+                        i.viewport.preview_mode = PreviewMode::None;
+                    }
+
+                    let mut selected = i.viewport.preview_mode == PreviewMode::NoUnselectedPoints;
+                    ui.checkbox(&mut selected, "Fill");
+
+                    if selected {
+                        i.viewport.preview_mode = PreviewMode::NoUnselectedPoints;
+                    }
+
+                    let mut paper = i.viewport.preview_mode == PreviewMode::Paper;
+                    ui.checkbox(&mut paper, "Paper");
+
+                    if paper {
+                        i.viewport.preview_mode = PreviewMode::Paper;
+                    }
+                });
+                
+                ui.checkbox(&mut i.grid.show, "Grid");
+            });
+
+            //
             // Windows
             //
             ui.menu_button("Windows", |ui| {
                 let mut inspector_open = wm.inspector.open();
                 ui.checkbox(&mut inspector_open, "Inspector");
                 wm.inspector.set_open(inspector_open);
+
+                let mut grid_open = wm.grid.open();
+                ui.checkbox(&mut grid_open, "Grid");
+                wm.grid.set_open(grid_open);
             })
         })
     }); 

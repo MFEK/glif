@@ -3,7 +3,7 @@ pub_mod!("src/tools");
 
 use self::prelude::*;
 use self::{
-    anchors::Anchors, dash::Dash, grid::Grid, guidelines::Guidelines, image::Image,
+    anchors::Anchors, dash::Dash, guidelines::Guidelines, image::Image,
     measure::Measure, pan::Pan, pap::PAP, pen::Pen, select::Select, shapes::Shapes, vws::VWS,
     zoom::Zoom,
 };
@@ -19,7 +19,13 @@ pub trait Tool: DynClone + std::fmt::Debug {
 
     // We provide empty default implementations for these two because not every tool needs these hooks.
     fn draw(&mut self, _v: &Editor, _i: &Interface, _canvas: &mut Canvas) {}
-    fn ui(&mut self, _v: &mut Editor, _i: &mut Interface, _ui: &mut Ui) {}
+
+    // UI hooks. Dialog hooks into the tools dialog.
+    fn dialog(&mut self, _v: &mut Editor, _i: &mut Interface, _ui: &mut Ui) -> bool { false }
+
+    // TODO: Provide hooks for free floating UI (some tools might want this like pen for mode select)
+    // and adding things to the right-click context menu.
+    fn ui(&mut self, _v: &mut Editor, _i: &mut Interface, _ctx: &egui::Context) {}
 }
 
 impl Default for Box<dyn Tool> {
@@ -35,7 +41,6 @@ enum_unitary! {
         Pan,
         Pen,
         Select,
-        Grid,
         Anchors,
         Zoom,
         Measure,
@@ -61,7 +66,6 @@ pub fn tool_enum_to_tool(tool: ToolEnum) -> Box<dyn Tool> {
         ToolEnum::Select => Box::new(Select::new()),
         ToolEnum::Zoom => Box::new(Zoom::new()),
         ToolEnum::Anchors => Box::new(Anchors::new()),
-        ToolEnum::Grid => Box::new(Grid::new()),
         ToolEnum::Measure => Box::new(Measure::new()),
         ToolEnum::Shapes => Box::new(Shapes::new()),
         ToolEnum::VWS => Box::new(VWS::new()),

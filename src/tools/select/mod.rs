@@ -14,8 +14,6 @@ use crate::tool_behaviors::{
     selection_box::SelectionBox, zoom_scroll::ZoomScroll,
 };
 
-mod dialog;
-
 // Select is a good example of a more complicated tool that keeps lots of state.
 // It has state for which handle it's selected, follow rules, selection box, and to track if it's currently
 // moving a point.
@@ -71,10 +69,6 @@ impl Tool for Select {
 
     fn draw(&mut self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
         self.draw_pivot.draw(v, i, canvas);
-    }
-
-    fn ui(&mut self, v: &mut Editor, i: &mut Interface, ui: &mut Ui) {
-        self.select_settings(v, i, ui);
     }
 }
 
