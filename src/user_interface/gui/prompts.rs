@@ -49,10 +49,10 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ctx: &egui::Co
                 ))
                 .show(ctx, |ui| {
                     PROMPT_STR.with(|prompt_str| {
-                        let buffer = prompt_str.borrow_mut().to_string();
+                        let mut buffer = prompt_str.borrow_mut().to_string();
 
                         if ui.text_edit_singleline(&mut buffer).lost_focus() {
-                            func(v, buffer);
+                            func(v, buffer.clone());
                             i.pop_prompt();
                         }
 
