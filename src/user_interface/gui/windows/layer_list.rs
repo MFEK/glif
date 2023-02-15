@@ -1,14 +1,12 @@
 use std::collections::HashMap;
-use std::rc::Rc;
 
-use egui::{Context, Align2, Stroke, Color32, PointerButton};
+use egui::{Context, Align2};
 use glifparser::Color;
 use glifparser::glif::LayerOperation;
 
 use crate::editor::Editor;
 use crate::user_interface::gui::textedit_buffer::EditBuffer;
-use crate::user_interface::gui::{PROMPT_CLR};
-use crate::user_interface::{icons, InputPrompt};
+
 use crate::Interface;
 
 pub struct LayerList {
@@ -25,7 +23,7 @@ impl LayerList {
             edit_buf: HashMap::new()
         }
     }
-    pub fn build(&mut self, ctx: &Context, v: &mut Editor, i: &mut Interface) {
+    pub fn build(&mut self, ctx: &Context, v: &mut Editor, _i: &mut Interface) {
         let active_layer = v.get_active_layer();
     
         egui::Window::new("Layers")

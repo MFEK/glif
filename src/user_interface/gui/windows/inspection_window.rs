@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-use egui::{Context, Ui};
-use crate::{editor::Editor, user_interface::{Interface, gui::window::GlifWindow}, get_point};
-use glifparser::{glif::{contour::MFEKContourCommon, point::MFEKPointCommon}, Point, MFEKPointData, PointData, WhichHandle, Handle};
+use egui::{Context};
+use crate::{editor::Editor, user_interface::{Interface, gui::window::GlifWindow}};
+use glifparser::{glif::{contour::MFEKContourCommon, point::MFEKPointCommon}, PointData, WhichHandle, Handle};
 
 use super::egui_parsed_textfield;
 
@@ -30,7 +30,7 @@ impl GlifWindow for InspectionWindow {
         self.open = open;
     }
 
-    fn build(&mut self, ctx: &Context, v: &mut Editor, i: &mut Interface) {
+    fn build(&mut self, ctx: &Context, v: &mut Editor, _i: &mut Interface) {
         egui::Window::new("Inspector")
             .resizable(true)
             .collapsible(true)

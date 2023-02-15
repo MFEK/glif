@@ -16,7 +16,7 @@ pub fn build_button(v: &mut Editor, ui: &mut Ui, text: &str, te: ToolEnum) {
     
     respone.on_hover_text(format!("{:?}", te));
 }
-pub fn tool_bar(ctx: &Context, v: &mut Editor, i: &mut Interface) {
+pub fn tool_bar(ctx: &Context, v: &mut Editor, _i: &mut Interface) {
     egui::Window::new("Tools")
     .anchor(Align2::LEFT_TOP, [0., 25.])
     .title_bar(false)

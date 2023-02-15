@@ -5,7 +5,7 @@ use glifparser::glif::contour_operations::{pap::{PatternStretch, PatternCopies, 
 use egui::Ui;
 
 impl PAP {
-    pub fn tool_dialog(&mut self, v: &mut Editor, i: &Interface, ui: &mut Ui) {
+    pub fn tool_dialog(&mut self, v: &mut Editor, _i: &Interface, ui: &mut Ui) {
         if v.contour_idx.is_none() { return };
         let contour_idx = v.contour_idx.expect("Checked in function return gaurd.");
 
@@ -35,13 +35,10 @@ impl PAP {
 
             ui.add(subdivision_slider);
 
-            data.subdivide = match subdivisions {
-                0. => {
-                    PatternSubdivide::Off
-                }
-                _ => {
-                    PatternSubdivide::Simple(subdivisions as usize)
-                }
+            data.subdivide = if subdivisions == 0. {
+                PatternSubdivide::Off
+            } else {
+                PatternSubdivide::Simple(subdivisions as usize)
             };
 
             ui.checkbox(&mut data.center_pattern, "Center");

@@ -1,9 +1,7 @@
 use std::collections::HashMap;
 
-use egui::{Context, Ui};
-use crate::{editor::Editor, user_interface::{Interface, gui::window::GlifWindow}, get_point};
-use glifparser::{glif::{contour::MFEKContourCommon, point::MFEKPointCommon}, Point, MFEKPointData, PointData, WhichHandle, Handle};
-
+use egui::{Context};
+use crate::{editor::Editor, user_interface::{Interface, gui::window::GlifWindow}};
 use super::egui_parsed_textfield;
 
 pub struct GridWindow {

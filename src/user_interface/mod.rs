@@ -3,19 +3,14 @@ pub mod gui;
 pub mod icons;
 pub mod mouse_input;
 pub mod sdl;
-pub mod util;
 pub mod egui_manager;
 
 use std::rc::Rc;
 
 use crate::render;
 //use crate::user_interface::gui::build_imgui_ui;
-use egui_sdl2_event::EguiSDL2State;
-use egui_skia::EguiSkia;
-use glifparser::MFEKPointData;
 use glifrenderer::grid::Grid;
 use glifrenderer::viewport::Viewport;
-use sdl2::mouse::MouseState;
 use sdl2::video::GLContext;
 use skia_bindings::GrSurfaceOrigin;
 use skia_safe::Color;
@@ -29,7 +24,6 @@ use skia_safe::gpu::gl::FramebufferInfo;
 use crate::editor::Editor;
 pub use crate::user_interface::mouse_input::MouseInfo;
 
-use glifparser::glif::Layer;
 use sdl2::{video::Window, Sdl};
 
 use self::egui_manager::EguiManager;

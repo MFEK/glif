@@ -2,11 +2,6 @@ use super::super::prelude::*;
 use super::{Guidelines, SplitGuidelines};
 use crate::tool_behaviors::add_guideline::AddGuideline;
 //use crate::user_interface::gui::{FONT_IDS, IMGUI_RESERVE};
-use crate::user_interface::icons;
-
-lazy_static::lazy_static! {
-    static ref PLUS_GLOBE: Vec<u8> = icons::chain(&[icons::PLUS, icons::GLOBE]);
-}
 
 impl Guidelines {
     pub fn tool_dialog(&mut self, v: &mut Editor, i: &mut Interface, ui: &mut egui::Ui) {
