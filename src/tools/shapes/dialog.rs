@@ -3,7 +3,7 @@ use crate::user_interface::{Interface, gui::windows::egui_parsed_textfield};
 use super::{ShapeType, Shapes};
 
 impl Shapes {
-    pub fn shape_settings(&mut self, i: &mut Interface, ui: &mut egui::Ui) {
+    pub fn shape_settings(&mut self, _i: &mut Interface, ui: &mut egui::Ui) {
         ui.radio_value(&mut self.stype, ShapeType::Circle, "Circle");
         ui.radio_value(&mut self.stype, ShapeType::Oval, "Oval");
         ui.radio_value(&mut self.stype, ShapeType::Rectangle, "Rectangle");

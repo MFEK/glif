@@ -5,7 +5,6 @@ use std::collections::HashMap;
 
 use crate::tool_behaviors::{move_vws_handle::MoveVWSHandle, zoom_scroll::ZoomScroll};
 use crate::user_interface::Interface;
-use crate::user_interface::gui::textedit_buffer::EditBuffer;
 
 use glifparser::glif::contour::MFEKContourCommon;
 use glifparser::glif::contour_operations::ContourOperations;

@@ -1,14 +1,10 @@
 mod dialog;
 
 use std::collections::HashMap;
-use std::rc::Rc;
-
-use glifparser::glif::contour_operations::ContourOperations;
-use glifparser::glif::contour_operations::pap::{PAPContour, PatternCopies, PatternSubdivide, PatternStretch};
 
 use super::prelude::*;
 use crate::tool_behaviors::zoom_scroll::ZoomScroll;
-use crate::{editor::Editor, user_interface::InputPrompt};
+use crate::editor::Editor;
 
 #[derive(Clone, Debug)]
 pub struct PAP {

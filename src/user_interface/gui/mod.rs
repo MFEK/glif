@@ -32,6 +32,11 @@ pub fn build_ui(
         wm.inspector.build(ctx, v, i);
         wm.grid.build(ctx, v, i);
         wm.tool.build(ctx, v, i);
+
+        if i.active_prompts() {
+            prompts::build_and_check_prompts(v, i, ctx);
+        }
+        
         v.dispatch_ui(i, ctx);
     });
 }

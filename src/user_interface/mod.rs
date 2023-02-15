@@ -223,13 +223,4 @@ pub enum InputPrompt {
         default: String,
         func: Rc<dyn Fn(&mut Editor, String)>,
     },
-    Color {
-        label: String,
-        default: [f32; 4],
-        func: Rc<dyn Fn(&mut Editor, Option<[f32; 4]>)>,
-    },
-    Layer {
-        label: String,
-        func: Rc<dyn Fn(&mut Editor, Layer<MFEKPointData>)>,
-    },
 }

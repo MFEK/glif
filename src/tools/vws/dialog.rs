@@ -1,6 +1,5 @@
 use glifparser::CapType;
 use glifparser::JoinType;
-use glifparser::VWSContour;
 use glifparser::glif::contour_operations::ContourOperations;
 
 use super::super::prelude::*;
@@ -10,7 +9,7 @@ use crate::user_interface::Interface;
 use crate::user_interface::gui::windows::egui_parsed_textfield;
 
 impl VWS {
-    pub fn tool_dialog(&mut self, v: &mut Editor, i: &Interface, ui: &mut egui::Ui) {
+    pub fn tool_dialog(&mut self, v: &mut Editor, _i: &Interface, ui: &mut egui::Ui) {
         if v.contour_idx.is_none() {
             ui.label("No selection!");
             return;

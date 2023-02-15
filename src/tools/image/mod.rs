@@ -7,7 +7,6 @@ use crate::filedialog;
 use crate::tool_behaviors::{
     move_image::MoveImage, rotate_image::RotateImage, zoom_scroll::ZoomScroll,
 };
-use crate::user_interface::gui::textedit_buffer::EditBuffer;
 use crate::user_interface::{Interface, MouseInfo};
 use glifparser::matrix::ToSkiaMatrix;
 use skia_safe::{Paint, PaintStyle, Path, Contains};

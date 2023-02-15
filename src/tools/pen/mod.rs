@@ -247,11 +247,3 @@ fn can_add_point(v: &Editor) -> bool {
         return false
     }
 }
-
-fn contour_type_to_string(mode: MFEKContourInnerType) -> usize {
-    match mode {
-        MFEKContourInnerType::Cubic => 0,
-        MFEKContourInnerType::Quad => 1,
-        MFEKContourInnerType::Hyper => 2,
-    }
-}

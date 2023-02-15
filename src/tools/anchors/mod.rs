@@ -1,6 +1,6 @@
 use super::prelude::*;
 use crate::command::Command;
-use crate::tool_behaviors::{pan::PanBehavior, zoom_scroll::ZoomScroll};
+use crate::tool_behaviors::{zoom_scroll::ZoomScroll};
 use crate::user_interface::{InputPrompt, Interface};
 
 mod dialog;
@@ -52,7 +52,7 @@ impl Tool for Anchors {
     }
 
     fn dialog(&mut self, v: &mut Editor, i: &mut Interface, ui: &mut Ui) -> bool {
-        if let Some(idx) = self.anchor_idx {
+        if let Some(_) = self.anchor_idx {
             self.anchor_settings(v, i, ui);
             return true;
         }

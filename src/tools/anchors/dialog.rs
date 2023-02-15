@@ -1,5 +1,3 @@
-use glifparser::glif;
-
 use crate::{user_interface::{gui::windows::egui_parsed_textfield, Interface}, editor::Editor};
 
 use super::Anchors;
@@ -7,7 +5,7 @@ use super::Anchors;
 
 // Make dialog box at right
 impl Anchors {
-    pub fn anchor_settings(&mut self, v: &mut Editor, i: &Interface, ui: &mut egui::Ui) {
+    pub fn anchor_settings(&mut self, v: &mut Editor, _: &Interface, ui: &mut egui::Ui) {
         let anchor_idx = self.anchor_idx.expect("We check in the event handler!");
         let mut anchor = v.with_glyph(|glif| glif.anchors[anchor_idx].clone());
 

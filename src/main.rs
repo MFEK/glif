@@ -18,7 +18,6 @@ use glifrenderer::toggles::{PointLabels, PreviewMode};
 use sdl2::event::{Event, WindowEvent};
 use sdl2::mouse::MouseButton;
 use tool_behaviors::pan::PanBehavior;
-use tools::prelude::clicked_point_or_handle;
 use user_interface::egui_manager::EguiManager;
 use user_interface::gui::window::WindowManager;
 

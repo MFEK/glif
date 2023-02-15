@@ -6,8 +6,7 @@ use std::f32::consts::PI;
 use super::prelude::*;
 use crate::tool_behaviors::draw_pivot::DrawPivot;
 use crate::tool_behaviors::selection_box::SelectionBox;
-use crate::user_interface::gui::textedit_buffer::EditBuffer;
-use crate::user_interface::{self, Interface};
+use crate::user_interface::Interface;
 
 use float_cmp::ApproxEq;
 use glifparser::MFEKPointData;

@@ -1,19 +1,19 @@
 use super::super::prelude::*;
 use super::Dash;
-use crate::user_interface::{self, Interface};
+use crate::user_interface::Interface;
 use glifparser::glif::contour_operations::{ContourOperations, dash::DashCull};
 use egui::Ui;
 use skia_safe::{PaintCap, PaintJoin};
 
 impl Dash {
-    pub fn tool_dialog(&mut self, v: &mut Editor, i: &Interface, ui: &mut Ui) {
+    pub fn tool_dialog(&mut self, v: &mut Editor, _: &Interface, ui: &mut Ui) {
         if v.contour_idx.is_none() {
             ui.label("No selection!");
             return;
         }
 
         let contour_idx = v.contour_idx.unwrap();
-        let mut operation = v.get_active_layer_ref().outline[contour_idx]
+        let operation = v.get_active_layer_ref().outline[contour_idx]
             .operation()
             .clone();
 

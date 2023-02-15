@@ -1,6 +1,6 @@
 use super::super::prelude::*;
 use super::PAP;
-use crate::user_interface::{self, Interface, gui::windows::egui_parsed_textfield};
+use crate::user_interface::{Interface, gui::windows::egui_parsed_textfield};
 use glifparser::glif::contour_operations::{pap::{PatternStretch, PatternCopies, PatternSubdivide, PAPContour}, ContourOperations};
 use egui::Ui;
 
