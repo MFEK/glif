@@ -11,7 +11,6 @@ use serde_json;
 use shrinkwraprs;
 
 use super::Editor;
-use crate::contour_operations::ContourOperation;
 use crate::user_interface::gui;
 
 

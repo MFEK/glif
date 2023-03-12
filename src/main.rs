@@ -194,7 +194,7 @@ fn main() {
                         }*/
                         Command::DeleteSelection => {
                             if editor.selected.is_empty() && editor.point_idx.is_some() {
-                                editor.simplify_selection();
+                                editor.simplify_cubic_selection();
                             } else {
                                 editor.delete_selection();
                             }

@@ -378,7 +378,7 @@ impl Shapes {
             };
             self.corners = sd.corners;
 
-            let mfek_o: Vec<MFEKContour<MFEKGlifPointData>> =
+            let mfek_o: Vec<MFEKContour<MFEKPointData>> =
                 o.iter().map(|e| e.into()).collect();
             v.get_active_layer_mut().outline.extend(mfek_o);
             self.dropped_shape = true;

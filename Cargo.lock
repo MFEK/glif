@@ -63,7 +63,7 @@ dependencies = [
 
 [[package]]
 name = "MFEKmath"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "flo_curves",
  "glifparser",
