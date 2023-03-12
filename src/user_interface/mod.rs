@@ -88,8 +88,6 @@ impl Interface {
             fb_info,
         };
 
-        iself.adjust_viewport_by_os_dpi();
-
         iself
     }
 

@@ -41,8 +41,8 @@ lazy_static = "1.4"
 #imgui-skia-renderer = {git = "https://github.com/MFEK/imgui-skia-renderer.rlib", branch = "main"}
 #imgui-skia-renderer = { path = "../imgui-skia-renderer.rlib" } # for development
 egui = "0.21.0"
-egui_skia = "0.2.1"
-egui-sdl2-event = { git = "https://github.com/MFEK/egui-sdl2-event.rlib" }
+egui_skia = { git = "https://github.com/MFEK/egui_skia.rlib", branch = "master" }
+egui-sdl2-event = { git = "https://github.com/MFEK/egui-sdl2-event.rlib", branch = "master" }
 # For argument parsing
 clap = "3.0"
 

@@ -766,7 +766,7 @@ dependencies = [
 [[package]]
 name = "egui-sdl2-event"
 version = "0.3.0"
-source = "git+https://github.com/MFEK/egui-sdl2-event.rlib#47121831c8797bf62cfea05737366cc8657e7475"
+source = "git+https://github.com/MFEK/egui-sdl2-event.rlib?branch=master#47121831c8797bf62cfea05737366cc8657e7475"
 dependencies = [
  "egui",
  "sdl2",
@@ -774,9 +774,8 @@ dependencies = [
 
 [[package]]
 name = "egui_skia"
-version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e6752c1b97debef49ccf109da2e58f8ec1cec33f5f390d36fdbea5164399a70d"
+version = "0.3.0"
+source = "git+https://github.com/MFEK/egui_skia.rlib?branch=master#16b5f42b5ef89fd125fa1ae75498ddddf1474dce"
 dependencies = [
  "egui",
  "skia-safe",

@@ -12,10 +12,11 @@ pub struct EguiManager {
 
 impl EguiManager {
     pub fn new(interface: &mut Interface) -> Self {
+        let dpi = 1.0 / interface.set_dpi_from_os();
         let egui_sdl2 = egui_sdl2_event::EguiSDL2State::new(
             &interface.sdl_window,
             &interface.sdl_context.video().unwrap(),
-            DpiMode::Auto,
+            DpiMode::Custom(dpi),
         );
         let egui_skia = egui_skia::EguiSkia::new();
         return EguiManager {
