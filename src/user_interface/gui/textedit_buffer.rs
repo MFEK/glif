@@ -24,4 +24,3 @@ impl EditBuffer for HashMap<String, String> {
         self.insert(id.into(), v);
     }
 }
-

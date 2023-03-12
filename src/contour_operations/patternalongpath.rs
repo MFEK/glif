@@ -1,8 +1,11 @@
-use glifparser::{glif::{MFEKContour, MFEKOutline, contour::MFEKContourCommon}, MFEKPointData};
 use glifparser::glif::contour_operations::pap::PAPContour;
+use glifparser::{
+    glif::{contour::MFEKContourCommon, MFEKContour, MFEKOutline},
+    MFEKPointData,
+};
 use MFEKmath::{pattern_along_path_mfek, Piecewise};
 
-use super::{ContourOperationBuild};
+use super::ContourOperationBuild;
 
 impl ContourOperationBuild for PAPContour<MFEKPointData> {
     fn build(&self, contour: &MFEKContour<MFEKPointData>) -> MFEKOutline<MFEKPointData> {

@@ -3,9 +3,8 @@ pub_mod!("src/tools");
 
 use self::prelude::*;
 use self::{
-    anchors::Anchors, dash::Dash, guidelines::Guidelines, image::Image,
-    measure::Measure, pan::Pan, pap::PAP, pen::Pen, select::Select, shapes::Shapes, vws::VWS,
-    zoom::Zoom,
+    anchors::Anchors, dash::Dash, guidelines::Guidelines, image::Image, measure::Measure, pan::Pan,
+    pap::PAP, pen::Pen, select::Select, shapes::Shapes, vws::VWS, zoom::Zoom,
 };
 
 use dyn_clone::DynClone;
@@ -21,7 +20,9 @@ pub trait Tool: DynClone + std::fmt::Debug {
     fn draw(&mut self, _v: &Editor, _i: &Interface, _canvas: &mut Canvas) {}
 
     // UI hooks. Dialog hooks into the tools dialog.
-    fn dialog(&mut self, _v: &mut Editor, _i: &mut Interface, _ui: &mut Ui) -> bool { false }
+    fn dialog(&mut self, _v: &mut Editor, _i: &mut Interface, _ui: &mut Ui) -> bool {
+        false
+    }
 
     // TODO: Provide hooks for free floating UI (some tools might want this like pen for mode select)
     // and adding things to the right-click context menu.

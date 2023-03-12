@@ -10,14 +10,18 @@ use super::PROMPT_STR;
 
 pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ctx: &egui::Context) {
     match i.peek_prompt().clone() {
-        InputPrompt::YesNo { question, afterword, func } => {
+        InputPrompt::YesNo {
+            question,
+            afterword,
+            func,
+        } => {
             egui::Window::new("MFEKglif")
                 .resizable(false)
                 .collapsible(false)
                 .anchor(Align2::CENTER_CENTER, [0., 0.])
-                .fixed_pos( egui::Pos2::new(
+                .fixed_pos(egui::Pos2::new(
                     (i.viewport.winsize.0 / 2.) * i.os_dpi(),
-                    (i.viewport.winsize.1 / 2.) * i.os_dpi()
+                    (i.viewport.winsize.1 / 2.) * i.os_dpi(),
                 ))
                 .show(ctx, |ui| {
                     ui.label(format!("{}", question));
@@ -28,7 +32,7 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ctx: &egui::Co
                                 func(v, i, true);
                                 i.pop_prompt();
                             }
-    
+
                             if ui.button("No").clicked() {
                                 func(v, i, false);
                                 i.pop_prompt();
@@ -36,16 +40,19 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ctx: &egui::Co
                         });
                     });
                 });
-            
-        },
-        InputPrompt::Text { label, default, func } => {
+        }
+        InputPrompt::Text {
+            label,
+            default,
+            func,
+        } => {
             egui::Window::new(label)
                 .resizable(false)
                 .collapsible(false)
                 .anchor(Align2::CENTER_CENTER, [0., 0.])
-                .fixed_pos( egui::Pos2::new(
+                .fixed_pos(egui::Pos2::new(
                     (i.viewport.winsize.0 / 2.) * i.os_dpi(),
-                    (i.viewport.winsize.1 / 2.) * i.os_dpi()
+                    (i.viewport.winsize.1 / 2.) * i.os_dpi(),
                 ))
                 .show(ctx, |ui| {
                     PROMPT_STR.with(|prompt_str| {
@@ -59,6 +66,6 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ctx: &egui::Co
                         prompt_str.replace(buffer);
                     })
                 });
-        },
+        }
     }
 }

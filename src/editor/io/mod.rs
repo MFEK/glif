@@ -1,7 +1,7 @@
 use super::{events::*, Editor};
 
-use MFEKmath::mfek::ResolveCubic;
 use glifparser::glif::contour::MFEKContourCommon;
+use MFEKmath::mfek::ResolveCubic;
 //use fs2::FileExt as _; # TODO: Add file locking.
 use glifparser::glif::mfek::{Layer, MFEKGlif};
 use glifparser::{Glif, MFEKPointData};
@@ -134,13 +134,12 @@ impl Editor {
         if let Some(i) = interface {
             self.rebuild(i);
         }
-        
+
         let mut export = self.prepare_export();
         if export.layers.len() > 1 {
             log::warn!("In a flatten operation, layers not in the topmost group will be discarded and not in your chosen file. You may want to export (Ctrl+E) and not flatten.");
         }
         let layer = &mut export.layers[0];
-
 
         let glif_struct = self.glyph.as_ref().unwrap().to_exported(layer);
 
@@ -370,9 +369,11 @@ pub trait ExportLayer {
 /// the normal MFEKGlif type's layers, then you will need to apply contour operations yourself!
 impl ExportLayer for MFEKGlif<MFEKPointData> {
     fn to_exported(&self, layer: &mut Layer<MFEKPointData>) -> Glif<MFEKPointData> {
-        let contours: Vec<_> = layer.outline.iter_mut().map(|c| 
-            c.to_cubic().cubic_mut().unwrap().clone()
-        ).collect();
+        let contours: Vec<_> = layer
+            .outline
+            .iter_mut()
+            .map(|c| c.to_cubic().cubic_mut().unwrap().clone())
+            .collect();
         let mut ret = Glif::new();
         ret.outline = Some(contours);
         ret.anchors = self.anchors.clone();

@@ -1,19 +1,18 @@
-pub mod prompts;
 pub mod menu_bar;
+pub mod prompts;
+pub mod textedit_buffer;
 pub mod tool_bar;
 pub mod window;
 pub mod windows;
-pub mod textedit_buffer;
 
 #[macro_use]
 pub(crate) mod msgbox;
 
-use std::cell::RefCell;
-use crate::editor::Editor;
-use super::{Interface, egui_manager::EguiManager};
-use self::{window::{GlifWindow, WindowManager}};
 pub(crate) use self::msgbox::gui_error as error;
-
+use self::window::{GlifWindow, WindowManager};
+use super::{egui_manager::EguiManager, Interface};
+use crate::editor::Editor;
+use std::cell::RefCell;
 
 pub fn build_ui(
     egui_manager: &mut EguiManager,
@@ -36,7 +35,7 @@ pub fn build_ui(
         if i.active_prompts() {
             prompts::build_and_check_prompts(v, i, ctx);
         }
-        
+
         v.dispatch_ui(i, ctx);
     });
 }

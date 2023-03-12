@@ -1,9 +1,9 @@
+pub mod egui_manager;
 pub mod follow;
 pub mod gui;
 pub mod icons;
 pub mod mouse_input;
 pub mod sdl;
-pub mod egui_manager;
 
 use std::rc::Rc;
 
@@ -13,14 +13,14 @@ use gl;
 use glifrenderer::grid::Grid;
 use glifrenderer::viewport::Viewport;
 use sdl2::video::GLContext;
+use skia_bindings::GrDirectContext;
 use skia_bindings::GrSurfaceOrigin;
+use skia_safe::gpu::gl::FramebufferInfo;
+use skia_safe::gpu::BackendRenderTarget;
 use skia_safe::Color;
 use skia_safe::ColorType;
 use skia_safe::RCHandle;
-use skia_bindings::GrDirectContext;
 use skia_safe::Surface;
-use skia_safe::gpu::BackendRenderTarget;
-use skia_safe::gpu::gl::FramebufferInfo;
 
 use crate::editor::Editor;
 pub use crate::user_interface::mouse_input::MouseInfo;
@@ -64,7 +64,7 @@ impl Interface {
         let fb_info = {
             let mut fboid = 0;
             unsafe { gl::GetIntegerv(gl::FRAMEBUFFER_BINDING, &mut fboid) };
-    
+
             FramebufferInfo {
                 fboid: fboid.try_into().unwrap(),
                 format: skia_safe::gpu::gl::Format::RGBA8.into(),
@@ -87,7 +87,6 @@ impl Interface {
             gr_context,
             fb_info,
         };
-
 
         iself.adjust_viewport_by_os_dpi();
 
@@ -184,7 +183,6 @@ impl Interface {
         self.viewport.offset = offset;
     }
 }
-
 
 fn create_surface(
     window: &Window,

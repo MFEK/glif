@@ -338,7 +338,7 @@ fn main() {
 
                 Event::MouseButtonDown {
                     mouse_btn, x, y, ..
-                } => {                    
+                } => {
                     let position = (x as f32, y as f32);
                     let mouse_info = MouseInfo::new(
                         &mut interface,
@@ -349,10 +349,13 @@ fn main() {
                     );
 
                     if mouse_btn == MouseButton::Middle {
-                        editor.push_behavior(Box::new(PanBehavior::new(interface.viewport.clone(), mouse_info)));
+                        editor.push_behavior(Box::new(PanBehavior::new(
+                            interface.viewport.clone(),
+                            mouse_info,
+                        )));
                         continue;
                     }
-                    
+
                     editor.dispatch_editor_event(
                         &mut interface,
                         EditorEvent::MouseEvent {
@@ -401,7 +404,7 @@ fn main() {
                         interface.viewport.winsize = (x as f32, y as f32);
                         interface.viewport.set_broken_flag();
                         interface.adjust_viewport_by_os_dpi();
-                        sk_surface = interface.create_surface(  );
+                        sk_surface = interface.create_surface();
                     }
                     _ => {}
                 },
@@ -414,7 +417,7 @@ fn main() {
             &mut editor,
             &mut window_manager,
             &mut egui_manager,
-            &mut sk_surface
+            &mut sk_surface,
         );
     }
 }

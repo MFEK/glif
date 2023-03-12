@@ -4,13 +4,20 @@ use egui::Ui;
 
 use super::textedit_buffer::EditBuffer;
 
-pub mod inspection_window;
 pub mod grid_window;
-pub mod tool_window;
+pub mod inspection_window;
 pub mod layer_list;
+pub mod tool_window;
 
-pub fn egui_parsed_textfield<D>(ui: &mut Ui, id: impl Into<String>, default: D, editbuf: &mut impl EditBuffer) -> D
-    where D: FromStr + ToString {
+pub fn egui_parsed_textfield<D>(
+    ui: &mut Ui,
+    id: impl Into<String>,
+    default: D,
+    editbuf: &mut impl EditBuffer,
+) -> D
+where
+    D: FromStr + ToString,
+{
     let id: &String = &id.into();
     let prev_buf = editbuf.get_buf(id, &default.to_string()).clone();
     let response = ui.text_edit_singleline(editbuf.get_buf(id, &default.to_string()));

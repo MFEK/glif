@@ -1,7 +1,9 @@
-use egui::{Context, Align2};
+use egui::{Align2, Context};
 
-use crate::{editor::Editor, user_interface::{Interface, gui::window::GlifWindow}};
-
+use crate::{
+    editor::Editor,
+    user_interface::{gui::window::GlifWindow, Interface},
+};
 
 pub struct ToolWindow {
     // is this window open?
@@ -32,7 +34,9 @@ impl GlifWindow for ToolWindow {
                 populated_ui = v.dispatch_tool_ui(i, ui);
             });
 
-        if !populated_ui { return };
+        if !populated_ui {
+            return;
+        };
 
         egui::Window::new("Tool")
             .resizable(false)

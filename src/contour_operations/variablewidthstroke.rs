@@ -1,7 +1,7 @@
-use MFEKmath::mfek::ResolveCubic;
-use glifparser::MFEKPointData;
+use glifparser::glif::contour_operations::vws::VWSContour;
 use glifparser::glif::{MFEKContour, MFEKOutline};
-use glifparser::glif::contour_operations::vws::{VWSContour};
+use glifparser::MFEKPointData;
+use MFEKmath::mfek::ResolveCubic;
 use MFEKmath::{variable_width_stroke, Piecewise, VWSSettings};
 
 use super::ContourOperationBuild;

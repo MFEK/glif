@@ -1,13 +1,13 @@
 // This file is mainly utilities that are common use cases for the editor, but don't necessarily need to be
 // in Editor.
 
-use crate::{get_contour_len, get_point_mut};
 use crate::user_interface::Interface;
+use crate::{get_contour_len, get_point_mut};
 use flo_curves::{
     bezier::{solve_curve_for_t_along_axis, Curve as FloCurve},
     geo::Coord2,
 };
-use glifparser::{WhichHandle};
+use glifparser::WhichHandle;
 use glifrenderer::constants::{POINT_RADIUS, POINT_STROKE_THICKNESS};
 use skia_safe::Contains;
 use skia_safe::Point as SkPoint;
@@ -80,7 +80,10 @@ pub fn clicked_point_or_handle(
 
             let size = ((POINT_RADIUS * 2.) + (POINT_STROKE_THICKNESS * 2.)) * (1. / factor);
             // Topleft corner of point
-            let point_tl = SkPoint::new(point.x() as f32 - (size / 2.), point.y() as f32 - (size / 2.));
+            let point_tl = SkPoint::new(
+                point.x() as f32 - (size / 2.),
+                point.y() as f32 - (size / 2.),
+            );
             let point_rect = SkRect::from_point_and_size(point_tl, (size, size));
 
             // winit::PhysicalPosition as an SkPoint
@@ -93,9 +96,9 @@ pub fn clicked_point_or_handle(
             if let Some(handle_pos) = point.get_handle_position(WhichHandle::A) {
                 let a_tl = SkPoint::new(handle_pos.0 - (size / 2.), handle_pos.1 - (size / 2.));
                 let a_rect = SkRect::from_point_and_size(a_tl, (size, size));
-                
+
                 if a_rect.contains(sk_mpos) {
-                    return Some((contour_idx, point_idx, WhichHandle::A))
+                    return Some((contour_idx, point_idx, WhichHandle::A));
                 }
             }
 
@@ -104,7 +107,7 @@ pub fn clicked_point_or_handle(
                 let b_rect = SkRect::from_point_and_size(b_tl, (size, size));
 
                 if b_rect.contains(sk_mpos) {
-                    return Some((contour_idx, point_idx, WhichHandle::B))
+                    return Some((contour_idx, point_idx, WhichHandle::B));
                 }
             }
         }
@@ -176,7 +179,7 @@ pub fn nearest_point_on_curve(
                         &mouse_vec,
                         3.5 / i.viewport.factor as f64,
                     );
-    
+
                     if let Some(ct) = ct {
                         use flo_curves::BezierCurve as _;
                         use flo_curves::Coordinate as _;
@@ -187,7 +190,7 @@ pub fn nearest_point_on_curve(
                             t = Some(ct);
                             contour_idx = Some(cx);
                             seg_idx = Some(bx);
-    
+
                             let subdivisions = MathPrimitive::subdivide(mbezier, ct);
                             if let Some(subdivisions) = subdivisions {
                                 h1 = Some(subdivisions.0.to_control_points()[2]);

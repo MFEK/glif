@@ -1,14 +1,14 @@
 use crate::contour_operations::ContourOperationBuild;
 use crate::user_interface::Interface;
-use MFEKmath::mfek::ResolveCubic;
 use glifparser::glif::contour::MFEKContourCommon;
 use glifparser::outline::skia::{FromSkiaPath, ToSkiaPaths};
-use glifparser::{FlattenedGlif, MFEKPointData};
 use glifparser::{
     glif::{Layer, LayerOperation},
     MFEKGlif, Outline,
 };
+use glifparser::{FlattenedGlif, MFEKPointData};
 use skia_safe::PathOp;
+use MFEKmath::mfek::ResolveCubic;
 
 use super::Editor;
 
@@ -74,7 +74,12 @@ impl Editor {
             .glyph
             .as_ref()
             .expect("Illegally tried to export a null glyph!");
-        if glyph.layers.len() == 1 && glyph.layers[0].outline.iter().all(|c| c.operation().clone() == None) {
+        if glyph.layers.len() == 1
+            && glyph.layers[0]
+                .outline
+                .iter()
+                .all(|c| c.operation().clone() == None)
+        {
             return glyph.clone();
         }
 

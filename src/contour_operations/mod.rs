@@ -2,8 +2,8 @@ pub mod dashalongpath;
 pub mod patternalongpath;
 pub mod variablewidthstroke;
 
+use glifparser::glif::contour_operations::{unknown_op_outline, ContourOperations};
 use glifparser::glif::{MFEKContour, MFEKOutline};
-use glifparser::glif::contour_operations::{ContourOperations, unknown_op_outline};
 use glifparser::MFEKPointData;
 
 pub trait ContourOperationBuild {

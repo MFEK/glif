@@ -50,7 +50,7 @@ pub struct Editor {
     active_tool_enum: ToolEnum,
     clipboard: EditorClipboard,
 
-    layer_idx: Option<usize>, // active layer
+    layer_idx: Option<usize>,       // active layer
     pub contour_idx: Option<usize>, // index into Outline
     pub point_idx: Option<usize>,
 
@@ -115,7 +115,7 @@ impl Editor {
 
     /// This function MUST be called before calling with_active_<layer/glif>_mut or it will panic.
     /// Pushes a clone of the current layer onto the history stack and puts the editor in a modifying state.
-    /// When the fold argument is set to true the editor won't create new HistoryEntrys if the entry 
+    /// When the fold argument is set to true the editor won't create new HistoryEntrys if the entry
     /// below has the same description.
     pub fn begin_modification(&mut self, description: &str, fold: bool) {
         log::trace!("Modification begun: {}", description);
@@ -129,7 +129,6 @@ impl Editor {
             if fold && description.to_owned() == last_entry.description {
                 return;
             }
-
         }
 
         self.history.add_undo_entry(HistoryEntry {
@@ -141,7 +140,6 @@ impl Editor {
             selected: Some(self.selected.clone()),
             glyph: self.glyph.as_ref().unwrap().clone(),
         });
-
     }
 
     /// When calling this family of functions the editor will become inaccessible because of the borrow on one of it's members.

@@ -1,9 +1,9 @@
 use egui_skia::EguiSkia;
-use sdl2::{video::Window, event::Event};
+use sdl2::{event::Event, video::Window};
 
 use super::Interface;
 
-use egui_sdl2_event::{EguiSDL2State, DpiMode};
+use egui_sdl2_event::{DpiMode, EguiSDL2State};
 
 pub struct EguiManager {
     pub egui: EguiSkia,
@@ -12,7 +12,11 @@ pub struct EguiManager {
 
 impl EguiManager {
     pub fn new(interface: &mut Interface) -> Self {
-        let egui_sdl2 = egui_sdl2_event::EguiSDL2State::new(&interface.sdl_window, &interface.sdl_context.video().unwrap(), DpiMode::Auto);
+        let egui_sdl2 = egui_sdl2_event::EguiSDL2State::new(
+            &interface.sdl_window,
+            &interface.sdl_context.video().unwrap(),
+            DpiMode::Auto,
+        );
         let egui_skia = egui_skia::EguiSkia::new();
         return EguiManager {
             egui: egui_skia,
@@ -25,23 +29,21 @@ impl EguiManager {
 
         // I don't think egui accepts all of these events, but it's a superset of the ones it does at least.
         match sdl_event {
-            Event::KeyDown{..}
-            | Event::KeyUp{..}
-            | Event::TextEditing{..}
-            | Event::TextInput{..}
-            => self.egui.egui_ctx.wants_keyboard_input(),
-          Event::MouseMotion{..}
-            | Event::MouseButtonDown{..}
-            | Event::MouseButtonUp{..}
-            | Event::MouseWheel{..}
-            | Event::FingerDown{..}
-            | Event::FingerUp{..}
-            | Event::FingerMotion{..}
-            | Event::DollarGesture{..}
-            | Event::DollarRecord{..}
-            | Event::MultiGesture{..}
-            => self.egui.egui_ctx.wants_pointer_input(),
-          _ => false,
+            Event::KeyDown { .. }
+            | Event::KeyUp { .. }
+            | Event::TextEditing { .. }
+            | Event::TextInput { .. } => self.egui.egui_ctx.wants_keyboard_input(),
+            Event::MouseMotion { .. }
+            | Event::MouseButtonDown { .. }
+            | Event::MouseButtonUp { .. }
+            | Event::MouseWheel { .. }
+            | Event::FingerDown { .. }
+            | Event::FingerUp { .. }
+            | Event::FingerMotion { .. }
+            | Event::DollarGesture { .. }
+            | Event::DollarRecord { .. }
+            | Event::MultiGesture { .. } => self.egui.egui_ctx.wants_pointer_input(),
+            _ => false,
         }
     }
 }

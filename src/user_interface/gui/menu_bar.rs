@@ -1,7 +1,7 @@
 use egui::Context;
 use glifrenderer::toggles::PreviewMode;
 
-use crate::{filedialog, editor::Editor, user_interface::Interface};
+use crate::{editor::Editor, filedialog, user_interface::Interface};
 
 use super::window::{GlifWindow, WindowManager};
 
@@ -11,11 +11,11 @@ pub fn menu_bar(ctx: &Context, v: &mut Editor, i: &mut Interface, wm: &mut Windo
             //
             // File
             //
-            ui.menu_button("File", |ui|{
+            ui.menu_button("File", |ui| {
                 if ui.button("Open").clicked() {
                     match filedialog::open_filename(Some("glif,glifjson"), None) {
                         Some(f) => v.load_glif(i, &f),
-                        None => {},
+                        None => {}
                     };
                 }
                 if ui.button("Save").clicked() {
@@ -67,7 +67,7 @@ pub fn menu_bar(ctx: &Context, v: &mut Editor, i: &mut Interface, wm: &mut Windo
                         i.viewport.preview_mode = PreviewMode::Paper;
                     }
                 });
-                
+
                 ui.checkbox(&mut i.grid.show, "Grid");
             });
 
@@ -84,5 +84,5 @@ pub fn menu_bar(ctx: &Context, v: &mut Editor, i: &mut Interface, wm: &mut Windo
                 wm.grid.set_open(grid_open);
             })
         })
-    }); 
+    });
 }

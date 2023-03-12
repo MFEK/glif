@@ -1,10 +1,13 @@
 use flo_curves::{bezier::fit_curve_cubic, BezierCurve};
 use glifparser::{
-    glif::{Layer, MFEKContour, contour::MFEKContourCommon, contour_operations::ContourOperation, inner::MFEKCommonInner},
+    glif::{
+        contour::MFEKContourCommon, contour_operations::ContourOperation, inner::MFEKCommonInner,
+        Layer, MFEKContour,
+    },
     outline::skia::ToSkiaPaths as _,
     Handle, MFEKPointData, WhichHandle,
 };
-use MFEKmath::{Bezier, Evaluate, Vector, Rect};
+use MFEKmath::{Bezier, Evaluate, Rect, Vector};
 
 use arboard::{self, Clipboard};
 use serde_json;
@@ -12,7 +15,6 @@ use shrinkwraprs;
 
 use super::Editor;
 use crate::user_interface::gui;
-
 
 use std::collections::HashSet;
 use std::fmt;
@@ -259,8 +261,7 @@ impl Editor {
 
         // if the contour is open and previous or next are out of bounds we're working with the start or end of the contour
         // so we abort and just delete the selection
-        if (point_idx == 0 || point_idx == contour.len() - 1) && contour.is_open()
-        {
+        if (point_idx == 0 || point_idx == contour.len() - 1) && contour.is_open() {
             self.delete_selection();
             return;
         }
@@ -375,7 +376,9 @@ impl Editor {
         contour[next_idx].b = Handle::At(fitted_curve.w3.x as f32, fitted_curve.w3.y as f32);
 
         contour.remove(point_idx);
-        layer.outline[contour_idx].operation_mut().remove_op(point_idx);
+        layer.outline[contour_idx]
+            .operation_mut()
+            .remove_op(point_idx);
 
         self.contour_idx = None;
         self.point_idx = None;
@@ -450,19 +453,21 @@ impl Editor {
     pub fn build_selection_bounding_box(&self) -> Rect {
         let mut points = vec![];
         for (ci, pi) in &self.selected {
-            let point = self.get_active_layer_ref().outline[*ci].get_point(*pi).unwrap();
+            let point = self.get_active_layer_ref().outline[*ci]
+                .get_point(*pi)
+                .unwrap();
             points.push(Vector {
                 x: point.x() as f64,
                 y: point.y() as f64,
             });
-    
+
             if let Some(Handle::At(x, y)) = point.get_handle(WhichHandle::A) {
                 points.push(Vector {
                     x: x as f64,
                     y: y as f64,
                 });
             }
-    
+
             if let Some(Handle::At(x, y)) = point.get_handle(WhichHandle::B) {
                 points.push(Vector {
                     x: x as f64,
@@ -470,13 +475,13 @@ impl Editor {
                 });
             }
         }
-    
+
         Rect::AABB_from_points(points)
     }
-    
+
     pub fn get_selection_bounding_box_center(&self) -> (f32, f32) {
         let bounding_box = self.build_selection_bounding_box();
-    
+
         let half_width = ((bounding_box.left - bounding_box.right) / 2.) as f32;
         let half_height = ((bounding_box.top - bounding_box.bottom) / 2.) as f32;
         (
@@ -485,7 +490,6 @@ impl Editor {
         )
     }
 
-    
     pub fn merge_contours(&mut self, start_contour: usize, end_contour: usize) {
         let (cidx, pidx) = {
             let layer = self.get_active_layer_mut();
