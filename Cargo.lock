@@ -159,17 +159,18 @@ checksum = "224afbd727c3d6e4b90103ece64b8d1b67fbb1973b1046c2281eed3f3803f800"
 
 [[package]]
 name = "arboard"
-version = "2.1.1"
+version = "3.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dc120354d1b5ec6d7aaf4876b602def75595937b5e15d356eb554ab5177e08bb"
+checksum = "d6041616acea41d67c4a984709ddab1587fd0b10efe5cc563fee954d2f011854"
 dependencies = [
  "clipboard-win",
  "core-graphics",
- "image 0.23.14",
+ "image 0.24.5",
  "log",
  "objc",
  "objc-foundation",
  "objc_id",
+ "once_cell",
  "parking_lot",
  "thiserror",
  "winapi",
@@ -1510,7 +1511,6 @@ dependencies = [
  "num-rational 0.3.2",
  "num-traits",
  "png 0.16.8",
- "tiff",
 ]
 
 [[package]]
@@ -1525,6 +1525,7 @@ dependencies = [
  "num-rational 0.4.1",
  "num-traits",
  "png 0.17.7",
+ "tiff",
 ]
 
 [[package]]
@@ -1614,9 +1615,9 @@ checksum = "453ad9f582a441959e5f0d088b02ce04cfe8d51a8eaf077f12ac6d3e94164ca6"
 
 [[package]]
 name = "jpeg-decoder"
-version = "0.1.22"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "229d53d58899083193af11e15917b5640cd40b29ff475a1fe4ef725deb02d0f2"
+checksum = "bc0000e42512c92e31c2252315bda326620a4e034105e900c98ec492fa077b3e"
 
 [[package]]
 name = "js-sys"
@@ -1796,16 +1797,6 @@ dependencies = [
 
 [[package]]
 name = "miniz_oxide"
-version = "0.4.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a92518e98c078586bc6c934028adcca4c92a53d6a958196de835170a01d84e4b"
-dependencies = [
- "adler",
- "autocfg",
-]
-
-[[package]]
-name = "miniz_oxide"
 version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b275950c28b37e794e8c55d88aeb5e139d0ce23fdbbeda68f8d7174abdf9e8fa"
@@ -1849,12 +1840,11 @@ dependencies = [
 
 [[package]]
 name = "nix"
-version = "0.22.3"
+version = "0.24.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e4916f159ed8e5de0082076562152a76b7a1f64a01fd9d1e0fea002c37624faf"
+checksum = "fa52e972a9a719cecb6864fb88568781eb706bac2cd1d4f04a648542dbf78069"
 dependencies = [
  "bitflags",
- "cc",
  "cfg-if",
  "libc",
  "memoffset",
@@ -2759,12 +2749,12 @@ dependencies = [
 
 [[package]]
 name = "tiff"
-version = "0.6.1"
+version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9a53f4706d65497df0c4349241deddf35f84cee19c87ed86ea8ca590f4464437"
+checksum = "7449334f9ff2baf290d55d73983a7d6fa15e01198faef72af07e2a8db851e471"
 dependencies = [
+ "flate2",
  "jpeg-decoder",
- "miniz_oxide 0.4.4",
  "weezl",
 ]
 
@@ -3187,14 +3177,24 @@ dependencies = [
 
 [[package]]
 name = "x11rb"
-version = "0.9.0"
+version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6e99be55648b3ae2a52342f9a870c0e138709a3493261ce9b469afe6e4df6d8a"
+checksum = "592b4883219f345e712b3209c62654ebda0bb50887f330cbd018d0f654bfd507"
 dependencies = [
  "gethostname",
- "nix 0.22.3",
+ "nix 0.24.3",
  "winapi",
  "winapi-wsapoll",
+ "x11rb-protocol",
+]
+
+[[package]]
+name = "x11rb-protocol"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "56b245751c0ac9db0e006dc812031482784e434630205a93c73cfefcaabeac67"
+dependencies = [
+ "nix 0.24.3",
 ]
 
 [[package]]

@@ -55,7 +55,7 @@ itertools = "0.10"
 colored = "2.0"
 atty = "0.2"
 
-arboard = { version = "2.0" }
+arboard = { version = "3.2" }
 shrinkwraprs = "0.3.0"
 
 # Logging
