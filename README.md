@@ -1,6 +1,6 @@
 # MFEKglif
 
-Glyph editor for the Modular Font Editor K project. [![Build Status](https://img.shields.io/github/workflow/status/MFEK/glif/Rust?label=Rust&logo=Rust)](https://github.com/MFEK/glif/actions?workflow=Rust)
+Glyph editor for the Modular Font Editor K project. [![Build Status](https://img.shields.io/github/actions/workflow/status/MFEK/glif/rust.yml?branch=master)](https://github.com/MFEK/glif/actions?workflow=Rust)
 
 **Current beta release: [v2.0.0ꞵ1 “Repetitive Spline Injury”](https://github.com/MFEK/glif/releases/tag/v2.0.0b1)**
 
