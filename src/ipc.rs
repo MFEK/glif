@@ -6,6 +6,7 @@ use crate::user_interface::Interface;
 
 use std::path::PathBuf;
 use std::process;
+use std::thread;
 
 lazy_static::lazy_static! {
     pub static ref METADATA_AVAILABLE: Result<(module::Version<'static>, PathBuf), ()> = mfek_ipc::module::available("metadata", "0.0.3-beta1");
@@ -155,15 +156,15 @@ pub fn fetch_metrics(v: &mut Editor) {
     v.ipc_info = Some(ipc_info);
 }
 
-pub fn launch_fs_watcher(v: &mut Editor) {
+pub fn launch_fs_watcher(v: &mut Editor) -> thread::JoinHandle<()> {
     let filename = v.with_glyph(|glyph| glyph.filename.clone());
     let ipc_info = IPCInfo::from_glif_path("MFEKglif".to_string(), &filename.as_ref().unwrap());
     if let Some(font) = ipc_info.font {
-        mfek_ipc::notifythread::launch(font, v.filesystem_watch_tx.clone());
+        mfek_ipc::notifythread::launch(font, v.filesystem_watch_tx.clone())
     } else {
         mfek_ipc::notifythread::launch(
             ipc_info.glyph.unwrap().parent().unwrap().to_owned(),
             v.filesystem_watch_tx.clone(),
-        );
+        )
     }
 }

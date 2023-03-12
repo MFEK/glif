@@ -38,7 +38,6 @@ pub struct Interface {
     prompts: Vec<InputPrompt>,
     sdl_context: Sdl,
     sdl_dpi: f32,
-    pub sdl_window: Window,
 
     pub context: Option<(f32, f32)>,
     pub grid: Grid,
@@ -49,6 +48,10 @@ pub struct Interface {
     pub gl_ctx: GLContext,
     pub gr_context: RCHandle<GrDirectContext>,
     pub fb_info: FramebufferInfo,
+
+    // Window *must* be dropped at end to prevent a segmentation fault.
+    // See <https://github.com/rust-skia/rust-skia/issues/476>.
+    pub sdl_window: Window,
 }
 
 impl Interface {

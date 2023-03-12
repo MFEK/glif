@@ -4,7 +4,7 @@ version = 3
 
 [[package]]
 name = "MFEKglif"
-version = "1.1.1-beta2"
+version = "2.0.0-beta1"
 dependencies = [
  "MFEKmath",
  "arboard",
@@ -54,7 +54,7 @@ dependencies = [
  "shrinkwraprs",
  "skia-bindings",
  "skia-safe",
- "spline 0.3.0 (git+https://github.com/linebender/spline)",
+ "spline 0.3.0",
  "strum 0.23.0",
  "which",
  "winapi",
@@ -64,6 +64,7 @@ dependencies = [
 [[package]]
 name = "MFEKmath"
 version = "0.1.1"
+source = "git+https://github.com/MFEK/math.rlib?branch=main#281c881c51894c0157f3aaefad9400f50222b183"
 dependencies = [
  "flo_curves",
  "glifparser",
@@ -1325,6 +1326,7 @@ dependencies = [
 [[package]]
 name = "glifparser"
 version = "1.2.8"
+source = "git+https://github.com/MFEK/glifparser.rlib?branch=master#331bac41e7ee9b4e26ecfcd36107d58436ef0539"
 dependencies = [
  "derivative",
  "derive_more",
@@ -1346,6 +1348,7 @@ dependencies = [
 [[package]]
 name = "glifrenderer"
 version = "0.1.2"
+source = "git+https://github.com/MFEK/glifrenderer.rlib#3533fdac62453826f5d1a351b0a08e44ef4930c4"
 dependencies = [
  "MFEKmath",
  "derive_more",
@@ -1562,9 +1565,9 @@ dependencies = [
 
 [[package]]
 name = "integer_or_float"
-version = "0.1.5-1"
+version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e4c938d51818e629bbddf8c62cbdab9d83d91f80a33ea9b9edb92214af4c73dc"
+checksum = "edf9d3b9fde0fc18066e6ba434e0b05863f7e7cccdecdae0f8d68c34089f5056"
 dependencies = [
  "autocfg",
  "cargo-emit",
@@ -1572,6 +1575,7 @@ dependencies = [
  "derive_more",
  "float-cmp",
  "indoc",
+ "ryu",
  "serde",
 ]
 
@@ -1760,6 +1764,7 @@ dependencies = [
 [[package]]
 name = "mfek-ipc"
 version = "0.0.4-beta1"
+source = "git+https://github.com/MFEK/ipc.rlib#1d41a639e01c626873ba3d2937ee7f1ef6bf2a11"
 dependencies = [
  "ansi_term",
  "atty",
@@ -2488,18 +2493,18 @@ dependencies = [
 
 [[package]]
 name = "serde"
-version = "1.0.154"
+version = "1.0.155"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8cdd151213925e7f1ab45a9bbfb129316bd00799784b174b7cc7bcd16961c49e"
+checksum = "71f2b4817415c6d4210bfe1c7bfcf4801b2d904cb4d0e1a8fdb651013c9e86b8"
 dependencies = [
  "serde_derive",
 ]
 
 [[package]]
 name = "serde_derive"
-version = "1.0.154"
+version = "1.0.155"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4fc80d722935453bcafdc2c9a73cd6fac4dc1938f0346035d84bf99fa9e33217"
+checksum = "d071a94a3fac4aff69d023a7f411e33f40f3483f8c5190b1953822b6b76d7630"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2616,16 +2621,10 @@ checksum = "4c845fbdc07cb9555a94806496be14d51dcda6d3bf6894d92af2c3a93bebc2c5"
 [[package]]
 name = "spline"
 version = "0.3.0"
+source = "git+https://github.com/MFEK/spline.rlib#46d9121b03d2e6bea67b33078057ecad28666d07"
 dependencies = [
  "kurbo 0.9.1",
-]
-
-[[package]]
-name = "spline"
-version = "0.3.0"
-source = "git+https://github.com/linebender/spline#19fc88988f1ac465fcedd11562f9b860f68f99f0"
-dependencies = [
- "kurbo 0.8.3",
+ "serde",
 ]
 
 [[package]]

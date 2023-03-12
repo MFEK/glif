@@ -61,7 +61,7 @@ fn main() {
 
     ctrlc::set_handler(util::quit_next_frame).expect("Could not set SIGTERM handler.");
 
-    ipc::launch_fs_watcher(&mut editor);
+    let _notify_thread = ipc::launch_fs_watcher(&mut editor);
 
     command::initialize_keybinds();
     // TODO: Replace console! tools::console::initialize_console_commands();
