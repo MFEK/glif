@@ -52,9 +52,9 @@ fn main() {
 
     let filename = filedialog::filename_or_panic(&filename, Some("glif"), None);
     let mut interface = Interface::new(filename.to_str().unwrap());
+    let mut sk_surface = interface.create_surface();
     let mut window_manager = WindowManager::new();
     let mut egui_manager = EguiManager::new(&mut interface);
-    let mut sk_surface = interface.create_surface();
 
     // Makes glyph available to on_load_glif events
     editor.load_glif(&mut interface, &filename);

@@ -3,16 +3,16 @@ use sdl2::{video::Window, event::Event};
 
 use super::Interface;
 
+use egui_sdl2_event::{EguiSDL2State, DpiMode};
 
 pub struct EguiManager {
     pub egui: EguiSkia,
-    pub egui_sdl2: egui_sdl2_event::EguiSDL2State,
+    pub egui_sdl2: EguiSDL2State,
 }
 
 impl EguiManager {
     pub fn new(interface: &mut Interface) -> Self {
-        let dpi = egui_sdl2_event::get_dpi(&interface.sdl_window, &interface.sdl_context.video().unwrap());
-        let egui_sdl2 = egui_sdl2_event::EguiSDL2State::new(dpi);
+        let egui_sdl2 = egui_sdl2_event::EguiSDL2State::new(&interface.sdl_window, &interface.sdl_context.video().unwrap(), DpiMode::Auto);
         let egui_skia = egui_skia::EguiSkia::new();
         return EguiManager {
             egui: egui_skia,

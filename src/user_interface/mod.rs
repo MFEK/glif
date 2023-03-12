@@ -9,6 +9,7 @@ use std::rc::Rc;
 
 use crate::render;
 //use crate::user_interface::gui::build_imgui_ui;
+use gl;
 use glifrenderer::grid::Grid;
 use glifrenderer::viewport::Viewport;
 use sdl2::video::GLContext;
@@ -53,12 +54,9 @@ pub struct Interface {
 impl Interface {
     pub fn new(filename: &str) -> Self {
         let mut viewport = Viewport::default();
-        let (sdl, window) = Self::initialize_sdl(filename, &mut viewport);
 
-        let gl_ctx = window.gl_create_context().unwrap();
-        gl::load_with(|name| sdl.video().unwrap().gl_get_proc_address(name) as *const _);
-
-        let mut gr_context = skia_safe::gpu::DirectContext::new_gl(None, None).unwrap();
+        let (sdl, window, gr_context, gl_ctx) = Self::initialize_sdl(filename, &mut viewport);
+        //let video_subsystem = sdl.video().unwrap();
 
         let fb_info = {
             let mut fboid = 0;

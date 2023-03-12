@@ -93,7 +93,7 @@ impl LayerList {
                             }
 
                             if self.cur_popup == Some(format!("layer{0}namepopup", layer ).to_string()) {
-                                ui.memory().open_popup(popup_id);
+                                ui.memory_mut(|m|m.open_popup(popup_id));
                             }
     
                             egui::popup::popup_above_or_below_widget(ui, popup_id, &response, egui::AboveOrBelow::Above, |ui| {
@@ -112,7 +112,7 @@ impl LayerList {
 
                                     self.popup_had_focus = false;
                                     self.cur_popup = None;
-                                    ui.memory().close_popup();
+                                    ui.memory_mut(|m|m.close_popup());
                                 }
 
                                 if !edit_response.has_focus() {
@@ -124,7 +124,7 @@ impl LayerList {
                                 if edit_response.clicked_elsewhere() && !name_clicked {
                                     self.popup_had_focus = false;
                                     self.cur_popup = None;
-                                    ui.memory().close_popup();
+                                    ui.memory_mut(|m|m.close_popup());
                                 }
                             });
     
@@ -134,7 +134,7 @@ impl LayerList {
 
                             let response = ui.button("💇").on_hover_text("Layer Operation");
                             if response.clicked() {
-                                ui.memory().toggle_popup(popup_id);
+                                ui.memory_mut(|m|m.toggle_popup(popup_id));
                             }
     
                             egui::popup::popup_above_or_below_widget(ui, popup_id, &response, egui::AboveOrBelow::Above, |ui| {
