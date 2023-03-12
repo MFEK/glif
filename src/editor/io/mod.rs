@@ -68,7 +68,7 @@ impl Editor {
                 .unwrap_or(Oss::from("glif"))
                 .to_string_lossy()
                 .into_owned();
-            let tempglif: MFEKGlif<_> = match ext_or.as_str() {
+            let mut tempglif: MFEKGlif<_> = match ext_or.as_str() {
                 "glifjson" => {
                     serde_json::from_str(&fs::read_to_string(&file).expect("Could not open file"))
                         .expect("Could not deserialize JSON MFEKGlif")
@@ -85,6 +85,8 @@ impl Editor {
                     return;
                 }
             };
+
+            tempglif.filename = Some(file.as_ref().to_path_buf());
 
             tempglif
         };
