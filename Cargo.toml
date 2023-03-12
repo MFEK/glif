@@ -122,7 +122,7 @@ strum = { version = "0.23", features = ["derive"] }
 image = { version = "0.23", features = ["png"], default-features = false }
 
 # for certain Bézier curve manipulation functions
-flo_curves = "0.6"
+flo_curves = "0.7"
 
 # for exporting UFO .glif files to layers
 plist = "1.3"
