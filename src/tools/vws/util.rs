@@ -1,14 +1,15 @@
 use super::super::prelude::*;
 use glifparser::{
-    glif::{ContourOperations, InterpolationType, VWSHandle},
-    CapType, JoinType, VWSContour, WhichHandle,
+    CapType, JoinType, VWSContour, WhichHandle, glif::{contour_operations::{ContourOperations, vws::{VWSHandle, InterpolationType}}}, MFEKPointData,
 };
-use MFEKmath::{Evaluate, Piecewise, Vector};
+use MFEKmath::{Piecewise, Vector, Evaluate, mfek::ResolveCubic};
+use glifparser::glif::mfek::contour::MFEKContourCommon;
+
 
 // This file holds utility functions for working with vws. Things like if a handle is clicked.
 
 pub fn get_vws_contour(v: &Editor, contour_idx: usize) -> Option<VWSContour> {
-    if let Some(contour_op) = v.get_active_layer_ref().outline[contour_idx].operation.clone() {
+    if let Some(contour_op) = v.get_active_layer_ref().outline[contour_idx].operation().clone() {
         return if let ContourOperations::VariableWidthStroke { data } = contour_op {
             Some(data)
         } else {
@@ -20,9 +21,9 @@ pub fn get_vws_contour(v: &Editor, contour_idx: usize) -> Option<VWSContour> {
 }
 
 pub fn set_vws_contour(v: &mut Editor, contour_idx: usize, contour: VWSContour) {
-    v.get_active_layer_mut().outline[contour_idx].operation = Some(ContourOperations::VariableWidthStroke {
+    v.get_active_layer_mut().outline[contour_idx].set_operation(Some(ContourOperations::VariableWidthStroke {
         data: contour.clone(),
-    });
+    }));
 }
 
 pub fn mouse_coords_to_handle_space(
@@ -67,14 +68,13 @@ pub fn set_vws_handle(
     let contour_idx = v.contour_idx.unwrap();
     let point_idx = v.point_idx.unwrap();
 
+    let contour: &dyn MFEKContourCommon<MFEKPointData> = &get_contour!(v.get_active_layer_ref(), contour_idx);
     let contour_op = get_vws_contour(v, contour_idx);
     let mut vws_contour = if let Some(op) = contour_op {
         op
     } else {
         generate_vws_contour(v, contour_idx)
     };
-
-    let contour_pw = Piecewise::from(&get_contour!(v.get_active_layer_ref(), contour_idx));
 
     let side_multiplier = match side {
         WhichHandle::A => 1.,
@@ -89,7 +89,7 @@ pub fn set_vws_handle(
     };
 
     // if we're editing the first point we need to mirror it in the 'imaginary' last point
-    if point_idx == 0 && contour_pw.is_closed() {
+    if point_idx == 0 && contour.is_closed() {
         let last_handle = vws_contour.handles.len() - 1;
 
         match side {
@@ -147,15 +147,35 @@ pub fn set_all_vws_handles(v: &mut Editor, handle: WhichHandle, mirror: bool, no
     set_vws_contour(v, contour_idx, vws_contour);
 }
 
+pub fn get_vws_contour_from_op(op: &Option<ContourOperations<MFEKPointData>>) -> Option<VWSContour> {
+    if let Some(ContourOperations::VariableWidthStroke { data }) = op {
+        return Some(data.clone())
+    }
+
+    None
+}
 pub fn get_vws_handle_pos(
     v: &Editor,
     contour_idx: usize,
     handle_idx: usize,
     side: WhichHandle,
 ) -> Result<(Vector, Vector, Vector), ()> {
-    let vws_contour =
-        get_vws_contour(v, contour_idx).unwrap_or_else(|| generate_vws_contour(v, contour_idx));
-    let contour_pw = Piecewise::from(&get_contour!(v.get_active_layer_ref(), contour_idx));
+    let mut contour_cloned = get_contour!(v.get_active_layer_ref(), contour_idx).clone();
+    let vws_contour = get_vws_contour_from_op(contour_cloned.operation()).unwrap_or_else(|| generate_vws_contour(v, contour_idx));
+
+    contour_cloned.set_operation(Some(ContourOperations::VariableWidthStroke { data: vws_contour }));
+    let (index_map, resolved_contour) = contour_cloned.resolve();
+
+    let vws_contour = get_vws_contour_from_op(resolved_contour.operation()).unwrap();
+
+    //TODO: Support non-cubic paths.
+    let contour_pw = Piecewise::from(resolved_contour.cubic().unwrap());
+
+    if contour_pw.segs.len() == 0 {
+        return Err(());
+    }
+
+    let handle_idx = index_map[handle_idx];
 
     if handle_idx > vws_contour.handles.len() - 1 {
         log::warn!(
@@ -165,6 +185,7 @@ pub fn get_vws_handle_pos(
         );
         return Err(());
     }
+
     let vws_handle = vws_contour.handles[handle_idx];
 
     // if we've got an open contour and are dealing with the last handle we need special logic
@@ -242,7 +263,7 @@ fn generate_vws_contour(v: &Editor, contour_idx: usize) -> VWSContour {
 }
 
 pub fn clicked_handle(
-    v: &Editor,
+    v: & Editor,
     i: &Interface,
     meta: MouseInfo,
 ) -> Option<(usize, usize, WhichHandle)> {
@@ -250,7 +271,8 @@ pub fn clicked_handle(
     let mouse_pos = meta.position;
 
     for (contour_idx, contour) in v.get_active_layer_ref().outline.iter().enumerate() {
-        let contour_pw = Piecewise::from(contour);
+        let mut _contour = contour.clone();
+        let contour_pw = Piecewise::from(_contour.to_cubic());
 
         let size = ((POINT_RADIUS * 2.) + (POINT_STROKE_THICKNESS * 2.)) * (1. / factor);
         for vws_handle_idx in 0..contour_pw.segs.len() {
@@ -284,7 +306,7 @@ pub fn clicked_handle(
             }
         }
 
-        if contour.inner.first().unwrap().ptype == glifparser::PointType::Move {
+        if contour.is_open() {
             let vws_handle_idx = contour_pw.segs.len();
 
             let (handle_pos_left, handle_pos_right) = match (

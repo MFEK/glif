@@ -1,11 +1,14 @@
 use std::collections::HashSet;
 
 use super::prelude::*;
+use glifparser::{glif::contour::MFEKContourCommon, MFEKPointData};
+use MFEKmath::rect::FlipIfRequired;
+use glifparser::glif::MFEKOutline;
 use glifrenderer::{
     constants::{OUTLINE_STROKE, OUTLINE_STROKE_THICKNESS},
     points::draw_point,
 };
-use skulpin::skia_safe::dash_path_effect;
+use skia_safe::dash_path_effect;
 
 #[derive(Clone, Debug, Default)]
 pub struct SelectionBox {
@@ -45,6 +48,11 @@ impl SelectionBox {
         if mouse_info.button == self.mouse_info.button {
             if mouse_info.modifiers.shift {
                 v.selected = &v.selected ^ &self.selected;
+            } else if self.selected.len() == 1 {
+                for (cidx, pidx) in &self.selected {
+                    v.contour_idx = Some(*cidx);
+                    v.point_idx = Some(*pidx);
+                }
             } else {
                 if self.selected.len() == 1 {
                     for (cidx, pidx) in &self.selected {
@@ -88,12 +96,11 @@ impl SelectionBox {
 
             {
                 let layer = v.get_active_layer_ref();
-                let point = &get_point!(layer, ci, pi);
+                let point = get_point!(layer, ci, pi).unwrap();
                 draw_point(
                     &i.viewport,
-                    &point,
+                    point,
                     None,
-                    UIPointType::Point((point.a, point.b)),
                     true,
                     canvas,
                 )
@@ -118,4 +125,22 @@ impl ToolBehavior for SelectionBox {
         self.draw_box(i, canvas);
         self.draw_selected(v, i, canvas)
     }
+}
+
+pub fn build_box_selection(
+    mut rect: SkRect,
+    outline: &MFEKOutline<MFEKPointData>,
+) -> HashSet<(usize, usize)> {
+    rect.flip_if_required();
+
+    let mut selected = HashSet::new();
+    for (cidx, contour) in outline.iter().enumerate() {
+        for (pidx, point) in contour.inner().iter().enumerate() {
+            if rect.contains(SkPoint::from((point.x(), point.y()))) {
+                selected.insert((cidx, pidx));
+            }
+        }
+    }
+
+    selected
 }

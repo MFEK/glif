@@ -7,38 +7,52 @@ use glifrenderer::viewport::Viewport;
 use image;
 use sdl2::keyboard::Keycode;
 use sdl2::EventPump;
+use sdl2::video::{GLContext, GLProfile};
 use sdl2::{pixels::PixelFormatEnum, surface::Surface, video::Window, Sdl};
-use skulpin::LogicalSize;
+use skia_bindings::GrDirectContext;
+use skia_safe::RCHandle;
 
 impl Interface {
     // for macOS, we may mutate viewport.winsize. other OS don't (normally?) mutate viewport
-    pub fn initialize_sdl(filename: &str, viewport: &mut Viewport) -> (Sdl, Window) {
+    pub fn initialize_sdl(filename: &str, viewport: &mut Viewport) -> (Sdl, Window, RCHandle<GrDirectContext>, GLContext) {
         // SDL initialization
         let sdl_context = sdl2::init().expect("Failed to initialize sdl2");
         let video_subsystem = sdl_context
             .video()
             .expect("Failed to create sdl video subsystem");
 
-        video_subsystem.text_input().start();
-
-        let logical_size = LogicalSize {
-            width: viewport.winsize.0 as u32,
-            height: viewport.winsize.1 as u32,
-        };
-
         let mut window = video_subsystem
             .window(
                 &format!("MFEKglif — {}", filename),
-                logical_size.width,
-                logical_size.height,
+                viewport.winsize.0 as u32,
+                viewport.winsize.1 as u32,
             )
+            .opengl()
             .position_centered()
             .allow_highdpi()
-            .vulkan()
             .resizable()
             .build()
             .expect("Failed to create SDL Window");
 
+        let gl_attr = video_subsystem.gl_attr();
+        gl_attr.set_context_profile(GLProfile::Core);
+        gl_attr.set_context_version(3, 3);
+        debug_assert_eq!(gl_attr.context_profile(), GLProfile::Core);
+        debug_assert_eq!(gl_attr.context_version(), (3, 3));
+
+        let gl_ctx = window.gl_create_context().unwrap();
+        gl::load_with(|name| video_subsystem.gl_get_proc_address(name) as *const _);
+        let interface = skia_safe::gpu::gl::Interface::new_load_with(|name| {
+            if name == "eglGetCurrentDisplay" {
+                return std::ptr::null();
+            }
+            video_subsystem.gl_get_proc_address(name) as *const _
+        })
+        .expect("Could not create interface");
+
+        let gr_context = skia_safe::gpu::DirectContext::new_gl(Some(interface), None).unwrap();
+        video_subsystem.text_input().start();
+        
         let logo = include_bytes!("../../resources/icon.png");
 
         let mut im = image::load_from_memory_with_format(logo, image::ImageFormat::Png)
@@ -61,7 +75,11 @@ impl Interface {
 
         window.set_icon(surface);
 
-        (sdl_context, window)
+        (sdl_context, window, gr_context, gl_ctx)
+    }
+
+    fn create_gl_context(&mut self) {
+        
     }
 
     pub fn set_window_title(&mut self, title: &str) -> Result<(), NulError> {

@@ -9,7 +9,7 @@ use glifrenderer::guidelines;
 use glifrenderer::points;
 use glifrenderer::toggles::*;
 
-use skulpin::skia_safe::{self as skia, Canvas};
+use skia_safe::{self as skia, Canvas};
 
 use crate::user_interface::PAPER_DRAW_GUIDELINES;
 use crate::{editor::Editor, user_interface::Interface};

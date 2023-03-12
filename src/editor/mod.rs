@@ -1,25 +1,24 @@
 use crate::args::Args;
-use crate::contour_operations::ContourOperation;
 use crate::ipc;
 use crate::tool_behaviors::ToolBehavior;
 use crate::tools::{pan::Pan, Tool, ToolEnum};
-use crate::util::MFEKGlifPointData;
 
+use glifparser::MFEKPointData;
 use glifparser::{
     glif::{HistoryEntry, Layer},
     Guideline, IntegerOrFloat, MFEKGlif,
 };
 
-pub use skulpin::skia_safe::Contains as _;
-pub use skulpin::skia_safe::{Canvas, Matrix, Path as SkPath, Point as SkPoint, Rect as SkRect};
+pub use skia_safe::Contains as _;
+pub use skia_safe::{Canvas, Matrix, Path as SkPath, Point as SkPoint, Rect as SkRect};
 
 use std::collections::HashSet;
 use std::path;
 use std::sync::mpsc::{Receiver, Sender};
 
 use self::{history::History, selection::EditorClipboard};
-use crate::get_contour_mut;
 
+pub mod contour_handlers;
 pub mod debug;
 pub mod events;
 pub mod filesystem_watch;
@@ -41,17 +40,19 @@ pub mod macros;
 #[derive(Debug)]
 pub struct Editor {
     args: Args,
-    glyph: Option<MFEKGlif<MFEKGlifPointData>>,
+    glyph: Option<MFEKGlif<MFEKPointData>>,
     modifying: bool, // a flag that is set when the active layer is currently being modified
 
     dirty: bool, // Internal flag the editor uses to check for empty modifications.
     // end_layer_modification is called we simply discard the last history entry.
-    history: History<MFEKGlifPointData>, // holds a history of previous states the glyph has been in
+    history: History<MFEKPointData>, // holds a history of previous states the glyph has been in
     active_tool: Box<dyn Tool>,
     active_tool_enum: ToolEnum,
     clipboard: EditorClipboard,
+
     layer_idx: Option<usize>, // active layer
-    preview_dirty: bool,
+    pub contour_idx: Option<usize>, // index into Outline
+    pub point_idx: Option<usize>,
 
     tool_behaviors: Vec<Box<dyn ToolBehavior>>,
     behavior_finished: bool,
@@ -59,15 +60,15 @@ pub struct Editor {
     pub(crate) filesystem_watch_tx: Sender<path::PathBuf>,
     pub(crate) filesystem_watch_rx: Receiver<path::PathBuf>,
 
-    pub preview: Option<MFEKGlif<MFEKGlifPointData>>,
-    pub contour_idx: Option<usize>, // index into Outline
-    pub point_idx: Option<usize>,
+    preview_dirty: bool,
+    pub preview: Option<MFEKGlif<MFEKPointData>>,
+
     pub italic_angle: f32,
     pub selected: HashSet<(usize, usize)>,
 
     pub images: images::EditorImages,
     // These are UFO-global guidelines which won't be picked up by glifparser.
-    pub guidelines: Vec<Guideline<MFEKGlifPointData>>,
+    pub guidelines: Vec<Guideline<MFEKPointData>>,
 
     pub quit_requested: bool, // allows for quits from outside event loop, e.g. from command closures
 
@@ -114,10 +115,21 @@ impl Editor {
 
     /// This function MUST be called before calling with_active_<layer/glif>_mut or it will panic.
     /// Pushes a clone of the current layer onto the history stack and puts the editor in a modifying state.
-    pub fn begin_modification(&mut self, description: &str) {
+    /// When the fold argument is set to true the editor won't create new HistoryEntrys if the entry 
+    /// below has the same description.
+    pub fn begin_modification(&mut self, description: &str, fold: bool) {
         log::trace!("Modification begun: {}", description);
         if self.modifying {
             panic!("Began a new modification with one in progress!")
+        }
+
+        self.modifying = true;
+
+        if let Some(last_entry) = self.history.undo_stack.last() {
+            if fold && description.to_owned() == last_entry.description {
+                return;
+            }
+
         }
 
         self.history.add_undo_entry(HistoryEntry {
@@ -130,7 +142,6 @@ impl Editor {
             glyph: self.glyph.as_ref().unwrap().clone(),
         });
 
-        self.modifying = true;
     }
 
     /// When calling this family of functions the editor will become inaccessible because of the borrow on one of it's members.
@@ -143,7 +154,7 @@ impl Editor {
     ///
     /// You can also use this function in one-liners like: self.get_active_layer_mut().some_field = blah
     /// The reference is implicitly dropped at the end of the statement.
-    pub fn get_active_layer_mut(&mut self) -> &mut Layer<MFEKGlifPointData> {
+    pub fn get_active_layer_mut(&mut self) -> &mut Layer<MFEKPointData> {
         if !self.modifying {
             panic!("A modification is not in progress!")
         }
@@ -154,7 +165,7 @@ impl Editor {
         return &mut self.glyph.as_mut().unwrap().layers[self.layer_idx.unwrap()];
     }
 
-    pub fn get_active_layer_ref(&self) -> &Layer<MFEKGlifPointData> {
+    pub fn get_active_layer_ref(&self) -> &Layer<MFEKPointData> {
         return &self.glyph.as_ref().unwrap().layers[self.layer_idx.unwrap()];
     }
 
@@ -193,56 +204,6 @@ impl Editor {
         self.modifying = false;
         self.undo();
         self.history.redo_stack.pop(); // Removes the "Undo" item added by above call.
-    }
-
-    /// This function merges contour gracefully. This should be used over merging them yourself as it will automatically
-    /// deal with contour operations. This can only be called during a modification
-    pub fn merge_contours(&mut self, start_idx: usize, end_idx: usize) {
-        // we're closing an open path
-        if start_idx == end_idx {
-            {
-                let layer = self.get_active_layer_mut();
-                let contour = get_contour_mut!(layer, start_idx);
-                let last_point = contour.pop().unwrap();
-
-                contour.first_mut().unwrap().b = last_point.b;
-                contour.first_mut().unwrap().ptype = glifparser::PointType::Curve;
-            }
-            self.point_idx = Some(0);
-        } else {
-            // we're merging two open paths
-            let (cidx, pidx) = {
-                let layer = self.get_active_layer_mut();
-
-                let start = layer.outline[start_idx].clone();
-                let end = layer.outline[end_idx].clone();
-                layer.outline[end_idx].operation.append(&start, &end);
-
-                let mut startc = get_contour!(layer, start_idx).clone();
-                let endc = get_contour_mut!(layer, end_idx);
-
-                let mut end_idx = end_idx;
-
-                endc.last_mut().unwrap().b = startc[0].a;
-
-                let p_idx = endc.len() - 1;
-                startc.remove(0);
-                for point in startc {
-                    endc.push(point);
-                }
-
-                layer.outline.remove(start_idx);
-
-                if end_idx > layer.outline.len() - 1 {
-                    end_idx = start_idx;
-                }
-
-                (end_idx, p_idx)
-            };
-
-            self.contour_idx = Some(cidx);
-            self.point_idx = Some(pidx);
-        }
     }
 
     pub fn add_width_guidelines(&mut self) {
@@ -297,12 +258,12 @@ impl Editor {
                 0,
                 Guideline::from_x_y_angle(x, y, angle)
                     .name(name)
-                    .data(MFEKGlifPointData::new_guideline_data(fixed, format, right)),
+                    .data(MFEKPointData::new_guideline_data(fixed, format, right)),
             );
         }
     }
 
-    pub fn set_glyph(&mut self, glyph: MFEKGlif<MFEKGlifPointData>) {
+    pub fn set_glyph(&mut self, glyph: MFEKGlif<MFEKPointData>) {
         self.glyph = Some(glyph);
     }
 
@@ -332,9 +293,20 @@ macro_rules! yield_glyph_or_panic {
 // with_active_layer and friends
 impl Editor {
     // Do not use this function unless you're very sure it's right.
+    pub fn get_active_layer_mut_no_history(&mut self) -> &mut Layer<MFEKPointData> {
+        if !self.modifying {
+            panic!("A modification is not in progress!")
+        }
+
+        self.dirty = true;
+        self.mark_preview_dirty();
+
+        return &mut self.glyph.as_mut().unwrap().layers[self.layer_idx.unwrap()];
+    }
+
     pub fn with_active_layer_mut_no_history<F, R>(&mut self, mut closure: F) -> R
     where
-        F: FnMut(&mut Layer<MFEKGlifPointData>) -> R,
+        F: FnMut(&mut Layer<MFEKPointData>) -> R,
     {
         static mut WARNED_HISTORY: bool = false;
         unsafe {
@@ -355,7 +327,7 @@ impl Editor {
     /// Calls the supplied closure with a copy of the glif.
     pub fn with_glyph<F, R>(&self, mut closure: F) -> R
     where
-        F: FnMut(&MFEKGlif<MFEKGlifPointData>) -> R,
+        F: FnMut(&MFEKGlif<MFEKPointData>) -> R,
     {
         closure(self.glyph.as_ref().unwrap())
     }
@@ -363,7 +335,7 @@ impl Editor {
     /// This function should be used to modify anchors, guidelines, and other glyph-level data. Do not use this to modify the active layer.
     pub fn with_glyph_mut<F, R>(&mut self, mut closure: F) -> R
     where
-        F: FnMut(&mut MFEKGlif<MFEKGlifPointData>) -> R,
+        F: FnMut(&mut MFEKGlif<MFEKPointData>) -> R,
     {
         closure(yield_glyph_or_panic!(self))
     }
@@ -371,7 +343,7 @@ impl Editor {
     // As for layers, the purpose of this function is preventing expensive clone operations.
     pub fn with_glyph_mut_and_owned_data<F, R, T>(&mut self, mut closure: F, data: T) -> R
     where
-        F: FnMut(&mut MFEKGlif<MFEKGlifPointData>, T) -> R,
+        F: FnMut(&mut MFEKGlif<MFEKPointData>, T) -> R,
     {
         let ret = closure(yield_glyph_or_panic!(self), data);
         self.mark_preview_dirty();
@@ -381,7 +353,7 @@ impl Editor {
     // Do not use this function unless you're very sure it's right.
     pub fn with_glyph_mut_no_history<F, R>(&mut self, mut closure: F) -> R
     where
-        F: FnMut(&mut MFEKGlif<MFEKGlifPointData>) -> R,
+        F: FnMut(&mut MFEKGlif<MFEKPointData>) -> R,
     {
         log::trace!("Used dangerous function: editor.with_glyph_mut_no_history(|glyph|…)");
         closure(self.glyph.as_mut().unwrap())

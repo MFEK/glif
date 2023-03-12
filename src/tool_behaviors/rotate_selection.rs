@@ -1,6 +1,9 @@
 use MFEKmath::Vector;
 
+use crate::get_point_mut;
+
 use super::prelude::*;
+use glifparser::glif::contour::MFEKContourCommon;
 
 #[derive(Clone, Debug)]
 pub struct RotateSelection {
@@ -20,7 +23,7 @@ impl RotateSelection {
 
     pub fn mouse_moved(&mut self, v: &mut Editor, _i: &mut Interface, mouse_info: MouseInfo) {
         if !v.is_modifying() {
-            v.begin_modification("Rotate selection.");
+            v.begin_modification("Rotate selection.", false);
         }
 
         let rot = self.rotate_vector;
@@ -38,44 +41,24 @@ impl RotateSelection {
         for (ci, pi) in &v.selected.clone() {
             {
                 let layer = v.get_active_layer_mut();
-                let old_point = get_point!(layer, *ci, *pi).clone();
-                let point_vec = Vector::from_components(old_point.x as f64, old_point.y as f64);
+                let point = get_point_mut!(layer, *ci, *pi).unwrap();
+                let point_vec = Vector::from_components(point.x() as f64, point.y() as f64);
                 let rotated_point = point_vec.rotate(raw_pivot_vector, rotation_angle);
+                
+                point.set_position_no_handles(rotated_point.x as f32, rotated_point.y as f32);
 
-                move_point_without_handles(
-                    &mut layer.outline,
-                    *ci,
-                    *pi,
-                    rotated_point.x as f32,
-                    rotated_point.y as f32,
-                );
-
-                if let Some(a_pos) = get_handle_pos(&mut layer.outline, *ci, *pi, WhichHandle::A) {
+                if let Some(a_pos) = point.get_handle_position(WhichHandle::A) {
                     let a_vec = Vector::from_components(a_pos.0 as f64, a_pos.1 as f64);
                     let rotated_a = a_vec.rotate(raw_pivot_vector, rotation_angle);
 
-                    move_handle(
-                        &mut layer.outline,
-                        *ci,
-                        *pi,
-                        WhichHandle::A,
-                        rotated_a.x as f32,
-                        rotated_a.y as f32,
-                    )
+                    point.set_handle_position(WhichHandle::A, rotated_a.x as f32, rotated_a.y as f32);
                 }
 
-                if let Some(b_pos) = get_handle_pos(&mut layer.outline, *ci, *pi, WhichHandle::B) {
+                if let Some(b_pos) = point.get_handle_position(WhichHandle::B) {
                     let b_vec = Vector::from_components(b_pos.0 as f64, b_pos.1 as f64);
                     let rotated_b = b_vec.rotate(raw_pivot_vector, rotation_angle);
 
-                    move_handle(
-                        &mut layer.outline,
-                        *ci,
-                        *pi,
-                        WhichHandle::B,
-                        rotated_b.x as f32,
-                        rotated_b.y as f32,
-                    )
+                    point.set_handle_position(WhichHandle::A, rotated_b.x as f32, rotated_b.y as f32);
                 }
             }
         }

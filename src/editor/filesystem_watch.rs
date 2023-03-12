@@ -38,7 +38,7 @@ impl Editor {
                                     afterword: "".to_string(),
                                     func: Rc::new(move |v, i, reload| {
                                         if !reload { return }
-                                        v.begin_modification("Reloaded glyph due to write by another program or instance.");
+                                        v.begin_modification("Reloaded glyph due to write by another program or instance.", false);
                                         let filename = v.filename_or_panic();
                                         v.load_glif(i, filename);
                                         v.end_modification();

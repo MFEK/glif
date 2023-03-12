@@ -2,11 +2,11 @@ use glifparser::{
     image::{DataLoadState, DataOrBitmap},
     Color as GlifColor, GlifImage, Image as GpImage,
 };
-use skulpin::skia_safe::{
+use skia_safe::{
     AlphaType as SkAlphaType, ColorInfo as SkColorInfo, ColorSpace as SkColorSpace,
     ColorType as SkColorType, ImageInfo as SkImageInfo,
 };
-use skulpin::skia_safe::{Data as SkData, Image as SkImage, Matrix};
+use skia_safe::{Data as SkData, Image as SkImage, Matrix};
 
 use glifparser::matrix::ToSkiaMatrix;
 

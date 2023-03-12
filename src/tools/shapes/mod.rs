@@ -1,19 +1,39 @@
+mod dialog;
+
+use std::collections::HashMap;
 use std::f32::consts::PI;
 
 use super::prelude::*;
 use crate::tool_behaviors::draw_pivot::DrawPivot;
 use crate::tool_behaviors::selection_box::SelectionBox;
-use crate::user_interface::{self, Interface};
+use crate::user_interface::Interface;
 
 use float_cmp::ApproxEq;
+use glifparser::MFEKPointData;
 use glifparser::outline::{skia::FromSkiaPath as _, FromKurbo as _, Reverse};
 use glifparser::{glif::MFEKContour, Outline};
-use imgui;
 use kurbo;
 use kurbo::Shape as _;
 use num;
 use num_derive::FromPrimitive;
-use skulpin::skia_safe::{Matrix, Path, PathDirection, PathEffect, StrokeRec};
+use skia_safe::{Matrix, Path, PathDirection, PathEffect, StrokeRec};
+
+
+#[derive(Clone, Debug)]
+pub struct Shapes {
+    pressed_pos: Option<(f32, f32)>,
+    dropped_shape: bool,
+    // Because of imgui, we can't have associated types on the ShapeType enum. Thus, this
+    // compromise.
+    stype: ShapeType,
+    sdata: ShapeData,
+    corners: Option<((f32, f32), (f32, f32))>,
+    draw_pivot: DrawPivot,
+    locked_angle: bool,
+
+    //ui
+    edit_buf: HashMap<String, String>,
+}
 
 impl Tool for Shapes {
     fn event(&mut self, v: &mut Editor, _i: &mut Interface, event: EditorEvent) {
@@ -32,8 +52,9 @@ impl Tool for Shapes {
         }
     }
 
-    fn ui(&mut self, _v: &mut Editor, i: &mut Interface, ui: &mut Ui) {
+    fn dialog(&mut self, _v: &mut Editor, i: &mut Interface, ui: &mut Ui) -> bool {
         self.shape_settings(i, ui);
+        true
     }
 
     fn draw(&mut self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
@@ -89,18 +110,6 @@ impl ShapeType {
     }
 }
 
-#[derive(Clone, Debug)]
-pub struct Shapes {
-    pressed_pos: Option<(f32, f32)>,
-    dropped_shape: bool,
-    // Because of imgui, we can't have associated types on the ShapeType enum. Thus, this
-    // compromise.
-    stype: ShapeType,
-    sdata: ShapeData,
-    corners: Option<((f32, f32), (f32, f32))>,
-    draw_pivot: DrawPivot,
-    locked_angle: bool,
-}
 
 #[derive(Copy, Clone, Debug, derive_more::Display)]
 #[display(
@@ -154,63 +163,8 @@ impl Shapes {
             corners: None,
             draw_pivot: DrawPivot::default(),
             locked_angle: false,
+            edit_buf: HashMap::new(),
         }
-    }
-
-    fn shape_settings(&mut self, i: &mut Interface, ui: &imgui::Ui) {
-        let (tx, ty, tw, th) = i.get_tools_dialog_rect();
-        imgui::Window::new(imgui::im_str!("Shape Settings"))
-            .bg_alpha(1.) // See comment on fn redraw_skia
-            .flags(
-                imgui::WindowFlags::NO_RESIZE
-                    | imgui::WindowFlags::NO_MOVE
-                    | imgui::WindowFlags::NO_COLLAPSE,
-            )
-            .position([tx, ty], imgui::Condition::Always)
-            .size([tw, th], imgui::Condition::Always)
-            .build(ui, || {
-                ui.radio_button(imgui::im_str!("Circle"), &mut self.stype, ShapeType::Circle);
-                ui.radio_button(imgui::im_str!("Oval"), &mut self.stype, ShapeType::Oval);
-                ui.radio_button(
-                    imgui::im_str!("Rectangle"),
-                    &mut self.stype,
-                    ShapeType::Rectangle,
-                );
-                ui.radio_button(
-                    imgui::im_str!("Rounded Rectangle"),
-                    &mut self.stype,
-                    ShapeType::RoundedRectangle,
-                );
-                ui.radio_button(
-                    imgui::im_str!("Polygon"),
-                    &mut self.stype,
-                    ShapeType::Polygon,
-                );
-                ui.radio_button(imgui::im_str!("Star"), &mut self.stype, ShapeType::Star);
-
-                match self.stype {
-                    ShapeType::RoundedRectangle => {
-                        imgui::Slider::new(imgui::im_str!("Roundness"))
-                            .range(1f32..=200f32)
-                            .build(ui, &mut self.sdata.rrect_radius);
-                    }
-                    ShapeType::Polygon | ShapeType::Star => {
-                        imgui::Slider::new(imgui::im_str!("Sides"))
-                            .range(3u16..=50u16)
-                            .build(ui, &mut self.sdata.polygon_sides);
-                        imgui::Slider::new(imgui::im_str!("Roundness"))
-                            .range(0f32..=1000f32)
-                            .build(ui, &mut self.sdata.polygon_radius);
-                        user_interface::util::imgui_decimal_text_field(
-                            "Angle",
-                            ui,
-                            &mut self.sdata.polygon_angle,
-                            None,
-                        );
-                    }
-                    _ => (),
-                }
-            });
     }
 }
 
@@ -238,7 +192,7 @@ impl ShapeDrawer {
         (cx, cy, ((cx).powf(2.) + (cy).powf(2.)).sqrt())
     }
 
-    fn draw_circle(&self) -> Outline<MFEKGlifPointData> {
+    fn draw_circle(&self) -> Outline<MFEKPointData> {
         let (cx, _cy, radius) = self.calculate_radius();
         let direction = shape_direction(cx);
         let kp_center = kurbo::Point::new(self.from.0 as f64, self.from.1 as f64);
@@ -268,7 +222,7 @@ impl ShapeDrawer {
     }
 
     // Odd even causes a pentagram at 5, and interesting connected shapes at odd numbers above 5.
-    fn draw_polygon(&self, polygon: ShapeType) -> Outline<MFEKGlifPointData> {
+    fn draw_polygon(&self, polygon: ShapeType) -> Outline<MFEKPointData> {
         let (sides, oddeven) = match polygon {
             ShapeType::Polygon => (self.sdata.polygon_sides, false),
             ShapeType::Star => (self.sdata.polygon_sides, true),
@@ -335,7 +289,7 @@ impl ShapeDrawer {
         }
     }
 
-    fn draw_fits_in_rect(&mut self, stype: ShapeType) -> Outline<MFEKGlifPointData> {
+    fn draw_fits_in_rect(&mut self, stype: ShapeType) -> Outline<MFEKPointData> {
         let (fx, fy, mx, my) = (
             self.from.0 as f64,
             self.from.1 as f64,
@@ -388,7 +342,7 @@ impl Shapes {
 
     fn mouse_pressed(&mut self, v: &mut Editor, mouse_info: MouseInfo) {
         if !v.is_modifying() {
-            v.begin_modification(&self.describe_history_entry());
+            v.begin_modification(&self.describe_history_entry(), false);
             self.pressed_pos = Some((mouse_info.position.0, mouse_info.position.1));
             self.locked_angle = mouse_info.modifiers.ctrl;
         }

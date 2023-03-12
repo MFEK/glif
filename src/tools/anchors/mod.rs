@@ -1,17 +1,25 @@
 use super::prelude::*;
 use crate::command::Command;
-use crate::tool_behaviors::{pan::PanBehavior, zoom_scroll::ZoomScroll};
+use crate::tool_behaviors::{zoom_scroll::ZoomScroll};
 use crate::user_interface::{InputPrompt, Interface};
+
+mod dialog;
 
 #[derive(Clone, Debug)]
 pub struct Anchors {
     /// Selected anchor
     anchor_idx: Option<usize>,
+
+    // for it's text dialog
+    edit_buf: HashMap<String, String>
 }
 
 impl Anchors {
     pub fn new() -> Self {
-        Anchors { anchor_idx: None }
+        Anchors { 
+            anchor_idx: None,
+            edit_buf: HashMap::new()
+        }
     }
 }
 
@@ -43,8 +51,13 @@ impl Tool for Anchors {
         self.draw_selected(v, i, canvas);
     }
 
-    fn ui(&mut self, v: &mut Editor, i: &mut Interface, ui: &mut Ui) {
-        self.anchor_settings(v, i, ui);
+    fn dialog(&mut self, v: &mut Editor, i: &mut Interface, ui: &mut Ui) -> bool {
+        if let Some(_) = self.anchor_idx {
+            self.anchor_settings(v, i, ui);
+            return true;
+        }
+
+        false
     }
 }
 
@@ -62,105 +75,15 @@ impl Anchors {
     }
 }
 
-// Make dialog box at right
-impl Anchors {
-    fn anchor_settings(&mut self, v: &mut Editor, i: &Interface, ui: &imgui::Ui) {
-        let (tx, ty, tw, th) = i.get_tools_dialog_rect();
-        imgui::Window::new(imgui::im_str!("Anchor Settings"))
-            .bg_alpha(1.) // See comment on fn redraw_skia
-            .flags(
-                imgui::WindowFlags::NO_RESIZE
-                    | imgui::WindowFlags::NO_MOVE
-                    | imgui::WindowFlags::NO_COLLAPSE,
-            )
-            .position([tx, ty], imgui::Condition::Always)
-            .size([tw, th], imgui::Condition::Always)
-            .build(ui, || {
-                if let Some(idx) = self.anchor_idx {
-                    let glif_copy = v.with_glyph(|glif| glif.clone());
-                    // X
-                    let mut x = imgui::im_str!("{}", glif_copy.anchors[idx].x);
-                    let entered;
-                    {
-                        let it = ui.input_text(imgui::im_str!("X"), &mut x);
-                        entered = it
-                            .enter_returns_true(true)
-                            .chars_decimal(true)
-                            .chars_noblank(true)
-                            .auto_select_all(true)
-                            .build();
-                    }
-                    if entered && !x.to_str().is_empty() {
-                        let new_x: f32 = x.to_str().parse().unwrap();
-                        v.begin_modification("Move anchor.");
-                        v.with_glyph_mut(|glif| {
-                            glif.anchors[idx].x = new_x;
-                        });
-                        v.end_modification();
-                    }
-                    // Y
-                    let mut y = imgui::im_str!("{}", glif_copy.anchors[idx].y);
-                    let entered;
-                    {
-                        let it = ui.input_text(imgui::im_str!("Y"), &mut y);
-                        entered = it
-                            .enter_returns_true(true)
-                            .chars_decimal(true)
-                            .chars_noblank(true)
-                            .auto_select_all(true)
-                            .build();
-                    }
-                    if entered && !y.to_str().is_empty() {
-                        let new_y: f32 = y.to_str().parse().unwrap();
-                        v.begin_modification("Move anchor.");
-                        v.with_glyph_mut(|glif| {
-                            glif.anchors[idx].y = new_y;
-                        });
-                        v.end_modification();
-                    }
-                    // Class
-                    let mut class = imgui::im_str!(
-                        "{}",
-                        &glif_copy.anchors[idx]
-                            .class
-                            .as_ref()
-                            .map(|s| s.as_str())
-                            .unwrap_or("")
-                    );
-                    let entered;
-                    {
-                        let it = ui.input_text(imgui::im_str!("Class"), &mut class);
-                        entered = it
-                            .enter_returns_true(true)
-                            .chars_noblank(true)
-                            .auto_select_all(true)
-                            .build();
-                    }
-                    if entered && !class.to_str().is_empty() {
-                        v.begin_modification("Move anchor.");
-                        v.with_glyph_mut(|glif| {
-                            glif.anchors[idx].class = Some(class.to_str().to_string());
-                        });
-                        v.end_modification();
-                    }
-                }
-            });
-    }
-}
 
 // Mouse
 use crate::editor::Editor;
 use glifparser::Anchor as GlifAnchor;
-use skulpin::skia_safe::Paint;
+use skia_safe::Paint;
+use std::collections::HashMap;
 use std::rc::Rc;
 impl Anchors {
     fn mouse_pressed(&mut self, v: &mut Editor, i: &mut Interface, mouse_info: MouseInfo) {
-        // if the user clicked middle mouse we initiate a pan behavior
-        if mouse_info.button == MouseButton::Middle {
-            v.set_behavior(Box::new(PanBehavior::new(i.viewport.clone(), mouse_info)));
-            return;
-        }
-
         // Reset selected anchor
         self.anchor_idx = None;
 
@@ -195,7 +118,7 @@ impl Anchors {
                 if string.is_empty() {
                     return;
                 }
-                v.begin_modification("Add anchor.");
+                v.begin_modification("Add anchor.", false);
                 v.with_glyph_mut(|glif| {
                     let mut anchor = GlifAnchor::default();
                     anchor.x = f32::floor(position.0);
@@ -215,7 +138,7 @@ impl Anchors {
             }
 
             if !v.is_modifying() {
-                v.begin_modification("Move anchor.");
+                v.begin_modification("Move anchor.", false);
             }
 
             v.with_glyph_mut(|glif| {
@@ -235,7 +158,7 @@ impl Anchors {
 impl Anchors {
     fn delete_selection(&mut self, v: &mut Editor) {
         if let Some(idx) = self.anchor_idx {
-            v.begin_modification("Delete anchor.");
+            v.begin_modification("Delete anchor.", false);
             v.with_glyph_mut(|glif| {
                 glif.anchors.remove(idx);
             });

@@ -22,7 +22,7 @@ impl MoveImage {
 
     pub fn mouse_moved(&mut self, v: &mut Editor, _i: &mut Interface, mouse_info: MouseInfo) {
         if !v.is_modifying() {
-            v.begin_modification("Move image.");
+            v.begin_modification("Move image.", false);
         }
 
         let dx = mouse_info.position.0 - self.last_position.0;

@@ -1,12 +1,13 @@
 use super::{events::*, Editor};
-use crate::util::MFEKGlifPointData;
 
+use MFEKmath::mfek::ResolveCubic;
+use glifparser::glif::contour::MFEKContourCommon;
 //use fs2::FileExt as _; # TODO: Add file locking.
-use glifparser::glif::mfek::{traits::*, Layer, MFEKGlif};
-use glifparser::Glif;
+use glifparser::glif::mfek::{Layer, MFEKGlif};
+use glifparser::{Glif, MFEKPointData};
 use log;
+use mfek_ipc::IPCInfo;
 use plist;
-use MFEKmath::Fixup as _;
 
 use std::{
     ffi::OsString as Oss,
@@ -67,7 +68,7 @@ impl Editor {
                 .unwrap_or(Oss::from("glif"))
                 .to_string_lossy()
                 .into_owned();
-            let mut tempglif: MFEKGlif<_> = match ext_or.as_str() {
+            let tempglif: MFEKGlif<_> = match ext_or.as_str() {
                 "glifjson" => {
                     serde_json::from_str(&fs::read_to_string(&file).expect("Could not open file"))
                         .expect("Could not deserialize JSON MFEKGlif")
@@ -84,14 +85,7 @@ impl Editor {
                     return;
                 }
             };
-            tempglif.filename = Some(file.as_ref().to_path_buf());
-            for layer in tempglif.layers.iter_mut() {
-                if layer.outline.cleanly_downgradable() {
-                    let mut colo: glifparser::Outline<_> = layer.outline.clone().downgrade();
-                    colo.assert_colocated_within(0.01);
-                    layer.outline = colo.upgrade();
-                }
-            }
+
             tempglif
         };
 
@@ -104,7 +98,7 @@ impl Editor {
     }
 
     pub fn save_glif(&mut self, rename: bool) -> Result<PathBuf, ()> {
-        self.begin_modification("Saved glyph");
+        self.begin_modification("Saved glyph", true);
         let res = self.with_glyph_mut(|glyph| {
             let filename: PathBuf = if rename {
                 match filedialog::save_filename(Some("glifjson"), None) {
@@ -140,11 +134,13 @@ impl Editor {
         if let Some(i) = interface {
             self.rebuild(i);
         }
-        let export = self.prepare_export();
-        let layer = &export.layers[0];
+        
+        let mut export = self.prepare_export();
         if export.layers.len() > 1 {
             log::warn!("In a flatten operation, layers not in the topmost group will be discarded and not in your chosen file. You may want to export (Ctrl+E) and not flatten.");
         }
+        let layer = &mut export.layers[0];
+
 
         let glif_struct = self.glyph.as_ref().unwrap().to_exported(layer);
 
@@ -168,7 +164,7 @@ impl Editor {
         });
         match filename {
             Some(filename) => {
-                self.begin_modification("Flattened glyph");
+                self.begin_modification("Flattened glyph", true);
                 self.end_modification();
                 Ok(filename)
             }
@@ -187,14 +183,14 @@ impl Editor {
             temp.file_name().unwrap().to_owned()
         };
         let glif_name = self.with_glyph(|g| g.name.clone());
-        let ipc_info = self.ipc_info.clone().expect("Cannot export w/o IPC data");
+        let ipc_info = self.ipc_info.clone().unwrap_or(IPCInfo::default());
 
         // `self.preview` contains flattened versions of all the layers, which are always cubic Bézier
         // splines. We know it's Some(_) because we rebuilt above.
         //
         // In the first phase, we iterate flattened layer groups ("previews") and write the glyph
         // data.
-        let export = self.prepare_export();
+        let mut export = self.prepare_export();
 
         let font_pb = if let Some(ref font) = ipc_info.font {
             Some(font.clone())
@@ -208,7 +204,7 @@ impl Editor {
             return Err(());
         };
 
-        for (i, layer) in export.layers.iter().enumerate() {
+        for (i, layer) in export.layers.iter_mut().enumerate() {
             if !layer.visible {
                 continue;
             }
@@ -331,7 +327,7 @@ impl Editor {
                 ));
             log::info!("Wrote glyph {}'s layercontents.plist.", &glif_name);
         }
-        self.begin_modification("Exported glyph");
+        self.begin_modification("Exported glyph", true);
         self.end_modification();
         Ok(())
     }
@@ -367,14 +363,16 @@ impl Editor {
 }
 
 pub trait ExportLayer {
-    fn to_exported(&self, layer: &Layer<MFEKGlifPointData>) -> Glif<MFEKGlifPointData>;
+    fn to_exported(&self, layer: &mut Layer<MFEKPointData>) -> Glif<MFEKPointData>;
 }
 
 /// Warning: You should always use this from MFEKglif with glif.preview.layers. If you use it with
 /// the normal MFEKGlif type's layers, then you will need to apply contour operations yourself!
-impl ExportLayer for MFEKGlif<MFEKGlifPointData> {
-    fn to_exported(&self, layer: &Layer<MFEKGlifPointData>) -> Glif<MFEKGlifPointData> {
-        let contours: Vec<_> = layer.outline.iter().map(|c| c.inner.clone()).collect();
+impl ExportLayer for MFEKGlif<MFEKPointData> {
+    fn to_exported(&self, layer: &mut Layer<MFEKPointData>) -> Glif<MFEKPointData> {
+        let contours: Vec<_> = layer.outline.iter_mut().map(|c| 
+            c.to_cubic().cubic_mut().unwrap().clone()
+        ).collect();
         let mut ret = Glif::new();
         ret.outline = Some(contours);
         ret.anchors = self.anchors.clone();

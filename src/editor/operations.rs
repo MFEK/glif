@@ -1,15 +1,16 @@
-use crate::contour_operations::ContourOperation;
+use crate::contour_operations::ContourOperationBuild;
 use crate::user_interface::Interface;
+use MFEKmath::mfek::ResolveCubic;
+use glifparser::glif::contour::MFEKContourCommon;
 use glifparser::outline::skia::{FromSkiaPath, ToSkiaPaths};
-use glifparser::FlattenedGlif;
+use glifparser::{FlattenedGlif, MFEKPointData};
 use glifparser::{
     glif::{Layer, LayerOperation},
     MFEKGlif, Outline,
 };
-use skulpin::skia_safe::PathOp;
+use skia_safe::PathOp;
 
 use super::Editor;
-use crate::util::MFEKGlifPointData;
 
 impl Editor {
     pub fn mark_preview_dirty(&mut self) {
@@ -33,19 +34,19 @@ impl Editor {
 
         //self.fix_contour_ops();
         let mut preview_layers = Vec::new();
-        for layer in &self.glyph.as_ref().unwrap().layers {
+        for layer in &self.glyph.as_mut().unwrap().layers {
             let mut preview_outline = Vec::new();
 
             for (_idx, glif_contour) in layer.outline.iter().enumerate() {
-                if glif_contour.inner.len() < 2 {
-                    preview_outline.push(glif_contour.clone());
+                if glif_contour.inner().len() <= 1 {
+                    preview_outline.push(glif_contour.to_cubic());
                     continue;
                 }
 
                 let build_result = glif_contour.operation.build(glif_contour);
 
                 for new_contour in build_result {
-                    preview_outline.push(new_contour);
+                    preview_outline.push(new_contour.to_cubic());
                 }
             }
 
@@ -68,20 +69,20 @@ impl Editor {
         self.preview_dirty = false;
     }
 
-    pub fn prepare_export(&self) -> MFEKGlif<MFEKGlifPointData> {
+    pub fn prepare_export(&self) -> MFEKGlif<MFEKPointData> {
         let glyph = self
             .glyph
             .as_ref()
             .expect("Illegally tried to export a null glyph!");
-        if glyph.layers.len() == 1 && glyph.layers[0].outline.iter().all(|c| c.operation == None) {
+        if glyph.layers.len() == 1 && glyph.layers[0].outline.iter().all(|c| c.operation().clone() == None) {
             return glyph.clone();
         }
 
         let glif = self.preview.as_ref().unwrap_or(glyph);
 
         // MFEKGlif always has a layer zero so this is safe. (No it isn't, it can be invisible. TODO: Fix this.)
-        let mut last_combine_layer: Layer<MFEKGlifPointData> = glif.layers[0].clone();
-        let mut exported_layers: Vec<Layer<MFEKGlifPointData>> = vec![];
+        let mut last_combine_layer: Layer<MFEKPointData> = glif.layers[0].clone();
+        let mut exported_layers: Vec<Layer<MFEKPointData>> = vec![];
         let mut current_layer_group = last_combine_layer.outline.to_skia_paths(None).combined();
 
         for (layer_idx, layer) in glif.layers.iter().enumerate() {

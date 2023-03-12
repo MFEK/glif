@@ -7,8 +7,6 @@ extern crate cargo_emit;
 #[macro_use]
 extern crate git_version;
 
-use chrono;
-use log;
 use which::which;
 
 use std::process::Command;
@@ -19,10 +17,7 @@ fn main() {
             compile_error!("Features `sdl2-static` and `sdl2-dynamic` are mutually exclusive!");
         }
     }
-    let version = git_version!(
-        args = ["--tags", "--always", "--dirty=-desync"],
-        fallback = concat!("v", env!("CARGO_PKG_VERSION"))
-    );
+    let version = git_version!( args = ["--tags", "--always", "--dirty=-desync"], fallback = "v1" );
     rustc_env!("MFEK_VERSION", "{}", version);
     rustc_env!("MFEK_COMPILED_AT", "{}", chrono::Local::now().timestamp());
     #[cfg(all(target_os = "macos", feature = "sdl2-dynamic"))]

@@ -3,8 +3,9 @@ use std::collections::HashSet;
 // Select
 use super::{prelude::*, EditorEvent, MouseEventType, Tool};
 use crate::command::{Command, CommandType};
+use crate::get_point_mut;
 use crate::tool_behaviors::rotate_selection::RotateSelection;
-use glifparser::outline::Reverse as _;
+use glifparser::glif::mfek::contour::MFEKContourCommon;
 
 use MFEKmath::Vector;
 
@@ -12,8 +13,6 @@ use crate::tool_behaviors::{
     draw_pivot::DrawPivot, move_handle::MoveHandle, move_point::MovePoint, pan::PanBehavior,
     selection_box::SelectionBox, zoom_scroll::ZoomScroll,
 };
-
-mod dialog;
 
 // Select is a good example of a more complicated tool that keeps lots of state.
 // It has state for which handle it's selected, follow rules, selection box, and to track if it's currently
@@ -71,10 +70,6 @@ impl Tool for Select {
     fn draw(&mut self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
         self.draw_pivot.draw(v, i, canvas);
     }
-
-    fn ui(&mut self, v: &mut Editor, i: &mut Interface, ui: &mut Ui) {
-        self.select_settings(v, i, ui);
-    }
 }
 
 impl Select {
@@ -85,7 +80,7 @@ impl Select {
     fn select_all(&mut self, v: &mut Editor) {
         let mut points = HashSet::new();
         for (ci, contour) in v.get_active_layer_ref().outline.iter().enumerate() {
-            for (pi, _point) in contour.inner.iter().enumerate() {
+            for (pi, _) in contour.inner().iter().enumerate() {
                 points.insert((ci, pi));
             }
         }
@@ -100,34 +95,33 @@ impl Select {
         if selected.len() == 0 {
             return;
         }
-        v.begin_modification("Nudge selected points.");
+        v.begin_modification("Nudge selected points.", false);
         for (ci, pi) in selected {
             let layer = v.get_active_layer_mut();
-            let point = &get_point!(layer, ci, pi);
+            let point = get_point_mut!(layer, ci, pi).unwrap();
             let factor = PanBehavior::nudge_factor(command);
             let offset = PanBehavior::nudge_offset(command, factor);
-            let x = point.x;
-            let y = point.y;
-            editor::util::move_point(&mut layer.outline, ci, pi, x - offset.0, y + offset.1);
+            
+            point.set_position(point.x() - offset.0, point.y() + offset.1);
         }
         v.end_modification();
     }
 
     fn reverse_selected(&mut self, v: &mut Editor) {
-        let ci = if let Some((ci, _)) = v.selected() {
+        let ci = if let Some((ci, _)) = v.selected_point() {
             ci
         } else {
             return;
         };
 
-        v.begin_modification("Reversing contours.");
+        v.begin_modification("Reversing contours.", false);
         let point_idx = v.point_idx;
         v.point_idx = {
             let layer = v.get_active_layer_mut();
-            let contour_len = layer.outline[ci].inner.len();
-            layer.outline[ci].inner.reverse();
+            let contour_len = layer.outline[ci].len();
+            layer.outline[ci].reverse_points();
             if let Some(pi) = point_idx {
-                if layer.outline[ci].inner[0].ptype != PointType::Move {
+                if !get_contour!(layer, ci).is_open() {
                     if pi == 0 {
                         Some(0)
                     } else {
@@ -172,6 +166,7 @@ impl Select {
             )));
             return;
         }
+        
 
         // if we found a point or handle we're going to start a drag operation
         match clicked_point_or_handle(v, i, mouse_info.position, None) {

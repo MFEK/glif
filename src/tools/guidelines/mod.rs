@@ -6,11 +6,10 @@ use crate::tool_behaviors::{
     move_glyph::MoveGlyph, move_guideline::MoveGuideline, zoom_scroll::ZoomScroll,
 };
 use crate::user_interface::Interface;
-use crate::util::MFEKGlifPointData;
 
 use flo::Coordinate;
 use flo_curves as flo;
-use glifparser::Guideline;
+use glifparser::{Guideline, MFEKPointData};
 use log;
 
 mod dialog;
@@ -22,9 +21,9 @@ pub struct Guidelines {
 
 #[derive(Debug, Clone, Default)]
 struct SplitGuidelines {
-    guidelines: Vec<(Guideline<MFEKGlifPointData>, bool)>,
-    local_guidelines: Vec<Guideline<MFEKGlifPointData>>,
-    global_guidelines: Vec<Guideline<MFEKGlifPointData>>,
+    guidelines: Vec<(Guideline<MFEKPointData>, bool)>,
+    local_guidelines: Vec<Guideline<MFEKPointData>>,
+    global_guidelines: Vec<Guideline<MFEKPointData>>,
 }
 
 use itertools::{Either, Itertools as _};
@@ -64,7 +63,7 @@ impl SplitGuidelines {
     fn as_tuple(
         self,
     ) -> (
-        Vec<(Guideline<MFEKGlifPointData>, bool)>,
+        Vec<(Guideline<MFEKPointData>, bool)>,
         usize,
         usize,
         usize,
@@ -99,8 +98,9 @@ impl Tool for Guidelines {
         self.draw_selected_guideline(i, v, canvas);
     }
 
-    fn ui(&mut self, v: &mut Editor, i: &mut Interface, ui: &mut Ui) {
-        self.tool_dialog(v, i, ui)
+    fn dialog(&mut self, v: &mut Editor, i: &mut Interface, ui: &mut Ui) -> bool {
+        self.tool_dialog(v, i, ui);
+        return true;
     }
 }
 

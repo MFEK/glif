@@ -1,15 +1,20 @@
-use glifparser::glif::{DashContour, Glif, MFEKContour, MFEKOutline};
+use MFEKmath::mfek::ResolveCubic;
+use glifparser::glif::contour::MFEKContourCommon;
+use glifparser::glif::{MFEKContour, MFEKOutline, contour_operations::dash::DashContour};
+use glifparser::{MFEKPointData, Glif};
 
-use super::ContourOperationData;
-use crate::util::MFEKGlifPointData;
+use super::ContourOperationBuild;
 
-impl ContourOperationData for DashContour {
-    fn build(&self, contour: &MFEKContour<MFEKGlifPointData>) -> MFEKOutline<MFEKGlifPointData> {
+impl ContourOperationBuild for DashContour {
+    fn build(&self, contour: &MFEKContour<MFEKPointData>) -> MFEKOutline<MFEKPointData> {
+
         let mut glif = Glif::default();
-        glif.outline = Some(vec![contour.inner.clone()]);
+        
+        // TODO: Get rid of this call to resolve to cubic and use some internal cache.
+        glif.outline = Some(vec![contour.to_cubic().cubic().unwrap().clone()]);
         let dash_output = MFEKmath::dash_along_glif(&glif, self);
 
-        let mut output: MFEKOutline<MFEKGlifPointData> = Vec::new();
+        let mut output: MFEKOutline<MFEKPointData> = Vec::new();
         if let Some(outline) = dash_output.outline {
             for contour in outline {
                 output.push(contour.into());
@@ -18,16 +23,4 @@ impl ContourOperationData for DashContour {
 
         output
     }
-
-    fn sub(&mut self, _contour: &MFEKContour<MFEKGlifPointData>, _begin: usize, _end: usize) {}
-
-    fn append(
-        &mut self,
-        _contour: &MFEKContour<MFEKGlifPointData>,
-        _append: &MFEKContour<MFEKGlifPointData>,
-    ) {
-    }
-
-    fn insert(&mut self, _contour: &MFEKContour<MFEKGlifPointData>, _point_idx: usize) {}
-    fn remove(&mut self, _contour: &MFEKContour<MFEKGlifPointData>, _point_idx: usize) {}
 }
