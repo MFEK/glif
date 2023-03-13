@@ -20,6 +20,8 @@ pub fn build_ui(
     i: &mut Interface,
     wm: &mut WindowManager,
 ) {
+    // initialization (so far just sets fonts to system fonts not included Ubuntu)
+    egui_manager.init();
     let egui = &mut egui_manager.egui;
     let egsdl2 = &mut egui_manager.egui_sdl2;
     egui.run(egsdl2.take_egui_input(&i.sdl_window), |ctx| {

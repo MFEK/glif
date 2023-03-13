@@ -1,6 +1,6 @@
 use egui::{Align2, Color32, Context, Stroke, Ui};
 
-use crate::{editor::Editor, tools::ToolEnum, user_interface::Interface};
+use crate::{constants::*, editor::Editor, tools::ToolEnum, user_interface::Interface};
 
 pub fn build_button(v: &mut Editor, ui: &mut Ui, text: &str, te: ToolEnum) {
     let stroke = if v.get_tool() == te {
@@ -25,10 +25,10 @@ pub fn build_button(v: &mut Editor, ui: &mut Ui, text: &str, te: ToolEnum) {
 }
 pub fn tool_bar(ctx: &Context, v: &mut Editor, _i: &mut Interface) {
     egui::Window::new("Tools")
-        .anchor(Align2::LEFT_TOP, [0., 25.])
+        .anchor(Align2::LEFT_TOP, [0., 25. * FONT_SCALE_FACTOR])
         .title_bar(false)
-        .default_width(10.)
-        .min_width(15.)
+        .default_width(10. * FONT_SCALE_FACTOR)
+        .min_width(15. * FONT_SCALE_FACTOR)
         .resizable(false)
         .enabled(!v.is_modifying())
         .show(ctx, |ui| {

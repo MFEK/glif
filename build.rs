@@ -40,6 +40,14 @@ fn main() {
             warning!("It is neither recommended nor supported to compile MFEKglif on Windows w/dynamic SDL2.");
         }
     }
+    cfg_if! {
+        if #[cfg(all(target_family = "unix", not(any(target_os = "macos", target_os = "android", target_os = "ios"))))] {
+            rustc_cfg!("is_free_software_os");
+            rustc_env!("MFEK_FREE_OS_DETECTED", "{}", version);
+        } else {
+            warning!("MFEKglif works best on free software operating systems such as GNU/Linux and FreeBSD. Close Windows, open doors: <https://www.fsf.org/windows>");
+        }
+    }
 }
 
 #[cfg(all(target_os = "macos", feature = "sdl2-dynamic"))]

@@ -1,3 +1,5 @@
+mod fonts;
+
 use egui_skia::EguiSkia;
 use sdl2::{event::Event, video::Window};
 
@@ -23,6 +25,10 @@ impl EguiManager {
             egui: egui_skia,
             egui_sdl2,
         };
+    }
+
+    pub fn init(&mut self) {
+        self.set_system_fonts();
     }
 
     pub fn wants_event(&mut self, sdl_window: &Window, sdl_event: &Event) -> bool {

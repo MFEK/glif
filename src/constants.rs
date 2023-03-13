@@ -14,9 +14,20 @@ lazy_static! {
     pub static ref CONSOLE_FONTS: Vec<FKFamilyName> = vec![
         FKFamilyName::Title("Inconsolata".to_string()),
         FKFamilyName::Title("Consolas".to_string()),
+        FKFamilyName::Title("Unifont".to_string()),
+        FKFamilyName::Title("Courier New".to_string()),
         FKFamilyName::Monospace
     ];
 }
+
+/// TODO: Deprecate this hack.
+/// See https://github.com/emilk/egui/issues/2639.
+pub const FONT_SCALE_FACTOR: f32 = {
+    #[cfg(is_free_software_os)]
+    { 1.25 }
+    #[cfg(not(is_free_software_os))]
+    { 1.0 }
+};
 
 // CONSOLE
 pub const CONSOLE_TEXT_SIZE: f32 = 14.;
