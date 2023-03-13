@@ -18,6 +18,13 @@ impl Interface {
         filename: &str,
         viewport: &mut Viewport,
     ) -> (Sdl, Window, RCHandle<GrDirectContext>, GLContext) {
+        const WL_ENV: &'static str = "WAYLAND_DISPLAY";
+        if let Some(_) = std::env::var_os(WL_ENV) {
+            let (k, v) = ("SDL_VIDEODRIVER", "wayland");
+            std::env::set_var(k, v);
+            log::info!("Setting {k} to {v} as we see in env {}={}. If this fails, set {k} to `x11`!", WL_ENV, std::env::var(WL_ENV).unwrap());
+        }
+
         // SDL initialization
         let sdl_context = sdl2::init().expect("Failed to initialize sdl2");
         let video_subsystem = sdl_context
