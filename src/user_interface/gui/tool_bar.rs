@@ -6,7 +6,7 @@ pub fn build_button(v: &mut Editor, ui: &mut Ui, text: &str, te: ToolEnum) {
     let stroke = if v.get_tool() == te {
         Stroke {
             width: 2.0,
-            color: Color32::from_rgb(9, 82, 128),
+            color: Color32::from_rgb(255, 190, 0),
         }
     } else {
         Stroke::NONE
@@ -14,7 +14,7 @@ pub fn build_button(v: &mut Editor, ui: &mut Ui, text: &str, te: ToolEnum) {
 
     let button = egui::Button::new(text)
         .stroke(stroke)
-        .min_size(egui::vec2(22., 15.));
+        .min_size(egui::vec2(32., 32.));
 
     let respone = ui.add(button);
     if respone.clicked() {
@@ -25,12 +25,13 @@ pub fn build_button(v: &mut Editor, ui: &mut Ui, text: &str, te: ToolEnum) {
 }
 pub fn tool_bar(ctx: &Context, v: &mut Editor, _i: &mut Interface) {
     egui::Window::new("Tools")
-        .anchor(Align2::LEFT_TOP, [0., 25. * FONT_SCALE_FACTOR])
+        .anchor(Align2::LEFT_TOP, [16., 31. * FONT_SCALE_FACTOR])
         .title_bar(false)
         .default_width(10. * FONT_SCALE_FACTOR)
         .min_width(15. * FONT_SCALE_FACTOR)
         .resizable(false)
         .enabled(!v.is_modifying())
+        // .shadow(None) Help!: How can we remove the shadow? - elih
         .show(ctx, |ui| {
             ui.vertical_centered(|ui| {
                 build_button(v, ui, "✋", ToolEnum::Pan);
