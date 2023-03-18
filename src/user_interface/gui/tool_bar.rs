@@ -31,7 +31,6 @@ pub fn tool_bar(ctx: &Context, v: &mut Editor, _i: &mut Interface) {
         .min_width(15. * FONT_SCALE_FACTOR)
         .resizable(false)
         .enabled(!v.is_modifying())
-        // .shadow(None) Help!: How can we remove the shadow? - elih
         .show(ctx, |ui| {
             ui.vertical_centered(|ui| {
                 build_button(v, ui, "✋", ToolEnum::Pan);
@@ -49,6 +48,6 @@ pub fn tool_bar(ctx: &Context, v: &mut Editor, _i: &mut Interface) {
                 build_button(v, ui, "⏺", ToolEnum::Shapes);
                 build_button(v, ui, "🖻", ToolEnum::Image);
                 build_button(v, ui, "|", ToolEnum::Guidelines);
-            })
+            });
         });
 }
