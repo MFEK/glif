@@ -1,11 +1,11 @@
 use super::super::prelude::*;
 use super::{Guidelines, SplitGuidelines};
 use crate::tool_behaviors::add_guideline::AddGuideline;
-//use crate::user_interface::gui::{FONT_IDS, IMGUI_RESERVE};
+use crate::user_interface::gui::windows::egui_parsed_textfield;
 
 impl Guidelines {
     pub fn tool_dialog(&mut self, v: &mut Editor, i: &mut Interface, ui: &mut egui::Ui) {
-        let (guidelines, _, local_guidelines_len, _) = SplitGuidelines::new(v).as_tuple();
+        let (mut guidelines, _, local_guidelines_len, _) = SplitGuidelines::new(v).as_tuple();
 
         ui.horizontal(|ui| {
             if ui.button("➕").clicked() {
@@ -45,5 +45,25 @@ impl Guidelines {
                 ui.label("No guideline selected.");
             }
         });
+        if let Some(selected) = self.selected_idx {
+            ui.label("Position");
+            ui.vertical(|ui| {
+                if guidelines[selected].1 {
+                    /*v.begin_modification("Move guideline.", false);
+                    v.with_glyph_mut(|glyph| {
+                        let mut guidelinex = &mut glyph.guidelines[selected].at.x;
+                        *guidelinex = egui_parsed_textfield(ui, "ax", *guidelinex, &mut self.edit_buf);
+                        let mut guideliney = &mut glyph.guidelines[selected].at.y;
+                        *guideliney = egui_parsed_textfield(ui, "ay", *guideliney, &mut self.edit_buf);
+                    });
+                    v.end_modification();*/
+                } else {
+                    let mut guidelinex = &mut v.guidelines[selected].at.x;
+                    *guidelinex = egui_parsed_textfield(ui, "ax", *guidelinex, &mut self.edit_buf);
+                    let mut guideliney = &mut v.guidelines[selected].at.y;
+                    *guideliney = egui_parsed_textfield(ui, "ay", *guideliney, &mut self.edit_buf);
+                }
+            });
+        }
     }
 }

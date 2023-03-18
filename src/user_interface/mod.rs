@@ -4,6 +4,7 @@ pub mod gui;
 pub mod icons;
 pub mod mouse_input;
 pub mod sdl;
+pub mod popout;
 
 use std::rc::Rc;
 
@@ -25,11 +26,12 @@ use skia_safe::Surface;
 use crate::editor::Editor;
 pub use crate::user_interface::mouse_input::MouseInfo;
 
-use sdl2::{video::Window, Sdl};
+use sdl2::{video::Window as SdlWindow, Sdl};
 
 use self::egui_manager::EguiManager;
 use self::gui::build_ui;
 use self::gui::window::WindowManager;
+pub use self::popout::{Popout, PopoutWindow};
 
 /* Window */
 pub const PAPER_DRAW_GUIDELINES: bool = false;
@@ -45,13 +47,25 @@ pub struct Interface {
     pub viewport: Viewport,
 
     // OpenGL and Skia
-    pub gl_ctx: GLContext,
+    gl_ctx: GLContext,
+    child_gl_ctxs: Vec<GLContext>,
     pub gr_context: RCHandle<GrDirectContext>,
     pub fb_info: FramebufferInfo,
 
     // Window *must* be dropped at end to prevent a segmentation fault.
     // See <https://github.com/rust-skia/rust-skia/issues/476>.
-    pub sdl_window: Window,
+    sdl_window: SdlWindow,
+    child_sdl_windows: Vec<SdlWindow>,
+}
+
+fn fb_info() -> FramebufferInfo {
+    let mut fboid = 0;
+    unsafe { gl::GetIntegerv(gl::FRAMEBUFFER_BINDING, &mut fboid) };
+
+    FramebufferInfo {
+        fboid: fboid.try_into().unwrap(),
+        format: skia_safe::gpu::gl::Format::RGBA8.into(),
+    }
 }
 
 impl Interface {
@@ -59,17 +73,8 @@ impl Interface {
         let mut viewport = Viewport::default();
 
         let (sdl, window, gr_context, gl_ctx) = Self::initialize_sdl(filename, &mut viewport);
-        //let video_subsystem = sdl.video().unwrap();
 
-        let fb_info = {
-            let mut fboid = 0;
-            unsafe { gl::GetIntegerv(gl::FRAMEBUFFER_BINDING, &mut fboid) };
-
-            FramebufferInfo {
-                fboid: fboid.try_into().unwrap(),
-                format: skia_safe::gpu::gl::Format::RGBA8.into(),
-            }
-        };
+        let fb_info = fb_info();
 
         #[allow(unused_mut)]
         let mut iself = Interface {
@@ -86,6 +91,8 @@ impl Interface {
             gl_ctx,
             gr_context,
             fb_info,
+            child_gl_ctxs: vec![],
+            child_sdl_windows: vec![],
         };
 
         iself
@@ -180,10 +187,24 @@ impl Interface {
         self.viewport.factor = scale;
         self.viewport.offset = offset;
     }
+
+    pub fn windows(&mut self) -> impl IntoIterator<Item = PopoutWindow> {
+        use std::slice::IterMut;
+        (Box::new([&mut self.sdl_window])
+            .into_iter()
+            .chain(&mut self.child_sdl_windows)
+            .zip(
+                Box::new([&mut self.gl_ctx])
+                    .into_iter()
+                    .chain(&mut self.child_gl_ctxs),
+            )
+            .map(|(sdl_window, gl_ctx)| PopoutWindow { sdl_window, gl_ctx }))
+        .into_iter()
+    }
 }
 
 fn create_surface(
-    window: &Window,
+    window: &SdlWindow,
     fb_info: &FramebufferInfo,
     gr_context: &mut skia_safe::gpu::DirectContext,
 ) -> skia_safe::Surface {

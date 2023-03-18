@@ -14,9 +14,12 @@ use log;
 
 mod dialog;
 
+use std::collections::HashMap;
+
 #[derive(Clone, Debug, Default)]
 pub struct Guidelines {
     selected_idx: Option<usize>,
+    edit_buf: HashMap<String, String>,
 }
 
 #[derive(Debug, Clone, Default)]

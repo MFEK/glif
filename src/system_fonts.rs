@@ -17,34 +17,43 @@ pub struct SystemFont {
     pub path: Option<PathBuf>,
 }
 
+impl TryInto<SystemFont> for FKHandle {
+    type Error = ();
+    fn try_into(self: FKHandle) -> Result<SystemFont, ()> {
+        match self {
+            FKHandle::Path { path, .. } => {
+                let font_is_scalable = ["otf", "ttf"]
+                    .into_iter()
+                    .any(|e: &str| path.extension().map(|ee| ee == e).unwrap_or(false));
+                // This is possible on GNU/Linux which has BDF fonts.
+                if !font_is_scalable {
+                    return Err(());
+                }
+                Ok(SystemFont {
+                    path: Some(path.clone()),
+                    data: fs::read(path).expect("Failed to open font path system specified"),
+                })
+            }
+            FKHandle::Memory { bytes, .. } => Ok(SystemFont {
+                path: None,
+                data: Arc::try_unwrap(bytes).expect("Failed to load in-memory font"),
+            }),
+        }
+    }
+}
+
 fn load_font(family: &[FKFamilyName]) -> SystemFont {
     log::debug!("Looking for a UI font to satisfy request for {:?}", family);
-    let mut font = None;
     let source = SystemSource::new();
     let props = Properties::new();
+    let mut font: Option<SystemFont> = None;
     for fkfamname in family {
         let best_match = source.select_best_match(&[fkfamname.clone()], &props);
         if let Err(FKNotFoundError) = best_match {
             log::debug!("Skipped {:?}", fkfamname);
         }
         font = match best_match {
-            Ok(FKHandle::Path { path, .. }) => {
-                let font_is_scalable = ["otf", "ttf"]
-                    .into_iter()
-                    .any(|e: &str| path.extension().map(|ee| ee == e).unwrap_or(false));
-                // This is possible on GNU/Linux which has BDF fonts.
-                if !font_is_scalable {
-                    continue;
-                }
-                Some(SystemFont {
-                    path: Some(path.clone()),
-                    data: fs::read(path).expect("Failed to open font path system specified"),
-                })
-            }
-            Ok(FKHandle::Memory { bytes, .. }) => Some(SystemFont {
-                path: None,
-                data: Arc::try_unwrap(bytes).expect("Failed to load in-memory font"),
-            }),
+            Ok(f) => f.try_into().ok(),
             // try next font…
             Err(FKNotFoundError) => continue,
             Err(e) => panic!(
@@ -107,4 +116,5 @@ lazy_static! {
         FKFamilyName::Title("Roboto Serif".to_string()),
     ]);
     pub static ref SYSTEMMONO: SystemFont = load_font(CONSOLE_FONTS.as_slice());
+    pub static ref ICONSFONT: SystemFont = (FKHandle::Memory { bytes: Arc::from(include_bytes!("../resources/fonts/icons.otf").to_vec()), font_index: 0 }).try_into().unwrap();
 }
