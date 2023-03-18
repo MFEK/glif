@@ -6,10 +6,14 @@ use crate::constants;
 use crate::system_fonts::*;
 
 fn tweak(font: FontData) -> FontData {
-    font.tweak(FontTweak {scale: constants::FONT_SCALE_FACTOR, .. Default::default()})
+    font.tweak(FontTweak {
+        scale: constants::FONT_SCALE_FACTOR,
+        ..Default::default()
+    })
 }
 
 impl EguiManager {
+    #[rustfmt::skip]
     pub fn set_system_fonts(&mut self) {
         let ctx = &self.egui.egui_ctx;
         let mut fonts = egui::FontDefinitions::default();

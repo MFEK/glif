@@ -22,11 +22,12 @@ lazy_static! {
 
 /// TODO: Deprecate this hack.
 /// See https://github.com/emilk/egui/issues/2639.
+#[rustfmt::skip]
 pub const FONT_SCALE_FACTOR: f32 = {
     #[cfg(is_free_software_os)]
-    { 1.25 }
+    {1.25}
     #[cfg(not(is_free_software_os))]
-    { 1.0 }
+    {1.0}
 };
 
 // CONSOLE
