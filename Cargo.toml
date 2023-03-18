@@ -69,7 +69,7 @@ derive_more = "0.99"
 derivative = "2.2"
 
 # File dialog
-nfd = { git = "https://github.com/raphlinus/nfd-rs", rev = "5e09b79bf511e3a91ae8cefdb96e9734fa4a79c2" }
+nfd = { git = "https://github.com/MFEK/nfd.rs" }
 
 # File locking
 fs2 = "0.4"
