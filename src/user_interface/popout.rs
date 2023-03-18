@@ -1,5 +1,5 @@
 use sdl2::video::GLContext;
-use sdl2::{video::Window as SdlWindow};
+use sdl2::video::Window as SdlWindow;
 
 use super::Interface;
 

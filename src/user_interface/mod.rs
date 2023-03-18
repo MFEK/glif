@@ -3,8 +3,8 @@ pub mod follow;
 pub mod gui;
 pub mod icons;
 pub mod mouse_input;
-pub mod sdl;
 pub mod popout;
+pub mod sdl;
 
 use std::rc::Rc;
 

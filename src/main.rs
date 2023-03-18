@@ -84,7 +84,10 @@ fn main() {
                 editor.quit(&mut interface);
             }
 
-            if egui_manager.wants_event(interface.windows().into_iter().nth(0).unwrap().sdl_window, &event) {
+            if egui_manager.wants_event(
+                interface.windows().into_iter().nth(0).unwrap().sdl_window,
+                &event,
+            ) {
                 continue;
             }
 
