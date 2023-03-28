@@ -116,7 +116,8 @@ dyn-clone = "1.0"
 directories = "4"
 
 #converting enums to strings
-strum = { version = "0.23", features = ["derive"] }
+strum = { version = "0.24", features = ["derive"] }
+strum_macros = "0.24"
 
 #for logo, could be used in future for background images
 image = { version = "0.23", features = ["png"], default-features = false }

@@ -55,7 +55,8 @@ dependencies = [
  "skia-bindings",
  "skia-safe",
  "spline 0.3.0",
- "strum 0.23.0",
+ "strum 0.24.1",
+ "strum_macros 0.24.3",
  "which",
  "winapi",
  "xmltree",
@@ -2646,11 +2647,11 @@ checksum = "57bd81eb48f4c437cadc685403cad539345bf703d78e63707418431cecd4522b"
 
 [[package]]
 name = "strum"
-version = "0.23.0"
+version = "0.24.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cae14b91c7d11c9a851d3fbc80a963198998c2a64eec840477fa92d8ce9b70bb"
+checksum = "063e6045c0e62079840579a7e47a355ae92f60eb74daaf156fb1e84ba164e63f"
 dependencies = [
- "strum_macros 0.23.1",
+ "strum_macros 0.24.3",
 ]
 
 [[package]]
@@ -2667,11 +2668,11 @@ dependencies = [
 
 [[package]]
 name = "strum_macros"
-version = "0.23.1"
+version = "0.24.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5bb0dc7ee9c15cea6199cde9a127fa16a4c5819af85395457ad72d68edc85a38"
+checksum = "1e385be0d24f186b4ce2f9982191e7101bb737312ad61c1f2f984f34bcf85d59"
 dependencies = [
- "heck 0.3.3",
+ "heck 0.4.1",
  "proc-macro2",
  "quote",
  "rustversion",
