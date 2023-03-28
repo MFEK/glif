@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <glyph name="confirm" format="2">
-  <advance width="700" height="700"/>
+  <advance width="700"/>
   <unicode hex="F01E"/>
   <outline>
     <contour>
-      <point x="264.375" y="-3.75" type="line"/>
-      <point x="546.875" y="278.75" type="line"/>
-      <point x="584.375" y="241.25" type="line"/>
-      <point x="264.375" y="-78.75" type="line"/>
-      <point x="115.625" y="70" type="line"/>
-      <point x="153.125" y="107.5" type="line"/>
+      <point x="264.375" y="196.25" type="line"/>
+      <point x="546.875" y="478.75" type="line"/>
+      <point x="584.375" y="441.25" type="line"/>
+      <point x="264.375" y="121.25" type="line"/>
+      <point x="115.625" y="270" type="line"/>
+      <point x="153.125" y="307.5" type="line"/>
     </contour>
   </outline>
 </glyph>

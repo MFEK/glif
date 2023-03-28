@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <glyph name="reject" format="2">
-  <advance width="700" height="700"/>
+  <advance width="700"/>
   <unicode hex="F01F"/>
   <outline>
     <contour>
-      <point x="536.25" y="254.75" type="line"/>
-      <point x="387.5" y="106" type="line"/>
-      <point x="536.25" y="-42.75" type="line"/>
-      <point x="498.75" y="-80.25" type="line"/>
-      <point x="350" y="68.5" type="line"/>
-      <point x="201.25" y="-80.25" type="line"/>
-      <point x="163.75" y="-42.75" type="line"/>
-      <point x="312.5" y="106" type="line"/>
-      <point x="163.75" y="254.75" type="line"/>
-      <point x="201.25" y="292.25" type="line"/>
-      <point x="350" y="143.5" type="line"/>
-      <point x="498.75" y="292.25" type="line"/>
+      <point x="536.25" y="454.75" type="line"/>
+      <point x="387.5" y="306" type="line"/>
+      <point x="536.25" y="157.25" type="line"/>
+      <point x="498.75" y="119.75" type="line"/>
+      <point x="350" y="268.5" type="line"/>
+      <point x="201.25" y="119.75" type="line"/>
+      <point x="163.75" y="157.25" type="line"/>
+      <point x="312.5" y="306" type="line"/>
+      <point x="163.75" y="454.75" type="line"/>
+      <point x="201.25" y="492.25" type="line"/>
+      <point x="350" y="343.5" type="line"/>
+      <point x="498.75" y="492.25" type="line"/>
     </contour>
   </outline>
 </glyph>
