@@ -1,15 +1,15 @@
 pub mod icons;
+pub use self::icons::build_button as build_icon_button;
 pub mod menu_bar;
+#[macro_use]
+pub(crate) mod msgbox;
+pub(crate) use self::msgbox::gui_error as error;
 pub mod prompts;
 pub mod textedit_buffer;
 pub mod tool_bar;
 pub mod window;
 pub mod windows;
 
-#[macro_use]
-pub(crate) mod msgbox;
-
-pub(crate) use self::msgbox::gui_error as error;
 use self::window::{GlifWindow, WindowManager};
 use super::{egui_manager::EguiManager, Interface};
 use crate::editor::Editor;

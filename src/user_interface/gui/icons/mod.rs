@@ -1,3 +1,6 @@
+mod button;
+pub use self::button::build as build_button;
+
 pub const _KNIFE: &str = "\u{F000}";
 pub const MEASURE: &str = "\u{F001}";
 pub const PAN: &str = "\u{F002}";
