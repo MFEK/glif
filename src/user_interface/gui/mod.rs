@@ -1,4 +1,5 @@
 pub mod icons;
+pub use self::icons::build_and_add_button as build_and_add_icon_button;
 pub use self::icons::build_button as build_icon_button;
 pub mod menu_bar;
 #[macro_use]
@@ -45,4 +46,3 @@ pub fn build_ui(
 
 // Imgui globals
 thread_local! { pub static PROMPT_STR: RefCell<String> = RefCell::new(String::new()); }
-thread_local! { pub static PROMPT_CLR: RefCell<[f32; 4]> = RefCell::new([0., 0., 0., 1.]); }

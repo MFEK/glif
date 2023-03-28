@@ -1,19 +1,38 @@
-use egui::{Align2, Context, Ui};
-use crate::{constants::*, editor::Editor, tools::ToolEnum, user_interface::{Interface, gui::build_icon_button}};
+use crate::{
+    constants::*,
+    editor::Editor,
+    tools::ToolEnum,
+    user_interface::{gui::build_icon_button, Interface},
+};
+use egui::{Align2, Color32, Context, Stroke, Ui};
 
 use super::icons;
 
 fn build_button<'a>(v: &mut Editor, ui: &mut Ui, text: &str, te: ToolEnum) {
     // Must build button outside bind_response so that v can move into the closure.
-    let b = build_icon_button(v, ui, text, te);
-    let mut bind_response = |response: egui::Response| {
+    let b = build_icon_button::<"icons">(v, ui, text);
+
+    let stroke = if v.get_tool().to_string() == te.to_string() {
+        Stroke {
+            width: 2.0,
+            color: Color32::from_rgb(255, 190, 0),
+        }
+    } else {
+        Stroke::NONE
+    };
+
+    let b = b.stroke(stroke);
+
+    let response = ui.add(b);
+
+    let mut bind_response = move |response: egui::Response| {
         if response.clicked() {
             v.set_tool(te);
 
             response.on_hover_text(format!("{:?}", te.to_string()));
         }
     };
-    bind_response(b)
+    bind_response(response)
 }
 
 pub fn tool_bar(ctx: &Context, v: &mut Editor, _i: &mut Interface) {

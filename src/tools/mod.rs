@@ -51,7 +51,7 @@ pub enum ToolEnum {
     Dash,
     Shapes,
     Image,
-    Guidelines
+    Guidelines,
 }
 
 impl Display for ToolEnum {

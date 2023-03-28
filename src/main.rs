@@ -2,6 +2,15 @@
 //! (c) 2020–2021 Fredrick R. Brennan, Matthew Blanchard & MFEK Authors
 //! Apache 2.0 licensed. See AUTHORS.
 #![allow(non_snake_case)] // for our name MFEKglif
+#![allow(incomplete_features)]
+#![feature(
+    type_alias_impl_trait,
+    local_key_cell_methods,
+    trait_alias,
+    const_trait_impl,
+    generic_const_exprs,
+    adt_const_params
+)]
 
 use crate::command::{Command, CommandInfo, CommandMod};
 use crate::editor::{
@@ -21,6 +30,8 @@ use tool_behaviors::pan::PanBehavior;
 use user_interface::egui_manager::EguiManager;
 use user_interface::gui::window::WindowManager;
 
+#[macro_use]
+extern crate lazy_static;
 #[macro_use]
 extern crate pub_mod;
 
