@@ -1,3 +1,4 @@
+pub mod icons;
 pub mod menu_bar;
 pub mod prompts;
 pub mod textedit_buffer;

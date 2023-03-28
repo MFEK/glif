@@ -13,7 +13,7 @@ use crate::tools::ToolEnum;
 use crate::user_interface::mouse_input::MouseInfo;
 use crate::user_interface::Interface;
 
-use enum_unitary::IntoEnumIterator;
+use enum_iterator::IntoEnumIterator as _;
 use glifrenderer::toggles::{PointLabels, PreviewMode};
 use sdl2::event::{Event, WindowEvent};
 use sdl2::mouse::MouseButton;

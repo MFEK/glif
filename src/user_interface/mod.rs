@@ -1,7 +1,6 @@
 pub mod egui_manager;
 pub mod follow;
 pub mod gui;
-pub mod icons;
 pub mod mouse_input;
 pub mod popout;
 pub mod sdl;

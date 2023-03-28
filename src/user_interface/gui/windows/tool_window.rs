@@ -38,7 +38,7 @@ impl GlifWindow for ToolWindow {
             return;
         };
 
-        egui::Window::new("Tool")
+        egui::Window::new(v.get_tool().to_string())
             .resizable(false)
             .collapsible(true)
             .enabled(!v.is_modifying())

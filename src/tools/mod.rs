@@ -13,6 +13,8 @@ use egui::Ui;
 use crate::editor::Editor;
 use crate::user_interface::Interface;
 
+use std::fmt::{Display, Formatter};
+
 pub trait Tool: DynClone + std::fmt::Debug {
     fn event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent);
 
@@ -35,22 +37,26 @@ impl Default for Box<dyn Tool> {
     }
 }
 
-use enum_unitary::enum_unitary;
-enum_unitary! {
-    #[derive(Debug, Copy, PartialEq)]
-    pub enum ToolEnum {
-        Pan,
-        Pen,
-        Select,
-        Anchors,
-        Zoom,
-        Measure,
-        VWS,
-        PAP,
-        Dash,
-        Shapes,
-        Image,
-        Guidelines
+use strum_macros::{AsRefStr, EnumString};
+#[derive(Debug, Copy, Clone, AsRefStr, EnumString, PartialEq)]
+pub enum ToolEnum {
+    Pan,
+    Pen,
+    Select,
+    Anchors,
+    Zoom,
+    Measure,
+    VWS,
+    PAP,
+    Dash,
+    Shapes,
+    Image,
+    Guidelines
+}
+
+impl Display for ToolEnum {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), std::fmt::Error> {
+        f.write_str(self.as_ref())
     }
 }
 
