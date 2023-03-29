@@ -34,7 +34,6 @@ jobs:
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
           override: true
           components: clippy
       - name: Cache cargo builds
@@ -76,7 +75,6 @@ jobs:
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
           override: true
           components: rustfmt
       - name: Run rustfmt
@@ -94,7 +92,6 @@ jobs:
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
           override: true
       - name: Cache cargo builds
         uses: actions/cache@v2
