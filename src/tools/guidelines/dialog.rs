@@ -23,15 +23,15 @@ impl Guidelines {
                         _global_guidelines_len,
                     ) = SplitGuidelines::new(v).as_tuple();
 
-                    if build_and_add_icon_button::<"icons_small">(v, ui, icons::_PLUS).clicked() {
+                    if build_and_add_icon_button::<"icons_small">(v, ui, icons::_PLUS, "Add guideline").clicked() {
                         v.push_behavior(Box::new(AddGuideline::new(0., false)));
                     }
 
-                    if build_and_add_icon_button::<"icons_small">(v, ui, &*PLUS_GLOBE).clicked() {
+                    if build_and_add_icon_button::<"icons_small">(v, ui, &*PLUS_GLOBE, "Add global guideline").clicked() {
                         v.push_behavior(Box::new(AddGuideline::new(0., true)));
                     }
 
-                    if build_and_add_icon_button::<"icons_small">(v, ui, icons::_GLOBE).clicked() {
+                    if build_and_add_icon_button::<"icons_small">(v, ui, icons::_GLOBE, "Make global").clicked() {
                         v.write_metrics(i);
                     }
 
@@ -49,7 +49,7 @@ impl Guidelines {
                         {
                             ui.label("Format defined.");
                         } else {
-                            let mb = build_and_add_icon_button::<"icons_small">(v, ui, icons::_MINUS);
+                            let mb = build_and_add_icon_button::<"icons_small">(v, ui, icons::_MINUS, "Remove guideline");
                             if mb.clicked() {
                                 v.begin_modification(
                                     &format!(
@@ -88,7 +88,7 @@ impl Guidelines {
                     let mut im_str = guideline_display;
 
                     if !(is_global && guideline.data.as_guideline().format) {
-                        let rb = build_and_add_icon_button::<"icons_small">(v, ui, icons::_RENAME);
+                        let rb = build_and_add_icon_button::<"icons_small">(v, ui, icons::_RENAME, "Rename guideline");
                         if rb.clicked() {
                             i.push_prompt(InputPrompt::Text {
                                 label: "Guideline name:".to_string(),
@@ -114,12 +114,14 @@ impl Guidelines {
                     }
 
                     if is_global {
-                        let label = if guideline.data.as_guideline().format {
-                            icons::_UFO
+                        let (tooltip, label) = if guideline.data.as_guideline().format {
+                            ("In UFO",
+                            icons::_UFO)
                         } else {
-                            icons::_GLOBE
+                            ("In fontinfo.plist",
+                            icons::_GLOBE)
                         };
-                        build_and_add_icon_button::<"icons_small">(v, ui, label);
+                        build_and_add_icon_button::<"icons_small">(v, ui, label, tooltip);
                     }
 
                     let name_b = ui.button(&im_str);

@@ -1,6 +1,7 @@
 mod button;
 pub use self::button::build as build_button;
 pub use self::button::build_and_add as build_and_add_button;
+pub use self::button::IntoResponse as IntoButtonResponse;
 
 pub const _KNIFE: &str = "\u{F000}";
 pub const MEASURE: &str = "\u{F001}";
@@ -31,6 +32,10 @@ pub const _LAYERXOR: &str = "\u{F01A}";
 pub const IMAGES: &str = "\u{F01C}";
 pub const _GRID: &str = "\u{F029}";
 pub const GUIDELINES: &str = "\u{F030}";
+pub const HYPERBEZIER: &str = "\u{F031}";
+pub const QUADRATIC: &str = "\u{F032}";
+pub const BSPLINE: &str = "\u{F033}";
+pub const SPIRO: &str = "\u{F034}";
 pub const DASH: &str = "\u{F035}";
 pub const _GLOBE: &str = "\u{F036}";
 pub const _UFO: &str = "\u{F037}";

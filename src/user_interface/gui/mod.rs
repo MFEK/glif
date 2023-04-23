@@ -1,6 +1,7 @@
 pub mod icons;
 pub use self::icons::build_and_add_button as build_and_add_icon_button;
 pub use self::icons::build_button as build_icon_button;
+pub use self::icons::IntoButtonResponse;
 pub mod menu_bar;
 #[macro_use]
 pub(crate) mod msgbox;

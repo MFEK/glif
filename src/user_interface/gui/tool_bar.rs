@@ -2,7 +2,7 @@ use crate::{
     constants::*,
     editor::Editor,
     tools::ToolEnum,
-    user_interface::{gui::build_icon_button, Interface},
+    user_interface::{gui::{build_icon_button, IntoButtonResponse as _}, Interface},
 };
 use egui::{Align2, Color32, Context, Stroke, Ui};
 
@@ -10,7 +10,7 @@ use super::icons;
 
 fn build_button<'a>(v: &mut Editor, ui: &mut Ui, text: &str, te: ToolEnum) {
     // Must build button outside bind_response so that v can move into the closure.
-    let b = build_icon_button::<"icons">(v, ui, text);
+    let mut b = build_icon_button::<"icons">(v, ui, text, te.to_string().as_str());
 
     let stroke = if v.get_tool().to_string() == te.to_string() {
         Stroke {
@@ -21,15 +21,14 @@ fn build_button<'a>(v: &mut Editor, ui: &mut Ui, text: &str, te: ToolEnum) {
         Stroke::NONE
     };
 
-    let b = b.stroke(stroke);
+    let mut button = b.button.unwrap().stroke(stroke);
+    b.button = Some(button);
 
-    let response = ui.add(b);
+    let response = b.egui_response(ui);
 
     let mut bind_response = move |response: egui::Response| {
         if response.clicked() {
             v.set_tool(te);
-
-            response.on_hover_text(format!("{:?}", te.to_string()));
         }
     };
     bind_response(response)

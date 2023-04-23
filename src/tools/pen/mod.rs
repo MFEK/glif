@@ -9,7 +9,7 @@ use super::prelude::*;
 
 use crate::is_contour_open;
 use crate::tool_behaviors::{move_handle::MoveHandle, pan::PanBehavior, zoom_scroll::ZoomScroll};
-use crate::user_interface::Interface;
+use crate::user_interface::{Interface, gui::build_icon_button as build_button, gui::icons};
 use egui::{Align2, Color32};
 use glifparser::glif::inner::MFEKContourInnerType;
 use glifrenderer::points::draw_point;
@@ -40,43 +40,43 @@ impl Tool for Pen {
         }
     }
 
-    fn ui(&mut self, _v: &mut Editor, _i: &mut Interface, ctx: &egui::Context) {
+    fn ui(&mut self, v: &mut Editor, _i: &mut Interface, ctx: &egui::Context) {
         egui::Window::new("Mode Select")
             .title_bar(false)
             .anchor(Align2::LEFT_TOP, [35., 0.])
             .resizable(false)
             .show(ctx, |ui| {
                 ui.horizontal(|ui| {
-                    let cubic_button = egui::Button::new("C");
+                    let cubic_button = build_button::<"icons">(v, ui, icons::PEN, "Cubic Bézier");
 
                     let cubic_button = if self.mode == MFEKContourInnerType::Cubic {
-                        cubic_button.stroke(egui::Stroke::new(2., Color32::from_rgb(9, 82, 128)))
+                        cubic_button.button.unwrap().stroke(egui::Stroke::new(2., Color32::from_rgb(9, 82, 128)))
                     } else {
-                        cubic_button
+                        cubic_button.button.unwrap()
                     };
 
                     if ui.add(cubic_button).clicked() {
                         self.mode = MFEKContourInnerType::Cubic
                     }
 
-                    let quad_button = egui::Button::new("Q");
+                    let quad_button = build_button::<"icons">(v, ui, icons::QUADRATIC, "Quadratic Bézier");
 
                     let quad_button = if self.mode == MFEKContourInnerType::Quad {
-                        quad_button.stroke(egui::Stroke::new(2., Color32::from_rgb(9, 82, 128)))
+                        quad_button.button.unwrap().stroke(egui::Stroke::new(2., Color32::from_rgb(9, 82, 128)))
                     } else {
-                        quad_button
+                        quad_button.button.unwrap()
                     };
 
                     if ui.add(quad_button).clicked() {
                         self.mode = MFEKContourInnerType::Quad
                     }
 
-                    let hyper_button = egui::Button::new("H");
+                    let hyper_button = build_button::<"icons">(v, ui, icons::HYPERBEZIER, "Hyperbezier");
 
                     let hyper_button = if self.mode == MFEKContourInnerType::Hyper {
-                        hyper_button.stroke(egui::Stroke::new(2., Color32::from_rgb(9, 82, 128)))
+                        hyper_button.button.unwrap().stroke(egui::Stroke::new(2., Color32::from_rgb(9, 82, 128)))
                     } else {
-                        hyper_button
+                        hyper_button.button.unwrap()
                     };
         
                     if ui.add(hyper_button).clicked() {

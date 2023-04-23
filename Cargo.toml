@@ -105,6 +105,7 @@ glifrenderer = { git = "https://github.com/MFEK/glifrenderer.rlib" }
 # forked from linebender/spline
 #spline = { path = "../spline.rlib" } # for development
 spline = { git = "https://github.com/MFEK/spline.rlib" }
+### END OF OUR CRATES ###
 
 #xml parsing
 xmltree = "0.10"
