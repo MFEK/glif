@@ -1,9 +1,10 @@
+use log::warn;
 use lazy_static::lazy_static;
 
 use crate::constants::CONSOLE_FONTS;
 
 use font_kit::{
-    error::SelectionError::NotFound as FKNotFoundError, family_name::FamilyName as FKFamilyName,
+    error::SelectionError::{CannotAccessSource as FKSourceError, NotFound as FKNotFoundError}, family_name::FamilyName as FKFamilyName,
     handle::Handle as FKHandle, properties::Properties, source::SystemSource,
 };
 
@@ -56,10 +57,15 @@ fn load_font(family: &[FKFamilyName]) -> SystemFont {
             Ok(f) => f.try_into().ok(),
             // try next font…
             Err(FKNotFoundError) => continue,
-            Err(e) => panic!(
-                "Failed to select font for {:?} ! Error from fontkit {:?}",
-                family, e
-            ),
+            Err(FKSourceError) => {
+                let t = if let FKFamilyName::Title(t) = fkfamname {
+                    t
+                } else {
+                    "<UNKNOWN FONT>"
+                };
+                warn!("I/O error when trying to access font {}!", t);
+                continue
+            }
         };
         if let Some(ref font) = font {
             log::debug!(
