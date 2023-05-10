@@ -96,8 +96,10 @@ lazy_static! {
     /// ".SFUI-Text" (San Francisco UI Text); Apple does _NOT_ resolve `sans-serif` to anything,
     /// resulting in crash which became issue №220.
     pub static ref SYSTEMSANS: SystemFont = load_font(&[
-        // Windows 10
-        FKFamilyName::Title("Segoe UI".to_string()),
+        // Windows 10 & 11
+        FKFamilyName::Title("SegoeUI".to_string()),
+        // Windows XP
+        FKFamilyName::Title("Verdana".to_string()),
         // Linux (fontconfig)
         FKFamilyName::SansSerif,
         // old macOS
