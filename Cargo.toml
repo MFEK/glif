@@ -44,7 +44,7 @@ egui = "0.21.0"
 egui_skia = { git = "https://github.com/MFEK/egui_skia.rlib", branch = "master" }
 egui-sdl2-event = { git = "https://github.com/MFEK/egui-sdl2-event.rlib", branch = "master" }
 # For argument parsing
-clap = "3.0"
+clap = "4.1"
 
 # For UI toggles
 enum-iterator = "0.7.0"
