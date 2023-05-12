@@ -88,9 +88,9 @@ fn load_font(family: &[&str]) -> Result<SystemFont, FKSelectionError> {
 }
 
 lazy_static! {
-    pub static ref DEFAULTSERIF: SystemFont = (FKHandle::Memory { bytes: Arc::from(include_bytes!("../resources/fonts/Besley-Regular.ttf").to_vec()), font_index: 0 }).try_into().unwrap();
-    pub static ref DEFAULTSANS: SystemFont = (FKHandle::Memory { bytes: Arc::from(include_bytes!("../resources/fonts/MFEKSans-Regular.ttf").to_vec()), font_index: 0 }).try_into().unwrap();
-    pub static ref DEFAULTMONO: SystemFont = (FKHandle::Memory { bytes: Arc::from(include_bytes!("../resources/fonts/TT2020Base-Regular.ttf").to_vec()), font_index: 0 }).try_into().unwrap();
+    pub static ref DEFAULTSERIF: SystemFont = (FKHandle::Memory { bytes: Arc::from(include_bytes!("../../resources/fonts/Besley-Regular.ttf").to_vec()), font_index: 0 }).try_into().unwrap();
+    pub static ref DEFAULTSANS: SystemFont = (FKHandle::Memory { bytes: Arc::from(include_bytes!("../../resources/fonts/MFEKSans-Regular.ttf").to_vec()), font_index: 0 }).try_into().unwrap();
+    pub static ref DEFAULTMONO: SystemFont = (FKHandle::Memory { bytes: Arc::from(include_bytes!("../../resources/fonts/TT2020Base-Regular.ttf").to_vec()), font_index: 0 }).try_into().unwrap();
 
     /// Windows 10 comes first because if we allow Windows to match on `sans-serif`, it will give
     /// us Verdana, which looks incongruent on modern Windows OS. So, we specifically ask for Segoe
@@ -133,5 +133,5 @@ lazy_static! {
         "Adobe-Courier",
         "Courier10PitchBT-Roman"
     ]).unwrap_or(DEFAULTMONO.clone());
-    pub static ref ICONSFONT: SystemFont = (FKHandle::Memory { bytes: Arc::from(include_bytes!("../resources/fonts/icons.otf").to_vec()), font_index: 0 }).try_into().unwrap();
+    pub static ref ICONSFONT: SystemFont = (FKHandle::Memory { bytes: Arc::from(include_bytes!("../../resources/fonts/icons.otf").to_vec()), font_index: 0 }).try_into().unwrap();
 }
