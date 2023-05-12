@@ -1,9 +1,14 @@
-use log::warn;
 use lazy_static::lazy_static;
+use log::warn;
 
 use font_kit::{
-    error::SelectionError::{self as FKSelectionError, CannotAccessSource as FKSourceError, NotFound as FKNotFoundError}, family_name::FamilyName as FKFamilyName,
-    handle::Handle as FKHandle, properties::Properties, source::SystemSource,
+    error::SelectionError::{
+        self as FKSelectionError, CannotAccessSource as FKSourceError, NotFound as FKNotFoundError,
+    },
+    family_name::FamilyName as FKFamilyName,
+    handle::Handle as FKHandle,
+    properties::Properties,
+    source::SystemSource,
 };
 
 use std::fs;
@@ -60,7 +65,7 @@ fn load_font(family: &[&str]) -> Result<SystemFont, FKSelectionError> {
             Err(FKNotFoundError) => continue,
             Err(FKSourceError) => {
                 warn!("I/O error when trying to access font {}!", fkfamname);
-                continue
+                continue;
             }
         };
         if let Some(ref font) = font {
@@ -75,7 +80,7 @@ fn load_font(family: &[&str]) -> Result<SystemFont, FKSelectionError> {
     }
     match font {
         Some(font) => Ok(font),
-        None => Err(last_err.unwrap())
+        None => Err(last_err.unwrap()),
     }
 }
 

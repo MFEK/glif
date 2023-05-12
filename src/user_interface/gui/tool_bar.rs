@@ -2,7 +2,10 @@ use crate::{
     constants::*,
     editor::Editor,
     tools::ToolEnum,
-    user_interface::{gui::{build_icon_button, IntoButtonResponse as _}, Interface},
+    user_interface::{
+        gui::{build_icon_button, IntoButtonResponse as _},
+        Interface,
+    },
 };
 use egui::{Align2, Color32, Context, Stroke, Ui};
 

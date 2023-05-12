@@ -6,7 +6,7 @@ use std::cell::RefCell;
 pub struct IconButton<const EGUI_FONT_NAME: &'static str> {
     pub button: Option<Button>,
     mutated_ui: bool,
-    tooltip: String
+    tooltip: String,
 }
 
 thread_local!(
@@ -15,7 +15,12 @@ thread_local!(
 );
 
 impl<const W: &'static str> IconButton<W> {
-    fn new<'a>(_v: &'a mut Editor, ui: &'a mut Ui, text: &'a str, tooltip: &'a str) -> IconButton<W> {
+    fn new<'a>(
+        _v: &'a mut Editor,
+        ui: &'a mut Ui,
+        text: &'a str,
+        tooltip: &'a str,
+    ) -> IconButton<W> {
         let use_button_font = text
             .chars()
             .nth(0)
@@ -48,7 +53,11 @@ impl<const W: &'static str> IconButton<W> {
 
         let mutated_ui = use_button_font;
 
-        IconButton { button, mutated_ui, tooltip: tooltip.to_owned() }
+        IconButton {
+            button,
+            mutated_ui,
+            tooltip: tooltip.to_owned(),
+        }
     }
 }
 
@@ -72,7 +81,12 @@ impl<const W: &'static str> IntoResponse for IconButton<W> {
     }
 }
 
-pub fn build<'a, const W: &'static str>(v: &mut Editor, ui: &mut Ui, text: &str, tooltip: &str) -> IconButton<W> {
+pub fn build<'a, const W: &'static str>(
+    v: &mut Editor,
+    ui: &mut Ui,
+    text: &str,
+    tooltip: &str,
+) -> IconButton<W> {
     let button = IconButton::<W>::new(v, ui, text, tooltip);
     button
 }
@@ -81,7 +95,7 @@ pub fn build_and_add<'a, const W: &'static str>(
     v: &mut Editor,
     ui: &'a mut Ui,
     text: &str,
-    tooltip: &str
+    tooltip: &str,
 ) -> Response {
     let mut button = IconButton::<W>::new(v, ui, text, tooltip);
     button.egui_response(ui)
