@@ -1,3 +1,6 @@
+mod error;
+pub use error::SystemFontError;
+
 use lazy_static::lazy_static;
 use log::warn;
 
@@ -11,9 +14,9 @@ use font_kit::{
     source::SystemSource,
 };
 
-use std::fs;
 use std::path::PathBuf;
 use std::sync::Arc;
+use std::{fmt, fs, io};
 
 #[derive(Clone, Debug)]
 pub struct SystemFont {
@@ -22,8 +25,8 @@ pub struct SystemFont {
 }
 
 impl TryInto<SystemFont> for FKHandle {
-    type Error = ();
-    fn try_into(self: FKHandle) -> Result<SystemFont, ()> {
+    type Error = SystemFontError;
+    fn try_into(self: FKHandle) -> Result<SystemFont, SystemFontError> {
         match self {
             FKHandle::Path { path, .. } => {
                 let font_is_scalable = ["otf", "ttf"]
@@ -31,16 +34,16 @@ impl TryInto<SystemFont> for FKHandle {
                     .any(|e: &str| path.extension().map(|ee| ee == e).unwrap_or(false));
                 // This is possible on GNU/Linux which has BDF fonts.
                 if !font_is_scalable {
-                    return Err(());
+                    return Err(SystemFontError::NotScalable);
                 }
                 Ok(SystemFont {
                     path: Some(path.clone()),
-                    data: fs::read(path).expect("Failed to open font path system specified"),
+                    data: fs::read(path)?,
                 })
             }
             FKHandle::Memory { bytes, .. } => Ok(SystemFont {
                 path: None,
-                data: Arc::try_unwrap(bytes).expect("Failed to load in-memory font"),
+                data: Arc::try_unwrap(bytes)?,
             }),
         }
     }
