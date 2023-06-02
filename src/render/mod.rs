@@ -88,7 +88,7 @@ pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
         }
     }
 
-    glifrenderer::glyph::draw(canvas, v.preview.as_ref().unwrap(), &i.viewport);
+    glifrenderer::glyph::draw(canvas, v.preview.as_ref().unwrap(), &i.viewport, None);
 
     v.with_glyph(|glyph| {
         // Cache component rects and flattened outline on MFEKGlif
