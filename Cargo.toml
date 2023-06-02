@@ -1,6 +1,6 @@
 [package]
 name = "MFEKglif"
-version = "2.0.0-beta1"
+version = "2.0.1-beta1"
 authors = ["Fredrick Brennan <copypaste@kittens.ph>", "Matthew Blanchard <matthewrblanchard@gmail.com>", "MFEK Authors"]
 edition = "2021"
 license = "Apache-2.0"
@@ -40,9 +40,9 @@ lazy_static = "1.4"
 #imgui-sdl2 = "0.14"
 #imgui-skia-renderer = {git = "https://github.com/MFEK/imgui-skia-renderer.rlib", branch = "main"}
 #imgui-skia-renderer = { path = "../imgui-skia-renderer.rlib" } # for development
-egui = "0.21.0"
-egui_skia = { git = "https://github.com/MFEK/egui_skia.rlib", branch = "master" }
-egui-sdl2-event = { git = "https://github.com/MFEK/egui-sdl2-event.rlib", branch = "master" }
+egui = { version = "=0.22.0" }
+egui_skia = { version = "=0.3.0" }
+egui-sdl2-event = { version = "=0.4.0", package = "egui-skia-sdl2-event" }
 # For argument parsing
 clap = "3.0"
 
@@ -103,8 +103,8 @@ glifrenderer = { git = "https://github.com/MFEK/glifrenderer.rlib" }
 #glifrenderer = { path = "../glifrenderer.rlib" } # for development
 
 # forked from linebender/spline
-#spline = { path = "../spline.rlib" } # for development
 spline = { git = "https://github.com/MFEK/spline.rlib" }
+#spline = { path = "../spline.rlib" } # for development
 ### END OF OUR CRATES ###
 
 #xml parsing

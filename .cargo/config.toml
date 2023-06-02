@@ -2,4 +2,4 @@
 #rustflags = ["-C", "link-arg=-fuse-ld=lld"]
 
 [env]
-MFEK_REL_CODENAME = "Repetitive Spline Injury"
+MFEK_REL_CODENAME = "Cargo Cult Edition"
