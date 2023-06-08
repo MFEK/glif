@@ -130,7 +130,7 @@ flo_curves = "0.6"
 plist = "1.3"
 
 # we use this for affine matrices in some of our data types
-kurbo = { version = "0.9.0", features = ["serde"] }
+kurbo = { version = "=0.9.0", features = ["serde"] }
 
 # show backtrace
 backtrace = "0.3"
