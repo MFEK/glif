@@ -268,7 +268,7 @@ pub fn clicked_handle(
     meta: MouseInfo,
 ) -> Option<(usize, usize, WhichHandle)> {
     let factor = i.viewport.factor;
-    let mouse_pos = meta.position;
+    let mouse_pos = meta.raw_position;
 
     for (contour_idx, contour) in v.get_active_layer_ref().outline.iter().enumerate() {
         let mut _contour = contour.clone();
