@@ -7,6 +7,7 @@ use self::modes::quad::QuadMode;
 
 use super::prelude::*;
 
+use crate::constants::FONT_SCALE_FACTOR;
 use crate::is_contour_open;
 use crate::tool_behaviors::{move_handle::MoveHandle, pan::PanBehavior, zoom_scroll::ZoomScroll};
 use crate::user_interface::{Interface, gui::build_icon_button as build_button, gui::icons};
@@ -43,7 +44,7 @@ impl Tool for Pen {
     fn ui(&mut self, v: &mut Editor, _i: &mut Interface, ctx: &egui::Context) {
         egui::Window::new("Mode Select")
             .title_bar(false)
-            .anchor(Align2::LEFT_TOP, [35., 0.])
+            .anchor(Align2::LEFT_TOP, [55., 8. * FONT_SCALE_FACTOR])
             .resizable(false)
             .show(ctx, |ui| {
                 ui.horizontal(|ui| {
