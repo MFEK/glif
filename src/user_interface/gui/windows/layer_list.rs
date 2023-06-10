@@ -38,10 +38,12 @@ impl LayerList {
                 ui.horizontal(|ui| {
                     if ui.button("➕").clicked() {
                         v.new_layer();
+                        selected_layer = v.get_active_layer();
                     }
 
                     if ui.button("➖").clicked() {
                         v.delete_layer();
+                        selected_layer = v.get_active_layer();
                     }
 
                     if ui.button("⮫").clicked() {
