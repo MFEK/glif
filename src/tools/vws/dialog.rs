@@ -69,7 +69,7 @@ impl VWS {
                 egui_parsed_textfield(ui, "ro", data.handles[pidx].right_offset, &mut self.edit_buf);
             });
 
-            if data != original_data {
+            if data != original_data && !v.is_modifying() {
                 v.begin_modification("VWS dialog modification.", true);
                 set_vws_contour(v, cidx, data);
                 v.end_modification();
