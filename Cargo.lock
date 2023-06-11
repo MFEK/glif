@@ -36,7 +36,7 @@ dependencies = [
  "glifrenderer",
  "image 0.23.14",
  "itertools 0.10.5",
- "kurbo 0.9.5",
+ "kurbo 0.9.0",
  "lazy_static",
  "log",
  "mfek-ipc",
@@ -54,7 +54,7 @@ dependencies = [
  "shrinkwraprs",
  "skia-bindings",
  "skia-safe",
- "spline",
+ "spline 0.3.0",
  "strum 0.24.1",
  "strum_macros 0.24.3",
  "which",
@@ -65,14 +65,15 @@ dependencies = [
 [[package]]
 name = "MFEKmath"
 version = "0.1.2"
+source = "git+https://github.com/MFEK/math.rlib?branch=main#910d823fc326aac950241ac230c61b16b41efab4"
 dependencies = [
  "flo_curves",
  "glifparser",
- "kurbo 0.9.5",
+ "kurbo 0.9.0",
  "log",
  "plist",
  "skia-safe",
- "spline",
+ "spline 0.3.0",
  "xmltree",
 ]
 
@@ -1282,6 +1283,7 @@ dependencies = [
 [[package]]
 name = "glifparser"
 version = "2.0.1"
+source = "git+https://github.com/MFEK/glifparser.rlib?branch=master#9d3657746e4847e85553375b77a69315513d3d5c"
 dependencies = [
  "derivative",
  "derive_more",
@@ -1290,12 +1292,12 @@ dependencies = [
  "image 0.24.6",
  "integer_or_float",
  "itertools 0.10.5",
- "kurbo 0.9.5",
+ "kurbo 0.9.0",
  "log",
  "plist",
  "serde",
  "skia-safe",
- "spline",
+ "spline 0.2.0",
  "trees",
  "xmltree",
 ]
@@ -1303,6 +1305,7 @@ dependencies = [
 [[package]]
 name = "glifrenderer"
 version = "0.1.2"
+source = "git+https://github.com/MFEK/glifrenderer.rlib#84eaf0a6d83981ca2cfbbe6a4e3da5526995385b"
 dependencies = [
  "MFEKmath",
  "derive_more",
@@ -1477,7 +1480,7 @@ dependencies = [
  "color_quant",
  "num-rational 0.4.1",
  "num-traits",
- "png 0.17.8",
+ "png 0.17.9",
 ]
 
 [[package]]
@@ -1617,12 +1620,12 @@ dependencies = [
 
 [[package]]
 name = "kurbo"
-version = "0.9.5"
-source = "git+https://github.com/MFEK/kurbo.rlib#b0bec8ab69d41f638aaf4feb41736c4943399a7b"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e119590a03caff1f7a582e8ee8c2164ddcc975791701188132fd1d1b518d3871"
 dependencies = [
  "arrayvec",
  "serde",
- "smallvec",
 ]
 
 [[package]]
@@ -1674,9 +1677,9 @@ dependencies = [
 
 [[package]]
 name = "log"
-version = "0.4.18"
+version = "0.4.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "518ef76f2f87365916b142844c16d8fefd85039bc5699050210a7778ee1cd1de"
+checksum = "b06a4cde4c0f271a446782e3eff8de789548ce57dbc8eca9292c27f4a42004b4"
 
 [[package]]
 name = "malloc_buf"
@@ -1705,6 +1708,7 @@ dependencies = [
 [[package]]
 name = "mfek-ipc"
 version = "0.0.4-beta1"
+source = "git+https://github.com/MFEK/ipc.rlib#1d41a639e01c626873ba3d2937ee7f1ef6bf2a11"
 dependencies = [
  "ansi_term",
  "atty",
@@ -2000,9 +2004,9 @@ checksum = "dd8b5dd2ae5ed71462c540258bedcb51965123ad7e7ccf4b9a8cafaa4a63576d"
 
 [[package]]
 name = "os_str_bytes"
-version = "6.5.0"
+version = "6.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ceedf44fb00f2d1984b0bc98102627ce622e083e49a5bacdb3e514fa4238e267"
+checksum = "4d5d9eb14b174ee9aa2ef96dc2b94637a2d4b6e7cb873c7e171f0c20c6cf3eac"
 
 [[package]]
 name = "owned_ttf_parser"
@@ -2150,9 +2154,9 @@ dependencies = [
 
 [[package]]
 name = "png"
-version = "0.17.8"
+version = "0.17.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aaeebc51f9e7d2c150d3f3bfeb667f2aa985db5ef1e3d212847bdedb488beeaa"
+checksum = "59871cc5b6cce7eaccca5a802b4173377a1c2ba90654246789a8fa2334426d11"
 dependencies = [
  "bitflags",
  "crc32fast",
@@ -2574,9 +2578,16 @@ checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 
 [[package]]
 name = "spline"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4c845fbdc07cb9555a94806496be14d51dcda6d3bf6894d92af2c3a93bebc2c5"
+
+[[package]]
+name = "spline"
 version = "0.3.0"
+source = "git+https://github.com/MFEK/spline.rlib#46d9121b03d2e6bea67b33078057ecad28666d07"
 dependencies = [
- "kurbo 0.9.5",
+ "kurbo 0.9.0",
  "serde",
 ]
 
