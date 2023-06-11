@@ -66,6 +66,8 @@ pub fn clicked_point_or_handle(
     let _contour_idx = 0;
     let _point_idx = 0;
 
+    let mut found_handle: Option<(usize, usize, WhichHandle)> = None;
+    let mut found_point: Option<(usize, usize, WhichHandle)> = None;
     // How we do this is quite naïve. For each click, we just iterate all points and check the
     // point and both handles. It's just a bunch of floating point comparisons in a compiled
     // language, so I'm not too concerned about it, and even in the TT2020 case doesn't seem to
@@ -90,7 +92,7 @@ pub fn clicked_point_or_handle(
             let sk_mpos = SkPoint::new(position.0 as f32, position.1 as f32);
 
             if point_rect.contains(sk_mpos) {
-                return Some((contour_idx, point_idx, WhichHandle::Neither));
+                found_point = Some((contour_idx, point_idx, WhichHandle::Neither));
             }
 
             if let Some(handle_pos) = point.get_handle_position(WhichHandle::A) {
@@ -98,7 +100,7 @@ pub fn clicked_point_or_handle(
                 let a_rect = SkRect::from_point_and_size(a_tl, (size, size));
 
                 if a_rect.contains(sk_mpos) {
-                    return Some((contour_idx, point_idx, WhichHandle::A));
+                    found_handle = Some((contour_idx, point_idx, WhichHandle::A));
                 }
             }
 
@@ -107,12 +109,17 @@ pub fn clicked_point_or_handle(
                 let b_rect = SkRect::from_point_and_size(b_tl, (size, size));
 
                 if b_rect.contains(sk_mpos) {
-                    return Some((contour_idx, point_idx, WhichHandle::B));
+                    found_handle = Some((contour_idx, point_idx, WhichHandle::B));
                 }
             }
         }
     }
-    None
+
+    if found_handle.is_some() {
+        return found_handle
+    }
+    
+    return found_point
 }
 
 /// Checks if the active point is the active contour's start or end. Does not modify.
