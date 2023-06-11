@@ -36,7 +36,7 @@ dependencies = [
  "glifrenderer",
  "image 0.23.14",
  "itertools 0.10.5",
- "kurbo 0.9.0",
+ "kurbo 0.9.5",
  "lazy_static",
  "log",
  "mfek-ipc",
@@ -54,7 +54,7 @@ dependencies = [
  "shrinkwraprs",
  "skia-bindings",
  "skia-safe",
- "spline 0.3.0",
+ "spline",
  "strum 0.24.1",
  "strum_macros 0.24.3",
  "which",
@@ -65,15 +65,14 @@ dependencies = [
 [[package]]
 name = "MFEKmath"
 version = "0.1.2"
-source = "git+https://github.com/MFEK/math.rlib?branch=main#910d823fc326aac950241ac230c61b16b41efab4"
 dependencies = [
  "flo_curves",
  "glifparser",
- "kurbo 0.9.0",
+ "kurbo 0.9.5",
  "log",
  "plist",
  "skia-safe",
- "spline 0.3.0",
+ "spline",
  "xmltree",
 ]
 
@@ -1283,7 +1282,6 @@ dependencies = [
 [[package]]
 name = "glifparser"
 version = "2.0.1"
-source = "git+https://github.com/MFEK/glifparser.rlib?branch=master#9d3657746e4847e85553375b77a69315513d3d5c"
 dependencies = [
  "derivative",
  "derive_more",
@@ -1292,12 +1290,12 @@ dependencies = [
  "image 0.24.6",
  "integer_or_float",
  "itertools 0.10.5",
- "kurbo 0.9.0",
+ "kurbo 0.9.5",
  "log",
  "plist",
  "serde",
  "skia-safe",
- "spline 0.2.0",
+ "spline",
  "trees",
  "xmltree",
 ]
@@ -1305,7 +1303,6 @@ dependencies = [
 [[package]]
 name = "glifrenderer"
 version = "0.1.2"
-source = "git+https://github.com/MFEK/glifrenderer.rlib#fee6be3695ef6ee5098c8a7ebba8de368f82a649"
 dependencies = [
  "MFEKmath",
  "derive_more",
@@ -1620,12 +1617,12 @@ dependencies = [
 
 [[package]]
 name = "kurbo"
-version = "0.9.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e119590a03caff1f7a582e8ee8c2164ddcc975791701188132fd1d1b518d3871"
+version = "0.9.5"
+source = "git+https://github.com/MFEK/kurbo.rlib#b0bec8ab69d41f638aaf4feb41736c4943399a7b"
 dependencies = [
  "arrayvec",
  "serde",
+ "smallvec",
 ]
 
 [[package]]
@@ -1708,7 +1705,6 @@ dependencies = [
 [[package]]
 name = "mfek-ipc"
 version = "0.0.4-beta1"
-source = "git+https://github.com/MFEK/ipc.rlib#1d41a639e01c626873ba3d2937ee7f1ef6bf2a11"
 dependencies = [
  "ansi_term",
  "atty",
@@ -2578,16 +2574,9 @@ checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 
 [[package]]
 name = "spline"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4c845fbdc07cb9555a94806496be14d51dcda6d3bf6894d92af2c3a93bebc2c5"
-
-[[package]]
-name = "spline"
 version = "0.3.0"
-source = "git+https://github.com/MFEK/spline.rlib#46d9121b03d2e6bea67b33078057ecad28666d07"
 dependencies = [
- "kurbo 0.9.0",
+ "kurbo 0.9.5",
  "serde",
 ]
 
