@@ -65,8 +65,8 @@ impl VWS {
             });
 
             ui.collapsing("Point", |ui| {
-                egui_parsed_textfield(ui, "lo", data.handles[pidx].left_offset, &mut self.edit_buf);
-                egui_parsed_textfield(ui, "ro", data.handles[pidx].right_offset, &mut self.edit_buf);
+                data.handles[pidx].left_offset = egui_parsed_textfield(ui, "lo", data.handles[pidx].left_offset, &mut self.edit_buf);
+                data.handles[pidx].right_offset = egui_parsed_textfield(ui, "ro", data.handles[pidx].right_offset, &mut self.edit_buf);
             });
 
             if data != original_data && !v.is_modifying() {
