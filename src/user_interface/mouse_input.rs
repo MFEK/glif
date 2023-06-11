@@ -40,18 +40,18 @@ impl MouseInfo {
         command_mod: CommandMod,
     ) -> MouseInfo {
         let (mut mposition, absolute_mposition) = {
-            let factor = 1. / i.viewport.factor;
-            let uoffset = i.viewport.offset;
-            let offset = (-uoffset.0 * factor, uoffset.1 * factor);
             let mut absolute: skia::Point = position.into();
             absolute.x /= i.os_dpi();
             absolute.y /= i.os_dpi();
-            absolute.y -= i.viewport.winsize.1 as f32;
-
-            let mut matrix = skia::Matrix::translate(offset);
-            matrix = matrix * skia::Matrix::scale((factor, -factor));
-            let skp = matrix.map_point(absolute);
-
+        
+            // update viewport matrix
+            i.viewport.matrix = i.viewport.as_device_matrix();
+        
+            // get the inverse matrix
+            let inverse_matrix = i.viewport.matrix.invert().unwrap();
+        
+            let skp = inverse_matrix.map_point(absolute);
+        
             ((skp.x, skp.y), (absolute.x, absolute.y))
         };
 
