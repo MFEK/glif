@@ -274,7 +274,7 @@ pub fn clicked_handle(
         let mut _contour = contour.clone();
         let contour_pw = Piecewise::from(_contour.to_cubic());
 
-        let size = ((POINT_RADIUS * 2.) + (POINT_STROKE_THICKNESS * 2.)) * (1. / factor);
+        let size = ((POINT_RADIUS * 2.5) + (POINT_STROKE_THICKNESS * 2.)) * (1. / factor);
         for vws_handle_idx in 0..contour_pw.segs.len() {
             let (handle_pos_left, handle_pos_right) = match (
                 get_vws_handle_pos(v, contour_idx, vws_handle_idx, WhichHandle::A),
