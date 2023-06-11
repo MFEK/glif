@@ -21,10 +21,11 @@ impl PanBehavior {
 
     pub fn mouse_moved(&mut self, _v: &mut Editor, i: &mut Interface, mouse_info: MouseInfo) {
         let mut new_offset = self.viewport.offset;
+        let factor = i.viewport.factor;
         new_offset.0 +=
-            (mouse_info.absolute_position.0 - self.mouse_info.absolute_position.0).floor();
+            (mouse_info.absolute_position.0 - self.mouse_info.absolute_position.0).floor() / factor;
         new_offset.1 +=
-            (mouse_info.absolute_position.1 - self.mouse_info.absolute_position.1).floor();
+            (mouse_info.absolute_position.1 - self.mouse_info.absolute_position.1).floor() / factor;
 
         i.viewport.offset = new_offset;
     }
