@@ -356,14 +356,13 @@ impl Editor {
             sample_points.push(point.start_point());
         }
 
-        let mut max_error = 10.;
-        let mut fitted_curve: Vec<Bezier> =
+        let max_error = 10.;
+        let fitted_curve: Vec<Bezier> =
             fit_curve_cubic(&sample_points, &start_tangent, &-end_tangent, max_error);
 
-        while fitted_curve.len() > 1 {
-            max_error = max_error + 1.;
-            fitted_curve =
-                fit_curve_cubic(&sample_points, &start_tangent, &-end_tangent, max_error);
+        if fitted_curve.len() > 1 {
+            self.delete_single_point();
+            return
         }
 
         let fitted_curve = fitted_curve[0].clone();
