@@ -5,12 +5,12 @@ use crate::{
     editor::Editor,
     user_interface::{gui::window::GlifWindow, Interface},
 };
-use MFEKmath::mfek::ResolveCubic;
 use egui::Context;
 use glifparser::{
-    glif::{contour::MFEKContourCommon, point::MFEKPointCommon, inner::MFEKContourInnerType},
+    glif::{contour::MFEKContourCommon, inner::MFEKContourInnerType, point::MFEKPointCommon},
     Handle, PointData, WhichHandle,
 };
+use MFEKmath::mfek::ResolveCubic;
 
 use super::egui_parsed_textfield;
 
@@ -56,8 +56,7 @@ impl GlifWindow for InspectionWindow {
                     // do contour stuff
 
                     ui.collapsing("Contour", |ui| {
-                        let mut contour =
-                            v.get_active_layer_ref().outline[ci].clone();
+                        let mut contour = v.get_active_layer_ref().outline[ci].clone();
                         let ci = v.contour_idx.expect("Expected a selected contour w/o one");
 
                         ui.label(format!("Type: {:?}", contour.get_type()));
@@ -85,7 +84,8 @@ impl GlifWindow for InspectionWindow {
                                 v.selected.clear();
                             }
                             if ui.button("Remove Contour Operation").clicked() {
-                                let ci = v.contour_idx.expect("Expected a selected contour w/o one");
+                                let ci =
+                                    v.contour_idx.expect("Expected a selected contour w/o one");
 
                                 v.begin_modification("Modified contour with inspector.", true);
                                 v.get_active_layer_mut().outline[ci].set_operation(None);
@@ -200,9 +200,7 @@ impl GlifWindow for InspectionWindow {
 
                         if !point_equivalent(
                             point,
-                            v.get_active_layer_ref().outline[ci]
-                                .get_point(pi)
-                                .unwrap(),
+                            v.get_active_layer_ref().outline[ci].get_point(pi).unwrap(),
                         ) {
                             v.begin_modification("Modified point with inspector.", true);
 

@@ -116,10 +116,10 @@ pub fn clicked_point_or_handle(
     }
 
     if found_handle.is_some() {
-        return found_handle
+        return found_handle;
     }
-    
-    return found_point
+
+    return found_point;
 }
 
 /// Checks if the active point is the active contour's start or end. Does not modify.

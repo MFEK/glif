@@ -43,15 +43,15 @@ impl MouseInfo {
             let mut absolute: skia::Point = position.into();
             absolute.x /= i.os_dpi();
             absolute.y /= i.os_dpi();
-        
+
             // update viewport matrix
             i.viewport.matrix = i.viewport.as_device_matrix();
-        
+
             // get the inverse matrix
             let inverse_matrix = i.viewport.matrix.invert().unwrap();
-        
+
             let skp = inverse_matrix.map_point(absolute);
-        
+
             ((skp.x, skp.y), (absolute.x, absolute.y))
         };
 

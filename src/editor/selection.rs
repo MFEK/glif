@@ -362,7 +362,7 @@ impl Editor {
 
         if fitted_curve.len() > 1 {
             self.delete_single_point();
-            return
+            return;
         }
 
         let fitted_curve = fitted_curve[0].clone();
