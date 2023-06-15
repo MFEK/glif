@@ -1,12 +1,14 @@
 use std::collections::HashMap;
 
 use crate::{
+    contour_operations::ContourOperationBuild as _,
     editor::Editor,
     user_interface::{gui::window::GlifWindow, Interface},
 };
+use MFEKmath::mfek::ResolveCubic;
 use egui::Context;
 use glifparser::{
-    glif::{contour::MFEKContourCommon, point::MFEKPointCommon},
+    glif::{contour::MFEKContourCommon, point::MFEKPointCommon, inner::MFEKContourInnerType},
     Handle, PointData, WhichHandle,
 };
 
@@ -46,22 +48,49 @@ impl GlifWindow for InspectionWindow {
             .default_pos([80., 25.])
             .constrain(true)
             .show(ctx, |ui| {
-                if let Some(selected_point) = v.selected_point() {
-                    let mut contour = v.get_active_layer_ref().outline[selected_point.0].clone();
+                if let Some((ci, pi)) = v.selected_point() {
+                    let mut contour = v.get_active_layer_ref().outline[ci].clone();
                     let point = contour
-                        .get_point_mut(selected_point.1)
+                        .get_point_mut(pi)
                         .expect("Editor should have valid selection!");
                     // do contour stuff
 
                     ui.collapsing("Contour", |ui| {
                         let mut contour =
-                            v.get_active_layer_ref().outline[selected_point.0].clone();
+                            v.get_active_layer_ref().outline[ci].clone();
+                        let ci = v.contour_idx.expect("Expected a selected contour w/o one");
 
                         ui.label(format!("Type: {:?}", contour.get_type()));
 
-                        if let Some(op) = contour.operation() {
-                            ui.label(format!("Operation: {:?}", op));
-                            if ui.button("Apply Contour Operation").clicked() {}
+                        if contour.get_type() != MFEKContourInnerType::Cubic {
+                            if ui.button("Convert to Cubic").clicked() {
+                                v.begin_modification("Made contour a cubic.", true);
+                                v.get_active_layer_mut().outline[ci] = contour.to_cubic();
+                                v.end_modification();
+                            }
+                        }
+
+                        if contour.operation().is_some() {
+                            if ui.button("Apply Contour Operation").clicked() {
+                                let outline = contour.operation().build(&contour);
+
+                                v.begin_modification("Modified contour with inspector.", true);
+                                v.get_active_layer_mut().outline.remove(ci);
+                                for c in outline {
+                                    v.get_active_layer_mut().outline.insert(ci, c);
+                                }
+                                v.end_modification();
+                                v.contour_idx = None;
+                                v.point_idx = None;
+                                v.selected.clear();
+                            }
+                            if ui.button("Remove Contour Operation").clicked() {
+                                let ci = v.contour_idx.expect("Expected a selected contour w/o one");
+
+                                v.begin_modification("Modified contour with inspector.", true);
+                                v.get_active_layer_mut().outline[ci].set_operation(None);
+                                v.end_modification();
+                            }
                         }
 
                         let mut open = contour.is_open();
@@ -75,7 +104,7 @@ impl GlifWindow for InspectionWindow {
                             }
 
                             v.begin_modification("Modified contour with inspector.", true);
-                            v.get_active_layer_mut().outline[selected_point.0] = contour;
+                            v.get_active_layer_mut().outline[ci] = contour;
                             v.end_modification();
                         }
                     });
@@ -171,14 +200,14 @@ impl GlifWindow for InspectionWindow {
 
                         if !point_equivalent(
                             point,
-                            v.get_active_layer_ref().outline[selected_point.0]
-                                .get_point(selected_point.1)
+                            v.get_active_layer_ref().outline[ci]
+                                .get_point(pi)
                                 .unwrap(),
                         ) {
                             v.begin_modification("Modified point with inspector.", true);
 
-                            let mutated_point = v.get_active_layer_mut().outline[selected_point.0]
-                                .get_point_mut(selected_point.1)
+                            let mutated_point = v.get_active_layer_mut().outline[ci]
+                                .get_point_mut(pi)
                                 .unwrap();
                             let (x, y) = point.get_position();
                             mutated_point.set_position(x, y);
