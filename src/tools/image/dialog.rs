@@ -12,7 +12,7 @@ impl Image {
             ui.label("Position");
             image.0.xOffset = IntegerOrFloat::Float(egui_parsed_textfield(ui, "px", image.0.xOffset.into(), &mut self.edit_buf));
             image.0.yOffset = IntegerOrFloat::Float(egui_parsed_textfield(ui, "py", image.0.xOffset.into(), &mut self.edit_buf));
-            let o_rgba: [f32; 4] =  v.get_active_layer_mut().images[selected].0.color.unwrap_or_else(|| [1., 1., 1., 1.].into()).into();
+            let o_rgba: [f32; 4] =  v.get_active_layer_ref().images[selected].0.color.unwrap_or_else(|| [1., 1., 1., 1.].into()).into();
             let mut rgba = o_rgba.clone();
             if ui.color_edit_button_rgba_unmultiplied(&mut rgba).changed() {
                 v.begin_modification("Changed image color.", true);
