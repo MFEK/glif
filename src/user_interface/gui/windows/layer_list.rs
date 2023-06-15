@@ -183,7 +183,7 @@ impl LayerList {
                                 cur_color.unwrap_or(Color::default()).into();
                             let orig_color = color_array.clone();
                             ui.set_min_width(24.);
-                            ui.color_edit_button_rgba_unmultiplied(&mut color_array);
+                            let response = ui.color_edit_button_rgba_unmultiplied(&mut color_array);
 
                             if color_array != orig_color {
                                 let active_layer = v.get_active_layer();
@@ -194,6 +194,12 @@ impl LayerList {
                                 v.end_modification();
 
                                 v.set_active_layer(active_layer);
+                            }
+
+                            if response.clicked_by(egui::PointerButton::Secondary) {
+                                v.begin_modification("Changed layer color.", true);
+                                v.get_active_layer_mut().color = None;
+                                v.end_modification();
                             }
                         }
 
