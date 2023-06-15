@@ -27,6 +27,14 @@ impl Image {
                 v.get_active_layer_mut().images[selected] = image;
                 v.end_modification()
             }
+
+            if ui.button("Remove Image").clicked() {
+                v.begin_modification("Removed image.", false);
+                v.get_active_layer_mut().images.remove(selected);
+                v.end_modification();
+
+                self.selected_idx = None;
+            }
         }
     }
 }
