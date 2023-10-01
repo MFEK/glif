@@ -140,7 +140,7 @@ impl Select {
         v.end_modification();
     }
 
-    fn mouse_pressed(&mut self, v: &mut Editor, i: &Interface, mouse_info: MouseInfo) {
+    pub fn mouse_pressed(&mut self, v: &mut Editor, i: &Interface, mouse_info: MouseInfo) {
         // if the user clicked middle mouse we initiate a pan behavior
         if mouse_info.button == MouseButton::Middle {
             v.set_behavior(Box::new(PanBehavior::new(i.viewport.clone(), mouse_info)));
@@ -215,7 +215,7 @@ impl Select {
         };
     }
 
-    fn mouse_double_pressed(&mut self, v: &mut Editor, i: &Interface, mouse_info: MouseInfo) {
+    pub fn mouse_double_pressed(&mut self, v: &mut Editor, i: &Interface, mouse_info: MouseInfo) {
         let ci = if let Some((ci, _pi, _wh)) =
             clicked_point_or_handle(v, i, mouse_info.raw_position, None)
         {

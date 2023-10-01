@@ -8,7 +8,6 @@ use font_kit::{
     error::SelectionError::{
         self as FKSelectionError, CannotAccessSource as FKSourceError, NotFound as FKNotFoundError,
     },
-    family_name::FamilyName as FKFamilyName,
     handle::Handle as FKHandle,
     properties::Properties,
     source::SystemSource,
@@ -16,7 +15,7 @@ use font_kit::{
 
 use std::path::PathBuf;
 use std::sync::Arc;
-use std::{fmt, fs, io};
+use std::fs;
 
 #[derive(Clone, Debug)]
 pub struct SystemFont {

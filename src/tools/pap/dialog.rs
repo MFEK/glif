@@ -1,8 +1,22 @@
 use super::super::prelude::*;
 use super::PAP;
 use crate::user_interface::{Interface, gui::windows::egui_parsed_textfield};
-use glifparser::glif::contour_operations::{pap::{PatternStretch, PatternCopies, PatternSubdivide, PAPContour}, ContourOperations};
+use glifparser::glif::contour_operations::{pap::{PatternStretch, PatternCopies, PatternSubdivide, PAPContour, PatternCulling}, ContourOperations};
 use egui::Ui;
+
+#[derive(PartialEq, Clone, Copy, Debug)]
+enum PAPSubdivide {
+    Off,
+    Simple,
+    Angle,
+}
+
+#[derive(PartialEq, Clone, Copy, Debug)]
+enum PAPCulling {
+    Off,
+    RemoveOverlapping,
+    EraseOverlapping,
+}
 
 impl PAP {
     pub fn tool_dialog(&mut self, v: &mut Editor, _i: &Interface, ui: &mut Ui) {
@@ -24,23 +38,93 @@ impl PAP {
                     ui.selectable_value(&mut data.copies, PatternCopies::Repeated, "Repeated");
                 });
 
-            let mut subdivisions = match data.subdivide {
-                PatternSubdivide::Simple(times) => times,
-                _ => 0,
-            } as f32;
-            
-            let subdivision_slider = egui::Slider::new(&mut subdivisions, 0.0..=3.0)
-                .text("Subdivisions")
-                .step_by(1.0);
+            egui::CollapsingHeader::new("Subdivision").show(ui, |ui| {
+                let prev_subdivide_mode = match data.subdivide {
+                    PatternSubdivide::Off => PAPSubdivide::Off,
+                    PatternSubdivide::Simple(_) => PAPSubdivide::Simple,
+                    PatternSubdivide::Angle(_) => PAPSubdivide::Angle,
+                };
 
-            ui.add(subdivision_slider);
+                let mut subdivide_mode = prev_subdivide_mode.clone();
+                egui::ComboBox::from_label("Mode")
+                    .selected_text(format!("{:?}", subdivide_mode))
+                    .show_ui(ui, |ui| {
+                        ui.selectable_value(&mut subdivide_mode, PAPSubdivide::Off, "Off");
+                        ui.selectable_value(&mut subdivide_mode, PAPSubdivide::Simple, "Simple");
+                        ui.selectable_value(&mut subdivide_mode, PAPSubdivide::Angle, "Angle");
+                    });
 
-            data.subdivide = if subdivisions == 0. {
-                PatternSubdivide::Off
-            } else {
-                PatternSubdivide::Simple(subdivisions as usize)
-            };
+                if subdivide_mode != prev_subdivide_mode {
+                    match subdivide_mode {
+                        PAPSubdivide::Off => data.subdivide = PatternSubdivide::Off,
+                        PAPSubdivide::Simple => data.subdivide = PatternSubdivide::Simple(2),
+                        PAPSubdivide::Angle => data.subdivide = PatternSubdivide::Angle(5.0),
+                    }
+                }
 
+                data.subdivide = match data.subdivide {
+                    PatternSubdivide::Simple(mut times) => {
+                        let mut times = times as i32;
+                        ui.add(egui::Slider::new(&mut times, 1..=10)
+                            .text("Times")
+                        );
+                        PatternSubdivide::Simple(times as usize)
+                    }
+
+                    PatternSubdivide::Angle(mut angle) => {
+                        let mut angle = angle as f32;
+                        ui.add(egui::Slider::new(&mut angle, 0.0..=90.0)
+                            .text("Angle")
+                        );
+                        PatternSubdivide::Angle(angle as f64)
+                    }
+
+                    _ => { PatternSubdivide::Off }
+                }
+            });
+
+            egui::CollapsingHeader::new("Culling").show(ui, |ui| {
+                let prev_culling_mode: PAPCulling = match data.prevent_overdraw {
+                    PatternCulling::Off => PAPCulling::Off,
+                    PatternCulling::RemoveOverlapping => PAPCulling::RemoveOverlapping,
+                    PatternCulling::EraseOverlapping(_, _) => PAPCulling::EraseOverlapping,
+                };
+
+                let mut culling_mode = prev_culling_mode.clone();
+                egui::ComboBox::from_label("Mode")
+                    .selected_text(format!("{:?}", culling_mode))
+                    .show_ui(ui, |ui| {
+                        ui.selectable_value(&mut culling_mode, PAPCulling::Off, "Off");
+                        ui.selectable_value(&mut culling_mode, PAPCulling::RemoveOverlapping, "Remove Overlap");
+                        ui.selectable_value(&mut culling_mode, PAPCulling::EraseOverlapping, "Erase Overlap");
+                    });
+
+                if culling_mode != prev_culling_mode {
+                    match culling_mode {
+                        PAPCulling::Off => data.prevent_overdraw = PatternCulling::Off,
+                        PAPCulling::RemoveOverlapping => data.prevent_overdraw = PatternCulling::RemoveOverlapping,
+                        PAPCulling::EraseOverlapping => data.prevent_overdraw = PatternCulling::EraseOverlapping(5., 25.),
+                    }
+                }
+
+                data.prevent_overdraw = match data.prevent_overdraw {
+                    PatternCulling::EraseOverlapping(mut radius, mut cull_area_percent) => {
+                        let mut radius = radius as f32;
+                        ui.add(egui::Slider::new(&mut radius, 0.0..=20.0)
+                            .text("Radius")
+                        );
+                        ui.add(egui::Slider::new(&mut cull_area_percent, 0.0..=100.0)
+                            .text("Cull Area %"));
+
+                        PatternCulling::EraseOverlapping(radius as f64, cull_area_percent as f64)
+                    }
+                    PatternCulling::RemoveOverlapping => PatternCulling::RemoveOverlapping,
+                    PatternCulling::Off => PatternCulling::Off,
+                }
+            });
+
+            ui.checkbox(&mut data.warp_pattern, "Warp");
+            ui.checkbox(&mut data.split_path, "Split at Discontinuities");
             ui.checkbox(&mut data.center_pattern, "Center");
 
             egui::ComboBox::from_label("Stretch")
@@ -53,29 +137,25 @@ impl PAP {
 
             ui.checkbox(&mut data.simplify, "Simplify");
 
-            ui.horizontal(|ui| {
-                ui.label("Spacing:");
-                data.spacing = egui_parsed_textfield(ui, "Spacing", data.spacing as f32, &mut self.edit_buf) as f64;
-            });
+            ui.add(egui::Slider::new(&mut data.spacing, -20.0..=20.0)
+                .text("Spacing")
+            );
 
-            ui.add(egui::Slider::new(&mut data.normal_offset, -100.0..=100.0)
+            ui.add(egui::Slider::new(&mut data.normal_offset, -20.0..=20.0)
                 .text("Normal Offset")
             );
 
-            ui.add(egui::Slider::new(&mut data.tangent_offset, -100.0..=100.0)
+            ui.add(egui::Slider::new(&mut data.tangent_offset, -20.0..=20.0)
                 .text("Tangent Offset")
             );
 
-            ui.add(egui::Slider::new(&mut data.pattern_scale.0, -10.0..=10.0)
+            ui.add(egui::Slider::new(&mut data.pattern_scale.0, -3.0..=3.0)
                 .text("Scale X")
             );
 
-            ui.add(egui::Slider::new(&mut data.pattern_scale.1, -10.0..=10.0)
-                .text("Scale Y")
-            );
 
-            ui.add(egui::Slider::new(&mut data.prevent_overdraw, 0.0..=1.0)
-                .text("Prevent Overdraw")
+            ui.add(egui::Slider::new(&mut data.pattern_scale.1, -3.0..=3.0)
+                .text("Scale Y")
             );
 
             if data != original_data {
@@ -127,10 +207,12 @@ impl PAP {
                             tangent_offset: 0.,
                             pattern_scale: (1., 1.),
                             center_pattern: true,
-                            prevent_overdraw: 0.,
+                            prevent_overdraw: PatternCulling::Off,
                             two_pass_culling: false,
                             reverse_path: false,
                             reverse_culling: false,
+                            warp_pattern: true,
+                            split_path: false,
                         },
                     })
                 );

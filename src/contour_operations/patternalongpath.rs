@@ -1,6 +1,6 @@
 use glifparser::glif::contour_operations::pap::PAPContour;
 use glifparser::{
-    glif::{contour::MFEKContourCommon, MFEKContour, MFEKOutline},
+    glif::{MFEKContour, MFEKOutline},
     MFEKPointData,
 };
 use MFEKmath::mfek::ResolveCubic as _;
