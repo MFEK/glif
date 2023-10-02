@@ -36,7 +36,7 @@ dependencies = [
  "glifrenderer",
  "image 0.23.14",
  "itertools 0.10.5",
- "kurbo 0.9.0",
+ "kurbo 0.9.5",
  "lazy_static",
  "log",
  "mfek-ipc",
@@ -65,10 +65,11 @@ dependencies = [
 [[package]]
 name = "MFEKmath"
 version = "0.1.2"
+source = "git+https://github.com/MFEK/math.rlib?branch=main#1bccb33e9d8a3f6bde9ea234b7519384bc050526"
 dependencies = [
  "flo_curves",
  "glifparser",
- "kurbo 0.9.0",
+ "kurbo 0.9.5",
  "log",
  "plist",
  "skia-safe",
@@ -1311,6 +1312,7 @@ dependencies = [
 [[package]]
 name = "glifparser"
 version = "2.0.1"
+source = "git+https://github.com/MFEK/glifparser.rlib?branch=master#f8dcacbcaed2632e6287f32872bf1ab3b6174cfb"
 dependencies = [
  "derivative",
  "derive_more",
@@ -1319,7 +1321,7 @@ dependencies = [
  "image 0.24.7",
  "integer_or_float",
  "itertools 0.10.5",
- "kurbo 0.9.0",
+ "kurbo 0.9.5",
  "log",
  "plist",
  "serde",
@@ -1332,6 +1334,7 @@ dependencies = [
 [[package]]
 name = "glifrenderer"
 version = "0.1.2"
+source = "git+https://github.com/MFEK/glifrenderer.rlib#84eaf0a6d83981ca2cfbbe6a4e3da5526995385b"
 dependencies = [
  "MFEKmath",
  "derive_more",
@@ -1663,12 +1666,12 @@ dependencies = [
 
 [[package]]
 name = "kurbo"
-version = "0.9.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e119590a03caff1f7a582e8ee8c2164ddcc975791701188132fd1d1b518d3871"
+version = "0.9.5"
+source = "git+https://github.com/MFEK/kurbo.rlib?branch=master#b0bec8ab69d41f638aaf4feb41736c4943399a7b"
 dependencies = [
  "arrayvec",
  "serde",
+ "smallvec",
 ]
 
 [[package]]
@@ -1757,6 +1760,7 @@ dependencies = [
 [[package]]
 name = "mfek-ipc"
 version = "0.0.4-beta1"
+source = "git+https://github.com/MFEK/ipc.rlib#5cebcdddd619e13fb375f5a4695ccca0573f98b2"
 dependencies = [
  "ansi_term",
  "atty",
@@ -2669,9 +2673,9 @@ checksum = "4c845fbdc07cb9555a94806496be14d51dcda6d3bf6894d92af2c3a93bebc2c5"
 [[package]]
 name = "spline"
 version = "0.3.0"
-source = "git+https://github.com/MFEK/spline.rlib#46d9121b03d2e6bea67b33078057ecad28666d07"
+source = "git+https://github.com/MFEK/spline.rlib#0baf40a846c7ed92c35a56f589bcea5fe08b7884"
 dependencies = [
- "kurbo 0.9.0",
+ "kurbo 0.9.5",
  "serde",
 ]
 
