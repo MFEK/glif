@@ -20,7 +20,7 @@ build = "build.rs"
 #skulpin = { git = "https://github.com/MFEK/skulpin" }
 #skulpin-renderer = {git = "https://github.com/MFEK/skulpin/"}
 gl = "0.14.0"
-skia-safe = { version = "0.53.0", features = ["gl"] }
+skia-safe = { version = "0.62.0", features = ["gl"] }
 skia-bindings = "*"
 
 # For windowing, contexts, and events
