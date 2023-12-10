@@ -31,6 +31,7 @@ pub mod operations;
 pub mod selection;
 pub mod tools;
 pub mod util;
+pub mod tunni;
 
 #[macro_use]
 pub mod macros;
