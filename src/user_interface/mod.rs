@@ -24,6 +24,7 @@ use skia_safe::Surface;
 
 use crate::editor::Editor;
 pub use crate::user_interface::mouse_input::MouseInfo;
+pub use crate::render::measure::Measure;
 
 use sdl2::{video::Window as SdlWindow, Sdl};
 
@@ -42,6 +43,8 @@ pub struct Interface {
 
     pub context: Option<(f32, f32)>,
     pub grid: Grid,
+    pub measure: Measure,
+    pub curvature_vis: bool,
     pub mouse_info: MouseInfo,
     pub viewport: Viewport,
 
@@ -84,6 +87,8 @@ impl Interface {
 
             context: None,
             grid: Grid::default(),
+            measure: Measure { start_point: None, end_point: None, enabled: true},
+            curvature_vis: true,
             mouse_info: MouseInfo::default(),
             viewport: Viewport::default(),
 

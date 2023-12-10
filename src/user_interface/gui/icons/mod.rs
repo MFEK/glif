@@ -3,7 +3,7 @@ pub use self::button::build as build_button;
 pub use self::button::build_and_add as build_and_add_button;
 pub use self::button::IntoResponse as IntoButtonResponse;
 
-pub const _KNIFE: &str = "\u{F000}";
+pub const KNIFE: &str = "\u{F000}";
 pub const MEASURE: &str = "\u{F001}";
 pub const PAN: &str = "\u{F002}";
 pub const PEN: &str = "\u{F003}";
