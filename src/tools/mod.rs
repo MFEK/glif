@@ -1,6 +1,7 @@
 // Include all tools via procedural macro. Expands to `pub mod pen; pub mod select; ...`
 pub_mod!("src/tools");
 
+use self::cut::Cut;
 use self::prelude::*;
 use self::{
     anchors::Anchors, dash::Dash, guidelines::Guidelines, image::Image, measure::Measure, pan::Pan,
@@ -42,6 +43,7 @@ use strum_macros::{AsRefStr, EnumString};
 pub enum ToolEnum {
     Pan,
     Pen,
+    Cut,
     Select,
     Anchors,
     Zoom,
@@ -80,5 +82,6 @@ pub fn tool_enum_to_tool(tool: ToolEnum) -> Box<dyn Tool> {
         ToolEnum::Image => Box::new(Image::new()),
         ToolEnum::PAP => Box::new(PAP::new()),
         ToolEnum::Guidelines => Box::new(Guidelines::new()),
+        ToolEnum::Cut => Box::new(Cut::new()),
     }
 }
