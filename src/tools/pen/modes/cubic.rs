@@ -1,4 +1,4 @@
-use MFEKmath::{Bezier, Primitive};
+use MFEKmath::{Bezier, subdivide::Subdivide};
 use glifparser::{glif::{contour::MFEKContourCommon, contour_operations::ContourOperation}, Point, PointType, WhichHandle, Contour, MFEKPointData};
 use glifrenderer::points::draw_point;
 
@@ -99,7 +99,7 @@ impl PenMode for CubicMode {
         };
 
         let bez = Bezier::from(&point, &next_point);
-        let subdivisions = bez.subdivide(info.t);
+        let subdivisions = bez.split(info.t);
 
         if let Some(subdivisions) = subdivisions {
             let (sub_a, sub_b) = (
