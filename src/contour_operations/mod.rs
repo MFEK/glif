@@ -14,7 +14,7 @@ impl ContourOperationBuild for Option<ContourOperations<MFEKPointData>> {
     fn build(&self, contour: &MFEKContour<MFEKPointData>) -> MFEKOutline<MFEKPointData> {
         if contour.operation().is_none() {
             let mut ret: MFEKOutline<MFEKPointData> = MFEKOutline::new();
-            ret.push(MFEKContour::new(contour.inner().clone(), None));
+            ret.push(contour.clone());
             return ret;
         }
 

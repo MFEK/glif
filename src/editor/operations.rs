@@ -43,7 +43,7 @@ impl Editor {
                     continue;
                 }
 
-                let build_result = glif_contour.operation().build(glif_contour);
+                let build_result: Vec<glifparser::glif::MFEKContour<MFEKPointData>> = glif_contour.operation().build(glif_contour);
 
                 for new_contour in build_result {
                     preview_outline.push(new_contour.to_cubic());

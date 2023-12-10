@@ -1,18 +1,23 @@
 // This file is mainly utilities that are common use cases for the editor, but don't necessarily need to be
 // in Editor.
 
-use crate::user_interface::Interface;
+use std::collections::btree_set::Intersection;
+
+use crate::{user_interface::{Interface, MouseInfo}, get_point};
+use MFEKmath::{vec2, subdivide::Subdivide};
 use crate::{get_contour_len, get_point_mut};
+use egui::vec2;
 use flo_curves::{
     bezier::{solve_curve_for_t_along_axis, Curve as FloCurve},
-    geo::Coord2,
+    geo::Coord2, line::Line,
 };
-use glifparser::WhichHandle;
+use glifparser::{WhichHandle, MFEKPointData, Point};
 use glifrenderer::constants::{POINT_RADIUS, POINT_STROKE_THICKNESS};
 use skia_safe::Contains;
 use skia_safe::Point as SkPoint;
 use skia_safe::Rect as SkRect;
-use MFEKmath::{Bezier, Piecewise, Primitive as MathPrimitive};
+use MFEKmath::{Bezier, Piecewise, Vector};
+use flo_curves::line::Line2D;
 
 use super::Editor;
 use glifparser::glif::mfek::contour::MFEKContourCommon;
@@ -198,7 +203,7 @@ pub fn nearest_point_on_curve(
                             contour_idx = Some(cx);
                             seg_idx = Some(bx);
 
-                            let subdivisions = MathPrimitive::subdivide(mbezier, ct);
+                            let subdivisions = Subdivide::split(mbezier, ct);
                             if let Some(subdivisions) = subdivisions {
                                 h1 = Some(subdivisions.0.to_control_points()[2]);
                                 h2 = Some(subdivisions.1.to_control_points()[1]);
