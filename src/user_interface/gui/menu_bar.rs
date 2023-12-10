@@ -69,6 +69,8 @@ pub fn menu_bar(ctx: &Context, v: &mut Editor, i: &mut Interface, wm: &mut Windo
                 });
 
                 ui.checkbox(&mut i.grid.show, "Grid");
+                ui.checkbox(&mut i.curvature_vis, "Curvature Visualization");
+                ui.checkbox(&mut i.measure.enabled, "Show Measure");
             });
 
             //
