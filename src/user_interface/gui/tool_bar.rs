@@ -50,6 +50,7 @@ pub fn tool_bar(ctx: &Context, v: &mut Editor, _i: &mut Interface) {
                 build_button(v, ui, icons::PAN, ToolEnum::Pan);
                 build_button(v, ui, icons::SELECT, ToolEnum::Select);
                 build_button(v, ui, icons::PEN, ToolEnum::Pen);
+                build_button(v, ui, icons::KNIFE, ToolEnum::Cut);
                 ui.separator();
                 build_button(v, ui, icons::ZOOM, ToolEnum::Zoom);
                 build_button(v, ui, icons::MEASURE, ToolEnum::Measure);
