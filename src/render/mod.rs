@@ -14,6 +14,9 @@ use skia_safe::{self as skia, Canvas};
 use crate::user_interface::PAPER_DRAW_GUIDELINES;
 use crate::{editor::Editor, user_interface::Interface};
 
+mod speed_visualization;
+pub mod measure;
+
 pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
     canvas.save();
 
@@ -90,10 +93,12 @@ pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
 
     glifrenderer::glyph::draw(canvas, v.preview.as_ref().unwrap(), &i.viewport, None);
 
+    speed_visualization::draw_velocity(v, i, canvas);
     v.with_glyph(|glyph| {
         // Cache component rects and flattened outline on MFEKGlif
         draw_components(glyph, &i.viewport, canvas);
     });
+    i.measure.draw_line(i, v, canvas, i.viewport.factor);
 
     // TODO: let _path = glyph::draw_previews(v, canvas);
 
