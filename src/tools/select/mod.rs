@@ -3,8 +3,11 @@ use std::collections::HashSet;
 // Select
 use super::{prelude::*, EditorEvent, MouseEventType, Tool};
 use crate::command::{Command, CommandType};
+use crate::editor::tunni::{get_closest_tunni_line, get_tunni_line_from_info, get_tunni_point_from_info, clicked_tunni_point_or_line};
 use crate::get_point_mut;
+use crate::tool_behaviors::move_tunni_point::MoveTunniPoint;
 use crate::tool_behaviors::rotate_selection::RotateSelection;
+use crate::tool_behaviors::move_tunni_line::MoveTunniLine;
 use glifparser::glif::mfek::contour::MFEKContourCommon;
 
 use MFEKmath::Vector;
@@ -68,6 +71,7 @@ impl Tool for Select {
     }
 
     fn draw(&mut self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
+        self.draw_tunni_line(v, i, canvas);
         self.draw_pivot.draw(v, i, canvas);
     }
 }
@@ -85,6 +89,28 @@ impl Select {
             }
         }
         v.selected = points;
+    }
+
+    fn draw_tunni_line(&mut self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
+        let mut paint = Paint::default();
+    
+        let closest_tunni = get_closest_tunni_line(v, i);
+
+        if let Some(tunni_info) = closest_tunni {
+            let tunni_line = get_tunni_line_from_info(v, &tunni_info).unwrap();
+            let p1 = (tunni_line.0.x as f32, tunni_line.0.y as f32);
+            let p2: (f32, f32) = (tunni_line.1.x as f32, tunni_line.1.y as f32);
+
+            paint.set_anti_alias(true);
+            paint.set_color(0xFF0000FF);
+            paint.set_style(PaintStyle::Stroke);
+            paint.set_stroke_width(OUTLINE_STROKE_THICKNESS * (1. / i.viewport.factor));
+            canvas.draw_line(p1, p2, &paint);
+
+            let tunni_point = get_tunni_point_from_info(v, &tunni_info).unwrap();
+            paint.set_style(PaintStyle::Fill);
+            canvas.draw_circle((tunni_point.x as f32, tunni_point.y as f32), 5. * (1. / i.viewport.factor), &paint);
+        }
     }
 
     fn nudge_selected(&mut self, v: &mut Editor, command: Command) {
@@ -167,52 +193,68 @@ impl Select {
             return;
         }
         
-
         // if we found a point or handle we're going to start a drag operation
-        match clicked_point_or_handle(v, i, mouse_info.raw_position, None) {
-            Some((ci, pi, wh)) => {
-                // first we check if shift is  held, if they are we put the current selection
-                // into the editor's selected HashSet
-                if mouse_info.modifiers.shift {
-                    if let Some(point_idx) = v.point_idx {
-                        v.selected.insert((v.contour_idx.unwrap(), point_idx));
-                    }
-                } else if !v.selected.contains(&(ci, pi)) {
-                    // if the user isn't holding shift or control, and the point they're clicking is not in the current
-                    // selection we clear the selection
-                    v.selected = HashSet::new();
+        if let Some((ci, pi, wh)) = clicked_point_or_handle(v, i, mouse_info.raw_position, None) {
+            // first we check if shift is  held, if they are we put the current selection
+            // into the editor's selected HashSet
+            if mouse_info.modifiers.shift {
+                if let Some(point_idx) = v.point_idx {
+                    v.selected.insert((v.contour_idx.unwrap(), point_idx));
                 }
-
-                // Set the editor's selected point to the most recently clicked one.
-                v.contour_idx = Some(ci);
-                v.point_idx = Some(pi);
-
-                if wh == WhichHandle::Neither {
-                    // the user clicked niether handle so that's our cue to push a move_point behavior on the stack
-                    let move_selected = !mouse_info.modifiers.ctrl;
-                    v.set_behavior(Box::new(MovePoint::new(move_selected, mouse_info)));
-                } else {
-                    // the user clicked a handle so we push a move_handle behavior
-                    v.set_behavior(Box::new(MoveHandle::new(wh, mouse_info, false)));
-                }
+            } else if !v.selected.contains(&(ci, pi)) {
+                // if the user isn't holding shift or control, and the point they're clicking is not in the current
+                // selection we clear the selection
+                v.selected = HashSet::new();
             }
-            None => {
-                // if the user isn't holding shift we clear the current selection and the currently selected
-                // point
-                if !mouse_info.modifiers.shift {
-                    v.selected = HashSet::new();
-                    v.contour_idx = None;
-                    v.point_idx = None;
-                }
 
-                // if they clicked right mouse we set the pivot point that will be used by rotate_points behavior.
-                if mouse_info.button == MouseButton::Right {
-                    self.pivot_point = Some((mouse_info.position.0, mouse_info.position.1));
-                } else if mouse_info.button == MouseButton::Left {
-                    v.set_behavior(Box::new(SelectionBox::new(mouse_info)));
-                }
+            // Set the editor's selected point to the most recently clicked one.
+            v.contour_idx = Some(ci);
+            v.point_idx = Some(pi);
+
+            if wh == WhichHandle::Neither {
+                // the user clicked niether handle so that's our cue to push a move_point behavior on the stack
+                let move_selected = !mouse_info.modifiers.ctrl;
+                v.set_behavior(Box::new(MovePoint::new(move_selected, mouse_info)));
+            } else {
+                // the user clicked a handle so we push a move_handle behavior
+                v.set_behavior(Box::new(MoveHandle::new(wh, mouse_info, false)));
             }
-        };
+
+            return
+        }
+
+        if let Some((tunni_info, tunni_type)) = clicked_tunni_point_or_line(v, i) {
+            match tunni_type {
+                editor::tunni::Tunni::Point => {
+                    v.set_selected(tunni_info.a.0, tunni_info.a.1);
+                    v.set_behavior(Box::new(MoveTunniPoint::new(mouse_info, tunni_info)));
+                    return
+                },
+                editor::tunni::Tunni::Line => {
+                    v.set_selected(tunni_info.a.0, tunni_info.a.1);
+                    let line = get_tunni_line_from_info(v, &tunni_info).unwrap();
+                    v.set_behavior(Box::new(MoveTunniLine::new(mouse_info, tunni_info, line)));
+                    return
+                },
+            }
+        }
+
+
+        // the user clicked an empty location
+        // if the user isn't holding shift we clear the current selection and the currently selected
+        // point
+        if !mouse_info.modifiers.shift {
+            v.selected = HashSet::new();
+            v.contour_idx = None;
+            v.point_idx = None;
+        }
+
+        // if they clicked right mouse we set the pivot point that will be used by rotate_points behavior.
+        if mouse_info.button == MouseButton::Right {
+            self.pivot_point = Some((mouse_info.position.0, mouse_info.position.1));
+        } else if mouse_info.button == MouseButton::Left {
+            v.set_behavior(Box::new(SelectionBox::new(mouse_info)));
+        }
     }
 
     pub fn mouse_double_pressed(&mut self, v: &mut Editor, i: &Interface, mouse_info: MouseInfo) {
