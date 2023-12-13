@@ -3,21 +3,25 @@
 
 use std::collections::btree_set::Intersection;
 
-use crate::{user_interface::{Interface, MouseInfo}, get_point};
-use MFEKmath::{vec2, subdivide::Subdivide};
 use crate::{get_contour_len, get_point_mut};
+use crate::{
+    get_point,
+    user_interface::{Interface, MouseInfo},
+};
 use egui::vec2;
+use flo_curves::line::Line2D;
 use flo_curves::{
     bezier::{solve_curve_for_t_along_axis, Curve as FloCurve},
-    geo::Coord2, line::Line,
+    geo::Coord2,
+    line::Line,
 };
-use glifparser::{WhichHandle, MFEKPointData, Point};
+use glifparser::{MFEKPointData, Point, WhichHandle};
 use glifrenderer::constants::{POINT_RADIUS, POINT_STROKE_THICKNESS};
 use skia_safe::Contains;
 use skia_safe::Point as SkPoint;
 use skia_safe::Rect as SkRect;
+use MFEKmath::{subdivide::Subdivide, vec2};
 use MFEKmath::{Bezier, Piecewise, Vector};
-use flo_curves::line::Line2D;
 
 use super::Editor;
 use glifparser::glif::mfek::contour::MFEKContourCommon;

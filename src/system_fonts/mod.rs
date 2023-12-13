@@ -13,9 +13,9 @@ use font_kit::{
     source::SystemSource,
 };
 
+use std::fs;
 use std::path::PathBuf;
 use std::sync::Arc;
-use std::fs;
 
 #[derive(Clone, Debug)]
 pub struct SystemFont {

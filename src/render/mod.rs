@@ -14,8 +14,8 @@ use skia_safe::{self as skia, Canvas};
 use crate::user_interface::PAPER_DRAW_GUIDELINES;
 use crate::{editor::Editor, user_interface::Interface};
 
-mod speed_visualization;
 pub mod measure;
+mod speed_visualization;
 
 pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &Canvas) {
     canvas.save();

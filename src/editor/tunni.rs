@@ -1,11 +1,10 @@
-use MFEKmath::{Vector, vec2};
 use flo_curves::Line;
-use glifparser::{Point, MFEKPointData, glif::contour::MFEKContourCommon};
+use glifparser::{glif::contour::MFEKContourCommon, MFEKPointData, Point};
+use MFEKmath::{vec2, Vector};
 
 use crate::{get_point, user_interface::Interface};
 
 use super::Editor;
-
 
 // This struct holds the indices of the tunni line in the form of (ci, pi)
 #[derive(Clone, Debug)]
@@ -14,11 +13,14 @@ pub struct TunniLineInfo {
     pub b: (usize, usize),
 }
 
-pub fn get_tunni_point(first: &Point<MFEKPointData>, second: &Point<MFEKPointData>) -> Option<Vector> {
+pub fn get_tunni_point(
+    first: &Point<MFEKPointData>,
+    second: &Point<MFEKPointData>,
+) -> Option<Vector> {
     let a = first.a;
     let b = second.b;
 
-    // both of our handles need to be located 
+    // both of our handles need to be located
     match (a, b) {
         (glifparser::Handle::At(ax, ay), glifparser::Handle::At(bx, by)) => {
             // Construct a line between the handles
@@ -27,19 +29,22 @@ pub fn get_tunni_point(first: &Point<MFEKPointData>, second: &Point<MFEKPointDat
 
             let fv = vec2![first.x, first.y];
             let sv = vec2![second.x, second.y];
-        
+
             let pint = flo_curves::line::ray_intersects_ray(&(fv, av), &(sv, bv));
             if let Some(intersection) = pint {
                 return Some(((av * 2. - fv) + (bv * 2. - sv)) - intersection);
             }
-        },
-        _ => { }
+        }
+        _ => {}
     }
 
     None
 }
 
-pub fn construct_tunni_line(first: &Point<MFEKPointData>, second: &Point<MFEKPointData>) -> Option<(Vector, Vector)> {
+pub fn construct_tunni_line(
+    first: &Point<MFEKPointData>,
+    second: &Point<MFEKPointData>,
+) -> Option<(Vector, Vector)> {
     let a = first.a;
     let b = second.b;
 
@@ -47,7 +52,7 @@ pub fn construct_tunni_line(first: &Point<MFEKPointData>, second: &Point<MFEKPoi
         return None;
     }
 
-    // both of our handles need to be located 
+    // both of our handles need to be located
     match (a, b) {
         (glifparser::Handle::At(ax, ay), glifparser::Handle::At(bx, by)) => {
             // Construct a line between the handles
@@ -56,7 +61,7 @@ pub fn construct_tunni_line(first: &Point<MFEKPointData>, second: &Point<MFEKPoi
 
             let fv = vec2![first.x, first.y];
             let sv = vec2![second.x, second.y];
-        
+
             // Calculate vectors from points to handles
             let va = av - fv;
             let vb = bv - sv;
@@ -69,11 +74,13 @@ pub fn construct_tunni_line(first: &Point<MFEKPointData>, second: &Point<MFEKPoi
             let cross_product_b = vb.cross(lv);
 
             // If the signs of the cross products are the same, handles lie on the same side of the line
-            if (cross_product_a >= 0.0 && cross_product_b >= 0.0) || (cross_product_a < 0.0 && cross_product_b < 0.0) {
-                return Some((av, bv))
+            if (cross_product_a >= 0.0 && cross_product_b >= 0.0)
+                || (cross_product_a < 0.0 && cross_product_b < 0.0)
+            {
+                return Some((av, bv));
             }
-        },
-        _ => { }
+        }
+        _ => {}
     }
 
     None
@@ -97,7 +104,7 @@ pub fn get_tunni_point_from_info(v: &Editor, info: &TunniLineInfo) -> Option<Vec
 
 fn get_distance_from_tunni_line(pos: Vector, line: (Vector, Vector)) -> f64 {
     let flo_line = <(Vector, Vector) as Line>::from_points(line.0, line.1);
-    
+
     let pos_to_line = flo_line.pos_for_point(&pos);
     let clamped_t = pos_to_line.clamp(0., 1.);
     let clamped_position = flo_line.point_at_pos(clamped_t);
@@ -121,19 +128,27 @@ pub fn get_closest_tunni_line(v: &Editor, i: &Interface) -> Option<TunniLineInfo
 
                     if distance < closest_distance || point_distance < closest_distance {
                         closest_distance = f64::min(closest_distance, distance);
-                        closest_tunni = Some(TunniLineInfo { a: (contour_idx, point_idx), b: (contour_idx, point_idx + 1) });
+                        closest_tunni = Some(TunniLineInfo {
+                            a: (contour_idx, point_idx),
+                            b: (contour_idx, point_idx + 1),
+                        });
                     }
                 }
             }
 
             if cubic.is_closed() && cubic.len() > 1 {
-                if let Some(line) = construct_tunni_line( &cubic.last().unwrap(), &cubic.first().unwrap()) {
+                if let Some(line) =
+                    construct_tunni_line(&cubic.last().unwrap(), &cubic.first().unwrap())
+                {
                     let distance = get_distance_from_tunni_line(mp, line);
 
                     let point_idx = cubic.len() - 1;
                     if distance < closest_distance {
                         closest_distance = distance;
-                        closest_tunni = Some(TunniLineInfo { a: (contour_idx, point_idx), b: (contour_idx, 0) });
+                        closest_tunni = Some(TunniLineInfo {
+                            a: (contour_idx, point_idx),
+                            b: (contour_idx, 0),
+                        });
                     }
                 }
             }
@@ -145,7 +160,7 @@ pub fn get_closest_tunni_line(v: &Editor, i: &Interface) -> Option<TunniLineInfo
 
 pub enum Tunni {
     Point,
-    Line
+    Line,
 }
 
 const MIN_DISTANCE_FOR_CLICK: f64 = 5.;
@@ -154,8 +169,10 @@ pub fn clicked_tunni_point_or_line(v: &Editor, i: &Interface) -> Option<(TunniLi
     let closest_point_or_line = get_closest_tunni_line(v, i);
 
     if let Some(tunni_info) = closest_point_or_line {
-        let tunni_point = get_tunni_point_from_info(v, &tunni_info).expect("get_closest_tunni should always return a valid tunni line.");
-        let tunni_line = get_tunni_line_from_info(v, &tunni_info).expect("get_closest_tunni should always return a valid tunni line.");
+        let tunni_point = get_tunni_point_from_info(v, &tunni_info)
+            .expect("get_closest_tunni should always return a valid tunni line.");
+        let tunni_line = get_tunni_line_from_info(v, &tunni_info)
+            .expect("get_closest_tunni should always return a valid tunni line.");
 
         let point_distance = Vector::distance(tunni_point, i.mouse_info.position.into());
         let line_distance = get_distance_from_tunni_line(i.mouse_info.position.into(), tunni_line);
@@ -165,9 +182,9 @@ pub fn clicked_tunni_point_or_line(v: &Editor, i: &Interface) -> Option<(TunniLi
         println!("FOUND CLOSEST {0}", closest);
         if closest < MIN_DISTANCE_FOR_CLICK * (1. / i.viewport.factor) as f64 {
             if closest == point_distance {
-                return Some((tunni_info, Tunni::Point))
+                return Some((tunni_info, Tunni::Point));
             } else {
-                return Some((tunni_info, Tunni::Line))
+                return Some((tunni_info, Tunni::Line));
             }
         }
     }
