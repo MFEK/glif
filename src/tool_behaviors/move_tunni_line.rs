@@ -35,7 +35,6 @@ impl MoveTunniLine {
     }
 
     pub fn mouse_moved(&mut self, v: &mut Editor, i: &mut Interface, mouse_info: MouseInfo) {
-        println!("HAPPENING");
         // we stop the drag when there's no longer a well formed tunni point/line
         if get_tunni_line_from_info(v, &self.tunni_info).is_none() {
             v.pop_behavior();
