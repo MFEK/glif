@@ -67,7 +67,7 @@ impl SelectionBox {
         }
     }
 
-    pub fn draw_box_impl(i: &Interface, canvas: &mut Canvas, (c1, c2): ((f32, f32), (f32, f32))) {
+    pub fn draw_box_impl(i: &Interface, canvas: &Canvas, (c1, c2): ((f32, f32), (f32, f32))) {
         let mut path = Path::new();
         let mut paint = Paint::default();
         let rect = Rect::from_point_and_size(
@@ -84,13 +84,13 @@ impl SelectionBox {
         canvas.draw_path(&path, &paint);
     }
 
-    pub fn draw_box(&self, i: &Interface, canvas: &mut Canvas) {
+    pub fn draw_box(&self, i: &Interface, canvas: &Canvas) {
         let c1 = self.mouse_info.position;
         let c2 = self.corner.unwrap_or(self.mouse_info.position);
         Self::draw_box_impl(i, canvas, (c1, c2));
     }
 
-    pub fn draw_selected(&self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
+    pub fn draw_selected(&self, v: &Editor, i: &Interface, canvas: &Canvas) {
         for (ci, pi) in &self.selected {
             let (ci, pi) = (*ci, *pi);
 
@@ -121,7 +121,7 @@ impl ToolBehavior for SelectionBox {
         }
     }
 
-    fn draw(&mut self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
+    fn draw(&mut self, v: &Editor, i: &Interface, canvas: &Canvas) {
         self.draw_box(i, canvas);
         self.draw_selected(v, i, canvas)
     }

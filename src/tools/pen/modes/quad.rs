@@ -1,4 +1,5 @@
 use glifparser::{glif::{contour::MFEKContourCommon, contour_operations::ContourOperation, point::quad::QPoint, MFEKContour, inner::MFEKContourInner},PointType, WhichHandle, MFEKPointData, Handle};
+use skia_safe::Canvas;
 
 use crate::{editor::{Editor, util::{HoveredPointInfo}}, user_interface::MouseInfo, get_contour_len, tool_behaviors::move_handle::MoveHandle};
 use super::PenMode;
@@ -84,6 +85,6 @@ impl PenMode for QuadMode {
 
     // TODO: Implement these for quadratic! Would take a bit more work in math.rlib
     // These functions are safe to be stubbed for now
-    fn draw_nearest_point(&self, _i: &crate::user_interface::Interface, _canvas: &mut MFEKmath::skia_safe::Canvas, _info: HoveredPointInfo) {}
+    fn draw_nearest_point(&self, _i: &crate::user_interface::Interface, _canvas: &Canvas, _info: HoveredPointInfo) {}
     fn subdivide_curve(&self, _v: &mut Editor, _info: HoveredPointInfo) {}
 }

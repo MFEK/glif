@@ -1,4 +1,5 @@
 use glifparser::{glif::{point::hyper::{HyperPoint, HyperPointType}, inner::{hyper::MFEKHyperInner, MFEKContourInner}, MFEKContour, contour_operations::ContourOperation, contour::MFEKContourCommon}, MFEKPointData, WhichHandle};
+use skia_safe::Canvas;
 
 use crate::{editor::{Editor, util::HoveredPointInfo}, user_interface::MouseInfo, get_contour_len, tool_behaviors::move_handle::MoveHandle};
 
@@ -67,7 +68,7 @@ impl PenMode for HyperMode {
         v.push_behavior(Box::new(MoveHandle::new(WhichHandle::A, mouse_info, true)));
     }
 
-    fn draw_nearest_point(&self, _i: &crate::user_interface::Interface, _canvas: &mut MFEKmath::skia_safe::Canvas, _info: HoveredPointInfo) {
+    fn draw_nearest_point(&self, _i: &crate::user_interface::Interface, _canvas: &Canvas, _info: HoveredPointInfo) {
     }
     
     fn subdivide_curve(&self, _v: &mut Editor, _info: HoveredPointInfo) {

@@ -16,5 +16,5 @@ pub trait PenMode: DynClone + std::fmt::Debug {
     // If a contour type does not support subdivision the way that cubic or quadratic does then you can safely
     // stub these functions out.
     fn subdivide_curve(&self, v: &mut Editor, info: HoveredPointInfo);
-    fn draw_nearest_point(&self, i: &Interface, canvas: &mut Canvas, info: HoveredPointInfo);
+    fn draw_nearest_point(&self, i: &Interface, canvas: &Canvas, info: HoveredPointInfo);
 }

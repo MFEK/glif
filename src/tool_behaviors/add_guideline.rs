@@ -76,7 +76,7 @@ impl ToolBehavior for AddGuideline {
         }
     }
 
-    fn draw(&mut self, _v: &Editor, i: &Interface, canvas: &mut Canvas) {
+    fn draw(&mut self, _v: &Editor, i: &Interface, canvas: &Canvas) {
         let prev_guide = Guideline::<()>::from_x_y_angle(
             i.mouse_info.position.0,
             i.mouse_info.position.1,

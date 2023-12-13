@@ -47,7 +47,7 @@ impl Tool for Anchors {
         }
     }
 
-    fn draw(&mut self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
+    fn draw(&mut self, v: &Editor, i: &Interface, canvas: &Canvas) {
         self.draw_selected(v, i, canvas);
     }
 
@@ -62,7 +62,7 @@ impl Tool for Anchors {
 }
 
 impl Anchors {
-    fn draw_selected(&self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
+    fn draw_selected(&self, v: &Editor, i: &Interface, canvas: &Canvas) {
         if let Some(idx) = self.anchor_idx {
             let _scale = i.viewport.factor;
             v.with_glyph(|glif| {

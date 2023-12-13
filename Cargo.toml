@@ -20,8 +20,8 @@ build = "build.rs"
 #skulpin = { git = "https://github.com/MFEK/skulpin" }
 #skulpin-renderer = {git = "https://github.com/MFEK/skulpin/"}
 gl = "0.14.0"
-skia-safe = { version = "0.62.0", features = ["gl"] }
-skia-bindings = "*"
+skia-safe = { version = ">=0.62.0", features = ["gl"] }
+skia-bindings = { version = ">=0.62.0", features = ["gl"] }
 
 # For windowing, contexts, and events
 sdl2 = { version = ">=0.34", features = ["raw-window-handle"] }
@@ -40,9 +40,9 @@ lazy_static = "1.4"
 #imgui-sdl2 = "0.14"
 #imgui-skia-renderer = {git = "https://github.com/MFEK/imgui-skia-renderer.rlib", branch = "main"}
 #imgui-skia-renderer = { path = "../imgui-skia-renderer.rlib" } # for development
-egui = { version = "=0.22.0" }
-egui_skia = { version = "=0.3.0" }
-egui-sdl2-event = { version = "=0.4.0", package = "egui-skia-sdl2-event" }
+egui = { git = "https://github.com/MFEK/egui.rlib" }
+egui-sdl2-event = { git = "https://github.com/MFEK/egui-sdl2-event.rlib" }
+egui_skia = { git = "https://github.com/MFEK/egui_skia.rlib" }
 # For argument parsing
 clap = "3.0"
 
@@ -91,8 +91,8 @@ ctrlc = "3.2"
 glifparser = { git = "https://github.com/MFEK/glifparser.rlib", branch = "master", features=["skia", "mfek"] }
 #glifparser = { path = "../glifparser.rlib", features=["skia", "mfek"] } # for development
 
-#MFEKmath = { git = "https://github.com/MFEK/math.rlib", branch = "main" }
-MFEKmath = { path = "../math.rlib", features=["skia"]} # for development
+MFEKmath = { git = "https://github.com/MFEK/math.rlib", branch = "main" }
+#MFEKmath = { path = "../math.rlib", features=["skia"]} # for development
 
 pub-mod = { git = "https://github.com/MFEK/pub_mod.rlib" }
 

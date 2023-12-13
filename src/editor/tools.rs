@@ -31,7 +31,7 @@ impl Editor {
         }
     }
 
-    pub fn dispatch_tool_draw(&mut self, i: &Interface, canvas: &mut Canvas) {
+    pub fn dispatch_tool_draw(&mut self, i: &Interface, canvas: &Canvas) {
         if let Some(behavior) = self.tool_behaviors.pop() {
             let mut active_behavior = dyn_clone::clone_box(&*behavior);
             active_behavior.draw(self, i, canvas);

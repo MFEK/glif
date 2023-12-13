@@ -67,6 +67,7 @@ fn fb_info() -> FramebufferInfo {
     FramebufferInfo {
         fboid: fboid.try_into().unwrap(),
         format: skia_safe::gpu::gl::Format::RGBA8.into(),
+        ..Default::default()
     }
 }
 
@@ -146,7 +147,7 @@ impl Interface {
         canvas.scale((scale, scale));
         egui_manager.egui.paint(canvas);
         canvas.restore();
-        sk_surface.flush();
+        sk_surface.notify_content_will_change(skia_bindings::SkSurface_ContentChangeMode::Discard);
         self.sdl_window.gl_swap_window();
     }
 

@@ -57,7 +57,7 @@ lazy_static! {
 
 use skia_safe::{Canvas, Paint, PaintStyle, Path, Rect, TextBlob};
 impl Console {
-    pub fn draw(&mut self, i: &Interface, canvas: &mut Canvas) {
+    pub fn draw(&mut self, i: &Interface, canvas: &Canvas) {
         if !self.active {
             return;
         }

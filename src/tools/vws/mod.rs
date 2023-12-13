@@ -34,7 +34,7 @@ impl Tool for VWS {
         }
     }
 
-    fn draw(&mut self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
+    fn draw(&mut self, v: &Editor, i: &Interface, canvas: &Canvas) {
         self.draw_handles(v, i, canvas);
     }
 
@@ -79,7 +79,7 @@ impl VWS {
         }
     }
 
-    pub fn draw_handles(&self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
+    pub fn draw_handles(&self, v: &Editor, i: &Interface, canvas: &Canvas) {
         let factor = i.viewport.factor;
 
         for (contour_idx, contour) in v.get_active_layer_ref().outline.iter().enumerate() {

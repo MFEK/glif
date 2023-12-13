@@ -12,7 +12,7 @@ pub struct Measure {
 }
 
 impl Measure {
-    pub fn draw_line(&self, i: &Interface, v: &Editor, canvas: &mut Canvas, factor: f32) {
+    pub fn draw_line(&self, i: &Interface, v: &Editor, canvas: &Canvas, factor: f32) {
         if !self.enabled { return }
         if self.start_point.is_none() || self.end_point.is_none() { return }
 
@@ -92,7 +92,7 @@ impl Measure {
         }
     }
     
-    fn draw_text(&self, canvas: &mut Canvas, text: &str, position: (f32, f32), angle: f32, size: f32, factor: f32) {
+    fn draw_text(&self, canvas: &Canvas, text: &str, position: (f32, f32), angle: f32, size: f32, factor: f32) {
         let mut paint = Paint::default();
         paint.set_anti_alias(true);
         
@@ -121,7 +121,7 @@ impl Measure {
     }
     
     
-    fn draw_intersection_distances(&self, canvas: &mut Canvas, intersections: &[Intersection], factor: f32) {
+    fn draw_intersection_distances(&self, canvas: &Canvas, intersections: &[Intersection], factor: f32) {
         let mut paint = Paint::default();
         paint.set_color(MEASURE_STROKE);
         paint.set_anti_alias(true);
@@ -149,7 +149,7 @@ impl Measure {
         }
     }
     
-    fn draw_bracket(&self, canvas: &mut Canvas, start: (f32, f32), end: (f32, f32), offset: f32, factor: f32) {
+    fn draw_bracket(&self, canvas: &Canvas, start: (f32, f32), end: (f32, f32), offset: f32, factor: f32) {
         // Calculate the direction vector of the main line
         let dx = end.0 - start.0;
         let dy = end.1 - start.1;

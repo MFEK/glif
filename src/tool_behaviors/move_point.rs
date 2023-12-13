@@ -119,7 +119,7 @@ impl ToolBehavior for MovePoint {
     }
 
     // We draw a preview to show if the point will be merged with another when you let go of the mouse button.
-    fn draw(&mut self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
+    fn draw(&mut self, v: &Editor, i: &Interface, canvas: &Canvas) {
         // This draws a preview to show if we're overlapping a point we can merge with or not.
         // Note that all tool draw events draw over the glyph view.
         if v.contour_idx.is_none() || v.point_idx.is_none() {

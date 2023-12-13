@@ -17,7 +17,7 @@ use crate::{editor::Editor, user_interface::Interface};
 mod speed_visualization;
 pub mod measure;
 
-pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &mut Canvas) {
+pub fn render_frame(v: &mut Editor, i: &mut Interface, canvas: &Canvas) {
     canvas.save();
 
     let pm = i.viewport.preview_mode;
