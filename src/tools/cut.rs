@@ -124,7 +124,6 @@ impl Cut {
                             let line_t = li.line_t;
                             let curve_t = li.segment_t;
 
-                            println!("curve_t {0}", curve_t);
                             let coordinate = quadbez.eval(curve_t);
 
                             let intersection = Intersection {

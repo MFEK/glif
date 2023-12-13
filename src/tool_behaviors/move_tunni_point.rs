@@ -33,7 +33,6 @@ impl MoveTunniPoint {
     }
 
     pub fn mouse_moved(&mut self, v: &mut Editor, i: &mut Interface, mouse_info: MouseInfo) {
-        println!("YEET");
         // we stop the drag when there's no longer a well formed tunni point/line
         if get_tunni_line_from_info(v, &self.tunni_info).is_none() {
             v.pop_behavior();
@@ -70,10 +69,8 @@ impl MoveTunniPoint {
         let a_intersect = flo_curves::line::ray_intersects_ray(&(a, c1), &(ha1, ha));
         let b_intersect = flo_curves::line::ray_intersects_ray(&(b, c2), &(hb1, hb),);
 
-        println!("{:?} {:?}", a_intersect, b_intersect);
         match (a_intersect, b_intersect) {
             (Some(c1), Some(c2)) => {
-                println!("DOING A MODIFY");
                 v.begin_modification("Move tunni point.", true);
 
                 get_point_mut!(v.get_active_layer_mut(), self.tunni_info.a.0, self.tunni_info.a.1)
