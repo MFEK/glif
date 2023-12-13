@@ -30,8 +30,8 @@ pub mod layers;
 pub mod operations;
 pub mod selection;
 pub mod tools;
-pub mod util;
 pub mod tunni;
+pub mod util;
 
 #[macro_use]
 pub mod macros;

@@ -23,8 +23,8 @@ use skia_safe::RCHandle;
 use skia_safe::Surface;
 
 use crate::editor::Editor;
-pub use crate::user_interface::mouse_input::MouseInfo;
 pub use crate::render::measure::Measure;
+pub use crate::user_interface::mouse_input::MouseInfo;
 
 use sdl2::{video::Window as SdlWindow, Sdl};
 
@@ -88,7 +88,11 @@ impl Interface {
 
             context: None,
             grid: Grid::default(),
-            measure: Measure { start_point: None, end_point: None, enabled: true},
+            measure: Measure {
+                start_point: None,
+                end_point: None,
+                enabled: true,
+            },
             curvature_vis: true,
             mouse_info: MouseInfo::default(),
             viewport: Viewport::default(),

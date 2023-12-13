@@ -1,19 +1,26 @@
-use MFEKmath::{Piecewise, Bezier, ArcLengthParameterization, Parameterization, Evaluate, Vector, mfek::ResolveCubic};
 use glifrenderer::toggles::PreviewMode;
 use skia_safe::{Canvas, Color, Paint};
+use MFEKmath::{
+    mfek::ResolveCubic, ArcLengthParameterization, Bezier, Evaluate, Parameterization, Piecewise,
+    Vector,
+};
 
-use crate::{editor::Editor, user_interface::Interface, get_contour};
+use crate::{editor::Editor, get_contour, user_interface::Interface};
 
 pub fn draw_velocity(v: &Editor, i: &Interface, canvas: &Canvas) {
-    if i.viewport.preview_mode == PreviewMode::Paper { return };
-    if i.curvature_vis == false { return };
-    
+    if i.viewport.preview_mode == PreviewMode::Paper {
+        return;
+    };
+    if i.curvature_vis == false {
+        return;
+    };
+
     if let Some((cidx, _)) = v.selected_point() {
         let selected_contour = &get_contour!(v.get_active_layer_ref(), cidx);
 
         let scaling_factor: f64 = 200.;
         let quality = 6.;
-        
+
         let piecewise: Piecewise<Bezier> = selected_contour.to_cubic().into();
         let mut first = false;
         for bez in piecewise.segs {
@@ -27,12 +34,13 @@ pub fn draw_velocity(v: &Editor, i: &Interface, canvas: &Canvas) {
             // Function to map velocity magnitude to a color
             let alpha = 32u8; // Semi-transparent
             let map_velocity_to_color = |velocity_magnitude: f64| -> Color {
-                let normalized = (velocity_magnitude.abs() - min_velocity_magnitude) / (max_velocity_magnitude - min_velocity_magnitude);
+                let normalized = (velocity_magnitude.abs() - min_velocity_magnitude)
+                    / (max_velocity_magnitude - min_velocity_magnitude);
                 let red = (normalized * 255.0) as u8;
                 let blue = ((1.0 - normalized) * 255.0) as u8;
                 Color::from_argb(alpha, red, 0, blue) // Gradient from blue to red
             };
-    
+
             let derivative = bezier_derivative(&bez);
             // Second pass to draw the lines with gradient colors
             let start = if first { 0 } else { 1 };
@@ -40,22 +48,33 @@ pub fn draw_velocity(v: &Editor, i: &Interface, canvas: &Canvas) {
             for sample in start..=samples {
                 let t = sample as f64 / samples as f64;
                 let t = arclen_param.parameterize(t);
-            
+
                 // Calculate the first and second derivatives
-                let first_derivative = eval_quadratic_bezier(derivative.0, derivative.1, derivative.2, t);
-                let second_derivative = eval_linear_bezier(bezier_second_derivative(&bez).0, bezier_second_derivative(&bez).1, t);
-            
+                let first_derivative =
+                    eval_quadratic_bezier(derivative.0, derivative.1, derivative.2, t);
+                let second_derivative = eval_linear_bezier(
+                    bezier_second_derivative(&bez).0,
+                    bezier_second_derivative(&bez).1,
+                    t,
+                );
+
                 // Calculate the curvature
-                let curvature = (first_derivative.x * second_derivative.y - first_derivative.y * second_derivative.x) /
-                                (first_derivative.x.powi(2) + first_derivative.y.powi(2)).powf(1.5);
-            
+                let curvature = (first_derivative.x * second_derivative.y
+                    - first_derivative.y * second_derivative.x)
+                    / (first_derivative.x.powi(2) + first_derivative.y.powi(2)).powf(1.5);
+
                 let scaled_curvature = curvature.signum() * curvature.abs().sqrt();
-                let clamped_curvature = scaled_curvature.signum() * scaled_curvature.abs().min(max_velocity_magnitude);
-                let normal = Vector { x: -first_derivative.y, y: first_derivative.x }.normalize();
-            
+                let clamped_curvature =
+                    scaled_curvature.signum() * scaled_curvature.abs().min(max_velocity_magnitude);
+                let normal = Vector {
+                    x: -first_derivative.y,
+                    y: first_derivative.x,
+                }
+                .normalize();
+
                 // Scale the normal by the curvature
                 let scaled_normal = -normal * scaled_curvature * scaling_factor;
-            
+
                 let color = map_velocity_to_color(clamped_curvature);
 
                 // Draw the normal line
@@ -68,11 +87,9 @@ pub fn draw_velocity(v: &Editor, i: &Interface, canvas: &Canvas) {
                 normal_paint.set_anti_alias(true);
                 canvas.draw_line(start.to_skia_point(), end.to_skia_point(), &normal_paint);
             }
-            
         }
     }
 }
-
 
 // Function to calculate the derivative of a cubic Bézier curve
 fn bezier_derivative(bez: &Bezier) -> (Vector, Vector, Vector) {
