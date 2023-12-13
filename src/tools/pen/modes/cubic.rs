@@ -1,6 +1,7 @@
 use MFEKmath::{Bezier, subdivide::Subdivide};
 use glifparser::{glif::{contour::MFEKContourCommon, contour_operations::ContourOperation}, Point, PointType, WhichHandle, Contour, MFEKPointData};
 use glifrenderer::points::draw_point;
+use skia_safe::Canvas;
 
 use crate::{editor::{Editor, util::{HoveredPointInfo}}, user_interface::MouseInfo, get_contour_len, tool_behaviors::move_handle::MoveHandle};
 use super::PenMode;
@@ -75,7 +76,7 @@ impl PenMode for CubicMode {
         v.push_behavior(Box::new(MoveHandle::new(WhichHandle::A, mouse_info, true)));
     }
 
-    fn draw_nearest_point(&self, i: &crate::user_interface::Interface, canvas: &mut MFEKmath::skia_safe::Canvas, info: HoveredPointInfo) {
+    fn draw_nearest_point(&self, i: &crate::user_interface::Interface, canvas: &Canvas, info: HoveredPointInfo) {
         draw_point::<()>(
             &i.viewport,
             &Point::from_x_y_type(info.point, PointType::Curve),

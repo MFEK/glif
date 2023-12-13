@@ -70,7 +70,7 @@ impl Tool for Select {
         }
     }
 
-    fn draw(&mut self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
+    fn draw(&mut self, v: &Editor, i: &Interface, canvas: &Canvas) {
         self.draw_tunni_line(v, i, canvas);
         self.draw_pivot.draw(v, i, canvas);
     }
@@ -91,7 +91,7 @@ impl Select {
         v.selected = points;
     }
 
-    fn draw_tunni_line(&mut self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
+    fn draw_tunni_line(&mut self, v: &Editor, i: &Interface, canvas: &Canvas) {
         let mut paint = Paint::default();
     
         let closest_tunni = get_closest_tunni_line(v, i);

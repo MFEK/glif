@@ -97,7 +97,7 @@ impl Tool for Guidelines {
         }
     }
 
-    fn draw(&mut self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
+    fn draw(&mut self, v: &Editor, i: &Interface, canvas: &Canvas) {
         self.draw_selected_guideline(i, v, canvas);
     }
 
@@ -202,7 +202,7 @@ impl Guidelines {
         }
     }
 
-    fn draw_selected_guideline(&self, i: &Interface, v: &Editor, canvas: &mut Canvas) {
+    fn draw_selected_guideline(&self, i: &Interface, v: &Editor, canvas: &Canvas) {
         let split_guidelines = SplitGuidelines::new(v);
 
         if let Some(selected) = self.selected_idx {

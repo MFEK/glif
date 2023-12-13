@@ -20,7 +20,7 @@ pub trait Tool: DynClone + std::fmt::Debug {
     fn event(&mut self, v: &mut Editor, i: &mut Interface, event: EditorEvent);
 
     // We provide empty default implementations for these two because not every tool needs these hooks.
-    fn draw(&mut self, _v: &Editor, _i: &Interface, _canvas: &mut Canvas) {}
+    fn draw(&mut self, _v: &Editor, _i: &Interface, _canvas: &Canvas) {}
 
     // UI hooks. Dialog hooks into the tools dialog.
     fn dialog(&mut self, _v: &mut Editor, _i: &mut Interface, _ui: &mut Ui) -> bool {

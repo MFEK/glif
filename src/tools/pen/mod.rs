@@ -87,7 +87,7 @@ impl Tool for Pen {
             });
     }
 
-    fn draw(&mut self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
+    fn draw(&mut self, v: &Editor, i: &Interface, canvas: &Canvas) {
         self.draw_merge_preview(v, i, canvas);
         self.draw_nearest_point(v, i, canvas);
     }
@@ -165,7 +165,7 @@ impl Pen {
         v.push_behavior(Box::new(MoveHandle::new(WhichHandle::A, mouse_info, true)));
     }
 
-    fn draw_nearest_point(&mut self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
+    fn draw_nearest_point(&mut self, v: &Editor, i: &Interface, canvas: &Canvas) {
         if i.mouse_info.is_down {
             return;
         };
@@ -176,7 +176,7 @@ impl Pen {
         }
     }
 
-    fn draw_merge_preview(&self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
+    fn draw_merge_preview(&self, v: &Editor, i: &Interface, canvas: &Canvas) {
         // we've got a point selected?
         if let (Some(c_idx), Some(p_idx)) = (v.contour_idx, v.point_idx) {
             // we've clicked a handle?

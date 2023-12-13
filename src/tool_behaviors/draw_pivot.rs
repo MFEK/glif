@@ -32,7 +32,7 @@ impl ToolBehavior for DrawPivot {
         }
     }
 
-    fn draw(&mut self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
+    fn draw(&mut self, v: &Editor, i: &Interface, canvas: &Canvas) {
         self.draw_pivot_point(v, i, canvas);
     }
 }
@@ -52,7 +52,7 @@ impl DrawPivot {
         self.pivot_point = Some(mouse_info.position);
     }
 
-    fn draw_pivot_point(&self, _v: &Editor, i: &Interface, canvas: &mut Canvas) {
+    fn draw_pivot_point(&self, _v: &Editor, i: &Interface, canvas: &Canvas) {
         if let Some(pivot) = self.pivot_point {
             let pivot = (pivot.0, pivot.1);
             let mut paint = Paint::default();

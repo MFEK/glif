@@ -57,7 +57,7 @@ impl Tool for Shapes {
         true
     }
 
-    fn draw(&mut self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
+    fn draw(&mut self, v: &Editor, i: &Interface, canvas: &Canvas) {
         if let Some(corners) = self.corners {
             SelectionBox::draw_box_impl(i, canvas, corners);
         }

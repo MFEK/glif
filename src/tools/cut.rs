@@ -47,7 +47,7 @@ impl Tool for Cut {
         }
     }
 
-    fn draw(&mut self, v: &Editor, i: &Interface, canvas: &mut Canvas) {
+    fn draw(&mut self, v: &Editor, i: &Interface, canvas: &Canvas) {
         Self::draw_line(i, v, canvas, &self.start_point, &Some(i.mouse_info.position));
     }
 }
@@ -259,7 +259,7 @@ impl Cut {
     }
     
 
-    pub fn draw_line(i: &Interface, v: &Editor, canvas: &mut Canvas, start_point: &Option<(f32, f32)>, end_point: &Option<(f32, f32)>) {
+    pub fn draw_line(i: &Interface, v: &Editor, canvas: &Canvas, start_point: &Option<(f32, f32)>, end_point: &Option<(f32, f32)>) {
         let mut path = Path::new();
         let mut paint = Paint::default();
         let factor = i.viewport.factor;

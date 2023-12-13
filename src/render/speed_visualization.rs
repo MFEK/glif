@@ -4,7 +4,7 @@ use skia_safe::{Canvas, Color, Paint};
 
 use crate::{editor::Editor, user_interface::Interface, get_contour};
 
-pub fn draw_velocity(v: &Editor, i: &Interface, canvas: &mut Canvas) {
+pub fn draw_velocity(v: &Editor, i: &Interface, canvas: &Canvas) {
     if i.viewport.preview_mode == PreviewMode::Paper { return };
     if i.curvature_vis == false { return };
     
