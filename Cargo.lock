@@ -6,7 +6,7 @@ version = 3
 name = "MFEKglif"
 version = "2.0.1-beta1"
 dependencies = [
- "MFEKmath 0.1.2",
+ "MFEKmath",
  "arboard",
  "atty",
  "backtrace",
@@ -65,21 +65,7 @@ dependencies = [
 [[package]]
 name = "MFEKmath"
 version = "0.1.2"
-dependencies = [
- "flo_curves",
- "glifparser",
- "kurbo 0.9.5",
- "log",
- "plist",
- "skia-safe",
- "spline 0.3.0",
- "xmltree",
-]
-
-[[package]]
-name = "MFEKmath"
-version = "0.1.2"
-source = "git+https://github.com/MFEK/math.rlib?branch=main#1bccb33e9d8a3f6bde9ea234b7519384bc050526"
+source = "git+https://github.com/MFEK/math.rlib?branch=main#ea9e14d289fc7b6afca058f6a6b120f161f96d04"
 dependencies = [
  "flo_curves",
  "glifparser",
@@ -1332,7 +1318,7 @@ dependencies = [
 [[package]]
 name = "glifparser"
 version = "2.0.1"
-source = "git+https://github.com/MFEK/glifparser.rlib?branch=master#f8dcacbcaed2632e6287f32872bf1ab3b6174cfb"
+source = "git+https://github.com/MFEK/glifparser.rlib?branch=master#82cc120000b59c14efd32bebf683b46d9348e9e5"
 dependencies = [
  "derivative",
  "derive_more",
@@ -1356,7 +1342,7 @@ name = "glifrenderer"
 version = "0.1.2"
 source = "git+https://github.com/MFEK/glifrenderer.rlib#044324a0fa7cc90c8cd4b25cac40ffa5494a85ee"
 dependencies = [
- "MFEKmath 0.1.2 (git+https://github.com/MFEK/math.rlib?branch=main)",
+ "MFEKmath",
  "derive_more",
  "enum-iterator",
  "enum-unitary",
