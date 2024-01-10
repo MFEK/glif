@@ -1,5 +1,3 @@
-use std::borrow::BorrowMut;
-
 use egui::Align2;
 
 //use super::{IMGUI_RESERVE, PROMPT_CLR, PROMPT_STR, TOOLBOX_HEIGHT, TOOLBOX_WIDTH};
@@ -12,7 +10,7 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ctx: &egui::Co
     match i.peek_prompt().clone() {
         InputPrompt::YesNo {
             question,
-            afterword,
+            afterword: _,
             func,
         } => {
             egui::Window::new("MFEKglif")
@@ -43,7 +41,7 @@ pub fn build_and_check_prompts(v: &mut Editor, i: &mut Interface, ctx: &egui::Co
         }
         InputPrompt::Text {
             label,
-            default,
+            default: _,
             func,
         } => {
             egui::Window::new(label)

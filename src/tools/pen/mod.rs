@@ -193,7 +193,7 @@ impl Pen {
                 let selected_open = is_contour_open!(v.get_active_layer_ref(), c_idx);
                 let target_open = is_contour_open!(v.get_active_layer_ref(), info_ci);
                 if end_is_active && start_is_clicked && selected_open && target_open {
-                    let point = get_contour!(v.get_active_layer_ref(), info_ci).get_point(p_idx).unwrap().clone();
+                    let point = get_contour!(v.get_active_layer_ref(), info_ci).get_point(p_idx).unwrap();
                     draw_point(
                         &i.viewport,
                         point,

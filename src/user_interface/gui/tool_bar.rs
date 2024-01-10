@@ -24,7 +24,7 @@ fn build_button<'a>(v: &mut Editor, ui: &mut Ui, text: &str, te: ToolEnum) {
         Stroke::NONE
     };
 
-    let mut button = b.button.unwrap().stroke(stroke);
+    let button = b.button.unwrap().stroke(stroke);
     b.button = Some(button);
 
     let response = b.egui_response(ui);

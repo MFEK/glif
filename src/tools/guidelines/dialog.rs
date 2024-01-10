@@ -11,13 +11,13 @@ lazy_static! {
 
 impl Guidelines {
     pub fn tool_dialog(&mut self, v: &mut Editor, i: &mut Interface, ui: &mut egui::Ui) {
-        let (mut guidelines, _, local_guidelines_len, _) = SplitGuidelines::new(v).as_tuple();
+        let (mut guidelines, _, _, _) = SplitGuidelines::new(v).as_tuple();
 
         for (gidx, (guideline, is_global)) in guidelines.iter_mut().enumerate() {
             ui.vertical(|ui| {
                 ui.horizontal(|ui| {
                     let (
-                        mut guidelines,
+                        guidelines,
                         _guidelines_len,
                         local_guidelines_len,
                         _global_guidelines_len,
@@ -85,7 +85,7 @@ impl Guidelines {
                     });
 
                     let guideline_display = guideline_name.clone();
-                    let mut im_str = guideline_display;
+                    let im_str = guideline_display;
 
                     if !(is_global && guideline.data.as_guideline().format) {
                         let rb = build_and_add_icon_button::<"icons_small">(v, ui, icons::_RENAME, "Rename guideline");
@@ -140,7 +140,7 @@ impl Guidelines {
                     return;
                 }
 
-                let (mut at, mut angle) = {
+                let (at, angle) = {
                     let at = guidelines[selected].0.at;
                     let angle = guidelines[selected].0.angle.into();
 

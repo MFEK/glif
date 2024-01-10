@@ -5,7 +5,6 @@
 #![allow(incomplete_features)]
 #![feature(
     type_alias_impl_trait,
-    local_key_cell_methods,
     trait_alias,
     const_trait_impl,
     generic_const_exprs,

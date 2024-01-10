@@ -1,11 +1,11 @@
-use crate::{get_point_mut, editor::tunni::{TunniLineInfo, construct_tunni_line, get_tunni_line_from_info}};
+use crate::{get_point_mut, editor::tunni::{TunniLineInfo, get_tunni_line_from_info}};
 
 use super::prelude::*;
 use MFEKmath::Vector;
-use glifparser::glif::{mfek::contour::MFEKContourCommon};
+use glifparser::glif::mfek::contour::MFEKContourCommon;
+
 #[derive(Clone, Debug)]
 pub struct MoveTunniPoint {
-    mouse_info: MouseInfo,
     tunni_info: TunniLineInfo
 }
 
@@ -25,14 +25,13 @@ impl ToolBehavior for MoveTunniPoint {
 }
 
 impl MoveTunniPoint {
-    pub fn new(mouse_info: MouseInfo, tunni_info: TunniLineInfo) -> Self {
+    pub fn new(_: MouseInfo, tunni_info: TunniLineInfo) -> Self {
         MoveTunniPoint {
-            mouse_info,
             tunni_info
         }
     }
 
-    pub fn mouse_moved(&mut self, v: &mut Editor, i: &mut Interface, mouse_info: MouseInfo) {
+    pub fn mouse_moved(&mut self, v: &mut Editor, _: &mut Interface, mouse_info: MouseInfo) {
         // we stop the drag when there's no longer a well formed tunni point/line
         if get_tunni_line_from_info(v, &self.tunni_info).is_none() {
             v.pop_behavior();

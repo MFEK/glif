@@ -1,7 +1,5 @@
 mod dialog;
 
-use std::collections::HashMap;
-
 use super::prelude::*;
 use crate::tool_behaviors::zoom_scroll::ZoomScroll;
 use crate::tools::Select;
@@ -10,7 +8,6 @@ use crate::editor::Editor;
 #[derive(Clone, Debug)]
 pub struct PAP {
     pattern_layer: Option<usize>,
-    edit_buf: HashMap<String, String>,
     select_tool: Select
 }
 
@@ -48,7 +45,6 @@ impl Tool for PAP {
 impl PAP {
     pub fn new() -> Self {
         Self {
-            edit_buf: HashMap::new(),
             pattern_layer: None,
             select_tool: Select::new()
         }

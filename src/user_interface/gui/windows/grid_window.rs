@@ -74,8 +74,8 @@ impl GlifWindow for GridWindow {
                         &mut self.edit_buf,
                     ));
 
-                    let mut angle = (f32::to_degrees(f32::atan(slope)) * 10000.).round() / 10000.;
-                    angle = egui_parsed_textfield(ui, "spacing", angle, &mut self.edit_buf);
+                    let angle = (f32::to_degrees(f32::atan(slope)) * 10000.).round() / 10000.;
+                    egui_parsed_textfield(ui, "spacing", angle, &mut self.edit_buf);
                 }
 
                 i.grid.offset %= i.grid.spacing;

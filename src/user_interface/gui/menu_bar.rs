@@ -19,10 +19,10 @@ pub fn menu_bar(ctx: &Context, v: &mut Editor, i: &mut Interface, wm: &mut Windo
                     };
                 }
                 if ui.button("Save").clicked() {
-                    v.save_glif(false);
+                    v.save_glif(false).expect("Error while saving file.");
                 }
                 if ui.button("Export").clicked() {
-                    v.export_glif(Some(i));
+                    v.export_glif(Some(i)).expect("Error while exporting glif.");
                 }
                 if ui.button("Exit").clicked() {
                     v.quit(i);

@@ -1,9 +1,5 @@
-use glifrenderer::constants;
-use skia_safe::{Point, Color4f, Typeface, Font};
-
 use crate::editor::Editor;
 use crate::tool_behaviors::zoom_scroll::ZoomScroll;
-use crate::tools::cut::{Cut, Intersection};
 use crate::user_interface::Interface;
 
 use super::prelude::*;
