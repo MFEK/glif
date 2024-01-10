@@ -2,12 +2,9 @@ use glifrenderer::constants::OUTLINE_STROKE_THICKNESS;
 use skia_safe::{Canvas, Font, Matrix, Paint, Path, Point, Rect};
 use MFEKmath::{vec2, Vector};
 
-use crate::{
-    constants,
-    editor::Editor,
-    tools::cut::{Cut, Intersection},
-    user_interface::{Interface, MouseInfo},
-};
+use crate::editor::Editor;
+use crate::tools::cut::{Cut, Intersection};
+use crate::user_interface::Interface;
 use glifrenderer::constants::MEASURE_STROKE;
 
 pub struct Measure {
@@ -52,7 +49,6 @@ impl Measure {
         canvas.draw_path(&path, &paint);
 
         // Arc illustrating the angle
-        let radius = distance / 2.0; // This can be adjusted based on desired arc size.
         path.rewind(); // Clear the path to reuse it
         path.move_to(end_point_horizontal.to_skia_point());
 
@@ -98,7 +94,7 @@ impl Measure {
             factor,
         );
 
-        let intersections = Cut::find_intersections(&self.start_point, &self.end_point, v, true);
+        let intersections = Cut::find_intersections(&self.start_point, &self.end_point, v);
         self.draw_intersection_distances(canvas, intersections.as_slice(), factor);
 
         if intersections.len() > 1 {
@@ -112,7 +108,7 @@ impl Measure {
                 last_intersection.coords.0 as f32,
                 last_intersection.coords.1 as f32,
             );
-            self.draw_bracket(canvas, fcoords, lcoords, -20.0, factor); // 20.0 is the offset from the main line, adjust as needed
+            self.draw_bracket(canvas, fcoords, lcoords, -20.0, factor);
         }
     }
 

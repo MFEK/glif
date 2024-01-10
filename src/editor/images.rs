@@ -56,8 +56,8 @@ impl From<GpImage> for EditorImage {
         );
         let image_info = SkImageInfo::from_color_info((width as i32, height as i32), color_info);
         let skdata = unsafe { SkData::new_bytes(&data) };
-        let img = SkImage::from_raster_data(&image_info, skdata, (width * 4) as usize).unwrap();
-
+        let img = skia_safe::images::raster_from_data(&image_info, skdata, (width * 4) as usize).unwrap();
+        
         Self {
             img,
             data,

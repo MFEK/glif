@@ -1,6 +1,6 @@
 use super::super::prelude::*;
 use super::PAP;
-use crate::user_interface::{Interface, gui::windows::egui_parsed_textfield};
+use crate::user_interface::Interface;
 use glifparser::glif::contour_operations::{pap::{PatternStretch, PatternCopies, PatternSubdivide, PAPContour, PatternCulling}, ContourOperations};
 use egui::Ui;
 
@@ -63,7 +63,7 @@ impl PAP {
                 }
 
                 data.subdivide = match data.subdivide {
-                    PatternSubdivide::Simple(mut times) => {
+                    PatternSubdivide::Simple(times) => {
                         let mut times = times as i32;
                         ui.add(egui::Slider::new(&mut times, 1..=10)
                             .text("Times")
@@ -71,7 +71,7 @@ impl PAP {
                         PatternSubdivide::Simple(times as usize)
                     }
 
-                    PatternSubdivide::Angle(mut angle) => {
+                    PatternSubdivide::Angle(angle) => {
                         let mut angle = angle as f32;
                         ui.add(egui::Slider::new(&mut angle, 0.0..=90.0)
                             .text("Angle")
@@ -108,7 +108,7 @@ impl PAP {
                 }
 
                 data.prevent_overdraw = match data.prevent_overdraw {
-                    PatternCulling::EraseOverlapping(mut radius, mut cull_area_percent) => {
+                    PatternCulling::EraseOverlapping(radius, mut cull_area_percent) => {
                         let mut radius = radius as f32;
                         ui.add(egui::Slider::new(&mut radius, 0.0..=20.0)
                             .text("Radius")

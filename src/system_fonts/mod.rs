@@ -9,7 +9,6 @@ use font_kit::{
         self as FKSelectionError, CannotAccessSource as FKSourceError, NotFound as FKNotFoundError,
     },
     handle::Handle as FKHandle,
-    properties::Properties,
     source::SystemSource,
 };
 
@@ -51,7 +50,6 @@ impl TryInto<SystemFont> for FKHandle {
 fn load_font(family: &[&str]) -> Result<SystemFont, FKSelectionError> {
     log::debug!("Looking for a UI font to satisfy request for {:?}", family);
     let source = SystemSource::new();
-    let props = Properties::new();
     let mut font: Option<SystemFont> = None;
     let mut last_err = None;
     let mut best_match;

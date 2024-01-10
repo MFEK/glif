@@ -1,4 +1,4 @@
-use std::{default, str::FromStr};
+use std::str::FromStr;
 
 use egui::Ui;
 

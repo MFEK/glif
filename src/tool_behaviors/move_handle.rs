@@ -17,8 +17,6 @@ pub struct MoveHandle {
 
     // this handle did not previously exist but is being drawn by user for the first time
     creating: bool,
-
-    warned_force_line: bool,
 }
 
 // Event handlers
@@ -28,7 +26,6 @@ impl MoveHandle {
             wh,
             mouse_info,
             creating,
-            warned_force_line: false,
         }
     }
 

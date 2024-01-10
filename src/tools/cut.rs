@@ -15,7 +15,7 @@ use glifparser::glif::contour::MFEKContourCommon;
 use glifrenderer::constants::{self, OUTLINE_STROKE_THICKNESS};
 use kurbo::{PathSeg, QuadBez, ParamCurve};
 use skia_safe::{Canvas, Paint, Path, Point};
-use MFEKmath::{Piecewise, Bezier, Evaluate};
+use MFEKmath::{Piecewise, Bezier};
 
 use crate::editor::Editor;
 use crate::user_interface::Interface;
@@ -62,12 +62,12 @@ impl Cut {
     }
 
     fn mouse_released(&mut self, v: &mut Editor, mouse_info: MouseInfo) {        
-        let intersections = Self::find_intersections(&self.start_point, &Some(mouse_info.position.into()), v, false);
+        let intersections = Self::find_intersections(&self.start_point, &Some(mouse_info.position.into()), v);
         Self::split_at_intersections(v, &intersections);
         self.start_point = None;
     }
 
-    pub fn find_intersections(start_point: &Option<(f32, f32)>, end_point: &Option<(f32, f32)>, v: &Editor, non_cubic: bool) -> Vec<Intersection> {
+    pub fn find_intersections(start_point: &Option<(f32, f32)>, end_point: &Option<(f32, f32)>, v: &Editor) -> Vec<Intersection> {
         let mut intersections = vec![];
         if start_point.is_none() || end_point.is_none() { return intersections }
 
@@ -281,7 +281,7 @@ impl Cut {
             canvas.draw_path(&path, &paint);
     
             // Draw X's at the intersections
-            let intersections = Self::find_intersections(&start_point, &end_point, v, true); // Assuming you have access to the editor here
+            let intersections = Self::find_intersections(&start_point, &end_point, v); // Assuming you have access to the editor here
             for intersection in intersections {
                 let intersection_point = Point::new(intersection.coords.0 as f32, intersection.coords.1 as f32);
                 

@@ -15,12 +15,11 @@ use glifrenderer::viewport::Viewport;
 use sdl2::video::GLContext;
 use skia_bindings::GrDirectContext;
 use skia_bindings::GrSurfaceOrigin;
+use skia_safe::gpu;
 use skia_safe::gpu::gl::FramebufferInfo;
-use skia_safe::gpu::BackendRenderTarget;
 use skia_safe::Color;
 use skia_safe::ColorType;
 use skia_safe::RCHandle;
-use skia_safe::Surface;
 
 use crate::editor::Editor;
 pub use crate::render::measure::Measure;
@@ -31,7 +30,7 @@ use sdl2::{video::Window as SdlWindow, Sdl};
 use self::egui_manager::EguiManager;
 use self::gui::build_ui;
 use self::gui::window::WindowManager;
-pub use self::popout::{Popout, PopoutWindow};
+pub use self::popout::PopoutWindow;
 
 /* Window */
 pub const PAPER_DRAW_GUIDELINES: bool = false;
@@ -199,7 +198,6 @@ impl Interface {
     }
 
     pub fn windows(&mut self) -> impl IntoIterator<Item = PopoutWindow> {
-        use std::slice::IterMut;
         (Box::new([&mut self.sdl_window])
             .into_iter()
             .chain(&mut self.child_sdl_windows)
@@ -221,8 +219,8 @@ fn create_surface(
     let (width, height) = window.drawable_size();
 
     let backend_render_target =
-        BackendRenderTarget::new_gl((width as i32, height as i32), 0, 8, *fb_info);
-    Surface::from_backend_render_target(
+        gpu::backend_render_targets::make_gl((width as i32, height as i32), 0, 8, *fb_info);
+    gpu::surfaces::wrap_backend_render_target(
         gr_context,
         &backend_render_target,
         GrSurfaceOrigin::BottomLeft,
