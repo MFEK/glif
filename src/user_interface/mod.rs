@@ -151,6 +151,7 @@ impl Interface {
         canvas.scale((scale, scale));
         egui_manager.egui.paint(canvas);
         canvas.restore();
+        self.gr_context.flush_and_submit_surface(sk_surface, None);
         sk_surface.notify_content_will_change(skia_bindings::SkSurface_ContentChangeMode::Discard);
         self.sdl_window.gl_swap_window();
     }

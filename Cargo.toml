@@ -20,8 +20,8 @@ build = "build.rs"
 #skulpin = { git = "https://github.com/MFEK/skulpin" }
 #skulpin-renderer = {git = "https://github.com/MFEK/skulpin/"}
 gl = "0.14.0"
-skia-safe = { version = ">=0.62.0", features = ["gl"] }
-skia-bindings = { version = ">=0.62.0", features = ["gl"] }
+skia-safe = { version = "0.69.0", features = ["gl"] }
+skia-bindings = { version = "0.69.0", features = ["gl"] }
 
 # For windowing, contexts, and events
 sdl2 = { version = ">=0.34", features = ["raw-window-handle"] }
