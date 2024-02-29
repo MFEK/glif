@@ -4,6 +4,7 @@ pub use crate::user_interface::follow::Follow;
 use glifparser::PointData;
 use glifparser::glif::contour::MFEKContourCommon;
 use glifparser::glif::point::MFEKPointCommon;
+use MFEKmath::polar::PolarCoordinates;
 
 #[derive(Clone, Debug)]
 pub struct MoveHandle {
@@ -54,12 +55,21 @@ impl MoveHandle {
             // Difference in x, difference in y
             let (dx, dy) = (cx - x, cy - y);
 
-            let follow = if self.creating {
+            let mut follow = if self.creating {
                 Follow::Mirror
             } else {
                 Follow::from(self.mouse_info)
             };
 
+            if point.get_smooth() == Some(true) {
+                // Follow::Mirror breaks smoothness
+                follow = Follow::ForceLine;
+            }
+
+            if point.get_handle(self.wh.opposite()).unwrap() == Handle::Colocated && follow == Follow::ForceLine {
+                // If the opposite handle is colocated, force line crashes due to unwrapping a None value.
+                follow = Follow::No;
+            }
             match self.wh {
                 WhichHandle::A | WhichHandle::B => {
                     point.set_handle(self.wh, Handle::At(x, y));
@@ -94,21 +104,13 @@ impl MoveHandle {
         }
     }
 
-    fn force_line<PD: PointData>(&mut self, _point: &mut dyn MFEKPointCommon<PD>) {
-        // TODO: Fix this? I have zero clue why this errors. It's forcing point to `static.
-        /*let (r, _) = point.polar(self.wh.opposite());
+    fn force_line<PD: PointData>(&self, mut point: &mut dyn MFEKPointCommon<PD>) {
+        let (r, _) = point.polar(self.wh.opposite());
         let (_, theta) = point.polar(self.wh);
         match point.get_handle(self.wh.opposite()).unwrap() {
             Handle::At(..) => point.set_polar(self.wh.opposite(), (r, theta.to_degrees())),
-            Handle::Colocated => {
-                if !self.warned_force_line {
-                    log::warn!(
-                        "Makes no sense to force line when opposite handle is colocated, ignoring"
-                    );
-                }
-                self.warned_force_line = true;
-            }
-        }*/
+            Handle::Colocated => unreachable!("Force line is nonsensical when the opposite handle is colocated")
+        }
     }
 }
 
