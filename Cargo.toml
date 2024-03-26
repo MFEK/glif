@@ -20,8 +20,8 @@ build = "build.rs"
 #skulpin = { git = "https://github.com/MFEK/skulpin" }
 #skulpin-renderer = {git = "https://github.com/MFEK/skulpin/"}
 gl = "0.14.0"
-skia-safe = { version = "0.69.0", features = ["gl"] }
-skia-bindings = { version = "0.69.0", features = ["gl"] }
+skia-safe = { version = "0.70.0", features = ["gl"] }
+skia-bindings = { version = "0.70.0", features = ["gl"] }
 
 # For windowing, contexts, and events
 sdl2 = { version = ">=0.34", features = ["raw-window-handle"] }
@@ -142,7 +142,7 @@ winapi = "0.3"
 [build-dependencies]
 cargo-emit = "0.2"
 cfg-if = "1.0"
-chrono = "0.4"
+chrono = "=0.4.31"
 colored = "2.0"
 git-version = "0.3.0"
 log = "0.4"
@@ -159,3 +159,6 @@ opt-level = 3
 #lto = true
 codegen-units = 1
 panic = "abort"
+
+[patch.crates-io]
+pathfinder_simd = { git = "https://github.com/servo/pathfinder", rev = "30419d07660dc11a21e42ef4a7fa329600cff152"}

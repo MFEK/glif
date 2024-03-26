@@ -92,7 +92,6 @@ impl Interface {
         (sdl_context, window, gr_context, gl_ctx)
     }
 
-
     pub fn set_window_title(&mut self, title: &str) -> Result<(), NulError> {
         self.sdl_window.set_title(title)
     }
