@@ -142,7 +142,7 @@ winapi = "0.3"
 [build-dependencies]
 cargo-emit = "0.2"
 cfg-if = "1.0"
-chrono = "0.4"
+chrono = "=0.4.31"
 colored = "2.0"
 git-version = "0.3.0"
 log = "0.4"
@@ -159,3 +159,6 @@ opt-level = 3
 #lto = true
 codegen-units = 1
 panic = "abort"
+
+[patch.crates-io]
+pathfinder_simd = { git = "https://github.com/servo/pathfinder", rev = "30419d07660dc11a21e42ef4a7fa329600cff152"}
