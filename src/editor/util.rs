@@ -1,8 +1,8 @@
 // This file is mainly utilities that are common use cases for the editor, but don't necessarily need to be
 // in Editor.
 
-use crate::{get_contour_len, get_point_mut};
 use crate::user_interface::Interface;
+use crate::{get_contour_len, get_point_mut};
 use flo_curves::{
     bezier::{solve_curve_for_t_along_axis, Curve as FloCurve},
     geo::Coord2,
