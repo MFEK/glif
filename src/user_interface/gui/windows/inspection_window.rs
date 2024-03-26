@@ -8,9 +8,10 @@ use crate::{
 use egui::Context;
 use glifparser::{
     glif::{contour::MFEKContourCommon, inner::MFEKContourInnerType, point::MFEKPointCommon},
-    Handle, PointData, WhichHandle,
+    Contour, Handle, MFEKPointData, PointData, WhichHandle,
 };
 use MFEKmath::mfek::ResolveCubic;
+use MFEKmath::polar::PolarCoordinates;
 
 use super::egui_parsed_textfield;
 
@@ -50,7 +51,7 @@ impl GlifWindow for InspectionWindow {
             .show(ctx, |ui| {
                 if let Some((ci, pi)) = v.selected_point() {
                     let mut contour = v.get_active_layer_ref().outline[ci].clone();
-                    let point = contour
+                    let mut point = contour
                         .get_point_mut(pi)
                         .expect("Editor should have valid selection!");
                     // do contour stuff
@@ -114,7 +115,34 @@ impl GlifWindow for InspectionWindow {
                             egui_parsed_textfield(ui, "px", point.x(), &mut self.edit_buf),
                             egui_parsed_textfield(ui, "py", point.y(), &mut self.edit_buf),
                         );
-
+                        if let Some(smooth) = point.get_smooth() {
+                            let mut checked = smooth;
+                            let smooth_can_be_enabled = point.get_handle(WhichHandle::A).unwrap()
+                                != Handle::Colocated
+                                && point.get_handle(WhichHandle::B).unwrap() != Handle::Colocated;
+                            ui.add_enabled_ui(smooth_can_be_enabled, |ui| {
+                                ui.checkbox(&mut checked, "Smooth").
+                                    on_disabled_hover_text("Cannot enable smoothness if one of the off curve handles is colocated with the point")
+                            });
+                            if smooth != checked {
+                                point.set_smooth(checked);
+                                // If smooth was enabled just now, we need to ensure the curve is actually smooth.
+                                if checked {
+                                    // Force curve points into a line to make the curve smooth
+                                    let wh = WhichHandle::A;
+                                    let (r, _) = point.polar(wh.opposite());
+                                    let (_, theta) = point.polar(wh);
+                                    match point.get_handle(wh.opposite()).expect("Both handles should exist") {
+                                        Handle::At(..) => point.set_polar(wh.opposite(), (r, theta.to_degrees())),
+                                        Handle::Colocated => unreachable!("Handles not being colocated is required to reach this clause")
+                                    }
+                                }
+                            }
+                            // If either handle is colocated, smooth *must* be disabled
+                            if !smooth_can_be_enabled {
+                                point.set_smooth(false);
+                            }
+                        }
                         ui.collapsing("Handles", |ui| {
                             if point.has_handle(WhichHandle::A) {
                                 ui.label("Handle A:");
@@ -222,6 +250,10 @@ impl GlifWindow for InspectionWindow {
                                 mutated_point.set_name(name);
                             }
 
+                            if let Some(smooth) = point.get_smooth() {
+                                mutated_point.set_smooth(smooth);
+                            }
+
                             v.end_modification();
                         }
                     });
@@ -240,6 +272,7 @@ fn point_equivalent<PD: PointData>(
         && a.get_position() == b.get_position()
         && a.get_handle_position(WhichHandle::A) == b.get_handle_position(WhichHandle::A)
         && a.get_handle_position(WhichHandle::B) == b.get_handle_position(WhichHandle::B)
+        && a.get_smooth() == b.get_smooth()
 }
 
 /*
