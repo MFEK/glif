@@ -66,7 +66,7 @@ impl MoveHandle {
                 follow = Follow::ForceLine;
             }
 
-            if point.get_handle(self.wh.opposite()).unwrap() == Handle::Colocated && follow == Follow::ForceLine {
+            if point.get_handle(self.wh.opposite()).is_some_and(|wh| wh == Handle::Colocated) && follow == Follow::ForceLine {
                 // If the opposite handle is colocated, force line crashes due to unwrapping a None value.
                 follow = Follow::No;
             }
