@@ -26,7 +26,7 @@ dependencies = [
  "enum-iterator",
  "enum-unitary",
  "env_logger",
- "flo_curves",
+ "flo_curves 0.7.0",
  "float-cmp",
  "font-kit",
  "fs2",
@@ -67,7 +67,7 @@ name = "MFEKmath"
 version = "0.1.2"
 source = "git+https://github.com/MFEK/math.rlib?branch=main#32e23560f8c5b5d912a9ed4c23a8924acab9b462"
 dependencies = [
- "flo_curves",
+ "flo_curves 0.6.1",
  "glifparser",
  "kurbo 0.9.5",
  "log",
@@ -1102,7 +1102,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9deedc0ff8e4848dbc1029e555af16390a8d2ff406f05a2f46c8bd14b2f4de4d"
 dependencies = [
  "itertools 0.10.5",
- "roots",
+ "roots 0.0.7",
+ "smallvec",
+]
+
+[[package]]
+name = "flo_curves"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e9c28a18e81b10d676e4ec5ba46d9a5fe042a3f78b14f0097bc1f086a708e152"
+dependencies = [
+ "itertools 0.10.5",
+ "roots 0.0.8",
  "smallvec",
 ]
 
@@ -1569,7 +1580,7 @@ dependencies = [
  "derive_more",
  "enum-iterator",
  "enum-unitary",
- "flo_curves",
+ "flo_curves 0.6.1",
  "font-kit",
  "glifparser",
  "kurbo 0.8.3",
@@ -2616,6 +2627,12 @@ name = "roots"
 version = "0.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1c36d2bbc763f480668d6d6790ae2fdd2e52ac0c21a3a26d156f3534a3d9eea9"
+
+[[package]]
+name = "roots"
+version = "0.0.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "082f11ffa03bbef6c2c6ea6bea1acafaade2fd9050ae0234ab44a2153742b058"
 
 [[package]]
 name = "rustc-demangle"
