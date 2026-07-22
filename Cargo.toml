@@ -161,4 +161,4 @@ codegen-units = 1
 panic = "abort"
 
 [patch.crates-io]
-pathfinder_simd = { git = "https://github.com/servo/pathfinder", rev = "30419d07660dc11a21e42ef4a7fa329600cff152"}
+pathfinder_simd = { git = "https://github.com/servo/pathfinder", rev = "6c3c0466f451c5bd2007087728cd168798cd64e8"}

@@ -34,7 +34,7 @@ fn main() {
                     warning!("Trying to statically link SDL2 is known to be buggy on Linux. Proceed with caution.");
                 }
             }
-        } else if #[cfg(all(not(feature = "sdl2-static"), any(target_family = "windows", target_family = "macos"), not(feature = "sdl2-dynamic")))] {
+        } else if #[cfg(all(not(feature = "sdl2-static"), any(target_family = "windows", target_os = "macos"), not(feature = "sdl2-dynamic")))] {
             println!("cargo:rustc-cfg=feature=\"sdl2-static\"");
         } else if #[cfg(all(target_family = "windows", feature = "sdl2-dynamic"))] {
             warning!("It is neither recommended nor supported to compile MFEKglif on Windows w/dynamic SDL2.");
@@ -44,7 +44,9 @@ fn main() {
         if #[cfg(all(target_family = "unix", not(any(target_os = "macos", target_os = "android", target_os = "ios"))))] {
             rustc_cfg!("is_free_software_os");
             rustc_env!("MFEK_FREE_OS_DETECTED", "{}", version);
+            println!("cargo::rustc-check-cfg=cfg(is_free_software_os)");
         } else {
+            println!("cargo::rustc-check-cfg=cfg(is_free_software_os)");
             warning!("MFEKglif works best on free software operating systems such as GNU/Linux and FreeBSD. Close Windows, open doors: <https://www.fsf.org/windows>");
         }
     }

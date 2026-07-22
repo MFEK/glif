@@ -37,7 +37,7 @@ jobs:
           override: true
           components: clippy
       - name: Cache cargo builds
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
@@ -58,7 +58,7 @@ jobs:
     #   run: |
     #     cargo test --release --locked
       - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: MFEKglif-${{ matrix.platform }}
           path: |
