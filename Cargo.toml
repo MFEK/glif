@@ -121,7 +121,7 @@ strum = { version = "0.24", features = ["derive"] }
 strum_macros = "0.24"
 
 #for logo, could be used in future for background images
-image = { version = "0.23", features = ["png"], default-features = false }
+image = { version = "0.24", features = ["png"], default-features = false }
 
 # for certain Bézier curve manipulation functions
 flo_curves = "0.6"
