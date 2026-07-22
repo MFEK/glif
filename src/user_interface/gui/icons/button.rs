@@ -72,7 +72,7 @@ impl<const W: &'static str> IntoResponse for IconButton<W> {
         if self.mutated_ui {
             let s = ui.style_mut();
             *(s.text_styles.get_mut(&egui::TextStyle::Button).unwrap()) =
-                EGUI_DEFAULT_BUTTON_FONT_ID.with_borrow(|fid| (fid.clone()));
+                EGUI_DEFAULT_BUTTON_FONT_ID.with_borrow(|fid| fid.clone());
             let s = s.to_owned();
             ui.set_style(s.to_owned());
         }

@@ -51,7 +51,7 @@ impl Tool for Pen {
                     let cubic_button = build_button::<"icons">(v, ui, icons::PEN, "Cubic Bézier");
 
                     let cubic_button = if self.mode == MFEKContourInnerType::Cubic {
-                        cubic_button.button.unwrap().stroke(egui::Stroke::new(2., Color32::from_rgb(9, 82, 128)))
+                        cubic_button.button.unwrap().stroke(egui::Stroke::new(2_f32, Color32::from_rgb(9, 82, 128)))
                     } else {
                         cubic_button.button.unwrap()
                     };
@@ -63,7 +63,7 @@ impl Tool for Pen {
                     let quad_button = build_button::<"icons">(v, ui, icons::QUADRATIC, "Quadratic Bézier");
 
                     let quad_button = if self.mode == MFEKContourInnerType::Quad {
-                        quad_button.button.unwrap().stroke(egui::Stroke::new(2., Color32::from_rgb(9, 82, 128)))
+                        quad_button.button.unwrap().stroke(egui::Stroke::new(2_f32, Color32::from_rgb(9, 82, 128)))
                     } else {
                         quad_button.button.unwrap()
                     };
@@ -75,7 +75,7 @@ impl Tool for Pen {
                     let hyper_button = build_button::<"icons">(v, ui, icons::HYPERBEZIER, "Hyperbezier");
 
                     let hyper_button = if self.mode == MFEKContourInnerType::Hyper {
-                        hyper_button.button.unwrap().stroke(egui::Stroke::new(2., Color32::from_rgb(9, 82, 128)))
+                        hyper_button.button.unwrap().stroke(egui::Stroke::new(2_f32, Color32::from_rgb(9, 82, 128)))
                     } else {
                         hyper_button.button.unwrap()
                     };

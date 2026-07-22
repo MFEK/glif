@@ -197,7 +197,7 @@ impl Interface {
         self.viewport.offset = offset;
     }
 
-    pub fn windows(&mut self) -> impl IntoIterator<Item = PopoutWindow> {
+    pub fn windows(&mut self) -> impl IntoIterator<Item = PopoutWindow<'_>> {
         (Box::new([&mut self.sdl_window])
             .into_iter()
             .chain(&mut self.child_sdl_windows)

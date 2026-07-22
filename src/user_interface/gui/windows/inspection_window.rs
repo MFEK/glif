@@ -8,7 +8,7 @@ use crate::{
 use egui::Context;
 use glifparser::{
     glif::{contour::MFEKContourCommon, inner::MFEKContourInnerType, point::MFEKPointCommon},
-    Contour, Handle, MFEKPointData, PointData, WhichHandle,
+    Handle, PointData, WhichHandle,
 };
 use MFEKmath::mfek::ResolveCubic;
 use MFEKmath::polar::PolarCoordinates;
